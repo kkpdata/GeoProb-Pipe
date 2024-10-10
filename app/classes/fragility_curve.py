@@ -4,7 +4,6 @@ from pathlib import Path
 import pandas as pd
 from classes.toolkit import Toolkit
 
-from app.classes.dstability import DStability
 from app.classes.toolkit import Toolkit
 from app.classes.waterlevel_statistics import WaterlevelStatistics
 from app.classes.workspace import Workspace
@@ -36,26 +35,23 @@ class FragilityCurve:
         # Initialize Workspace object
         self.workspace = Workspace(PATH_WORKSPACE, USE_EXISTING_TKX_RESULTS)
 
-        # Initialize DStability object
-        self.dstability = DStability(self.workspace.input.folderpath)
-
         # Initialize Toolkit object
         self.toolkit = Toolkit(self.workspace.input.folderpath, USE_EXISTING_TKX_RESULTS)
 
-        # Create fragility curve
-        if USE_EXISTING_TKX_RESULTS:
-            print(
-                f"INFO: USE_EXISTING_TKX_RESULTS=True, so no new calculations are started. Instead, the .tkx files in the specified output folder ({self.workspace.folderpath}) are used."
-            )
-            self.workspace.map_precalculated_tkx_input_stix(self.toolkit.settings.ptk_server_instance)
-            self.toolkit.use_precalculated_results(self.dstability.overview, self.workspace.mapping_tkx_stix)
-        else:
-            self.toolkit.use_new_calculations(
-                self.dstability.overview,
-                self.workspace.output.folderpath,
-                self.workspace.work_dir.folderpath,
-            )
-            self.workspace.update_output_filesystem()  # Update output FileSystem object because new output .tkx files were generated
+        # # Create fragility curve
+        # if USE_EXISTING_TKX_RESULTS:
+        #     print(
+        #         f"INFO: USE_EXISTING_TKX_RESULTS=True, so no new calculations are started. Instead, the .tkx files in the specified output folder ({self.workspace.folderpath}) are used."
+        #     )
+        #     self.workspace.map_precalculated_tkx_input_stix(self.toolkit.settings.ptk_server_instance)
+        #     self.toolkit.use_precalculated_results(self.dstability.overview, self.workspace.mapping_tkx_stix)
+        # else:
+        #     self.toolkit.use_new_calculations(
+        #         self.dstability.overview,
+        #         self.workspace.output.folderpath,
+        #         self.workspace.work_dir.folderpath,
+        #     )
+        #     self.workspace.update_output_filesystem()  # Update output FileSystem object because new output .tkx files were generated
 
     @property
     def waterlevels(self) -> pd.DataFrame:
