@@ -2,6 +2,9 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
+from classes.constants import Constants
+from classes.dike_geometry import DikeGeometry
+from classes.subsoil import Subsoil
 from classes.toolkit import Toolkit
 
 from app.classes.toolkit import Toolkit
@@ -37,6 +40,11 @@ class FragilityCurve:
 
         # Initialize Toolkit object
         self.toolkit = Toolkit(self.workspace.input.folderpath, USE_EXISTING_TKX_RESULTS)
+
+        # Initialize STPH-specific objects
+        self.constants = Constants(gdf_subsoil)
+        self.dike_geometry = DikeGeometry(gdf_dike_geometry)
+        self.subsoil = Subsoil(gdf_subsoil)
 
         # # Create fragility curve
         # if USE_EXISTING_TKX_RESULTS:
@@ -95,11 +103,15 @@ class FragilityCurve:
 
     def plot_fragility_curve(self) -> None:
         """Plotting functions for fragility curve"""
-        _plot_fragility_curve(self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True)
+        _plot_fragility_curve(
+            self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True
+        )
 
     def plot_multiple_fragility_curves(self) -> None:
         """Plotting functions for multiple fragility curves"""
-        _plot_multiple_fragility_curves(self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True)
+        _plot_multiple_fragility_curves(
+            self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True
+        )
 
     def plot_influence_factors(self) -> None:
         """Plotting functions for influence factors"""
