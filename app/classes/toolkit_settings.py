@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.classes.file_system import FileSystem
-from app.helper_functions.toolkit_functions import load_tkx_file, start_toolkit_server
+from app.helper_functions.toolkit_functions import start_toolkit_server
 
 
 class ToolkitSettings:
@@ -37,10 +37,6 @@ class ToolkitSettings:
             )
 
         if not self.use_existing_tkx_results:
-            # Load template .tkx file. Note: the tool already checked if there is only 1 .tkx file
-            # (= template .tkx) present in the input folder
-            self.path_template_tkx = FileSystem.find_files_in_dir(path_input_folder, "tkx")[0]
-            load_tkx_file(self.ptk_server_instance, self.path_template_tkx)
 
             # Validate PTK console path
             try:

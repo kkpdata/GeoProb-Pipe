@@ -34,8 +34,8 @@ def _prepare_output_folder(PATH_WORKSPACE: Path, USE_EXISTING_TKX_RESULTS: bool)
         USE_EXISTING_TKX_RESULTS (bool): whether to use precalculated .tkx files (True) or to start new calculations (False)
 
     Raises:
-        FileNotFoundError: raised if USE_EXISTING_TKX_RESULTS=True and the output subfolder contains no .tkx files
-        FileExistsError: raised if USE_EXISTING_TKX_RESULTS=False and the output subfolder still contains .tkx files from a previous run
+        FileNotFoundError: raised if USE_EXISTING_TKX_RESULTS=True but the output subfolder contains no .tkx files
+        FileExistsError: raised if USE_EXISTING_TKX_RESULTS=False but the output subfolder still contains .tkx files from a previous run
 
     Returns:
         FileSystem: FileSystem instance which creates a convenient overview of the output subfolder and the files within it
@@ -73,7 +73,7 @@ def _prepare_input_folder(PATH_WORKSPACE: Path, USE_EXISTING_TKX_RESULTS: bool) 
 
     Raises:
         FileNotFoundError: raised if the input subfolder contains no GeoDataBase (.gdb)
-        FileNotFoundError: raised if USE_EXISTING_TKX_RESULTS=False and the input subfolder contains no template .tkx file
+        FileNotFoundError: raised if USE_EXISTING_TKX_RESULTS=False but the input subfolder contains no template .tkx file
 
     Returns:
         FileSystem: FileSystem instance which creates a convenient overview of the input subfolder and the files within it
@@ -92,7 +92,7 @@ def _prepare_input_folder(PATH_WORKSPACE: Path, USE_EXISTING_TKX_RESULTS: bool) 
         # but it's good practice to force the user to keep the input/output files together in order to improve traceability of input/output combinations.
         raise FileNotFoundError(f"The 'input' subfolder should contain exactly 1 GeoDataBase (.gdb)")
 
-    if not USE_EXISTING_TKX_RESULTS and len(FileSystem.find_files_in_dir(filesystem_input.folderpath, "tkx")) == 1:
+    if not USE_EXISTING_TKX_RESULTS and len(FileSystem.find_files_in_dir(filesystem_input.folderpath, "tkx")) != 1:
         # Make sure the "input" subfolder contains 1 .tkx file (= template .tkx)
         raise FileNotFoundError(
             f"Input folder {filesystem_input.folderpath} should contain exactly 1 .tkx file which will be used as template .tkx file for PTK calculations"
