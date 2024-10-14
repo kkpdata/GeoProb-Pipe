@@ -7,12 +7,14 @@ from classes.dike_geometry import DikeGeometry
 from classes.subsoil import Subsoil
 from classes.toolkit import Toolkit
 
+from app.classes.file_system import FileSystem
 from app.classes.toolkit import Toolkit
 from app.classes.waterlevel_statistics import WaterlevelStatistics
 from app.classes.workspace import Workspace
 from app.helper_functions.fragility_curve_functions import (
     integrating_FC_with_water_levels,
 )
+from app.helper_functions.geodatabase_functions import process_geodatabase
 from app.helper_functions.plotting_functions import (
     _plot_fragility_curve,
     _plot_influence_factors,
@@ -42,9 +44,26 @@ class FragilityCurve:
         self.toolkit = Toolkit(self.workspace.input.folderpath, USE_EXISTING_TKX_RESULTS)
 
         # Initialize STPH-specific objects
-        self.constants = Constants(gdf_subsoil)
-        self.dike_geometry = DikeGeometry(gdf_dike_geometry)
-        self.subsoil = Subsoil(gdf_subsoil)
+        self.gdf_main = process_geodatabase(
+            FileSystem.find_files_in_dir(self.workspace.input.folderpath, extension="gdb")[0]
+        )
+        self.constants = Constants(
+            process_geodatabase(
+                FileSystem.find_files_in_dir(self.workspace.input.folderpath, extension="gdb")[0],
+                layer_name="CONSTANTS",
+            )
+        )
+        self.dike_geometry = DikeGeometry(
+            process_geodatabase(
+                FileSystem.find_files_in_dir(self.workspace.input.folderpath, extension="gdb")[0],
+                layer_name="DIKE_GEOMETRY",
+            )
+        )
+        self.subsoil = Subsoil(
+            process_geodatabase(
+                FileSystem.find_files_in_dir(self.workspace.input.folderpath, extension="gdb")[0], layer_name="SUBSOIL"
+            )
+        )
 
         # # Create fragility curve
         # if USE_EXISTING_TKX_RESULTS:

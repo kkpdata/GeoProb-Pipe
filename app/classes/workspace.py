@@ -64,6 +64,7 @@ def _prepare_output_folder(PATH_WORKSPACE: Path, USE_EXISTING_TKX_RESULTS: bool)
     return filesystem_output
 
 
+# TODO add checks for geodatabase, make sure the necessary columns are present in the gdb. These checks should be functions in helper_functions/geodatabase_functions.py
 def _prepare_input_folder(PATH_WORKSPACE: Path, USE_EXISTING_TKX_RESULTS: bool) -> FileSystem:
     """Prepare input subfolder
 
