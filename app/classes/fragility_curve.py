@@ -44,9 +44,8 @@ class FragilityCurve:
         self.toolkit = Toolkit(self.workspace.input.folderpath, USE_EXISTING_TKX_RESULTS)
 
         # Initialize STPH-specific objects
-        self.gdf_main = process_geodatabase(
-            FileSystem.find_files_in_dir(self.workspace.input.folderpath, extension="gdb")[0]
-        )
+        
+        # TODO 
         self.constants = Constants(
             process_geodatabase(
                 FileSystem.find_files_in_dir(self.workspace.input.folderpath, extension="gdb")[0],
