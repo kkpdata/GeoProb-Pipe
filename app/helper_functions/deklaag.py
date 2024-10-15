@@ -22,6 +22,9 @@ df_input_deklaag = df_input_deklaag_sloot.merge(df_input_deklaag_bodem_deklaag, 
 # toevoegen -> test voor input (enkel floats)
 
 
+
+
+
 def derive_input():
     df_input_deklaag["H1"] = df_input_deklaag["Maaiveld"] - df_input_deklaag["Bodem deklaag"]
     df_input_deklaag["H2"] = df_input_deklaag["Slootbodem"] - df_input_deklaag["Bodem deklaag"]

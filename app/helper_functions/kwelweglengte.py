@@ -44,5 +44,5 @@ df_input_kwelweglengte["Fictieve kwelweglengte"] = (
 )
 
 
-def kwelweglengte_func():
-    return df_input_kwelweglengte
+print(df_input_kwelweglengte["Fictieve kwelweglengte"])
+
