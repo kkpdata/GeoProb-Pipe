@@ -3,8 +3,8 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parents[1]))  # Add repo to sys.path to make sure all imports are correctly found
 
-from deklaag import dikte_effectieve_deklaag
-from kwelweglengte import kwelweglengte_func
+from app.helper_functions._archive.deklaag import dikte_effectieve_deklaag
+from app.helper_functions._archive.kwelweglengte import kwelweglengte_func
 
 # Vaste parameters STPH (!!!waarschijnlijk!!! onafhankelijk van traject, komt dit in PTK tool zelf?)
 gamma_w = 9.81  # [kN/m3]   Soortelijk gewicht water
