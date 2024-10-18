@@ -5,6 +5,24 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
+# df_dike_geometry = pd.read_excel(
+#     r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+#     sheet_name="test_vak_par",
+# )
+
+# df_traject_par = pd.read_excel(
+#     r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+#     sheet_name="test_traject_par",
+#     index_col="Parameter",
+# )
+
+# df_general_par = pd.read_excel(
+#     r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+#     sheet_name="test_gen_par",
+#     index_col="Parameter",
+# )
+
+
 class DikeGeometry:
 
     def __init__(self, gdf_dike_geometry):  #: gpd.GeoDataFrame
@@ -20,6 +38,7 @@ class DikeGeometry:
         self.doorlatendheid_wv_pakket = gdf_dike_geometry["k_zandlaag [m/s]"]
         self.D_watervoerend_pakket = gdf_dike_geometry["D_watervoerend_pakket [m]"]
 
+        self.max_number_soil_layers = self._count_max_number_soil_layers()
         self.kwelweglengte = self._calculate_kwelweglengte()
         self.deklagen = self._calc_number_of_soil_layers_deklaag()
         self.effectivieve_deklaag = self._calculate_dikte_eff_deklaag()
@@ -37,18 +56,22 @@ class DikeGeometry:
         c1_dagen = self.d_deklaag_voorland / self.kv_voorland
         lambda_1 = (self.doorlatendheid_wv_pakket * 60 * 60 * 24 * self.D_watervoerend_pakket * c1_dagen) ** 0.5
         fictief_voorland = lambda_1 * np.tanh(lengte_voorland / lambda_1)
+        fictief_voorland = lambda_1 * 1
         self.fictieve_kwelweglengte = breedte_dijklichaam + fictief_voorland
         return self.fictieve_kwelweglengte
 
-    def _count_columns_with_substring(self, df, substring):
-        count = sum([substring in col for col in df.columns])
-        return count
+    def _count_max_number_soil_layers(self):
+        self.max_number_soil_layers_calc = sum(["h_start_grondlaag_" in col for col in self.gdf_dike_geometry])
+        return self.max_number_soil_layers_calc
+
+    # Deklaag in testcase is ingevuld op basis van de effectieve dikte. In onze versie is het netter om dieptes van alle lagen
+    # in te vullen vanaf maaiveld, effectieve dikte te berekenen, en vervolgens hieruit de meewerkende lagen te bepalen.
 
     def _calc_number_of_soil_layers_deklaag(self):
-        max_number_h_start = self._count_columns_with_substring(self.gdf_dike_geometry, "h_start_grondlaag_")
+        # max_number_soil_layers = self._count_columns_with_substring(self.gdf_dike_geometry, "h_start_grondlaag_")
         self.df_deklagen = pd.DataFrame()
 
-        for i in range(max_number_h_start):
+        for i in range(self.max_number_soil_layers):
             self.df_deklagen[f"deklaag_{i+1} [m]"] = (
                 self.gdf_dike_geometry[f"h_start_grondlaag_{i+1} [mNAP]"]
                 - self.gdf_dike_geometry[f"h_eind_grondlaag_{i+1} [mNAP]"]
