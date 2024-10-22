@@ -37,6 +37,7 @@ class Heave(DikeGeometry):
         self.deklagen = dikegeometry.deklagen
 
         self.optr_heavegradient = self._optr_heavegradient()
+        self.fos_tegen_heave = self._fos_tegen_heave()
 
     def _optr_heavegradient(self):
         self.df_optr_heavegradient = pd.DataFrame()
@@ -47,7 +48,6 @@ class Heave(DikeGeometry):
         self.df_optr_heavegradient["D effectieve deklaag [m]"] = self.deklagen["D effectieve deklaag [m]"]
         n_length_gdf = self.gdf_dike_geometry.shape[0]
 
-        # TODO gaat hier mis met de condition
         for i in range(n_length_gdf):
             if self.df_optr_heavegradient.loc[i, "r [-]"] <= 0:
                 self.df_optr_heavegradient.loc[i, "r [-]"] = 0.1
@@ -56,26 +56,32 @@ class Heave(DikeGeometry):
             if self.df_optr_heavegradient.loc[i, "D effectieve deklaag [m]"] <= 0:
                 self.df_optr_heavegradient.loc[i, "optr_heavegradient [-]"] = 10
             else:
-                self.df_optr_heavegradient["optr_heavegradient [-]"] = (
+                self.df_optr_heavegradient.loc[i, "optr_heavegradient [-]"] = (
                     (
-                        self.df_optr_heavegradient["h_buitenwaterstand [mNAP]"]
-                        - self.df_optr_heavegradient["h_exit [mNAP]"]
+                        self.df_optr_heavegradient.loc[i, "h_buitenwaterstand [mNAP]"]
+                        - self.df_optr_heavegradient.loc[i, "h_exit [mNAP]"]
                     )
-                    * self.df_optr_heavegradient["r [-]"]
-                    / self.df_optr_heavegradient["D effectieve deklaag [m]"]
+                    * self.df_optr_heavegradient.loc[i, "r [-]"]
+                    / self.df_optr_heavegradient.loc[i, "D effectieve deklaag [m]"]
                 )
 
-        # (
-        #     self.df_optr_stijgh_verschil["h_buitenwaterstand [mNAP]"] - self.df_optr_stijgh_verschil["h_exit [mNAP]"]
-        # ) * self.df_optr_stijgh_verschil["r [-]"]
-
-        # for i in range(n_length_gdf):
-        #     if self.df_optr_stijgh_verschil.loc[i, "optr_stijgh_verschil [mNAP]"] <= 0:
-        #         self.df_optr_stijgh_verschil.loc[i, "optr_stijgh_verschil [mNAP]"] = 0.1
-
         return self.df_optr_heavegradient
+
+    def _fos_tegen_heave(self):
+        i_c = self.general_par.loc["i_toelaatbaar", "Waarde"]
+        self.df_fos_tegen_heave = pd.DataFrame()
+        self.df_fos_tegen_heave["Vaknr"] = self.gdf_dike_geometry["Vaknr"]
+        self.df_fos_tegen_heave["D effectieve deklaag [m]"] = self.deklagen["D effectieve deklaag [m]"]
+        self.df_fos_tegen_heave["optr_heavegradient [-]"] = self.optr_heavegradient["optr_heavegradient [-]"]
+
+        self.df_fos_tegen_heave.loc[self.df_fos_tegen_heave["D effectieve deklaag [m]"] <= 0, "FoS tegen heave"] = 0
+        self.df_fos_tegen_heave.loc[self.df_fos_tegen_heave["D effectieve deklaag [m]"] > 0, "FoS tegen heave"] = (
+            i_c / self.df_fos_tegen_heave["optr_heavegradient [-]"]
+        )
+
+        return self.df_fos_tegen_heave
 
 
 checkerdecheck = Heave(DikeGeometry(df_dike_geometry), df_dike_geometry, df_traject_par, df_general_par)
 
-display(checkerdecheck.optr_heavegradient)
+checkerdecheck.fos_tegen_heave
