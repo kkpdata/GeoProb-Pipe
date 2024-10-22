@@ -5,22 +5,22 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
-# df_dike_geometry = pd.read_excel(
-#     r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
-#     sheet_name="test_vak_par",
-# )
+df_dike_geometry = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_vak_par",
+)
 
-# df_traject_par = pd.read_excel(
-#     r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
-#     sheet_name="test_traject_par",
-#     index_col="Parameter",
-# )
+df_traject_par = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_traject_par",
+    index_col="Parameter",
+)
 
-# df_general_par = pd.read_excel(
-#     r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
-#     sheet_name="test_gen_par",
-#     index_col="Parameter",
-# )
+df_general_par = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_gen_par",
+    index_col="Parameter",
+)
 
 
 class DikeGeometry:
@@ -49,16 +49,21 @@ class DikeGeometry:
         Returns:
             _type_: _description_
         """
-        # self.kwelweglengte = self.uittredepunt - self.voorland -> niet duidelijk waarom dit wordt berekend, wordt nergens gebruikt
-        # breedte_achterland = self.uittredepunt - self.binnenteen -> niet duidelijk waarom dit wordt berekend, wordt nergens gebruikt
+        #  breedte_achterland = self.uittredepunt - self.binnenteen -> niet duidelijk waarom dit wordt berekend, wordt nergens gebruikt
         lengte_voorland = self.buitenteen - self.voorland
         breedte_dijklichaam = self.uittredepunt - self.buitenteen
         c1_dagen = self.d_deklaag_voorland / self.kv_voorland
         lambda_1 = (self.doorlatendheid_wv_pakket * 60 * 60 * 24 * self.D_watervoerend_pakket * c1_dagen) ** 0.5
         fictief_voorland = lambda_1 * np.tanh(lengte_voorland / lambda_1)
-        fictief_voorland = lambda_1 * 1
-        self.fictieve_kwelweglengte = breedte_dijklichaam + fictief_voorland
-        return self.fictieve_kwelweglengte
+        fictieve_kwelweglengte = breedte_dijklichaam + fictief_voorland
+
+        df_kwelweglengte = pd.DataFrame()
+        df_kwelweglengte["Vaknr"] = self.gdf_dike_geometry["Vaknr"]
+        df_kwelweglengte["kwelweglengte [m]"] = self.uittredepunt - self.voorland
+        df_kwelweglengte["kwelweg 2x breedte dijklichaam [m]"] = 2 * breedte_dijklichaam
+        df_kwelweglengte["fictieve kwelweglengte [m]"] = fictieve_kwelweglengte
+
+        return df_kwelweglengte
 
     def _count_max_number_soil_layers(self):
         self.max_number_soil_layers_calc = sum(["h_start_grondlaag_" in col for col in self.gdf_dike_geometry])
