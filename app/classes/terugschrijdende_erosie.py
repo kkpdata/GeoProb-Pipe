@@ -42,6 +42,7 @@ class Terugschr_erosie(DikeGeometry):
         self.geometrie_invloed = self._calc_geometrie_invloed()
         self.kritiek_sth_verschil_over_kering = self._calc_kritiek_sth_verschil_over_kering()
         self.optredende_sth_verschil_over_kering = self._calc_optredende_sth_verschil_over_kering()
+        self.fos_terugschrijdende_erosie = self._fos_terugschrijdende_erosie()
 
     def _calc_kwelweglengte_gebruiken(self):
         df_kwelweglengte_gebruiken = pd.DataFrame()
@@ -153,10 +154,48 @@ class Terugschr_erosie(DikeGeometry):
 
         return df_kritiek_sth_verschil_over_kering
 
-    # TODO hier gebleven
-    # def _calc_optredende_sth_verschil_over_kering(self):
+    def _calc_optredende_sth_verschil_over_kering(self):
+        r_c = self.general_par.loc["r_c", "Waarde"]
+        df_optr_sth_verschil_over_kering = pd.DataFrame()
+        df_optr_sth_verschil_over_kering["Vaknr"] = self.gdf_dike_geometry["Vaknr"]
+        df_optr_sth_verschil_over_kering["h_buitenwaterstand [mNAP]"] = self.gdf_dike_geometry[
+            "h_buitenwaterstand [mNAP]"
+        ]
+        df_optr_sth_verschil_over_kering["h_exit [mNAP]"] = self.gdf_dike_geometry["h_exit [mNAP]"]
+        df_optr_sth_verschil_over_kering["D effectieve deklaag [m]"] = self.deklagen["D effectieve deklaag [m]"]
+
+        df_optr_sth_verschil_over_kering["Optredende stijghoogte verschil over kering [m]"] = (
+            df_optr_sth_verschil_over_kering["h_buitenwaterstand [mNAP]"]
+            - df_optr_sth_verschil_over_kering["h_exit [mNAP]"]
+            - (r_c * df_optr_sth_verschil_over_kering["D effectieve deklaag [m]"])
+        )
+
+        df_optr_sth_verschil_over_kering.loc[
+            df_optr_sth_verschil_over_kering["Optredende stijghoogte verschil over kering [m]"] <= 0,
+            "Optredende stijghoogte verschil over kering [m]",
+        ] = (
+            1 / 10
+        )
+
+        return df_optr_sth_verschil_over_kering
+
+    def _fos_terugschrijdende_erosie(self):
+        df_fos_terugschrijdende_erosie = pd.DataFrame()
+        df_fos_terugschrijdende_erosie["Vaknr"] = self.gdf_dike_geometry["Vaknr"]
+        df_fos_terugschrijdende_erosie["kritiek sth verschil over kering [m]"] = self.kritiek_sth_verschil_over_kering[
+            "kritiek sth verschil over kering [m]"
+        ]
+        df_fos_terugschrijdende_erosie["Optredende stijghoogte verschil over kering [m]"] = (
+            self.optredende_sth_verschil_over_kering["Optredende stijghoogte verschil over kering [m]"]
+        )
+        df_fos_terugschrijdende_erosie["FoS terugschrijdende erosie"] = (
+            df_fos_terugschrijdende_erosie["kritiek sth verschil over kering [m]"]
+            / df_fos_terugschrijdende_erosie["Optredende stijghoogte verschil over kering [m]"]
+        )
+
+        return df_fos_terugschrijdende_erosie
 
 
 checker = Terugschr_erosie(DikeGeometry(df_dike_geometry), df_dike_geometry, df_traject_par, df_general_par)
 
-display(checker.optredende_sth_verschil_over_kering)
+display(checker.fos_terugschrijdende_erosie)

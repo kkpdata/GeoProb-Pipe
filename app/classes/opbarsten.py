@@ -75,8 +75,7 @@ class Opbarsten(DikeGeometry):
 
         for i in range(n_max_soil_layers):
             df_kritiek_stijgh_verschil.loc[
-                df_kritiek_stijgh_verschil[f"h_start_grondlaag_{n_max_soil_layers - i} [mNAP]"]
-                <= self.h_bk_deklaag,
+                df_kritiek_stijgh_verschil[f"h_start_grondlaag_{n_max_soil_layers - i} [mNAP]"] <= self.h_bk_deklaag,
                 f"d_kritiek_stijgh_versch_laag_{n_max_soil_layers - i} [m]",
             ] = self.deklagen[f"deklaag_{n_max_soil_layers-i} [m]"]
             for j in range(n_length_gdf):
@@ -84,12 +83,9 @@ class Opbarsten(DikeGeometry):
                     if self.traject_par.index.str.contains(
                         df_kritiek_stijgh_verschil.loc[j, f"materiaal_grondlaag_{n_max_soil_layers-i}"]
                     )[k]:
-                        df_kritiek_stijgh_verschil.loc[
-                            j, f"d_kritiek_stijgh_versch_laag_{n_max_soil_layers-i} [m]"
-                        ] = df_kritiek_stijgh_verschil.loc[
-                            j, f"d_kritiek_stijgh_versch_laag_{n_max_soil_layers-i} [m]"
-                        ] * (
-                            self.traject_par.iloc[k, 0] - self.general_par.loc["g_w", "Waarde"]
+                        df_kritiek_stijgh_verschil.loc[j, f"d_kritiek_stijgh_versch_laag_{n_max_soil_layers-i} [m]"] = (
+                            df_kritiek_stijgh_verschil.loc[j, f"d_kritiek_stijgh_versch_laag_{n_max_soil_layers-i} [m]"]
+                            * (self.traject_par.iloc[k, 0] - self.general_par.loc["g_w", "Waarde"])
                         )
 
         df_kritiek_stijgh_verschil["d_kritiek_stijgh_versch [mNAP]"] = (
