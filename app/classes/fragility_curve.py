@@ -2,12 +2,12 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
-from classes.constants import Constants
 from classes.dike_geometry import DikeGeometry
 from classes.subsoil import Subsoil
 from classes.toolkit import Toolkit
 
 from app.classes.file_system import FileSystem
+from app.classes.table import Table
 from app.classes.toolkit import Toolkit
 from app.classes.waterlevel_statistics import WaterlevelStatistics
 from app.classes.workspace import Workspace
@@ -43,26 +43,16 @@ class FragilityCurve:
         # Initialize Toolkit object
         self.toolkit = Toolkit(self.workspace.input.folderpath, USE_EXISTING_TKX_RESULTS)
 
-        # Initialize STPH-specific objects
-        
-        # TODO 
-        self.constants = Constants(
-            process_geodatabase(
-                FileSystem.find_files_in_dir(self.workspace.input.folderpath, extension="gdb")[0],
-                layer_name="CONSTANTS",
-            )
-        )
-        self.dike_geometry = DikeGeometry(
-            process_geodatabase(
-                FileSystem.find_files_in_dir(self.workspace.input.folderpath, extension="gdb")[0],
-                layer_name="DIKE_GEOMETRY",
-            )
-        )
-        self.subsoil = Subsoil(
-            process_geodatabase(
-                FileSystem.find_files_in_dir(self.workspace.input.folderpath, extension="gdb")[0], layer_name="SUBSOIL"
-            )
-        )
+        # Initialize GeoDatabase (.gdb)
+        self.path_gdb = FileSystem.find_files_in_dir(self.workspace.input.folderpath, extension="gdb")[0]
+
+        # Initialize tables from .gdb
+        self.constants = Table(self.path_gdb, layer_name="constants")
+        self.traject_parameters = Table(self.path_gdb, layer_name="traject_parameters")
+
+        # Initialize geospatial data from .gdb
+        self.dike_geometry = DikeGeometry(self.path_gdb)
+        # self.subsoil = Subsoil(self.path_gdb)
 
         # # Create fragility curve
         # if USE_EXISTING_TKX_RESULTS:

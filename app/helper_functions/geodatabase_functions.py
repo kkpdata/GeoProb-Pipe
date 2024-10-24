@@ -12,89 +12,58 @@ def process_geodatabase(path_gdb: Path, layer_name: str, geom_type: str) -> gpd.
     gdf = gpd.read_file(path_gdb, layer=layer_name)
 
     # Checks
-    if not geom_type == "Table":
-        check_geodatabase_geometry_type(gdf, geom_type)
-        check_coordinate_reference_system(gdf)
+    if not geom_type == "table":
+        check_geodatabase_geometry_type(path_gdb.name, layer_name, gdf, geom_type)
+        check_coordinate_reference_system(path_gdb.name, layer_name, gdf)
 
-    if geom_type == "LineString":
-        gdf = merge_segmented_lines_to_continous_polyline(gdf)
+    if geom_type in ["LineString", "MultiLineString"]:
+        gdf.geometry = merge_lines(gdf.geometry)
 
     return gdf
 
 
-def check_geodatabase_geometry_type(gdf: gpd.GeoDataFrame, geometry_type: str) -> None:
+def check_geodatabase_geometry_type(name_gdb: str, layer_name: str, gdf: gpd.GeoDataFrame, geometry_type: str) -> None:
 
     if geometry_type == "point":
-        check_type = ["Point"]
+        list_check_type = ["Point"]
     elif geometry_type == "line":
-        check_type = ["LineString", "MultiLineString"]
+        list_check_type = ["LineString", "MultiLineString"]
     elif geometry_type == "polygon":
-        check_type = ["Polygon"]
+        list_check_type = ["Polygon"]
     else:
-        raise ValueError(f"Invalid geometry type '{geometry_type}'. Use 'point', 'line', or 'polygon'")
+        raise ValueError(f"Invalid geometry type given ('{geometry_type}'). Use 'point', 'line', or 'polygon'")
 
-    if not gdf.geometry.geom_type.eq(lambda check_geom: check_geom in check_type).all():
-        raise ValueError(f"Not all geometries are of type {geometry_type}")
-
-
-def check_coordinate_reference_system(gdf: gpd.GeoDataFrame) -> None:
-
-    if gdf.crs is None:
-        raise ValueError("GeoDataFrame has no coordinate reference system (CRS) defined.")
-    elif gdf.crs.to_epsg() != 28992:
+    if not all(geom_type in ["LineString", "MultiLineString"] for geom_type in gdf.geometry.geom_type.unique()):
         raise ValueError(
-            f"GeoDataFrame coordinate reference system (CRS) is {gdf.crs.to_epsg()}, but EPSG:28992 (RD New) is required."
+            f"Not all geometries of feature class '{layer_name}' in '{name_gdb}' are of type {geometry_type}. Found geometry types: {gdf.geometry.geom_type}"
         )
 
 
-# TODO dit hieronder werkt wat betreft de geometries, maar wat als de rijen die gemerged worden verschillende attribute table data bevatten?
-def merge_segmented_lines_into_contiguous_polyline(
-    gdf: gpd.GeoDataFrame, buffer_distance: float = 0.1
-) -> gpd.GeoDataFrame:
+def check_coordinate_reference_system(name_gdb: str, layer_name: str, gdf: gpd.GeoDataFrame) -> None:
 
-    # Create a buffer around each MultiLineString
-    gdf["buffered"] = gdf.geometry.buffer(buffer_distance)
+    if gdf.crs is None:
+        raise ValueError(
+            f"Feature class '{layer_name}' in '{name_gdb}' has no coordinate reference system (CRS) defined."
+        )
+    elif gdf.crs.to_epsg() != 28992:
+        raise ValueError(
+            f"Feature class '{layer_name}' in '{name_gdb}' has coordinate reference system (CRS) code EPSG:{gdf.crs.to_epsg()}, but EPSG:28992 (RD New) is required."
+        )
 
-    merged_geometries = []
-    merged_indices = set()
 
-    # Iterate through each geometry in the GeoDataFrame
-    for idx, row in gdf.items():
-        if idx in merged_indices:
-            continue  # Skip already merged geometries
+def merge_lines(geometry_geoseries: gpd.GeoSeries) -> gpd.GeoSeries:
+    """If a MultiLineString consists of connected lines (e.g. end point of line 1 is the start point of line 2), merge them into one line.
+    Parameter directed=True so lines that are directed in different directions will not be merged; only lines that are pointing in the same direction.
 
-        current_geom = row.geometry
-        current_buffer = row["buffered"]
+    Examples (x indicates the line start/end points):
+        ----> x ----> lines are pointing in same direction so will be merged
+        <---- x ----> will not be merged because of different directions
+        ----> x <---- will not be merged because of different directions
 
-        # Find all overlapping geometries and drop buffered geometry
-        overlapping_lines = gdf[gdf.buffered.intersects(current_buffer)]
-        gdf.drop(columns=["buffered"], inplace=True)
+    Args:
+        geometry_geoseries (gpd.GeoSeries): LineString and/or MultiLineString geometries
 
-        # Collect lines to merge
-        lines_to_merge = []
-        for geom in overlapping_lines.geometry:
-            # If it is MultiLineString, extend the list with its individual LineStrings
-            if isinstance(geom, MultiLineString):
-                # Add all LineStrings from the MultiLineString
-                lines_to_merge.extend(list(geom.geoms))
-            elif isinstance(geom, LineString):
-                lines_to_merge.append(geom)  # Add LineString directly
-
-        # Merge the collected lines
-        if lines_to_merge:
-            merged = linemerge(lines_to_merge)  # Merge the lines
-            # Append the merged geometry, converting to MultiLineString if needed
-            if isinstance(merged, LineString):
-                merged_geometries.append(MultiLineString([merged]))  # Wrap LineString in MultiLineString
-            elif isinstance(merged, MultiLineString):
-                merged_geometries.append(merged)  # Directly append MultiLineString
-            else:
-                merged_geometries.append(MultiLineString([]))  # Handle empty case
-
-            # Mark these indices as merged
-            merged_indices.update(overlapping_lines.index)
-
-    # Create a GeoDataFrame with merged geometries
-    merged_gdf = gpd.GeoDataFrame(geometry=merged_geometries).drop_duplicates().reset_index(drop=True)
-
-    return merged_gdf
+    Returns:
+        gpd.GeoSeries: LineString geometries (merged from MultiLineStrings) and/or MultiLineStrings (if the lines of the MultiLineString are pointing in different directions)
+    """
+    return geometry_geoseries.apply(lambda geom: linemerge(geom, directed=True))

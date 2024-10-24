@@ -13,11 +13,11 @@ from app.helper_functions.plotting_functions import _plot_multiple_fragility_cur
 # ====================================
 
 # Define path to workspace (either absolute or relative)
-PATH_WORKSPACE: str | Path = r"..\\example_workspaces\example_precalculated_output"
+PATH_WORKSPACE: str | Path = r"..\\example_workspaces\example_new_calculations"
 
 # Whether existing calculation results should be used
 # If True, the .tkx files that are found the "PATH_WORKSPACE/output" folder are used
-USE_EXISTING_TKX_RESULTS: bool = True
+USE_EXISTING_TKX_RESULTS: bool = False
 
 # Define waterlevel (buitenwaterstand) range for which you want an integrated fragility curve
 # Format: [range_start, range_end]. Suggested values:
@@ -63,26 +63,26 @@ def start_tool(
         USE_EXISTING_TKX_RESULTS,
     )
 
-    # Overview of fragility curve results
-    results = fc.toolkit.results.overview
+    # # Overview of fragility curve results
+    # results = fc.toolkit.results.overview
 
-    # Some fragility curve results can also be accessed from the FragilityCurve object, which are
-    # references to the corresponding attributes in fc.toolkit.results
-    betas = fc.betas
-    waterlevels = fc.waterlevels
-    alphas = fc.alphas
-    variables = fc.variables
+    # # Some fragility curve results can also be accessed from the FragilityCurve object, which are
+    # # references to the corresponding attributes in fc.toolkit.results
+    # betas = fc.betas
+    # waterlevels = fc.waterlevels
+    # alphas = fc.alphas
+    # variables = fc.variables
 
-    # Plot the fragility curve and influence factors found in the PTK calculations
-    fc.plot_fragility_curve()
-    fc.plot_influence_factors()
+    # # Plot the fragility curve and influence factors found in the PTK calculations
+    # fc.plot_fragility_curve()
+    # fc.plot_influence_factors()
 
-    # Integrate the fragility curve with the waterlevel statistics
-    fc.integrating(WaterlevelStatistics(MU, SIGMA), waterlevel_range)
+    # # Integrate the fragility curve with the waterlevel statistics
+    # fc.integrating(WaterlevelStatistics(MU, SIGMA), waterlevel_range)
 
-    # Print results
-    print("Total failure probability after integration = %0.2e" % (fc.total_failure_probability))
-    print("Reliability index after integration = ", fc.total_beta)
+    # # Print results
+    # print("Total failure probability after integration = %0.2e" % (fc.total_failure_probability))
+    # print("Reliability index after integration = ", fc.total_beta)
 
     # Code for plotting multiple FCs, currently not used
     # fragility_data = {
@@ -92,8 +92,8 @@ def start_tool(
     # }
     # fc.plot_multiple_fragility_curves(fragility_data)
 
-    # Save dataframe to csv
-    fc.toolkit.results.overview.to_excel(fc.workspace.output.folderpath / "fragility_curve_data.xlsx")
+    # # Save dataframe to csv
+    # fc.toolkit.results.overview.to_excel(fc.workspace.output.folderpath / "fragility_curve_data.xlsx")
 
     # Print info
     print(f"\nResults are saved in: {fc.workspace.output.folderpath}")
