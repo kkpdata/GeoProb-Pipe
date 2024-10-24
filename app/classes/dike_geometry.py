@@ -1,3 +1,4 @@
+import ast
 import sys
 from pathlib import Path
 
@@ -8,6 +9,12 @@ import pandas as pd
 df_dike_geometry = pd.read_excel(
     r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
     sheet_name="test_vak_par",
+)
+
+# Test_voor_coordinaten
+df_coordinate_test = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="Coordinaten_test",
 )
 
 df_traject_par = pd.read_excel(
@@ -126,3 +133,24 @@ class DikeGeometry:
         self.df_deklagen["D effectieve deklaag [m]"] = d_effectief
 
         return self.df_deklagen
+
+
+# def coordinate_converter(df):
+
+# x = df_coordinate_test.loc[0,"Coordinate voorland (RdX, RdY) [m]"]
+
+# x = df_coordinate_test["Coordinate voorland (RdX, RdY) [m]"].apply(ast.literal_eval)
+
+# point = (x[0][0] ** 2 + x[0][1] ** 2) ** 0.5
+# print(point)
+
+
+# x = df_coordinate_test.loc[0,"Coordinate voorland (RdX, RdY) [m]"].split("(")
+# y = x[1].split(")")
+# z = y[0].split(":")
+
+# coordinate_tuple = (z[0], z[1])
+
+# print(coordinate_tuple)
+
+# type(coordinate_tuple)
