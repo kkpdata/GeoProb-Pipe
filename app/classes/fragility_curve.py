@@ -60,9 +60,9 @@ class FragilityCurve:
         #         f"INFO: USE_EXISTING_TKX_RESULTS=True, so no new calculations are started. Instead, the .tkx files in the specified output folder ({self.workspace.folderpath}) are used."
         #     )
         #     self.workspace.map_precalculated_tkx_input_stix(self.toolkit.settings.ptk_server_instance)
-        #     self.toolkit.use_precalculated_results(self.dstability.overview, self.workspace.mapping_tkx_stix)
+        #     self.toolkit._use_precalculated_results(self.dstability.overview, self.workspace.mapping_tkx_stix)
         # else:
-        #     self.toolkit.use_new_calculations(
+        #     self.toolkit._use_new_calculations(
         #         self.dstability.overview,
         #         self.workspace.output.folderpath,
         #         self.workspace.work_dir.folderpath,
