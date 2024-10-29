@@ -45,8 +45,8 @@ class DikeGeometry:
         self.doorlatendheid_wv_pakket = gdf_dike_geometry["k_zandlaag [m/s]"]
         self.D_watervoerend_pakket = gdf_dike_geometry["D_watervoerend_pakket [m]"]
 
-        self.max_number_soil_layers = self._count_max_number_soil_layers()
         self.kwelweglengte = self._calculate_kwelweglengte()
+        self.max_number_soil_layers = self._count_max_number_soil_layers()
         self.deklagen = self._calc_number_of_soil_layers_deklaag()
         self.effectivieve_deklaag = self._calculate_dikte_eff_deklaag()
 
@@ -64,17 +64,18 @@ class DikeGeometry:
         fictief_voorland = lambda_1 * np.tanh(lengte_voorland / lambda_1)
         fictieve_kwelweglengte = breedte_dijklichaam + fictief_voorland
 
-        df_kwelweglengte = pd.DataFrame()
-        df_kwelweglengte["Vaknr"] = self.gdf_dike_geometry["Vaknr"]
-        df_kwelweglengte["kwelweglengte [m]"] = self.uittredepunt - self.voorland
-        df_kwelweglengte["kwelweg 2x breedte dijklichaam [m]"] = 2 * breedte_dijklichaam
-        df_kwelweglengte["fictieve kwelweglengte [m]"] = fictieve_kwelweglengte
-
+        df_kwelweglengte = pd.DataFrame(
+            {
+                "Vaknr": self.gdf_dike_geometry["Vaknr"],
+                "kwelweglengte [m]": self.uittredepunt - self.voorland,
+                "kwelweg 2x breedte dijklichaam [m]": 2 * breedte_dijklichaam,
+                "fictieve kwelweglengte [m]": fictieve_kwelweglengte,
+            }
+        )
         return df_kwelweglengte
 
     def _count_max_number_soil_layers(self):
-        self.max_number_soil_layers_calc = sum(["h_start_grondlaag_" in col for col in self.gdf_dike_geometry])
-        return self.max_number_soil_layers_calc
+        return sum(["h_start_grondlaag_" in col for col in self.gdf_dike_geometry])
 
     # Deklaag in testcase is ingevuld op basis van de effectieve dikte. In onze versie is het netter om dieptes van alle lagen
     # in te vullen vanaf maaiveld, effectieve dikte te berekenen, en vervolgens hieruit de meewerkende lagen te bepalen.
@@ -133,6 +134,10 @@ class DikeGeometry:
         self.df_deklagen["D effectieve deklaag [m]"] = d_effectief
 
         return self.df_deklagen
+
+
+check = DikeGeometry(df_dike_geometry)
+display(check.kwelweglengte)
 
 
 # def coordinate_converter(df):

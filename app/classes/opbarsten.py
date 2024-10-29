@@ -39,7 +39,7 @@ class Opbarsten(DikeGeometry):
         self.max_number_soil_layers = self._count_max_number_soil_layers()
         self.kritiek_stijgh_verschil = self._kritiek_stijgh_verschil()
         self.optr_stijgh_verschil = self._optr_stijgh_verschil()
-        self.fos_tegen_opbarsten = self._fos_tegen_opbarsten()
+        self.fos_tegen_opbarsten = self._fos_opbarsten()
 
     # TODO Ik kom er niet achter waarom deze niet uit de class DikeGeometry gecalled kan worden dus opnieuw gemaakt
     def _count_max_number_soil_layers(self):
@@ -56,8 +56,7 @@ class Opbarsten(DikeGeometry):
         n_soiltype_search = self.traject_par.shape[0]
         n_length_gdf = self.gdf_dike_geometry.shape[0]
 
-        df_kritiek_stijgh_verschil = pd.DataFrame()
-        df_kritiek_stijgh_verschil["Vaknr"] = self.gdf_dike_geometry["Vaknr"]
+        df_kritiek_stijgh_verschil = pd.DataFrame({"Vaknr": self.gdf_dike_geometry["Vaknr"]})
 
         for i in range(n_max_soil_layers):
             df_kritiek_stijgh_verschil[f"h_start_grondlaag_{i+1} [mNAP]"] = self.gdf_dike_geometry[
@@ -96,11 +95,15 @@ class Opbarsten(DikeGeometry):
         return df_kritiek_stijgh_verschil
 
     def _optr_stijgh_verschil(self):
-        df_optr_stijgh_verschil = pd.DataFrame()
-        df_optr_stijgh_verschil["Vaknr"] = self.gdf_dike_geometry["Vaknr"]
-        df_optr_stijgh_verschil["h_buitenwaterstand [mNAP]"] = self.gdf_dike_geometry["h_buitenwaterstand [mNAP]"]
-        df_optr_stijgh_verschil["h_exit [mNAP]"] = self.gdf_dike_geometry["h_exit [mNAP]"]
-        df_optr_stijgh_verschil["r [-]"] = self.gdf_dike_geometry["r [-]"]
+        df_optr_stijgh_verschil = pd.DataFrame(
+            {
+                "Vaknr": self.gdf_dike_geometry["Vaknr"],
+                "h_buitenwaterstand [mNAP]": self.gdf_dike_geometry["h_buitenwaterstand [mNAP]"],
+                "h_exit [mNAP]": self.gdf_dike_geometry["h_exit [mNAP]"],
+                "r [-]": self.gdf_dike_geometry["r [-]"],
+            }
+        )
+
         n_length_gdf = self.gdf_dike_geometry.shape[0]
 
         df_optr_stijgh_verschil["optr_stijgh_verschil [mNAP]"] = (
@@ -113,21 +116,20 @@ class Opbarsten(DikeGeometry):
 
         return df_optr_stijgh_verschil
 
-    def _fos_tegen_opbarsten(self):
-        df_fos_tegen_opbarsten = pd.DataFrame()
-        df_fos_tegen_opbarsten["Vaknr"] = self.gdf_dike_geometry["Vaknr"]
-        df_fos_tegen_opbarsten["d_kritiek_stijgh_versch [mNAP]"] = self.kritiek_stijgh_verschil[
-            "d_kritiek_stijgh_versch [mNAP]"
-        ]
-        df_fos_tegen_opbarsten["optr_stijgh_verschil [mNAP]"] = self.kritiek_stijgh_verschil[
-            "optr_stijgh_verschil [mNAP]"
-        ]
-        df_fos_tegen_opbarsten["FoS_tegen_opbarsten"] = (
-            df_fos_tegen_opbarsten["d_kritiek_stijgh_versch [mNAP]"]
-            / df_fos_tegen_opbarsten["optr_stijgh_verschil [mNAP]"]
+    def _fos_opbarsten(self):
+        df_fos_opbarsten = pd.DataFrame(
+            {
+                "Vaknr": self.gdf_dike_geometry["Vaknr"],
+                "d_kritiek_stijgh_versch [mNAP]": self.kritiek_stijgh_verschil["d_kritiek_stijgh_versch [mNAP]"],
+                "optr_stijgh_verschil [mNAP]": self.kritiek_stijgh_verschil["optr_stijgh_verschil [mNAP]"],
+            }
         )
 
-        return df_fos_tegen_opbarsten
+        df_fos_opbarsten["FoS_tegen_opbarsten"] = (
+            df_fos_opbarsten["d_kritiek_stijgh_versch [mNAP]"] / df_fos_opbarsten["optr_stijgh_verschil [mNAP]"]
+        )
+
+        return df_fos_opbarsten
 
 
 # check_script = Opbarsten(DikeGeometry(df_dike_geometry), df_dike_geometry, df_traject_par, df_general_par)
