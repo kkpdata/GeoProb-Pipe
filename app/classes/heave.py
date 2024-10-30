@@ -34,7 +34,7 @@ class Heave(DikeGeometry):
         self.gdf_dike_geometry = gdf_dike_geometry
         self.traject_par = traject_par
         self.general_par = general_par
-        self.deklagen = dikegeometry.deklagen
+        self.effectieve_deklaag = dikegeometry.effectieve_deklaag
 
         self.optr_heavegradient = self._optr_heavegradient()
         self.fos_tegen_heave = self._fos_heave()
@@ -46,18 +46,16 @@ class Heave(DikeGeometry):
                 "h_buitenwaterstand [mNAP]": self.gdf_dike_geometry["h_buitenwaterstand [mNAP]"],
                 "h_exit [mNAP]": self.gdf_dike_geometry["h_exit [mNAP]"],
                 "r [-]": self.gdf_dike_geometry["r [-]"],
-                "D effectieve deklaag [m]": self.deklagen["D effectieve deklaag [m]"],
+                "Dikte effectieve deklaag [m]": self.effectieve_deklaag["Dikte effectieve deklaag [m]"],
             }
         )
 
-        n_length_gdf = self.gdf_dike_geometry.shape[0]
-
-        for i in range(n_length_gdf):
+        for i in range(self.gdf_dike_geometry.shape[0]):
             if df_optr_heavegradient.loc[i, "r [-]"] <= 0:
                 df_optr_heavegradient.loc[i, "r [-]"] = 0.1
 
-        for i in range(n_length_gdf):
-            if df_optr_heavegradient.loc[i, "D effectieve deklaag [m]"] <= 0:
+        for i in range(self.gdf_dike_geometry.shape[0]):
+            if df_optr_heavegradient.loc[i, "Dikte effectieve deklaag [m]"] <= 0:
                 df_optr_heavegradient.loc[i, "optr_heavegradient [-]"] = 10
             else:
                 df_optr_heavegradient.loc[i, "optr_heavegradient [-]"] = (
@@ -66,7 +64,7 @@ class Heave(DikeGeometry):
                         - df_optr_heavegradient.loc[i, "h_exit [mNAP]"]
                     )
                     * df_optr_heavegradient.loc[i, "r [-]"]
-                    / df_optr_heavegradient.loc[i, "D effectieve deklaag [m]"]
+                    / df_optr_heavegradient.loc[i, "Dikte effectieve deklaag [m]"]
                 )
 
         return df_optr_heavegradient
@@ -76,13 +74,13 @@ class Heave(DikeGeometry):
         df_fos_heave = pd.DataFrame(
             {
                 "Vaknr": self.gdf_dike_geometry["Vaknr"],
-                "D effectieve deklaag [m]": self.deklagen["D effectieve deklaag [m]"],
+                "Dikte effectieve deklaag [m]": self.effectieve_deklaag["Dikte effectieve deklaag [m]"],
                 "optr_heavegradient [-]": self.optr_heavegradient["optr_heavegradient [-]"],
             }
         )
 
-        df_fos_heave.loc[df_fos_heave["D effectieve deklaag [m]"] <= 0, "FoS tegen heave"] = 0
-        df_fos_heave.loc[df_fos_heave["D effectieve deklaag [m]"] > 0, "FoS tegen heave"] = (
+        df_fos_heave.loc[df_fos_heave["Dikte effectieve deklaag [m]"] <= 0, "FoS tegen heave"] = 0
+        df_fos_heave.loc[df_fos_heave["Dikte effectieve deklaag [m]"] > 0, "FoS tegen heave"] = (
             i_c / df_fos_heave["optr_heavegradient [-]"]
         )
 

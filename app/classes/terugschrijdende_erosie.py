@@ -33,7 +33,7 @@ class Terugschr_erosie(DikeGeometry):
         self.gdf_dike_geometry = gdf_dike_geometry
         self.traject_par = traject_par
         self.general_par = general_par
-        self.deklagen = dikegeometry.deklagen
+        self.effectieve_deklaag = dikegeometry.effectieve_deklaag
         self.kwelweglengte = dikegeometry.kwelweglengte
 
         self.kwelweglengte_te_gebruiken = self._calc_kwelweglengte_gebruiken()
@@ -161,14 +161,14 @@ class Terugschr_erosie(DikeGeometry):
                 "Vaknr": self.gdf_dike_geometry["Vaknr"],
                 "h_buitenwaterstand [mNAP]": self.gdf_dike_geometry["h_buitenwaterstand [mNAP]"],
                 "h_exit [mNAP]": self.gdf_dike_geometry["h_exit [mNAP]"],
-                "D effectieve deklaag [m]": self.deklagen["D effectieve deklaag [m]"],
+                "Dikte effectieve deklaag [m]": self.effectieve_deklaag["Dikte effectieve deklaag [m]"],
             }
         )
 
         df_optr_sth_verschil_over_kering["Optredende stijghoogte verschil over kering [m]"] = (
             df_optr_sth_verschil_over_kering["h_buitenwaterstand [mNAP]"]
             - df_optr_sth_verschil_over_kering["h_exit [mNAP]"]
-            - (r_c * df_optr_sth_verschil_over_kering["D effectieve deklaag [m]"])
+            - (r_c * df_optr_sth_verschil_over_kering["Dikte effectieve deklaag [m]"])
         )
 
         df_optr_sth_verschil_over_kering.loc[

@@ -46,9 +46,9 @@ class DikeGeometry:
         self.D_watervoerend_pakket = gdf_dike_geometry["D_watervoerend_pakket [m]"]
 
         self.kwelweglengte = self._calculate_kwelweglengte()
-        self.max_number_soil_layers = self._count_max_number_soil_layers()
-        self.deklagen = self._calc_number_of_soil_layers_deklaag()
-        self.effectivieve_deklaag = self._calculate_dikte_eff_deklaag()
+        self.max_number_soil_layers_in_deklaag = self._count_max_number_soil_layers_in_deklaag()
+        self.deklaag = self._calc_number_of_soil_layers_in_deklaag()
+        self.effectieve_deklaag = self._calculate_dikte_eff_deklaag()
 
     def _calculate_kwelweglengte(self):
         """_summary_
@@ -74,88 +74,73 @@ class DikeGeometry:
         )
         return df_kwelweglengte
 
-    def _count_max_number_soil_layers(self):
+    def _count_max_number_soil_layers_in_deklaag(self):
         return sum(["h_start_grondlaag_" in col for col in self.gdf_dike_geometry])
 
-    # Deklaag in testcase is ingevuld op basis van de effectieve dikte. In onze versie is het netter om dieptes van alle lagen
-    # in te vullen vanaf maaiveld, effectieve dikte te berekenen, en vervolgens hieruit de meewerkende lagen te bepalen.
+    def _calc_number_of_soil_layers_in_deklaag(self):
+        # TODO Deklaag in testcase is ingevuld op basis van de effectieve dikte. In onze versie is het netter om dieptes van alle lagen
+        # in te vullen vanaf maaiveld, effectieve dikte te berekenen, en vervolgens hieruit de meewerkende lagen te bepalen.
+        self.df_deklaag = pd.DataFrame(
+            {
+                "Vaknr": self.gdf_dike_geometry["Vaknr"],
+                # "h_start_grondlaag [mNAP]": self.gdf_dike_geometry["h_start_grondlaag_1 [mNAP]"],
+            }
+        )
 
-    def _calc_number_of_soil_layers_deklaag(self):
-        # max_number_soil_layers = self._count_columns_with_substring(self.gdf_dike_geometry, "h_start_grondlaag_")
-        self.df_deklagen = pd.DataFrame()
+        # for i in range(self.max_number_soil_layers_in_deklaag - 2):
+        #     self.df_deklaag["h_start_grondlaag [mNAP]"] = self.df_deklaag.apply(
+        #         (
+        #             self.df_deklaag["h_start_grondlaag [mNAP]"],
+        #             self.gdf_dike_geometry[f"h_start_grondlaag_{i+2} [mNAP]"],
+        #         ),
+        #         axis=1,
+        #     )
 
-        for i in range(self.max_number_soil_layers):
-            self.df_deklagen[f"deklaag_{i+1} [m]"] = (
+        for i in range(self.max_number_soil_layers_in_deklaag - 1):
+
+            self.df_deklaag[f"deklaag_{i+1} [m]"] = (
                 self.gdf_dike_geometry[f"h_start_grondlaag_{i+1} [mNAP]"]
                 - self.gdf_dike_geometry[f"h_eind_grondlaag_{i+1} [mNAP]"]
             )
-            self.df_deklagen[f"materiaal deklaag {i+1}"] = self.gdf_dike_geometry[f"materiaal_grondlaag_{i+1}"]
+            self.df_deklaag[f"materiaal deklaag {i+1}"] = self.gdf_dike_geometry[f"materiaal_grondlaag_{i+1}"]
 
-        self.df_deklagen["d deklaag totaal [m]"] = self.df_deklagen.sum(axis=1, numeric_only=True)
-        self.df_deklagen["Vaknr"] = self.gdf_dike_geometry["Vaknr"]
-        first_column = self.df_deklagen.pop("Vaknr")
-        self.df_deklagen.insert(0, "Vaknr", first_column)
+        self.df_deklaag["Dikte deklaag totaal [m]"] = self.df_deklaag.sum(axis=1, numeric_only=True)
 
-        return self.df_deklagen
+        return self.df_deklaag
 
     def _calculate_dikte_eff_deklaag(self):
-        maaiveld = self.gdf_dike_geometry["h_maaiveld [mNAP]"]
-        slootbodem = self.gdf_dike_geometry["h_slootbodem [mNAP]"]
-        breedte_sloot = self.gdf_dike_geometry["B (breedte sloot) [m]"]
-        breedte_slootbodem = self.gdf_dike_geometry["b (breedte slootbodem) [m]"]
-        bodem_deklaag = self.gdf_dike_geometry["h_ok_deklaag [mNAP]"]
-        h1 = maaiveld - bodem_deklaag
-        h2 = slootbodem - bodem_deklaag
-        helling_sloot = (maaiveld - slootbodem) / ((breedte_sloot - breedte_slootbodem) / 2)
-        intercept_2_1 = bodem_deklaag + breedte_slootbodem
-        x_section = (intercept_2_1 - slootbodem) / (helling_sloot - 2)
-        y_section = slootbodem + helling_sloot * x_section
-        y_check = intercept_2_1 + 2 * x_section
-        h3 = y_section - bodem_deklaag
+        maaiveld_NAP = self.gdf_dike_geometry["h_maaiveld [mNAP]"]
+        slootbodem_NAP = self.gdf_dike_geometry["h_slootbodem [mNAP]"]
+        slootbodem_breedte = self.gdf_dike_geometry["b (breedte slootbodem) [m]"]
+        sloot_breedte = self.gdf_dike_geometry["B (breedte sloot) [m]"]
+        deklaag_bodem_NAP = self.gdf_dike_geometry["h_ok_deklaag [mNAP]"]
 
-        situatie = [None] * len(h3)
-        d_effectief = [None] * len(h3)
+        h1 = maaiveld_NAP - deklaag_bodem_NAP
+        h2 = slootbodem_NAP - deklaag_bodem_NAP
+        helling_sloot = (maaiveld_NAP - slootbodem_NAP) / ((sloot_breedte - slootbodem_breedte) / 2)
+        intercept_2_1 = deklaag_bodem_NAP + slootbodem_breedte
+        x_section = (intercept_2_1 - slootbodem_NAP) / (helling_sloot - 2)
+        y_section = slootbodem_NAP + helling_sloot * x_section
+        h3 = y_section - deklaag_bodem_NAP
 
+        self.df_deklaag["Situatie"] = None
+        self.df_deklaag["Dikte effectieve deklaag [m]"] = None
         for i in range(len(h3)):
-            if slootbodem[i] <= bodem_deklaag[i]:
-                situatie[i] = "sloot doorsnijdt deklaag"
-                d_effectief[i] = 0
-            elif h1[i] > breedte_sloot[i]:
-                situatie[i] = "H1"
-                d_effectief[i] = h1[i]
-            elif h2[i] < breedte_slootbodem[i]:
-                situatie[i] = "H2"
-                d_effectief[i] = h2[i]
+            if slootbodem_NAP[i] <= deklaag_bodem_NAP[i]:
+                self.df_deklaag["Situatie"].iat[i] = "sloot doorsnijdt deklaag"
+                self.df_deklaag["Dikte effectieve deklaag [m]"].iat[i] = 0
+            elif h1[i] > slootbodem_breedte[i]:
+                self.df_deklaag["Situatie"].iat[i] = "H1"
+                self.df_deklaag["Dikte effectieve deklaag [m]"].iat[i] = h1[i]
+            elif h2[i] < slootbodem_breedte[i]:
+                self.df_deklaag["Situatie"].iat[i] = "H2"
+                self.df_deklaag["Dikte effectieve deklaag [m]"].iat[i] = h2[i]
             else:
-                situatie[i] = "H3"
-                d_effectief[i] = h3[i]
+                self.df_deklaag["Situatie"].iat[i] = "H3"
+                self.df_deklaag["Dikte effectieve deklaag [m]"].iat[i] = h3[i]
 
-        self.df_deklagen["Situatie"] = situatie
-        self.df_deklagen["D effectieve deklaag [m]"] = d_effectief
-
-        return self.df_deklagen
+        return self.df_deklaag
 
 
 check = DikeGeometry(df_dike_geometry)
-display(check.kwelweglengte)
-
-
-# def coordinate_converter(df):
-
-# x = df_coordinate_test.loc[0,"Coordinate voorland (RdX, RdY) [m]"]
-
-# x = df_coordinate_test["Coordinate voorland (RdX, RdY) [m]"].apply(ast.literal_eval)
-
-# point = (x[0][0] ** 2 + x[0][1] ** 2) ** 0.5
-# print(point)
-
-
-# x = df_coordinate_test.loc[0,"Coordinate voorland (RdX, RdY) [m]"].split("(")
-# y = x[1].split(")")
-# z = y[0].split(":")
-
-# coordinate_tuple = (z[0], z[1])
-
-# print(coordinate_tuple)
-
-# type(coordinate_tuple)
+display(check.deklaag)

@@ -34,12 +34,12 @@ class Opbarsten(DikeGeometry):
         self.gdf_dike_geometry = gdf_dike_geometry
         self.traject_par = traject_par
         self.general_par = general_par
-        self.deklagen = dikegeometry.deklagen
+        self.effectieve_deklaag = dikegeometry.effectieve_deklaag
 
         self.max_number_soil_layers = self._count_max_number_soil_layers()
         self.kritiek_stijgh_verschil = self._kritiek_stijgh_verschil()
         self.optr_stijgh_verschil = self._optr_stijgh_verschil()
-        self.fos_tegen_opbarsten = self._fos_opbarsten()
+        self.fos_opbarsten = self._fos_opbarsten()
 
     # TODO Ik kom er niet achter waarom deze niet uit de class DikeGeometry gecalled kan worden dus opnieuw gemaakt
     def _count_max_number_soil_layers(self):
@@ -50,7 +50,7 @@ class Opbarsten(DikeGeometry):
     # TODO unieke code aan grondlaag hangen, anders gaat het mis. (veen en kleiig veen)
     def _kritiek_stijgh_verschil(self):
         self.h_bk_deklaag = round(
-            self.gdf_dike_geometry["h_ok_deklaag [mNAP]"] + self.deklagen["D effectieve deklaag [m]"], 2
+            self.gdf_dike_geometry["h_ok_deklaag [mNAP]"] + self.effectieve_deklaag["Dikte effectieve deklaag [m]"], 2
         )
         n_max_soil_layers = self.max_number_soil_layers
         n_soiltype_search = self.traject_par.shape[0]
@@ -76,7 +76,7 @@ class Opbarsten(DikeGeometry):
             df_kritiek_stijgh_verschil.loc[
                 df_kritiek_stijgh_verschil[f"h_start_grondlaag_{n_max_soil_layers - i} [mNAP]"] <= self.h_bk_deklaag,
                 f"d_kritiek_stijgh_versch_laag_{n_max_soil_layers - i} [m]",
-            ] = self.deklagen[f"deklaag_{n_max_soil_layers-i} [m]"]
+            ] = self.effectieve_deklaag[f"deklaag_{n_max_soil_layers-i} [m]"]
             for j in range(n_length_gdf):
                 for k in range(n_soiltype_search):
                     if self.traject_par.index.str.contains(
@@ -104,13 +104,11 @@ class Opbarsten(DikeGeometry):
             }
         )
 
-        n_length_gdf = self.gdf_dike_geometry.shape[0]
-
         df_optr_stijgh_verschil["optr_stijgh_verschil [mNAP]"] = (
             df_optr_stijgh_verschil["h_buitenwaterstand [mNAP]"] - df_optr_stijgh_verschil["h_exit [mNAP]"]
         ) * df_optr_stijgh_verschil["r [-]"]
 
-        for i in range(n_length_gdf):
+        for i in range(self.gdf_dike_geometry.shape[0]):
             if df_optr_stijgh_verschil.loc[i, "optr_stijgh_verschil [mNAP]"] <= 0:
                 df_optr_stijgh_verschil.loc[i, "optr_stijgh_verschil [mNAP]"] = 0.1
 
