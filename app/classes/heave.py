@@ -1,30 +1,28 @@
 import sys
 from pathlib import Path
 
-import geopandas as gpd
-import numpy as np
 import pandas as pd
 from dike_geometry import DikeGeometry
 
-sys.path.append(str(Path(__file__).parents[1]))  # Add repo to sys.path to make sure all imports are correctly found
+# sys.path.append(str(Path(__file__).parents[1]))   Add repo to sys.path to make sure all imports are correctly found
 
 # # tijdelijk dataframe voor testen, kolommen komen overeen met input vanuit sheet
-# df_dike_geometry = pd.read_excel(
-#     r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
-#     sheet_name="test_vak_par",
-# )
+df_dike_geometry = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_vak_par",
+)
 
-# df_traject_par = pd.read_excel(
-#     r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
-#     sheet_name="test_traject_par",
-#     index_col="Parameter",
-# )
+df_traject_par = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_traject_par",
+    index_col="Parameter",
+)
 
-# df_general_par = pd.read_excel(
-#     r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
-#     sheet_name="test_gen_par",
-#     index_col="Parameter",
-# )
+df_general_par = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_gen_par",
+    index_col="Parameter",
+)
 
 
 # TODO faalkans voor deelmech wordt hier niet uitgerekend, maar kans is dat dit via de PTK tool gaat
@@ -33,11 +31,11 @@ class Heave(DikeGeometry):
     def __init__(self, dikegeometry, gdf_dike_geometry, traject_par, general_par):
         self.gdf_dike_geometry = gdf_dike_geometry
         self.traject_par = traject_par
-        self.general_par = general_par
+        self.i_toelaatbaar = general_par.loc["i_toelaatbaar", "Waarde"]
         self.effectieve_deklaag = dikegeometry.effectieve_deklaag
 
         self.optr_heavegradient = self._optr_heavegradient()
-        self.fos_tegen_heave = self._fos_heave()
+        self.fos_heave = self._fos_heave()
 
     def _optr_heavegradient(self):
         df_optr_heavegradient = pd.DataFrame(
@@ -50,9 +48,7 @@ class Heave(DikeGeometry):
             }
         )
 
-        for i in range(self.gdf_dike_geometry.shape[0]):
-            if df_optr_heavegradient.loc[i, "r [-]"] <= 0:
-                df_optr_heavegradient.loc[i, "r [-]"] = 0.1
+        df_optr_heavegradient["r [-]"].mask(df_optr_heavegradient["r [-]"] <= 0, 0.1, inplace=True)
 
         for i in range(self.gdf_dike_geometry.shape[0]):
             if df_optr_heavegradient.loc[i, "Dikte effectieve deklaag [m]"] <= 0:
@@ -70,7 +66,7 @@ class Heave(DikeGeometry):
         return df_optr_heavegradient
 
     def _fos_heave(self):
-        i_c = self.general_par.loc["i_toelaatbaar", "Waarde"]
+
         df_fos_heave = pd.DataFrame(
             {
                 "Vaknr": self.gdf_dike_geometry["Vaknr"],
@@ -81,7 +77,13 @@ class Heave(DikeGeometry):
 
         df_fos_heave.loc[df_fos_heave["Dikte effectieve deklaag [m]"] <= 0, "FoS tegen heave"] = 0
         df_fos_heave.loc[df_fos_heave["Dikte effectieve deklaag [m]"] > 0, "FoS tegen heave"] = (
-            i_c / df_fos_heave["optr_heavegradient [-]"]
+            self.i_toelaatbaar / df_fos_heave["optr_heavegradient [-]"]
         )
 
         return df_fos_heave
+
+
+checker_class = Heave(DikeGeometry(df_dike_geometry), df_dike_geometry, df_traject_par, df_general_par)
+
+
+checker_class.fos_heave

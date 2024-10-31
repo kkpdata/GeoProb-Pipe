@@ -1,7 +1,3 @@
-import ast
-import sys
-from pathlib import Path
-
 import geopandas as gpd
 import numpy as np
 import pandas as pd
@@ -123,13 +119,17 @@ class DikeGeometry:
         y_section = slootbodem_NAP + helling_sloot * x_section
         h3 = y_section - deklaag_bodem_NAP
 
+        self.df_deklaag["H1"] = h1
+        self.df_deklaag["H2"] = h2
+        self.df_deklaag["H3"] = h3
+
         self.df_deklaag["Situatie"] = None
         self.df_deklaag["Dikte effectieve deklaag [m]"] = None
         for i in range(len(h3)):
             if slootbodem_NAP[i] <= deklaag_bodem_NAP[i]:
                 self.df_deklaag["Situatie"].iat[i] = "sloot doorsnijdt deklaag"
                 self.df_deklaag["Dikte effectieve deklaag [m]"].iat[i] = 0
-            elif h1[i] > slootbodem_breedte[i]:
+            elif h1[i] > sloot_breedte[i]:
                 self.df_deklaag["Situatie"].iat[i] = "H1"
                 self.df_deklaag["Dikte effectieve deklaag [m]"].iat[i] = h1[i]
             elif h2[i] < slootbodem_breedte[i]:
@@ -143,4 +143,4 @@ class DikeGeometry:
 
 
 check = DikeGeometry(df_dike_geometry)
-display(check.deklaag)
+display(check.effectieve_deklaag)
