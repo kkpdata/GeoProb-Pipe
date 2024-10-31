@@ -5,13 +5,15 @@ import pandas as pd
 from shapely.geometry import LineString, MultiLineString
 from shapely.ops import linemerge
 
-
+from pyogrio.errors import DataLayerError
 # FIXME geom_type=Table (i.e. attribute table without geometries) is niet helemaal logisch, checken/aanpassen
 def process_geodatabase(path_gdb: Path, layer_name: str, geom_type: str) -> gpd.GeoDataFrame | pd.DataFrame:
 
-    gdf = gpd.read_file(path_gdb, layer=layer_name)
+    try:
+        gdf = gpd.read_file(path_gdb, layer=layer_name)
+    except DataLayerError:
+        raise DataLayerError(f"Layer {layer_name} could not be found in geodatabase {path_gdb}")
 
-    # Checks
     if not geom_type == "table":
         check_geodatabase_geometry_type(path_gdb.name, layer_name, gdf, geom_type)
         check_coordinate_reference_system(path_gdb.name, layer_name, gdf)
@@ -21,7 +23,7 @@ def process_geodatabase(path_gdb: Path, layer_name: str, geom_type: str) -> gpd.
 
     return gdf
 
-
+# FIXME checken list_check_type
 def check_geodatabase_geometry_type(name_gdb: str, layer_name: str, gdf: gpd.GeoDataFrame, geometry_type: str) -> None:
 
     if geometry_type == "point":

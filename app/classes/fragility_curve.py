@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
-from classes.dike_geometry import DikeGeometry
+from classes.dike_geometry import LineGeometry
 from classes.subsoil import Subsoil
 from classes.toolkit import Toolkit
 
@@ -48,11 +48,20 @@ class FragilityCurve:
 
         # Initialize tables from .gdb
         self.constants = Table(self.path_gdb, layer_name="constants")
-        self.traject_parameters = Table(self.path_gdb, layer_name="traject_parameters")
+        self.strength_params = Table(self.path_gdb, layer_name="strength_parameters")
+        self.parameters_traject = Table(self.path_gdb, layer_name="parameters_traject")
+        self.parameters_vak = Table(self.path_gdb, layer_name="parameters_vak")
+        self.parameters_dwp = Table(self.path_gdb, layer_name="parameters_dwarsprofiel")
 
         # Initialize geospatial data from .gdb
-        self.dike_geometry = DikeGeometry(self.path_gdb)
-        # self.subsoil = Subsoil(self.path_gdb)
+        self.geometry_traject = LineGeometry(self.path_gdb, layer_name="geometry_traject")
+        self.geometry_vak = LineGeometry(self.path_gdb, layer_name="geometry_vak")
+        self.geometry_dwp = LineGeometry(self.path_gdb, layer_name="geometry_dwarsprofiel")
+        
+        
+        #TODO Sterkteparameters incl. STBI sterkteparameters + opbouw per locatie per dwp incl. k-waarde en andere dwp-specifieke parameters (zie Excel)
+        
+        self.soil_layers = Subsoil(self.path_gdb, layer_name="soil_layers")
 
         # # Create fragility curve
         # if USE_EXISTING_TKX_RESULTS:
