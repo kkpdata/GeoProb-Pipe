@@ -92,7 +92,7 @@ class DikeGeometry:
         #         axis=1,
         #     )
 
-        for i in range(self.max_number_soil_layers_in_deklaag - 1):
+        for i in range(self.max_number_soil_layers_in_deklaag):
 
             self.df_deklaag[f"deklaag_{i+1} [m]"] = (
                 self.gdf_dike_geometry[f"h_start_grondlaag_{i+1} [mNAP]"]
@@ -119,10 +119,6 @@ class DikeGeometry:
         y_section = slootbodem_NAP + helling_sloot * x_section
         h3 = y_section - deklaag_bodem_NAP
 
-        self.df_deklaag["H1"] = h1
-        self.df_deklaag["H2"] = h2
-        self.df_deklaag["H3"] = h3
-
         self.df_deklaag["Situatie"] = None
         self.df_deklaag["Dikte effectieve deklaag [m]"] = None
         for i in range(len(h3)):
@@ -142,5 +138,5 @@ class DikeGeometry:
         return self.df_deklaag
 
 
-check = DikeGeometry(df_dike_geometry)
-display(check.effectieve_deklaag)
+# check = DikeGeometry(df_dike_geometry)
+# display(check.effectieve_deklaag)
