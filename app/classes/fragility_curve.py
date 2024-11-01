@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
-from classes.dike_geometry import LineGeometry
+from app.classes.line_geometry import LineGeometry
 from classes.subsoil import Subsoil
 from classes.toolkit import Toolkit
 
@@ -48,7 +48,7 @@ class FragilityCurve:
 
         # Initialize tables from .gdb
         self.constants = Table(self.path_gdb, layer_name="constants")
-        self.strength_params = Table(self.path_gdb, layer_name="strength_parameters")
+        self.soil_strength_params = Table(self.path_gdb, layer_name="sterkteparameters")
         self.parameters_traject = Table(self.path_gdb, layer_name="parameters_traject")
         self.parameters_vak = Table(self.path_gdb, layer_name="parameters_vak")
         self.parameters_dwp = Table(self.path_gdb, layer_name="parameters_dwarsprofiel")
