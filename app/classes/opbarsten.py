@@ -24,7 +24,6 @@ df_general_par = pd.read_excel(
     index_col="Parameter",
 )
 
-
 # TODO faalkans voor deelmech wordt hier niet uitgerekend, maar kans is dat dit via de PTK tool gaat
 class Opbarsten(DikeGeometry):
 
