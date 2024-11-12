@@ -1,5 +1,5 @@
 import pandas as pd
-from dike_geometry import DikeGeometry
+
 
 
 # TODO faalkans voor deelmech wordt hier niet uitgerekend, maar kans is dat dit via de PTK tool gaat
@@ -45,7 +45,7 @@ class Heave:
                 "optr_heavegradient [-]": self.optr_heavegradient["optr_heavegradient [-]"],
             }
         )
-
+    #TODO functie "at" werkt hier niet, opbouw veranderen naar voorbeeld hierboven of opbouw aanpassen?
         df_fos_heave.loc[df_fos_heave["Dikte effectieve deklaag [m]"] <= 0, "FoS tegen heave"] = 0
         df_fos_heave.loc[df_fos_heave["Dikte effectieve deklaag [m]"] > 0, "FoS tegen heave"] = (
             i_toelaatbaar / df_fos_heave["optr_heavegradient [-]"]

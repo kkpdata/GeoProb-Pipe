@@ -6,6 +6,8 @@ from dike_geometry import DikeGeometry
 
 # from app.classes.dstability import DStability
 from heave import Heave
+from opbarsten import Opbarsten
+from terugschrijdende_erosie import Terugschr_erosie
 
 # from classes.toolkit import Toolkit
 
@@ -64,6 +66,7 @@ class FragilityCurve:
 
         self.heave_calc = self._start_heave_calculation()
         self.terugschr_erosie_calc = self._start_terugschr_erosie_calculation()
+        self.opbarsten_calc = self._start_opbarsten_calculation()
 
     # TODO ook onderstaande voor opbarsten en terugschrijdend, in 1 calc
     def _start_heave_calculation(self):
@@ -71,12 +74,17 @@ class FragilityCurve:
         return heave.fos_heave
 
     def _start_terugschr_erosie_calculation(self):
-        heave = Heave(self.dike_geometry, df_general_par.loc["i_toelaatbaar", "Waarde"])
-        return heave.fos_heave
+        terugschr_erosie = Terugschr_erosie(self.dike_geometry, df_general_par)
+        return terugschr_erosie.fos_terugschrijdende_erosie
+
+    # TODO voor nu wordt nog gdf_dikegeometry gebruikt, moet weg als tupple format hiervoor bekend is. (zie ook opbarsten.py)
+    def _start_opbarsten_calculation(self):
+        opbarsten = Opbarsten(self.dike_geometry, df_dike_geometry, df_general_par, df_general_par)
+        return opbarsten.kritiek_stijgh_verschil
 
 
 checkdeclass = FragilityCurve()
-checkdeclass.heave_calc
+checkdeclass.opbarsten_calc
 
 # # Initialize DStability object
 # self.dstability = DStability(self.workspace.input.folderpath)
