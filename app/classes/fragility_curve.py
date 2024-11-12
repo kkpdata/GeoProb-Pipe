@@ -1,31 +1,56 @@
-import shutil
-from pathlib import Path
+# import shutil
+# from pathlib import Path
 
 import pandas as pd
-from classes.toolkit import Toolkit
+from dike_geometry import DikeGeometry
 
-from app.classes.dstability import DStability
-from app.classes.toolkit import Toolkit
-from app.classes.waterlevel_statistics import WaterlevelStatistics
-from app.classes.workspace import Workspace
-from app.helper_functions.fragility_curve_functions import (
-    integrating_FC_with_water_levels,
+# from app.classes.dstability import DStability
+from heave import Heave
+
+# from classes.toolkit import Toolkit
+
+# from app.classes.dike_geometry import DikeGeometry
+# # from app.classes.dstability import DStability
+# from app.classes.heave import Heave
+# from app.classes.toolkit import Toolkit
+# from app.classes.waterlevel_statistics import WaterlevelStatistics
+# from app.classes.workspace import Workspace
+# from app.helper_functions.fragility_curve_functions import (
+#     integrating_FC_with_water_levels,
+# )
+# from app.helper_functions.plotting_functions import (
+#     _plot_fragility_curve,
+#     _plot_influence_factors,
+#     _plot_multiple_fragility_curves,
+# )
+
+
+df_dike_geometry = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_vak_par",
 )
-from app.helper_functions.plotting_functions import (
-    _plot_fragility_curve,
-    _plot_influence_factors,
-    _plot_multiple_fragility_curves,
+
+df_traject_par = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_traject_par",
+    index_col="Parameter",
+)
+
+df_general_par = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_gen_par",
+    index_col="Parameter",
 )
 
 
 class FragilityCurve:
     """FragilityCurve class which carries out all actions required for generating a fragility curve"""
 
-    def __init__(
-        self,
-        PATH_WORKSPACE: str | Path,
-        USE_EXISTING_TKX_RESULTS: bool,
-    ) -> None:
+    def __init__(self):
+        #     self,
+        #     PATH_WORKSPACE: str | Path,
+        #     USE_EXISTING_TKX_RESULTS: bool,
+        # ) -> None:
         """Initialize FragilityCurve instance which carries out all actions required for generating a fragility curve
 
         Args:
@@ -34,92 +59,113 @@ class FragilityCurve:
         """
 
         # Initialize Workspace object
-        self.workspace = Workspace(PATH_WORKSPACE, USE_EXISTING_TKX_RESULTS)
+        # self.workspace = Workspace(PATH_WORKSPACE, USE_EXISTING_TKX_RESULTS)
+        self.dike_geometry = DikeGeometry(df_dike_geometry)
 
-        # Initialize DStability object
-        self.dstability = DStability(self.workspace.input.folderpath)
+        self.heave_calc = self._start_heave_calculation()
+        self.terugschr_erosie_calc = self._start_terugschr_erosie_calculation()
 
-        # Initialize Toolkit object
-        self.toolkit = Toolkit(self.workspace.input.folderpath, USE_EXISTING_TKX_RESULTS)
+    # TODO ook onderstaande voor opbarsten en terugschrijdend, in 1 calc
+    def _start_heave_calculation(self):
+        heave = Heave(self.dike_geometry, df_general_par.loc["i_toelaatbaar", "Waarde"])
+        return heave.fos_heave
 
-        # Create fragility curve
-        if USE_EXISTING_TKX_RESULTS:
-            print(
-                f"INFO: USE_EXISTING_TKX_RESULTS=True, so no new calculations are started. Instead, the .tkx files in the specified output folder ({self.workspace.folderpath}) are used."
-            )
-            self.workspace.map_precalculated_tkx_input_stix(self.toolkit.settings.ptk_server_instance)
-            self.toolkit.use_precalculated_results(self.dstability.overview, self.workspace.mapping_tkx_stix)
-        else:
-            self.toolkit.use_new_calculations(
-                self.dstability.overview,
-                self.workspace.output.folderpath,
-                self.workspace.work_dir.folderpath,
-            )
-            self.workspace.update_output_filesystem()  # Update output FileSystem object because new output .tkx files were generated
+    def _start_terugschr_erosie_calculation(self):
+        heave = Heave(self.dike_geometry, df_general_par.loc["i_toelaatbaar", "Waarde"])
+        return heave.fos_heave
 
-    @property
-    def waterlevels(self) -> pd.DataFrame:
-        """
-        Returns:
-            dict: waterlevel for each .stix, shown in dict-format as {path_to_stix: waterlevel}
-        """
-        return self.toolkit.overview[["waterlevel", "stix", "tkx"]]
 
-    @property
-    def betas(self) -> pd.DataFrame:
-        """
-        Returns:
-            pd.DataFrame: waterlevels and corresponding beta values (reliability indices)
-        """
-        return self.toolkit.results.betas
+checkdeclass = FragilityCurve()
+checkdeclass.heave_calc
 
-    @property
-    def alphas(self) -> pd.DataFrame:
-        """
-        Returns:
-            pd.DataFrame: alpha values per variable for each waterlevel
-        """
-        return self.toolkit.results.alphas
+# # Initialize DStability object
+# self.dstability = DStability(self.workspace.input.folderpath)
 
-    @property
-    def influence_factors(self) -> pd.DataFrame:
-        """
-        Returns:
-            pd.DataFrame: influence factor (which is the squared alpha value) for each waterlevel
-        """
-        return self.toolkit.results.influence_factors
+# # Initialize Toolkit object
+# self.toolkit = Toolkit(self.workspace.input.folderpath, USE_EXISTING_TKX_RESULTS)
 
-    @property
-    def variables(self) -> pd.DataFrame:
-        """
-        Returns:
-            pd.DataFrame: distribution parameters per variable for each waterlevel
-        """
-        return self.toolkit.results.variables
+# # Create fragility curve
+# if USE_EXISTING_TKX_RESULTS:
+#     print(
+#         f"INFO: USE_EXISTING_TKX_RESULTS=True, so no new calculations are started. Instead, the .tkx files in the specified output folder ({self.workspace.folderpath}) are used."
+#     )
+#     self.workspace.map_precalculated_tkx_input_stix(self.toolkit.settings.ptk_server_instance)
+#     self.toolkit.use_precalculated_results(self.dstability.overview, self.workspace.mapping_tkx_stix)
+# else:
+#     self.toolkit.use_new_calculations(
+#         self.dstability.overview,
+#         self.workspace.output.folderpath,
+#         self.workspace.work_dir.folderpath,
+#     )
+#     self.workspace.update_output_filesystem()  # Update output FileSystem object because new output .tkx files were generated
 
-    def plot_fragility_curve(self) -> None:
-        """Plotting functions for fragility curve"""
-        _plot_fragility_curve(self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True)
+# @property
+# def waterlevels(self) -> pd.DataFrame:
+#     """
+#     Returns:
+#         dict: waterlevel for each .stix, shown in dict-format as {path_to_stix: waterlevel}
+#     """
+#     return self.toolkit.overview[["waterlevel", "stix", "tkx"]]
 
-    def plot_multiple_fragility_curves(self) -> None:
-        """Plotting functions for multiple fragility curves"""
-        _plot_multiple_fragility_curves(self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True)
+# @property
+# def betas(self) -> pd.DataFrame:
+#     """
+#     Returns:
+#         pd.DataFrame: waterlevels and corresponding beta values (reliability indices)
+#     """
+#     return self.toolkit.results.betas
 
-    def plot_influence_factors(self) -> None:
-        """Plotting functions for influence factors"""
-        _plot_influence_factors(self.influence_factors)
+# @property
+# def alphas(self) -> pd.DataFrame:
+#     """
+#     Returns:
+#         pd.DataFrame: alpha values per variable for each waterlevel
+#     """
+#     return self.toolkit.results.alphas
 
-    def integrating(self, waterlevel_statistics: WaterlevelStatistics, waterlevel_range: list[float]) -> None:
-        """Integrating functions (uitintegreren) to obtain the total failure probability using waterlevel
-        statistics and the betas (reliability indices) from the PTK calculation
+# @property
+# def influence_factors(self) -> pd.DataFrame:
+#     """
+#     Returns:
+#         pd.DataFrame: influence factor (which is the squared alpha value) for each waterlevel
+#     """
+#     return self.toolkit.results.influence_factors
 
-        Args:
-            waterlevel_statistics (WaterlevelStatistics): waterlevel statistics mu (mode) and sigma (standard deviation) (Gumbel fit)
-            waterlevel_range (list[float]): range of waterlevels for which we want an integrated fragility curve
-        """
-        self.total_beta, self.total_failure_probability = integrating_FC_with_water_levels(
-            self.toolkit.results.overview["waterlevel"],
-            self.toolkit.results.overview["beta"],
-            waterlevel_statistics,
-            waterlevel_range,
-        )
+# @property
+# def variables(self) -> pd.DataFrame:
+#     """
+#     Returns:
+#         pd.DataFrame: distribution parameters per variable for each waterlevel
+#     """
+#     return self.toolkit.results.variables
+
+# def plot_fragility_curve(self) -> None:
+#     """Plotting functions for fragility curve"""
+#     _plot_fragility_curve(
+#         self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True
+#     )
+
+# def plot_multiple_fragility_curves(self) -> None:
+#     """Plotting functions for multiple fragility curves"""
+#     _plot_multiple_fragility_curves(
+#         self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True
+#     )
+
+# def plot_influence_factors(self) -> None:
+#     """Plotting functions for influence factors"""
+#     _plot_influence_factors(self.influence_factors)
+
+# def integrating(self, waterlevel_statistics: WaterlevelStatistics, waterlevel_range: list[float]) -> None:
+#     """Integrating functions (uitintegreren) to obtain the total failure probability using waterlevel
+#     statistics and the betas (reliability indices) from the PTK calculation
+
+#     Args:
+#         waterlevel_statistics (WaterlevelStatistics): waterlevel statistics mu (mode) and sigma (standard deviation) (Gumbel fit)
+#         waterlevel_range (list[float]): range of waterlevels for which we want an integrated fragility curve
+#     """
+#     self.total_beta, self.total_failure_probability = integrating_FC_with_water_levels(
+#         self.toolkit.results.overview["waterlevel"],
+#         self.toolkit.results.overview["beta"],
+#         waterlevel_statistics,
+#         waterlevel_range,
+#     )
