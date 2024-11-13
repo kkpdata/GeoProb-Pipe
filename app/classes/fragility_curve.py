@@ -1,12 +1,20 @@
-import shutil
+# import shutil
+# from pathlib import Path
+
 from pathlib import Path
 
 import pandas as pd
-from app.classes.line_geometry import LineGeometry
 from classes.subsoil import Subsoil
 from classes.toolkit import Toolkit
+from dike_geometry import DikeGeometry
+
+# from app.classes.dstability import DStability
+from heave import Heave
+from opbarsten import Opbarsten
+from terugschrijdende_erosie import Terugschr_erosie
 
 from app.classes.file_system import FileSystem
+from app.classes.line_geometry import LineGeometry
 from app.classes.table import Table
 from app.classes.toolkit import Toolkit
 from app.classes.waterlevel_statistics import WaterlevelStatistics
@@ -19,6 +27,41 @@ from app.helper_functions.plotting_functions import (
     _plot_fragility_curve,
     _plot_influence_factors,
     _plot_multiple_fragility_curves,
+)
+
+# from classes.toolkit import Toolkit
+
+# from app.classes.dike_geometry import DikeGeometry
+# # from app.classes.dstability import DStability
+# from app.classes.heave import Heave
+# from app.classes.toolkit import Toolkit
+# from app.classes.waterlevel_statistics import WaterlevelStatistics
+# from app.classes.workspace import Workspace
+# from app.helper_functions.fragility_curve_functions import (
+#     integrating_FC_with_water_levels,
+# )
+# from app.helper_functions.plotting_functions import (
+#     _plot_fragility_curve,
+#     _plot_influence_factors,
+#     _plot_multiple_fragility_curves,
+# )
+
+
+df_dike_geometry = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_vak_par",
+)
+
+df_traject_par = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_traject_par",
+    index_col="Parameter",
+)
+
+df_general_par = pd.read_excel(
+    r"V:\dr_Waterkeringen\08. Kennis\02. Probabilitische rekenen - werkmap\GeoProb-Pipe\testcase 20-4 STPH\Test_bestand_geoprob_pipe.xlsx",
+    sheet_name="test_gen_par",
+    index_col="Parameter",
 )
 
 
@@ -39,6 +82,7 @@ class FragilityCurve:
 
         # Initialize Workspace object
         self.workspace = Workspace(PATH_WORKSPACE, USE_EXISTING_TKX_RESULTS)
+        self.dike_geometry = DikeGeometry(df_dike_geometry)
 
         # Initialize Toolkit object
         self.toolkit = Toolkit(self.workspace.input.folderpath, USE_EXISTING_TKX_RESULTS)
@@ -57,11 +101,13 @@ class FragilityCurve:
         self.geometry_traject = LineGeometry(self.path_gdb, layer_name="geometry_traject")
         self.geometry_vak = LineGeometry(self.path_gdb, layer_name="geometry_vak")
         self.geometry_dwp = LineGeometry(self.path_gdb, layer_name="geometry_dwarsprofiel")
-        
-        
-        #TODO Sterkteparameters incl. STBI sterkteparameters + opbouw per locatie per dwp incl. k-waarde en andere dwp-specifieke parameters (zie Excel)
-        
-        self.soil_layers = Subsoil(self.path_gdb, layer_name="soil_layers")
+
+        # TODO Uit Excel halen ipv GDB: sterkteparameters incl. STBI sterkteparameters + opbouw per locatie per dwp incl. k-waarde en andere dwp-specifieke parameters (zie Excel)
+        # self.soil_layers = Subsoil(self.path_gdb, layer_name="soil_layers")
+
+        self.heave_calc = self._start_heave_calculation()
+        self.terugschr_erosie_calc = self._start_terugschr_erosie_calculation()
+        self.opbarsten_calc = self._start_opbarsten_calculation()
 
         # # Create fragility curve
         # if USE_EXISTING_TKX_RESULTS:
@@ -78,73 +124,87 @@ class FragilityCurve:
         #     )
         #     self.workspace.update_output_filesystem()  # Update output FileSystem object because new output .tkx files were generated
 
-    @property
-    def waterlevels(self) -> pd.DataFrame:
-        """
-        Returns:
-            dict: waterlevel for each .stix, shown in dict-format as {path_to_stix: waterlevel}
-        """
-        return self.toolkit.overview[["waterlevel", "stix", "tkx"]]
+    # TODO ook onderstaande voor opbarsten en terugschrijdend, in 1 calc
+    def _start_heave_calculation(self):
+        heave = Heave(self.dike_geometry, df_general_par.loc["i_toelaatbaar", "Waarde"])
+        return heave.fos_heave
 
-    @property
-    def betas(self) -> pd.DataFrame:
-        """
-        Returns:
-            pd.DataFrame: waterlevels and corresponding beta values (reliability indices)
-        """
-        return self.toolkit.results.betas
+    def _start_terugschr_erosie_calculation(self):
+        terugschr_erosie = Terugschr_erosie(self.dike_geometry, df_general_par)
+        return terugschr_erosie.fos_terugschrijdende_erosie
 
-    @property
-    def alphas(self) -> pd.DataFrame:
-        """
-        Returns:
-            pd.DataFrame: alpha values per variable for each waterlevel
-        """
-        return self.toolkit.results.alphas
+    # TODO voor nu wordt nog gdf_dikegeometry gebruikt, moet weg als tupple format hiervoor bekend is. (zie ook opbarsten.py)
+    def _start_opbarsten_calculation(self):
+        opbarsten = Opbarsten(self.dike_geometry, df_dike_geometry, df_general_par, df_general_par)
+        return opbarsten.kritiek_stijgh_verschil
 
-    @property
-    def influence_factors(self) -> pd.DataFrame:
-        """
-        Returns:
-            pd.DataFrame: influence factor (which is the squared alpha value) for each waterlevel
-        """
-        return self.toolkit.results.influence_factors
+    # @property
+    # def waterlevels(self) -> pd.DataFrame:
+    #     """
+    #     Returns:
+    #         dict: waterlevel for each .stix, shown in dict-format as {path_to_stix: waterlevel}
+    #     """
+    #     return self.toolkit.overview[["waterlevel", "stix", "tkx"]]
 
-    @property
-    def variables(self) -> pd.DataFrame:
-        """
-        Returns:
-            pd.DataFrame: distribution parameters per variable for each waterlevel
-        """
-        return self.toolkit.results.variables
+    # @property
+    # def betas(self) -> pd.DataFrame:
+    #     """
+    #     Returns:
+    #         pd.DataFrame: waterlevels and corresponding beta values (reliability indices)
+    #     """
+    #     return self.toolkit.results.betas
 
-    def plot_fragility_curve(self) -> None:
-        """Plotting functions for fragility curve"""
-        _plot_fragility_curve(
-            self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True
-        )
+    # @property
+    # def alphas(self) -> pd.DataFrame:
+    #     """
+    #     Returns:
+    #         pd.DataFrame: alpha values per variable for each waterlevel
+    #     """
+    #     return self.toolkit.results.alphas
 
-    def plot_multiple_fragility_curves(self) -> None:
-        """Plotting functions for multiple fragility curves"""
-        _plot_multiple_fragility_curves(
-            self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True
-        )
+    # @property
+    # def influence_factors(self) -> pd.DataFrame:
+    #     """
+    #     Returns:
+    #         pd.DataFrame: influence factor (which is the squared alpha value) for each waterlevel
+    #     """
+    #     return self.toolkit.results.influence_factors
 
-    def plot_influence_factors(self) -> None:
-        """Plotting functions for influence factors"""
-        _plot_influence_factors(self.influence_factors)
+    # @property
+    # def variables(self) -> pd.DataFrame:
+    #     """
+    #     Returns:
+    #         pd.DataFrame: distribution parameters per variable for each waterlevel
+    #     """
+    #     return self.toolkit.results.variables
 
-    def integrating(self, waterlevel_statistics: WaterlevelStatistics, waterlevel_range: list[float]) -> None:
-        """Integrating functions (uitintegreren) to obtain the total failure probability using waterlevel
-        statistics and the betas (reliability indices) from the PTK calculation
+    # def plot_fragility_curve(self) -> None:
+    #     """Plotting functions for fragility curve"""
+    #     _plot_fragility_curve(
+    #         self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True
+    #     )
 
-        Args:
-            waterlevel_statistics (WaterlevelStatistics): waterlevel statistics mu (mode) and sigma (standard deviation) (Gumbel fit)
-            waterlevel_range (list[float]): range of waterlevels for which we want an integrated fragility curve
-        """
-        self.total_beta, self.total_failure_probability = integrating_FC_with_water_levels(
-            self.toolkit.results.overview["waterlevel"],
-            self.toolkit.results.overview["beta"],
-            waterlevel_statistics,
-            waterlevel_range,
-        )
+    # def plot_multiple_fragility_curves(self) -> None:
+    #     """Plotting functions for multiple fragility curves"""
+    #     _plot_multiple_fragility_curves(
+    #         self.toolkit.results.overview["waterlevel"], self.toolkit.results.overview["beta"], show=True
+    #     )
+
+    # def plot_influence_factors(self) -> None:
+    #     """Plotting functions for influence factors"""
+    #     _plot_influence_factors(self.influence_factors)
+
+    # def integrating(self, waterlevel_statistics: WaterlevelStatistics, waterlevel_range: list[float]) -> None:
+    #     """Integrating functions (uitintegreren) to obtain the total failure probability using waterlevel
+    #     statistics and the betas (reliability indices) from the PTK calculation
+
+    #     Args:
+    #         waterlevel_statistics (WaterlevelStatistics): waterlevel statistics mu (mode) and sigma (standard deviation) (Gumbel fit)
+    #         waterlevel_range (list[float]): range of waterlevels for which we want an integrated fragility curve
+    #     """
+    #     self.total_beta, self.total_failure_probability = integrating_FC_with_water_levels(
+    #         self.toolkit.results.overview["waterlevel"],
+    #         self.toolkit.results.overview["beta"],
+    #         waterlevel_statistics,
+    #         waterlevel_range,
+    #     )
