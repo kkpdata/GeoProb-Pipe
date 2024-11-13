@@ -20,7 +20,6 @@ class Opbarsten:
         df_kritiek_stijgh_verschil = pd.DataFrame({"Vaknr": dikegeometry.vaknr, "h_bk_deklaag": h_bovenkant_deklaag})
 
         for i in range(dikegeometry.max_number_soil_layers_in_deklaag):
-            # for i in range(1):
             df_kritiek_stijgh_verschil[f"h_start_grondlaag_{i+1} [mNAP]"] = gdf_dike_geometry[
                 f"h_start_grondlaag_{i+1} [mNAP]"
             ]
@@ -32,19 +31,22 @@ class Opbarsten:
                 f"materiaal_grondlaag_{i+1}"
             ].fillna("geen materiaal")
 
-        # # TODO vanaf hier gaat het mis, geen idee wat hier mis gaat
+        # # TODO Script kan nu nog niet juist omgaan met NaN values
+        #
+        # df_kritiek_stijgh_verschil.loc[2, "h_start_grondlaag_1 [mNAP]"] = -10
+
         # df_kritiek_stijgh_verschil.loc[
-        #     df_kritiek_stijgh_verschil[f"h_start_grondlaag_1 [mNAP]"] <= df_kritiek_stijgh_verschil["h_bk_deklaag"],
+        #     df_kritiek_stijgh_verschil["h_start_grondlaag_1 [mNAP]"] <= df_kritiek_stijgh_verschil["h_bk_deklaag"],
         #     "d_kritiek_stijgh_versch_laag_1 [m]",
         # ] = 2
-        # # df_kritiek_stijgh_verschil.loc[
-        # #     df_kritiek_stijgh_verschil[f"h_start_grondlaag_1 [mNAP]"] <= df_kritiek_stijgh_verschil["h_bk_deklaag"],
-        # #     f"d_kritiek_stijgh_versch_laag_1 [m]",
-        # # ] = 10
-        # # df_kritiek_stijgh_verschil.loc[
-        # #     df_kritiek_stijgh_verschil[f"h_start_grondlaag_1 [mNAP]"] > df_kritiek_stijgh_verschil["h_bk_deklaag"],
-        # #     f"d_kritiek_stijgh_versch_laag_1 [m]",
-        # # ] = 20
+        # df_kritiek_stijgh_verschil.loc[
+        #     df_kritiek_stijgh_verschil["h_start_grondlaag_1 [mNAP]"] > df_kritiek_stijgh_verschil["h_bk_deklaag"],
+        #     "d_kritiek_stijgh_versch_laag_1 [m]",
+        # ] = 10
+        # df_kritiek_stijgh_verschil.loc[
+        #     df_kritiek_stijgh_verschil[f"h_start_grondlaag_1 [mNAP]"] > df_kritiek_stijgh_verschil["h_bk_deklaag"],
+        #     f"d_kritiek_stijgh_versch_laag_1 [m]",
+        # ] = 20
 
         # # self.effectieve_deklaag[f"deklaag_{1} [m]"]
 
