@@ -19,7 +19,7 @@ Installatie van de dependencies:
     # Activate env
     conda activate GeoProb-Pipe
     ```
-- Pip (gebruiker moet zelf de environemnt aanmaken met juiste Python versie):
+- Pip (gebruiker moet zelf de environment aanmaken met juiste Python versie):
   ```console
   # Create environnment (note: use aforementioned supported Python version)
   python -m venv GeoProb-Pipe
