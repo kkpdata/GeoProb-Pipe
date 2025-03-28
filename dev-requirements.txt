@@ -1,3 +1,6 @@
 black==24.4.2
 mypy==1.11.0
 isort==5.13.2
+sphinx
+sphinxcontrib-bibtex
+pytest==8.3.4
