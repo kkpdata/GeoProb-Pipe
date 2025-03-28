@@ -1,9 +1,80 @@
-from open_stph import model4a
-from open_stph import piping_functions
-from open_stph import geohydro_functions
+"""Python module for the calculation of the limit state function for piping, heave and uplift in a sand layer with a cover layer. 
+"""
+
+from app.helper_functions import model4a
+from app.helper_functions import piping_functions
+from app.helper_functions import geohydro_functions
 from typing import List
 from dataclasses import dataclass
 
+# Define the input variables for the functions for Uplift, Heave and Piping
+# dist_L_geom: float
+# dist_BUT: float
+# dist_BIT: float
+# L3_geom: float
+# mv: float
+# pp: float
+# top_zand: float
+# gamma_sat_cover: float
+# gamma_w: float
+# kD: float
+# D: float
+# d70: float
+# c1: float
+# c3: float
+# mu: float
+# mh: float
+# mp: float
+# i_c_h: float
+# rc: float
+# h: float
+
+
+
+def Zu(L_intrede,L_BUT,k,D,c1,c3,L3,WS,PP,L_BIT,d_dek,y_satdek,y_water,MV,mu):
+    L1 = L_intrede - L_BUT
+    lam1 = np.sqrt(k*D*c1)
+    lam3 = np.sqrt(k*D*c3)  
+    Φ1 = PP + (WS - PP) * (L_BUT-L_BIT + lam3 *  math.tanh(L3 / lam3)) / (lam1 *  math.tanh(L1 / lam1) + L_BUT-L_BIT + lam3 * math.tanh(L3 / lam3))
+    Φ2 = PP + (WS - PP) * lam3 *  math.tanh(L3 / lam3) / (lam1 *  math.tanh(L1 / lam1) + L_BUT-L_BIT + lam3 *  math.tanh(L3 / lam3))
+    Φ_uittrede = PP + (Φ2-PP)*(math.sinh((L3-L_BIT)/lam3))/math.sinh(L3/lam3)
+    h_exit = max(PP,MV)
+    dΦ = Φ_uittrede - h_exit
+    dΦc = d_dek * ((y_satdek - y_water) / y_water)
+    Zu = mu * dΦc - dΦ
+    return Zu
+
+def Zh(ic,L_intrede,L_BUT,k,D,c1,c3,L3,WS,PP,L_BIT,d_dek,MV):
+    L1 = L_intrede - L_BUT
+    lam1 = np.sqrt(k*D*c1)
+    lam3 = np.sqrt(k*D*c3)
+    Φ1 = PP + (WS - PP) * (L_BUT-L_BIT + lam3 *  math.tanh(L3 / lam3)) / (lam1 *  math.tanh(L1 / lam1) + L_BUT-L_BIT + lam3 * math.tanh(L3 / lam3))
+    Φ2 = PP + (WS - PP) * lam3 *  math.tanh(L3 / lam3) / (lam1 *  math.tanh(L1 / lam1) + L_BUT-L_BIT + lam3 *  math.tanh(L3 / lam3))
+    Φ_uittrede = PP + (Φ2-PP)*(math.sinh((L3-L_BIT)/lam3))/math.sinh(L3/lam3)
+    h_exit = max(PP,MV)
+    dΦ = Φ_uittrede - h_exit
+    Zh = ic - (dΦ / d_dek)
+    return Zh
+
+def Zp(L_intrede,L_BUT,k,D,c1,y_water,d70,mp,WS,d_dek,PP,MV):
+    L1 = L_intrede - L_BUT
+    lam1 = np.sqrt(k*D*c1)
+    w1 = lam1*math.tanh(L1/lam1)
+    L = w1 + L_BUT
+    k_ms = k / (24 * 3600)
+    k_intr = (0.00000133 / 9.81) * k_ms
+    Fres = 0.25 * ((26.0 - y_water) / y_water) * math.tan(37.0 * math.pi / 180.00)
+    Fscale = pow((d70/1.0E6)/2.08E-4,0.4) * 2.08E-4 / pow(k_intr * L, (1.0/3.0))
+    if D == L:
+        D = D-0.001
+    else:
+        pass
+    totdemacht = 0.04 + (0.28 / (pow(D/L,2.8) - 1.0))
+    Fgeom = 0.91 * pow(D/L,totdemacht)
+    Hc = Fres * Fscale * Fgeom * L
+    h_exit = max(PP,MV)
+    Zp = (mp * Hc) - (max(0.01, (WS - h_exit - (0.3 * d_dek))))
+    return Zp
 
 def calc_Z_combin_piping(
     dist_L_geom: float,
@@ -134,10 +205,10 @@ def calc_Z_combin_piping(
 ## Class implementation
 
 @dataclass
-class LimitStatePiping:
+class LimitStatePipingModel4a:
     r"""
     Class voor het berekenen van de gecombineerde grenstoestandfunctie voor uplift, heave en piping.     
-    
+    Gebruikt de model4a potentiaalberekening
     """
     dist_L_geom: float
     dist_BUT: float

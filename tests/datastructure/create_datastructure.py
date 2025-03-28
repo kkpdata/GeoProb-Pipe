@@ -2,6 +2,38 @@
 
 from dataclasses import dataclass
 
+# Define the input variables for the functions for Uplift, Heave and Piping
+# dist_L_geom: float
+# dist_BUT: float
+# dist_BIT: float
+# L3_geom: float
+# mv: float
+# pp: float
+# top_zand: float
+# gamma_sat_cover: float
+# gamma_w: float
+# kD: float
+# D: float
+# d70: float
+# c1: float
+# c3: float
+# mu: float
+# mh: float
+# mp: float
+# i_c_h: float
+# rc: float
+# h: float
+
+@dataclass
+class Variables:
+    """Class to store a description of the variables used in the model."""
+    VaribleID: int
+    VariableName: str
+    VariableDescription: str
+    VariableUnit: str
+    VariableType: str
+    VariableDefaulValue: float
+
 
 @dataclass
 class Vakken:
