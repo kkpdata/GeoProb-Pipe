@@ -167,5 +167,5 @@ _work_dir
 
 # Custom excluded file types
 *.res
-*.xlsx
+#*.xlsx
 *.gdb

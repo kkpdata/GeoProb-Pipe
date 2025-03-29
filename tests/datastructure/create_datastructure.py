@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 
+import pandas as pd
+
 # Define the input variables for the functions for Uplift, Heave and Piping
 # dist_L_geom: float
 # dist_BUT: float
@@ -24,15 +26,21 @@ from dataclasses import dataclass
 # rc: float
 # h: float
 
+
 @dataclass
 class Variables:
     """Class to store a description of the variables used in the model."""
+
     VaribleID: int
-    VariableName: str
-    VariableDescription: str
-    VariableUnit: str
-    VariableType: str
+    VariableName: str  # name of the variable
+    VariableDescription: str  # description of the variable
+    VariableUnit: str  # dimension of the variable
+    VariableType: str  # Input, Output, Constant, Calculated
+    VariableDistribution: str  # Lognormal, Normal, Deterministic, n.b. CalculationSettings in different class
+    Spreidingstype: str  # _mean, _stdev, _vc
     VariableDefaulValue: float
+    VariableUpperBound: float
+    VariableLowerBound: float
 
 
 @dataclass
@@ -43,10 +51,10 @@ class Vakken:
     M_tot: float
     Vaklengte: float
     BodemhoogteVak: float
-    Weerstand_C1_mean: float
-    Weerstand_C1_vc: float
-    Weerstand_C3_mean: float
-    Weerstand_C3_vc: float
+    c1_mean: float
+    c1_vc: float
+    c3_mean: float
+    c3_vc: float
 
 
 @dataclass
@@ -87,3 +95,51 @@ class Ondergrondscenarios:
     k_wvp_stdev: float
     D70_mean: float
     D70_vc: float
+
+
+def create_table_from_dataclass(dataclass):
+    """Create a pandas DataFrame from a dataclass instance."""
+    # Get the field names and values from the dataclass
+    field_names = [field.name for field in dataclass.__dataclass_fields__.values()]
+    # field_values = [getattr(dataclass_instance, field) for field in field_names]
+    # Create a DataFrame with the field names as columns and the values as a single row
+    df = pd.DataFrame(columns=field_names)
+    return df
+
+
+if __name__ == "__main__":
+    # Need to creat a excel file with the dataclass instances
+    # Create dataframes of the dataclasses
+    variable_table = create_table_from_dataclass(Variables)
+
+    filepath_variable_table = "tests/datastructure/variable_definition.xlsx"
+    # if file exists, do not create a new file
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    if not pd.io.common.file_exists(filepath_variable_table):
+        variable_table.to_excel(
+            filepath_variable_table, sheet_name="Variables", index=False
+        )
+        print(f"Excel file {filepath_variable_table} created.")
+    else:
+        print(
+            f"File {filepath_variable_table} already exists. Not creating a new file."
+        )
+
+    vakken_table = create_table_from_dataclass(Vakken)
+    uittredepunten_table = create_table_from_dataclass(Uittredepunten)
+    ondergrondscenarios_table = create_table_from_dataclass(Ondergrondscenarios)
+
+    filepath_datastructure = "tests/datastructure/example_datastructure.xlsx"
+
+    # Create a dictionary to hold the dataframes
+    dataframes = {
+        "Vakken": vakken_table,
+        "Uittredepunten": uittredepunten_table,
+        "Ondergrondscenarios": ondergrondscenarios_table,
+    }
+    # Create a Pandas Excel writer using XlsxWriter as the engine.
+    with pd.ExcelWriter(filepath_datastructure, engine="openpyxl") as writer:
+        # Write each dataframe to a different worksheet.
+        for sheet_name, df in dataframes.items():
+            df.to_excel(writer, sheet_name=sheet_name, index=False)
+        print(f"Excel file {filepath_datastructure} created.")
