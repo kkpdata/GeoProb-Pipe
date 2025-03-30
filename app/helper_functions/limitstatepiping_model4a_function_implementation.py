@@ -1,11 +1,10 @@
-"""Python module for the calculation of the limit state function for piping, heave and uplift in a sand layer with a cover layer. 
-"""
+"""Python module for the calculation of the limit state function for piping, heave and uplift in a sand layer with a cover layer."""
 
-from app.helper_functions import model4a
-from app.helper_functions import piping_functions
-from app.helper_functions import geohydro_functions
-from typing import List
+import math
 from dataclasses import dataclass
+from typing import List
+
+from app.helper_functions import geohydro_functions, model4a, piping_functions
 
 # Define the input variables for the functions for Uplift, Heave and Piping
 # dist_L_geom: float
@@ -30,51 +29,67 @@ from dataclasses import dataclass
 # h: float
 
 
-
-def Zu(L_intrede,L_BUT,k,D,c1,c3,L3,WS,PP,L_BIT,d_dek,y_satdek,y_water,MV,mu):
+def Zu(
+    L_intrede, L_BUT, k, D, c1, c3, L3, WS, PP, L_BIT, d_dek, y_satdek, y_water, MV, mu
+):
     L1 = L_intrede - L_BUT
-    lam1 = np.sqrt(k*D*c1)
-    lam3 = np.sqrt(k*D*c3)  
-    Φ1 = PP + (WS - PP) * (L_BUT-L_BIT + lam3 *  math.tanh(L3 / lam3)) / (lam1 *  math.tanh(L1 / lam1) + L_BUT-L_BIT + lam3 * math.tanh(L3 / lam3))
-    Φ2 = PP + (WS - PP) * lam3 *  math.tanh(L3 / lam3) / (lam1 *  math.tanh(L1 / lam1) + L_BUT-L_BIT + lam3 *  math.tanh(L3 / lam3))
-    Φ_uittrede = PP + (Φ2-PP)*(math.sinh((L3-L_BIT)/lam3))/math.sinh(L3/lam3)
-    h_exit = max(PP,MV)
+    lam1 = np.sqrt(k * D * c1)
+    lam3 = np.sqrt(k * D * c3)
+    Φ1 = PP + (WS - PP) * (L_BUT - L_BIT + lam3 * math.tanh(L3 / lam3)) / (
+        lam1 * math.tanh(L1 / lam1) + L_BUT - L_BIT + lam3 * math.tanh(L3 / lam3)
+    )
+    Φ2 = PP + (WS - PP) * lam3 * math.tanh(L3 / lam3) / (
+        lam1 * math.tanh(L1 / lam1) + L_BUT - L_BIT + lam3 * math.tanh(L3 / lam3)
+    )
+    Φ_uittrede = PP + (Φ2 - PP) * (math.sinh((L3 - L_BIT) / lam3)) / math.sinh(
+        L3 / lam3
+    )
+    h_exit = max(PP, MV)
     dΦ = Φ_uittrede - h_exit
     dΦc = d_dek * ((y_satdek - y_water) / y_water)
     Zu = mu * dΦc - dΦ
     return Zu
 
-def Zh(ic,L_intrede,L_BUT,k,D,c1,c3,L3,WS,PP,L_BIT,d_dek,MV):
+
+def Zh(ic, L_intrede, L_BUT, k, D, c1, c3, L3, WS, PP, L_BIT, d_dek, MV):
     L1 = L_intrede - L_BUT
-    lam1 = np.sqrt(k*D*c1)
-    lam3 = np.sqrt(k*D*c3)
-    Φ1 = PP + (WS - PP) * (L_BUT-L_BIT + lam3 *  math.tanh(L3 / lam3)) / (lam1 *  math.tanh(L1 / lam1) + L_BUT-L_BIT + lam3 * math.tanh(L3 / lam3))
-    Φ2 = PP + (WS - PP) * lam3 *  math.tanh(L3 / lam3) / (lam1 *  math.tanh(L1 / lam1) + L_BUT-L_BIT + lam3 *  math.tanh(L3 / lam3))
-    Φ_uittrede = PP + (Φ2-PP)*(math.sinh((L3-L_BIT)/lam3))/math.sinh(L3/lam3)
-    h_exit = max(PP,MV)
+    lam1 = np.sqrt(k * D * c1)
+    lam3 = np.sqrt(k * D * c3)
+    Φ1 = PP + (WS - PP) * (L_BUT - L_BIT + lam3 * math.tanh(L3 / lam3)) / (
+        lam1 * math.tanh(L1 / lam1) + L_BUT - L_BIT + lam3 * math.tanh(L3 / lam3)
+    )
+    Φ2 = PP + (WS - PP) * lam3 * math.tanh(L3 / lam3) / (
+        lam1 * math.tanh(L1 / lam1) + L_BUT - L_BIT + lam3 * math.tanh(L3 / lam3)
+    )
+    Φ_uittrede = PP + (Φ2 - PP) * (math.sinh((L3 - L_BIT) / lam3)) / math.sinh(
+        L3 / lam3
+    )
+    h_exit = max(PP, MV)
     dΦ = Φ_uittrede - h_exit
     Zh = ic - (dΦ / d_dek)
     return Zh
 
-def Zp(L_intrede,L_BUT,k,D,c1,y_water,d70,mp,WS,d_dek,PP,MV):
+
+def Zp(L_intrede, L_BUT, k, D, c1, y_water, d70, mp, WS, d_dek, PP, MV):
     L1 = L_intrede - L_BUT
-    lam1 = np.sqrt(k*D*c1)
-    w1 = lam1*math.tanh(L1/lam1)
+    lam1 = np.sqrt(k * D * c1)
+    w1 = lam1 * math.tanh(L1 / lam1)
     L = w1 + L_BUT
     k_ms = k / (24 * 3600)
     k_intr = (0.00000133 / 9.81) * k_ms
     Fres = 0.25 * ((26.0 - y_water) / y_water) * math.tan(37.0 * math.pi / 180.00)
-    Fscale = pow((d70/1.0E6)/2.08E-4,0.4) * 2.08E-4 / pow(k_intr * L, (1.0/3.0))
+    Fscale = pow((d70 / 1.0e6) / 2.08e-4, 0.4) * 2.08e-4 / pow(k_intr * L, (1.0 / 3.0))
     if D == L:
-        D = D-0.001
+        D = D - 0.001
     else:
         pass
-    totdemacht = 0.04 + (0.28 / (pow(D/L,2.8) - 1.0))
-    Fgeom = 0.91 * pow(D/L,totdemacht)
+    totdemacht = 0.04 + (0.28 / (pow(D / L, 2.8) - 1.0))
+    Fgeom = 0.91 * pow(D / L, totdemacht)
     Hc = Fres * Fscale * Fgeom * L
-    h_exit = max(PP,MV)
+    h_exit = max(PP, MV)
     Zp = (mp * Hc) - (max(0.01, (WS - h_exit - (0.3 * d_dek))))
     return Zp
+
 
 def calc_Z_combin_piping(
     dist_L_geom: float,
@@ -96,7 +111,8 @@ def calc_Z_combin_piping(
     mp: float,
     i_c_h: float,
     rc: float,
-    h: float) -> List[float]:
+    h: float,
+) -> List[float]:
     r"""
 
     Gecombineerde grenstoestandfunctie voor uplift, heave en piping. De input X is een lijst met de volgende elementen:
@@ -202,14 +218,17 @@ def calc_Z_combin_piping(
         Z_combin,
     )
 
+
 ## Class implementation
+
 
 @dataclass
 class LimitStatePipingModel4a:
     r"""
-    Class voor het berekenen van de gecombineerde grenstoestandfunctie voor uplift, heave en piping.     
+    Class voor het berekenen van de gecombineerde grenstoestandfunctie voor uplift, heave en piping.
     Gebruikt de model4a potentiaalberekening
     """
+
     dist_L_geom: float
     dist_BUT: float
     dist_BIT: float
@@ -234,62 +253,84 @@ class LimitStatePipingModel4a:
     @property
     def Dcover(self) -> float:
         return piping_functions.calc_Dcover(self.mv, self.top_zand)
-    
+
     @property
     def h_exit(self) -> float:
         return piping_functions.calc_h_exit(self.pp, self.mv)
-    
+
     @property
     def dhred(self) -> float:
         return piping_functions.calc_dH_red(self.h, self.h_exit, self.rc, self.Dcover)
-    
+
     @property
     def d_pot_c_u(self) -> float:
-        return piping_functions.calc_d_pot_c_u(self.Dcover, self.gamma_sat_cover, self.gamma_w)
-    
+        return piping_functions.calc_d_pot_c_u(
+            self.Dcover, self.gamma_sat_cover, self.gamma_w
+        )
+
     @property
     def k(self) -> float:
         return self.kD / self.D
-    
+
     @property
     def r_exit(self) -> float:
         pot_model = model4a.Model4a(
-            k=self.k, D=self.D, c1=self.c_1, c3=self.c_3, L1=self.dist_L_geom - self.dist_BUT, L3=self.L3_geom, x_but=(0.0 - (self.dist_BUT - self.dist_BIT)), x_bit=0.0
+            k=self.k,
+            D=self.D,
+            c1=self.c_1,
+            c3=self.c_3,
+            L1=self.dist_L_geom - self.dist_BUT,
+            L3=self.L3_geom,
+            x_but=(0.0 - (self.dist_BUT - self.dist_BIT)),
+            x_bit=0.0,
         )
         r_exit, r_but, r_bit = pot_model.respons(self.dist_BIT)
         return r_exit
-    
+
     @property
     def pot_exit(self) -> float:
         return geohydro_functions.calc_respons2pot(self.pp, self.r_exit, self.h)
-    
+
     @property
     def L_kwelweg(self) -> float:
         pot_model = model4a.Model4a(
-            k=self.k, D=self.D, c1=self.c_1, c3=self.c_3, L1=self.dist_L_geom - self.dist_BUT, L3=self.L3_geom, x_but=(0.0 - (self.dist_BUT - self.dist_BIT)), x_bit=0.0
+            k=self.k,
+            D=self.D,
+            c1=self.c_1,
+            c3=self.c_3,
+            L1=self.dist_L_geom - self.dist_BUT,
+            L3=self.L3_geom,
+            x_but=(0.0 - (self.dist_BUT - self.dist_BIT)),
+            x_bit=0.0,
         )
         return pot_model.W1 + self.dist_BUT
-    
+
     @property
     def i_optredend(self) -> float:
-        return piping_functions.calc_i_optredend(self.pot_exit, self.h_exit, self.Dcover)
-    
+        return piping_functions.calc_i_optredend(
+            self.pot_exit, self.h_exit, self.Dcover
+        )
+
     @property
     def dhc(self) -> float:
-        return piping_functions.calc_dH_sellmeijer(self.d70, self.k, self.D, self.L_kwelweg, self.gamma_w)
-    
+        return piping_functions.calc_dH_sellmeijer(
+            self.d70, self.k, self.D, self.L_kwelweg, self.gamma_w
+        )
+
     @property
     def Z_u(self) -> float:
-        return piping_functions.calc_Z_u(self.d_pot_c_u, self.pot_exit, self.h_exit, self.mu)
-    
+        return piping_functions.calc_Z_u(
+            self.d_pot_c_u, self.pot_exit, self.h_exit, self.mu
+        )
+
     @property
     def Z_h(self) -> float:
         return piping_functions.calc_Z_h(self.i_c_h, self.i_optredend, self.mh)
-    
+
     @property
     def Z_p(self) -> float:
         return piping_functions.calc_Z_p(self.dhc, self.dhred, self.mp)
-    
+
     @property
     def Z_combin(self) -> float:
         return max(self.Z_u, self.Z_h, self.Z_p)

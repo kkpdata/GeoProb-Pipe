@@ -196,6 +196,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "numpy" },
     { name = "pytest" },
     { name = "sphinx" },
     { name = "sphinxcontrib-bibtex" },
@@ -212,6 +213,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "numpy", specifier = ">=2.2.4" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "sphinx", specifier = ">=8.2.3" },
     { name = "sphinxcontrib-bibtex", specifier = ">=2.6.3" },
