@@ -1,4 +1,4 @@
-import limitstatepiping_model4a as lm4a
+import app.helper_functions.limitstatepiping_model4a_class_implementation as lm4a
 from dataclasses import dataclass
 from typing import List,Optional
 import scipy.stats as sct
