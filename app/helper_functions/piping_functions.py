@@ -1,9 +1,6 @@
-"""This module contains multiple functions as defined in :cite:t:`sh_piping_2021`
-"""
+"""This module contains multiple functions as defined in :cite:t:`sh_piping_2021`"""
 
 import math
-from typing import List, Optional, Type, Union
-
 
 ############################################################################################################
 # General functions

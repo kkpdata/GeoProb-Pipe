@@ -1,11 +1,10 @@
 """This module consists of different geohydrological methods used in the safety assesment of levees.
 
-There are different functions and classes defined. Background information can be found in 
+There are different functions and classes defined. Background information can be found in
 :cite:t:`trw_2004`.
 """
 
 import math
-from typing import List, Optional
 
 
 # Functions
@@ -253,7 +252,8 @@ def calc_theta(b: float, lambda_w_vl: float) -> float:
 
 
 def calc_f(b: float, lambda_w_vl: float) -> float:
-    r"""Calculates f, see figure b4.13 from 'Technisch Rapport Waterspanningen bij dijken' :cite:t:`trw_2004`. 
+    (
+        r"""Calculates f, see figure b4.13 from 'Technisch Rapport Waterspanningen bij dijken' :cite:t:`trw_2004`. 
     Approximation by exponential function
 
     Args:
@@ -265,9 +265,11 @@ def calc_f(b: float, lambda_w_vl: float) -> float:
 
     Returns:
         float: f from b4.13 :cite:t:`trw_2004`
-    """ """
+    """
+        """
     b           : with of river in m
     lambda_w_vl : cyclic lambda of foreland"""
+    )
     x = b / lambda_w_vl
     if x < 0.0:
         raise ValueError
