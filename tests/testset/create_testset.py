@@ -24,7 +24,7 @@ def create_permutations_dataframe(**kwargs):
     permutations = list(itertools.product(*variable_values))
 
     # Create a DataFrame from the permutations
-    df = pd.DataFrame(permutations, columns=variable_names)
+    df = pd.DataFrame(permutations, columns=list(variable_names))
 
     return df
 
