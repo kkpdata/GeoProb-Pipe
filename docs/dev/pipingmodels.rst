@@ -1,7 +1,7 @@
-Piping Module
+Piping functions
 ===================
 
-.. automodule:: pipingmodels
+.. automodule:: piping_functions
    :members:
    :undoc-members:
    :show-inheritance:

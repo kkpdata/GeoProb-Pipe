@@ -1,7 +1,7 @@
-Geohydrology Module
-===================
+Geohydrology functions
+======================
 
-.. automodule:: geohydromodels
+.. automodule:: geohydro_functions
    :members:
    :undoc-members:
    :show-inheritance:
