@@ -27,7 +27,7 @@ from app.helper_functions import geohydro_functions, model4a, piping_functions
 # h: float
 
 
-def calc_Z_combin_piping(X: List[float]) -> float:
+def calc_Z_combin_piping(X: List[float]) -> List[float]:
     r"""
 
     Gecombineerde grenstoestandfunctie voor uplift, heave en piping. De input X is een lijst met de volgende elementen:
@@ -138,22 +138,8 @@ def calc_Z_combin_piping(X: List[float]) -> float:
     # combinatie
     Z_combin = max(Z_u, Z_h, Z_p)
 
-    return (
-        Dcover,
-        h_exit,
-        d_pot_c_u,
-        dhred,
-        k,
-        r_exit,
-        pot_exit,
-        L_kwelweg,
-        i_optredend,
-        dhc,
-        Z_u,
-        Z_h,
-        Z_p,
-        Z_combin,
-    )
+    return [Dcover,h_exit,d_pot_c_u,dhred,k,r_exit,pot_exit,L_kwelweg,i_optredend,dhc,Z_u,Z_h,Z_p,Z_combin]
+    
 
 
 def Z_u(X: List[float]) -> float:

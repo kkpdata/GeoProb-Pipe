@@ -40,6 +40,7 @@ def get_data():
 # h: float
 ## Class implementation
 
+# input variables
 input_keys = [
     "DIST_L_GEOM",
     "DIST_BUT",
@@ -63,62 +64,19 @@ input_keys = [
     "h",
 ]
 
+# Expected output keys
 expected_keys = ["Z_u"] + ["Z_h"] + ["Z_p"] + ["L_kwelweg"] + ["dHc_piping"]
-
 testset_keys = input_keys + expected_keys
 testset_keys_string = ", ".join(testset_keys)
-print(testset_keys_string)
+#print(testset_keys_string)
+# Get the test data from the Excel file
 testset_df = get_data()[testset_keys]
+# Convert the DataFrame to a list of tuples for pytest parametrize
 test_data = [tuple(row) for row in testset_df.itertuples(index=False, name=None)]
-print(test_data[:5])
+#print(test_data[:5])
 
-
-# @pytest.mark.parametrize(testset_keys_string, test_data)
-# def test_LimitStatePipingModel4a(dist_L_geom,
-#         dist_BUT,
-#         dist_BIT,
-#         L3_geom,
-#         mv,
-#         pp,
-#         top_zand,
-#         gamma_sat_cover,
-#         gamma_w,
-#         kD,
-#         D,
-#         d70,
-#         c_1,
-#         c_3,
-#         mu,
-#         mh,
-#         mp,
-#         i_c_h,
-#         rc,
-#         h,excepted):
-#     model = limitstatepiping_model4a_class_implementation.LimitStatePipingModel4a(
-#         dist_L_geom=dist_L_geom,
-#         dist_BUT=dist_BUT,
-#         dist_BIT=dist_BIT,
-#         L3_geom=L3_geom,
-#         mv=mv,
-#         pp=pp,
-#         top_zand=top_zand,
-#         gamma_sat_cover=gamma_sat_cover,
-#         gamma_w=gamma_w,
-#         kD=kD,
-#         D=D,
-#         d70=d70,
-#         c_1=c_1,
-#         c_3=c_3,
-#         mu=mu,
-#         mh=mh,
-#         mp=mp,
-#         i_c_h=i_c_h,
-#         rc=rc,
-#         h=h
-#     )
-#     assert model.Z_u == pytest.approx(excepted, 0.0001)
-
-
+# Test function for LimitStatePipingModel4a
+# This function will be called for each row of test data
 @pytest.mark.parametrize(
     "i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15,i16,i17,i18,i19,i20,Z_u, Z_h, Z_p, expected_L_kwelweg, expected_dHc_piping",
     test_data,
@@ -177,3 +135,67 @@ def test_LimitStatePipingModel4a(
     assert model.Z_p == pytest.approx(Z_p, 0.0001)
     assert model.L_kwelweg == pytest.approx(expected_L_kwelweg, 0.0001)
     assert model.dhc == pytest.approx(expected_dHc_piping, 0.0001)
+    assert limitstatepiping_model4a_class_implementation.Z_u(
+        dist_L_geom=i1,
+        dist_BUT=i2,
+        dist_BIT=i3,
+        L3_geom=i4,
+        mv=i5,
+        pp=i6,
+        top_zand=i7,
+        gamma_sat_cover=i8,
+        gamma_w=i9,
+        kD=i10,
+        D=i11,
+        d70=i12,
+        c_1=i13,
+        c_3=i14,
+        mu=i15,
+        mh=i16,
+        mp=i17,
+        i_c_h=i18,
+        rc=i19,
+        h=i20,) == pytest.approx(Z_u, 0.0001)
+    assert limitstatepiping_model4a_class_implementation.Z_h(
+        dist_L_geom=i1,
+        dist_BUT=i2,
+        dist_BIT=i3,
+        L3_geom=i4,
+        mv=i5,
+        pp=i6,
+        top_zand=i7,
+        gamma_sat_cover=i8,
+        gamma_w=i9,
+        kD=i10,
+        D=i11,
+        d70=i12,
+        c_1=i13,
+        c_3=i14,
+        mu=i15,
+        mh=i16,
+        mp=i17,
+        i_c_h=i18,
+        rc=i19,
+        h=i20,) == pytest.approx(Z_h, 0.0001)
+    assert limitstatepiping_model4a_class_implementation.Z_p(
+        dist_L_geom=i1,
+        dist_BUT=i2,
+        dist_BIT=i3,
+        L3_geom=i4,
+        mv=i5,
+        pp=i6,
+        top_zand=i7,
+        gamma_sat_cover=i8,
+        gamma_w=i9,
+        kD=i10,
+        D=i11,
+        d70=i12,
+        c_1=i13,
+        c_3=i14,
+        mu=i15,
+        mh=i16,
+        mp=i17,
+        i_c_h=i18,
+        rc=i19,
+        h=i20,) == pytest.approx(Z_p, 0.0001)
+    
