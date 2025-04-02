@@ -1,0 +1,6 @@
+####################
+Gebruikte variabelen
+####################
+
+
+.. bibliography
