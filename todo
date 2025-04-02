@@ -4,10 +4,11 @@
     - [x] Initialize project structure.
     - [x] Set up version control with Git.
     - [ ] Create a README file with project description.
-    - [ ] Harmonize requirements for documentation.
+    - [X] Harmonize requirements for documentation.
 
 2. **Core Functionality**
-    - [ ] Implement piping kernel and testing different formats.
+    - [X] Implement piping kernel and testing different formats.
+    - [ ] naamgeving in de variable_definition doorvoeren in alle functies,classes en tests
     - [ ] "variable_definition.xlsx" invullen en opsturen naar WSHD voor verificatie: doel = gelijke naamgeving van de variabelen
     - [X] Rewrite Sellmeijer function to implement all contstants
     - [ ] Add support for multiple input data formats (e.g., GeoJSON, Shapefile).

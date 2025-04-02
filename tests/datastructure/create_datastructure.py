@@ -1,5 +1,6 @@
 """Define and create a datastructure and variables for the app"""
 
+import os
 from dataclasses import dataclass
 
 import pandas as pd
@@ -39,8 +40,8 @@ class Variables:
     VariableDistribution: str  # Lognormal, Normal, Deterministic, n.b. CalculationSettings in different class
     Spreidingstype: str  # _mean, _stdev, _vc
     VariableDefaulValue: float
-    VariableUpperBound: float
     VariableLowerBound: float
+    VariableUpperBound: float
 
 
 @dataclass
@@ -50,7 +51,7 @@ class Vakken:
     M_van: float
     M_tot: float
     Vaklengte: float
-    BodemhoogteVak: float
+    bodemhoogte_vak: float
     c1_mean: float
     c1_vc: float
     c3_mean: float
@@ -66,14 +67,14 @@ class Uittredepunten:
     Mvalue: float
     VakID: int
     Vaknaam: str
-    DIST_L_GEOM: float
-    DIST_BUT: float
-    DIST_BIT: float
-    DIST_L3: float
+    L_intrede: float
+    L_but: float
+    L_bit: float
+    L3: float
     HydraLocatieID: str
-    WBN: float
-    Bodemhoogte: float
-    Polderpei: float
+    buitenwaterstand: float
+    bodemhoogte: float
+    polderpeil: float
 
 
 @dataclass
@@ -81,20 +82,20 @@ class Ondergrondscenarios:
     OndergrondscenarioID: int
     VakID: int
     ScenarioID: int
-    ScenarioNaam: str
-    ScenarioKans: float
-    Top_zand_mean: float
-    Top_zand_stdev: float
-    gamma_sat_cover_mean: float
-    gamma_sat_cover_stdev: float
-    d_wvp_mean: float
-    d_wvp_stdev: float
+    Scenarionaam: str
+    Scenariokans: float
+    top_zand_mean: float
+    top_zand_stdev: float
+    gamma_sat_deklaag_mean: float
+    gamma_sat_deklaag_stdev: float
+    D_wvp_mean: float
+    D_wvp_stdev: float
     kD_wvp_mean: float
     kD_wvp_vc: float
     k_wvp_mean: float
     k_wvp_stdev: float
-    D70_mean: float
-    D70_vc: float
+    d70_mean: float
+    d70_vc: float
 
 
 def create_table_from_dataclass(dataclass):
@@ -112,10 +113,9 @@ if __name__ == "__main__":
     # Create dataframes of the dataclasses
     variable_table = create_table_from_dataclass(Variables)
 
-    filepath_variable_table = "tests/datastructure/variable_definition.xlsx"
+    filepath_variable_table = "tests/datastructure/variable_definition_generated.xlsx"
     # if file exists, do not create a new file
-    # Create a Pandas Excel writer using XlsxWriter as the engine.
-    if not pd.io.common.file_exists(filepath_variable_table):
+    if not os.path.exists(filepath_variable_table):
         variable_table.to_excel(
             filepath_variable_table, sheet_name="Variables", index=False
         )
