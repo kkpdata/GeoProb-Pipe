@@ -1,6 +1,9 @@
 # GeoProb-Pipe
 Tool voor het parallel uitvoeren van probabilistische pipingberekeningen.
 
+# Ontwikkeling
+Deze repository is in ontwikkeling. In `dev_kernel_structure` worden de functionaliteiten ontwikkeld om de structuur van de database en de rekenkernel inclusief testen op te nemen. In `main` staan de functionaliteiten voor data invoer/uitvoer, de koppeling met de probabilitistische bibliotheek en het uitvoeren van de probabilistische som.
+
 # Contactpersonen
 - Sander Kapinga, S.Kapinga@wsrl.nl
 - Laura van der Doef, L.vanderDoef@wshd.nl
