@@ -4,18 +4,22 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parents[1]))  # Add repo to sys.path to make sure all imports are correctly found
 
-from app.classes.fragility_curve import FragilityCurve
+from app.classes.project import Project
 
 # ====================================
 # User Input Section
 # ====================================
 
 # Define path to workspace (either absolute or relative)
-PATH_WORKSPACE: str | Path = r"..\\workspaces\Martijn_uitproberen_PTK_koppeling"
+PATH_WORKSPACE: str | Path = r"..\\workspaces\example_new_calculations"
 
-# Whether existing calculation results should be used
-# If True, the .tkx files that are found the "PATH_WORKSPACE/output" folder are used
-USE_EXISTING_TKX_RESULTS: bool = False
+
+
+
+#FIXME implement feature to re-use existing results
+# # Whether existing calculation results should be used
+# # If True, the .tkx files that are found the "PATH_WORKSPACE/output" folder are used
+# USE_EXISTING_TKX_RESULTS: bool = False
 
 # Whether to clean up the working directory in the workspace (True) or not (False).
 # Note that if set to False, the working directory size could become 100-500 GB or larger.
@@ -35,9 +39,6 @@ WATERLEVEL_RANGE: list[float] = [0.5, 3.75]
 MU: float = 2.57
 SCALE: float = 0.102
 
-# # Traject 20-4
-# MU: float = 2.17
-# SCALE: float = 0.088
 
 # ====================================
 # End of User Input Section
@@ -46,15 +47,7 @@ SCALE: float = 0.102
 
 def start_tool(
     PATH_WORKSPACE: str | Path,
-    USE_EXISTING_TKX_RESULTS: bool,
-    CLEANUP_WORK_DIR: bool,
-    COMBINE_FRAGILITY_CURVES: bool,
-    FRAGILITY_CURVE_NON_FAILURE_ADJUSTMENT: bool,
-    NON_FAILURE_THRESHOLD: dict,
-    WATERLEVEL_RANGE: list[float],
-    MU: float,
-    SCALE: float,
-) -> FragilityCurve:
+):
     """Start PTK tool
 
     Args:
@@ -75,16 +68,9 @@ def start_tool(
     print(f"Start time: {time_start.strftime('%d %b %Y %H:%M:%S')}")
 
     # Calculate fragility curve and integrate it with the waterlevel statistics
-    fc = FragilityCurve(
+    project = Project(
         PATH_WORKSPACE,
-        USE_EXISTING_TKX_RESULTS,
-        CLEANUP_WORK_DIR,
-        COMBINE_FRAGILITY_CURVES,
-        FRAGILITY_CURVE_NON_FAILURE_ADJUSTMENT,
-        NON_FAILURE_THRESHOLD,
-        WATERLEVEL_RANGE,
-        MU,
-        SCALE,
+
     )
 
     # # Overview of fragility curve results
@@ -127,19 +113,12 @@ def start_tool(
 if __name__ == "__main__":
 
     # FIXME variables in preparation of next update, currently set to None
+    USE_EXISTING_TKX_RESULTS = None
     COMBINE_FRAGILITY_CURVES = None
     FRAGILITY_CURVE_NON_FAILURE_ADJUSTMENT = None
     NON_FAILURE_THRESHOLD = None
 
     # Run tool
     fc = start_tool(
-        PATH_WORKSPACE,
-        USE_EXISTING_TKX_RESULTS,
-        CLEANUP_WORK_DIR,
-        COMBINE_FRAGILITY_CURVES,
-        FRAGILITY_CURVE_NON_FAILURE_ADJUSTMENT,
-        NON_FAILURE_THRESHOLD,
-        WATERLEVEL_RANGE,
-        MU,
-        SCALE,
+        PATH_WORKSPACE
     )

@@ -3,75 +3,42 @@ from pathlib import Path
 import pandas as pd
 
 from app.classes.file_system import FileSystem
-from app.classes.toolkit_native_model import ToolkitNative
-from app.helper_functions.toolkit_functions import load_tkx_file
 
 
+# FIXME docstring
+# FIXME add functionality to read existing results (without running prob. calculations again)
 class Workspace:
     """Workspace class which handles all actions related to input, output and intermediate working files"""
 
-    def __init__(self, PATH_WORKSPACE: str | Path, USE_EXISTING_TKX_RESULTS: bool) -> None:
+    def __init__(self, PATH_WORKSPACE: str | Path) -> None:
         """Initialize Workspace instance
 
         Args:
             PATH_WORKSPACE (str | Path): path to the folder that contains all required input and where all output and working files will be stored
-            USE_EXISTING_TKX_RESULTS (bool): whether to use precalculated .tkx files (True) or to start new calculations (False)
         """
         self.folderpath = FileSystem.validate_path(PATH_WORKSPACE)
 
-        self.output = _prepare_output_folder(self.folderpath, USE_EXISTING_TKX_RESULTS, checks=True)
-        self.input = _prepare_input_folder(self.folderpath, self.output.folderpath, USE_EXISTING_TKX_RESULTS)
+        self.output = _prepare_output_folder(self.folderpath, checks=True)
+        self.input = _prepare_input_folder(self.folderpath, self.output.folderpath)
 
-        if not USE_EXISTING_TKX_RESULTS:
-            self.work_dir = _prepare_work_dir(self.folderpath)
+        # FIXME add functionality to read existing results (without running prob. calculations again)
+        # self.output = _prepare_output_folder(self.folderpath, USE_EXISTING_TKX_RESULTS, checks=True)
+        # self.input = _prepare_input_folder(self.folderpath, self.output.folderpath, USE_EXISTING_TKX_RESULTS)
 
-    def map_precalculated_tkx_input_stix(self, path_ptk_server: Path) -> None:
-        """Obtains path of the .stix files that are used in the precalculated .tkx files
+        # if not USE_EXISTING_TKX_RESULTS:
+        #     self.work_dir = _prepare_work_dir(self.folderpath)
 
-        Args:
-            path_ptk_server (Path): path to PTK server executable (Deltares.Probabilistic.Server.exe).
-
-        Raises:
-            FileNotFoundError: raised if a .stix path used in a .tkx file is invalid
-            ValueError: raised if a .stix path used in a .tkx file is not located within the 'input' folder of the project folder.
-        """
-        list_path_precalculated_tkx = []
-        list_path_stix = []
-        for path_precalculated_tkx in self.output.files["filepath"]:
-            path_stix = Path(load_tkx_file(path_ptk_server, path_precalculated_tkx).model.input_file)
-            print("\nPATH=", path_stix)
-            try:
-                FileSystem.validate_path(path_stix)
-            except FileNotFoundError:
-                raise FileNotFoundError(
-                    f"Output .tkx file {path_precalculated_tkx} refers to a non-existing .stix file ({path_stix})"
-                )
-
-            if path_stix.parent != self.input.folderpath:
-                raise ValueError(
-                    f"""All .stix files used by the output .tkx files should be located in the 'input' folder of the project folder. This is not the case for {path_precalculated_tkx} which refers to {path_stix}.\nMove the .stix files to {self.input.folderpath} and update the references to the .stix in the .tkx files"""
-                )
-
-            list_path_precalculated_tkx.append(path_precalculated_tkx)
-            list_path_stix.append(path_stix)
-
-        self.mapping_tkx_stix = pd.DataFrame.from_dict(
-            {
-                "tkx_path": list_path_precalculated_tkx,
-                "tkx_name": [tkx.name for tkx in list_path_precalculated_tkx],
-                "stix_path": list_path_stix,
-                "stix_name": [stix.name for stix in list_path_stix],
-            }
-        )
 
     def update_output_filesystem(self) -> None:
         """
         Update the output subfolder FileSystem instance (to include new calculation results)
         """
-        self.output = _prepare_output_folder(self.folderpath, USE_EXISTING_TKX_RESULTS=True, checks=False)
+        self.output = _prepare_output_folder(self.folderpath, checks=False)
 
 
-def _prepare_output_folder(PATH_WORKSPACE: Path, USE_EXISTING_TKX_RESULTS: bool, checks: bool) -> FileSystem:
+# FIXME docstring
+def _prepare_output_folder(PATH_WORKSPACE: Path, checks: bool) -> FileSystem:
+# def _prepare_output_folder(PATH_WORKSPACE: Path, USE_EXISTING_TKX_RESULTS: bool, checks: bool) -> FileSystem:
     """Prepare output subfolder
 
     Args:
@@ -91,27 +58,31 @@ def _prepare_output_folder(PATH_WORKSPACE: Path, USE_EXISTING_TKX_RESULTS: bool,
         Path.mkdir(PATH_WORKSPACE / "output", parents=False, exist_ok=False)
         print(f"INFO: output folder was succesfully created in project folder ({PATH_WORKSPACE / 'output'})")
 
+    # FIXME extension of output files is not correct (shouldn't be .tkx)
     # Create FileSystem instance for output folder
     filesystem_output = FileSystem(PATH_WORKSPACE / "output", "tkx")
-
-    if checks:
-        # Perform checks
-        if USE_EXISTING_TKX_RESULTS and filesystem_output.files.empty:
-            # Raise error if existing PTK calculation results should be used but no .tkx files were found
-            raise FileNotFoundError(
-                f"You specified USE_EXISTING_TKX_RESULTS=True meaning that the output folder {filesystem_output.folderpath} should contain .tkx files with results from a previous run. However, no .tkx files were found."
-            )
-        elif not USE_EXISTING_TKX_RESULTS and not filesystem_output.files.empty:
-            # Raise error if new PTK calculations should be started but the found output working folder is not empty
-            # Let the user take of this in order to prevent accidental deletion of files.
-            raise FileExistsError(
-                f"You specified USE_EXISTING_TKX_RESULTS=False, meaning new calculations will be run. The project folder contains a subfolder 'output' with results from a previous run. Delete (or archive) this folder before you continue: {filesystem_output.folderpath}."
-            )
+    
+    # FIXME customize checks for STPH files
+    # if checks:
+    #     # Perform checks
+    #     if USE_EXISTING_TKX_RESULTS and filesystem_output.files.empty:
+    #         # Raise error if existing PTK calculation results should be used but no .tkx files were found
+    #         raise FileNotFoundError(
+    #             f"You specified USE_EXISTING_TKX_RESULTS=True meaning that the output folder {filesystem_output.folderpath} should contain .tkx files with results from a previous run. However, no .tkx files were found."
+    #         )
+    #     elif not USE_EXISTING_TKX_RESULTS and not filesystem_output.files.empty:
+    #         # Raise error if new PTK calculations should be started but the found output working folder is not empty
+    #         # Let the user take of this in order to prevent accidental deletion of files.
+    #         raise FileExistsError(
+    #             f"You specified USE_EXISTING_TKX_RESULTS=False, meaning new calculations will be run. The project folder contains a subfolder 'output' with results from a previous run. Delete (or archive) this folder before you continue: {filesystem_output.folderpath}."
+    #         )
 
     return filesystem_output
 
+# FIXME docstring
+def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path) -> FileSystem:
+# def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path, USE_EXISTING_TKX_RESULTS: bool) -> FileSystem:
 
-def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path, USE_EXISTING_TKX_RESULTS: bool) -> FileSystem:
     """Prepare input subfolder
 
     Args:
@@ -135,29 +106,28 @@ def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path, USE_EX
     # Create FileSystem instance for input folder
     filesystem_input = FileSystem(PATH_WORKSPACE / "input")
 
+    # FIXME customize checks for STPH files
     # Perform checks
-    if USE_EXISTING_TKX_RESULTS:
-        # FIXME customize checks for STPH input file, code below still checks for .stix files
-        pass
+    # if USE_EXISTING_TKX_RESULTS:
+        # pass
         # if len(FileSystem.find_files_in_dir(filesystem_input.folderpath, "stix")) != len(
         #     FileSystem.find_files_in_dir(path_output_folder, "tkx")
         # ):
         #     raise FileNotFoundError(
         #         f"The number of .stix files in the 'input' subfolder should match the number of .tkx files in the 'output' subfolder.\nFiles found:\n{len(FileSystem.find_files_in_dir(filesystem_input.folderpath, "stix"))} .stix files in {filesystem_input.folderpath}\n{len(FileSystem.find_files_in_dir(path_output_folder, "tkx"))} .tkx files in {path_output_folder}"
         #     )
-    else:
-        # FIXME customize checks for STPH input file, code below still checks for .stix files
+    # else:
         # if len(FileSystem.find_files_in_dir(filesystem_input.folderpath, "stix")) == 0:
         #     # Checks if the "input" subfolder contains .stix files
         #     raise FileNotFoundError(
         #         f"Input folder {filesystem_input.folderpath} should contain at least 1 .stix file for which you want to carry out a PTK-calculation"
         #     )
 
-        if len(FileSystem.find_files_in_dir(filesystem_input.folderpath, "tkx")) != 1:
-            # Make sure the "input" subfolder contains 1 .tkx file (= template .tkx)
-            raise FileNotFoundError(
-                f"Input folder {filesystem_input.folderpath} should contain exactly 1 .tkx file which will be used as template .tkx file for PTK calculations"
-            )
+    if len(FileSystem.find_files_in_dir(filesystem_input.folderpath, "xlsx")) != 1:
+        # Make sure the "input" subfolder contains 1 .xlsx file
+        raise FileNotFoundError(
+            f"Input folder {filesystem_input.folderpath} should contain exactly 1 .xlsx file containing parameter values that will be used in the calculations"
+        )
 
     return filesystem_input
 
