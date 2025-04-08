@@ -22,18 +22,29 @@ class Project():
         # Initialize Workspace object
         self.workspace = Workspace(PATH_WORKSPACE)
         
-        # Initialize parameters_collection object
+        #FIXME <--------------> Start stukje Oscar
+        
+        # Initialize parameters_collection object #FIXME
         # self.parameter_collection = ParameterCollection(self.workspace.input.folderpath)
+        
+        # TODO waar moet buitewaterstand komen?
         
         # Initialize uittredepunt, scenario and vak using data in parameters_collection
         self.uittredepunten = ...self.parameter_collection...
         self.scenario = ...self.parameter_collection...
         self.vakken = ...self.parameter_collection...
         
+        #FIXME <--------------> Einde stukje Oscar
+        
+        # TODO add samengestelde (afgeleide) parameters (zoals kwelweglengte) 
+        
         # Generate ScenarioCalculation instances (combinations of uittredepunten, scenarios and vakken)
+        #FIXME
+        # FIXME bedenk andere naam voor ScenarioCalculation, dubbeling met subsoil_scenario voorkomen 
         list_scenario_calculations = []
         for scenario in self.parameter_collection:
-            list_scenario_calculations.append(ScenarioCalculation(uittredepunt, scenario, vak))
+            for model in Zu, Zh, Zp:  # Uplift, Heave, Piping
+                list_scenario_calculations.append(ScenarioCalculation(uittredepunt, scenario, vak, model))
         self.scenario_calculations = list_scenario_calculations
         
         # Start calculations

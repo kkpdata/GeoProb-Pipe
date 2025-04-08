@@ -25,7 +25,7 @@ class ScenarioCalculation:
     
 
     
-    def _setup_reliability_project(self):
+    def _setup_reliability_project(self) -> None:
         reliability_project = ReliabilityProject()
         
         # Set settings
