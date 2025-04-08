@@ -1,0 +1,43 @@
+# TODO List for GeoProb-Pipe
+
+1. **Project Setup**
+    - [x] Initialize project structure.
+    - [x] Set up version control with Git.
+    - [ ] Create a README file with project description.
+    - [X] Harmonize requirements for documentation.
+
+2. **Core Functionality**
+    - [X] Implement piping kernel and testing different formats.
+    - [ ] naamgeving in de variable_definition doorvoeren in alle functies,classes en tests
+    - [ ] "variable_definition.xlsx" invullen en opsturen naar WSHD voor verificatie: doel = gelijke naamgeving van de variabelen
+    - [X] Rewrite Sellmeijer function to implement all contstants
+    - [ ] Add support for multiple input data formats (e.g., GeoJSON, Shapefile).
+    - [ ] Develop probabilistic analysis module.
+
+3. **User Interface**
+    - [ ] Design and implement datastructure
+    - [ ] Documentation
+
+4. **Testing**
+    - [ ] Write unit tests for core modules.
+    - [ ] testset uitbreiden naar Z_h en Z_p (eerst class implementatie)
+    - [ ] Set up testing workflow.
+    - [ ] Perform integration testing.
+
+5. **Documentation**
+    - [ ] Document codebase with comments and docstrings.
+    - [ ] Write user guide for running the pipeline.
+    - [ ] Create API documentation if applicable.
+
+6. **Optimization**
+    - [ ] Optimize pipeline for performance.
+    - [ ] Add logging and error handling.
+
+7. **Deployment**
+    - [ ] Package the application for distribution.
+    - [ ] GitObs integration.
+
+8. **Future Enhancements**
+    - [ ] Add visualization tools for geospatial data.
+    - [ ] Implement machine learning models for advanced analysis.
+    - [ ] Explore cloud integration for scalability.
