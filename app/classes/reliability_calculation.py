@@ -10,8 +10,8 @@ from probabilistic_library import (
 )
 
 
-class ScenarioCalculation:
-    """ScenarioCalculation class containing calculation settings and results for 1 uittredepunt"""
+class ReliabilityCalculation:
+    """ReliabilityCalculation class containing calculation settings and results for 1 uittredepunt"""
 
     def __init__(self):
         
@@ -60,9 +60,9 @@ class ScenarioCalculation:
     # self.influence_factors = None
     # self.alphas = None
 
-class ScenarioCalculationSet:
-    """ScenarioCalculationSet class containing multiple ScenarioCalculation instances"""
+class ReliabilityCalculationSet:
+    """ReliabilityCalculationSet class containing multiple ReliabilityCalculation instances"""
 
-    def __init__(self, list_scenario_calculations: list[ScenarioCalculation]) -> None:
+    def __init__(self, list_scenario_calculations: list[ReliabilityCalculation]) -> None:
         self.calculations = list_scenario_calculations
 
