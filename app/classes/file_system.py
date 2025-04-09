@@ -45,6 +45,7 @@ class FileSystem:
     @staticmethod
     def find_files_in_dir(dir: str | Path, extension: str | None = None) -> list[Path]:
         """Find all files with a specified extension in a folder
+        Note: files starting with ~$ are ignored since these are generally temporary files
 
         Args:
             dir (str | Path): folder to search in
@@ -55,9 +56,9 @@ class FileSystem:
             list[Path]: list of paths to the found files in the dir. Returns None if no files were found.
         """
         if isinstance(extension, str):
-            files = list(Path(dir).resolve().glob(f"*.{extension}"))
+            files = [file for file in Path(dir).resolve().glob(f"*.{extension}") if file.is_file() and not file.name.startswith("~$")]
         else:
-            files = [file for file in Path(dir).resolve().glob(f"*") if file.is_file()]
+            files = [file for file in Path(dir).resolve().glob(f"*") if file.is_file() and not file.name.startswith("~$")]
         return files
 
     @staticmethod

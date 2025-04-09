@@ -81,7 +81,6 @@ def _prepare_output_folder(PATH_WORKSPACE: Path, checks: bool) -> FileSystem:
 
 # FIXME docstring
 def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path) -> FileSystem:
-# def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path, USE_EXISTING_TKX_RESULTS: bool) -> FileSystem:
 
     """Prepare input subfolder
 
@@ -106,29 +105,21 @@ def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path) -> Fil
     # Create FileSystem instance for input folder
     filesystem_input = FileSystem(PATH_WORKSPACE / "input")
 
-    # FIXME customize checks for STPH files
-    # Perform checks
-    # if USE_EXISTING_TKX_RESULTS:
-        # pass
-        # if len(FileSystem.find_files_in_dir(filesystem_input.folderpath, "stix")) != len(
-        #     FileSystem.find_files_in_dir(path_output_folder, "tkx")
-        # ):
-        #     raise FileNotFoundError(
-        #         f"The number of .stix files in the 'input' subfolder should match the number of .tkx files in the 'output' subfolder.\nFiles found:\n{len(FileSystem.find_files_in_dir(filesystem_input.folderpath, "stix"))} .stix files in {filesystem_input.folderpath}\n{len(FileSystem.find_files_in_dir(path_output_folder, "tkx"))} .tkx files in {path_output_folder}"
-        #     )
-    # else:
-        # if len(FileSystem.find_files_in_dir(filesystem_input.folderpath, "stix")) == 0:
-        #     # Checks if the "input" subfolder contains .stix files
-        #     raise FileNotFoundError(
-        #         f"Input folder {filesystem_input.folderpath} should contain at least 1 .stix file for which you want to carry out a PTK-calculation"
-        #     )
+    # Make sure the "input" subfolder contains 2 .xlsx file named input.xlsx and settings.xlsx
+    xlsx_input = [filepath.name for filepath in FileSystem.find_files_in_dir(filesystem_input.folderpath, "xlsx")]
+    xlsx_required = ["input.xlsx", "settings.xlsx"]
 
-    if len(FileSystem.find_files_in_dir(filesystem_input.folderpath, "xlsx")) != 1:
-        # Make sure the "input" subfolder contains 1 .xlsx file
+    if len(xlsx_input) != 2 or not all(val in xlsx_input for val in xlsx_required):
         raise FileNotFoundError(
-            f"Input folder {filesystem_input.folderpath} should contain exactly 1 .xlsx file containing parameter values that will be used in the calculations"
+            f"\nInput folder {filesystem_input.folderpath} should contain exactly 2 .xlsx files named:\ninput.xlsx (contains input parameter values)\nsettings.xlsx (contains probabilistic calculation settings)\n(currently found: {xlsx_input})"
         )
 
+    # Check if settings.xlsx has just one sheet named "settings"
+    xlsx_settings_folderpath = pd.ExcelFile(filesystem_input.folderpath / "settings.xlsx")
+    if len(xlsx_settings_folderpath.sheet_names) != 1:
+        raise FileNotFoundError(
+            f"\n{filesystem_input.folderpath / "settings.xlsx"} should contain exactly one sheet"
+        )
     return filesystem_input
 
 

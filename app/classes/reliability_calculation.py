@@ -1,3 +1,6 @@
+from typing import Callable
+
+import pandas as pd
 from probabilistic_library import (
     CombineProject,
     CombinerMethod,
@@ -10,48 +13,52 @@ from probabilistic_library import (
 )
 
 
-class ReliabilityCalculation:
+class ReliabilityCalculation():
     """ReliabilityCalculation class containing calculation settings and results for 1 uittredepunt"""
 
-    def __init__(self):
+    def __init__(self, settings: pd.DataFrame, model=Callable):
         
         self.name = None
         self.uittredepunt = None
         self.scenario = None
     
-        self.reliability_project = self._setup_reliability_project()
+        self.reliability_project = self._setup_reliability_project(settings, model)
     
 
     
 
     
-    def _setup_reliability_project(self) -> None:
+    def _setup_reliability_project(self, settings: pd.DataFrame, model=Callable) -> ReliabilityProject:
         reliability_project = ReliabilityProject()
-        
+
         # Set settings
-        reliability_project.settings.reliability_method = ReliabilityMethod.form
-        reliability_project.settings.relaxation_factor = 0.75
-        reliability_project.settings.start_value = 0
-        reliability_project.settings.variation_coefficient = 0.01
-        reliability_project.settings.maximum_iterations = 100
-        reliability_project.settings.save_realizations = True
+        for attr_name, row in settings.iterrows():
+            setattr(reliability_project.settings, attr_name, row['value'])
 
         # Set model (uplift, heave or piping)
-        reliability_project.model = Zu
+        reliability_project.model = model
         
+        # FIXME set variables, based on Oscar's code
         # Set variables
-        project.variables["k"].distribution = DistributionType.log_normal
-        project.variables["k"].mean = Uittredepunten_scenario.iloc[i]['k_WVP [m/dag]']
-        project.variables["k"].variation = Uittredepunten_scenario.iloc[i]['VC_k_WVP [-]']
-        project.variables["k"].design_quantile = 0.95
-        ...etc...
+        # project.variables["k"].distribution = DistributionType.log_normal
+        # project.variables["k"].mean = Uittredepunten_scenario.iloc[i]['k_WVP [m/dag]']
+        # project.variables["k"].variation = Uittredepunten_scenario.iloc[i]['VC_k_WVP [-]']
+        # project.variables["k"].design_quantile = 0.95
+        # ...etc...
+        return reliability_project
+
     
     def plot_fragility_curve(self):
         raise NotImplementedError()
 
     @property
+    def settings(self):
+        return self.reliability_project.settings
+
+    @property
     def variables(self):
         return self.reliability_project.variables
+
 
     # FIXME add properties:
     # self.beta = None
