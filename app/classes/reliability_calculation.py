@@ -28,10 +28,10 @@ class ReliabilityCalculation():
     
 
     
-    def _setup_reliability_project(self, settings: pd.DataFrame, model=Callable) -> ReliabilityProject:
+    def _setup_reliability_project(self, settings: pd.DataFrame, model=Callable, parameter_collection_single_uittredepunt: pd.Series) -> ReliabilityProject:
         reliability_project = ReliabilityProject()
 
-        # Set settings
+        # Set settings attributes
         for attr_name, row in settings.iterrows():
             setattr(reliability_project.settings, attr_name, row['value'])
 
@@ -40,13 +40,18 @@ class ReliabilityCalculation():
         
         # FIXME set variables, based on Oscar's code
         # Set variables
-        # project.variables["k"].distribution = DistributionType.log_normal
+        for attr_name, row in parameter_collection_single_uittredepunt.iterrows():
+            setattr(reliability_project.settings, attr_name, row['value'])
+        reliability_project.variables["k"].distribution = DistributionType.log_normal
         # project.variables["k"].mean = Uittredepunten_scenario.iloc[i]['k_WVP [m/dag]']
         # project.variables["k"].variation = Uittredepunten_scenario.iloc[i]['VC_k_WVP [-]']
         # project.variables["k"].design_quantile = 0.95
         # ...etc...
         return reliability_project
 
+    def _run(self):
+        # Run the reliability project
+        self.reliability_project.run()
     
     def plot_fragility_curve(self):
         raise NotImplementedError()

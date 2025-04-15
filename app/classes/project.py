@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pandas as pd
@@ -44,24 +45,26 @@ class Project():
 
         
         # FIXME
-        list_scenario_calculations = []
+        list_reliability_calculations = []
         self.settings = pd.read_excel(self.workspace.input.folderpath / "settings.xlsx", index_col=0, header=0)
-        for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
-            list_scenario_calculations.append(ReliabilityCalculation(self.settings, model))
         
-        # FIXME pseudocode, wachten op acties Oscar
-        list_scenario_calculations = []
-        for scenario in self.parameter_collection:
-            for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
-                list_scenario_calculations.append(ReliabilityCalculation(self.settings, model, uittredepunt, scenario, vak))
-        self.scenario_calculations = list_scenario_calculations
+        for uittredepunt in self.uittredepunten:
+            for ondergrond_scenario in df_ondergrondscenario[row_name == uittredepunt.vak]:
+                for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
+                    list_reliability_calculations.append(ReliabilityCalculation(self.settings, model, self.uittredepunt, self.ondergrond_scenarios))
         
         # Start calculations
-        # FIXME parallelize these calculations
-        for scenario_calculation in self.scenario_calculations:
-            self._start_calculations(scenario_calculation.reliability_project)
+        self._start_calculations(list_reliability_calculations)
     
         
     # FIXME parallelize these calculations
-    def _start_calculations(self, reliability_project: ReliabilityProject):
-        reliability_project.run()
+    def _start_calculations(self, list_reliability_calculations: list[ReliabilityCalculation]):
+        
+        def run_reliability_calculation(reliability_calculation: ReliabilityCalculation):
+            try:
+                reliability_calculation._run()
+            except Exception as e:
+                print(f"ERROR: could not run running reliability calculation {reliability_calculation.name}: {e}")
+
+        with ThreadPoolExecutor() as executor:
+            executor.map(run_reliability_calculation, list_reliability_calculations)
