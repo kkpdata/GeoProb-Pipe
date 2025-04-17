@@ -28,9 +28,10 @@ class ReliabilityCalculation():
     
 
     
-    def _setup_reliability_project(self, settings: pd.DataFrame, model=Callable, parameter_collection_single_uittredepunt: pd.Series) -> ReliabilityProject:
+    def _setup_reliability_project(self, settings: pd.DataFrame, model: Callable, parameter_collection_single_uittredepunt: pd.Series) -> ReliabilityProject:
         reliability_project = ReliabilityProject()
 
+        # FIXME checken of attribute wel bestaat voordat ze geset worden
         # Set settings attributes
         for attr_name, row in settings.iterrows():
             setattr(reliability_project.settings, attr_name, row['value'])

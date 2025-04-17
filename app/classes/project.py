@@ -13,7 +13,10 @@ from probabilistic_library import (
     StandardNormal,
 )
 
+from app.classes.ondergrond_scenario import OndergrondScenarioCollection
 from app.classes.reliability_calculation import ReliabilityCalculation
+from app.classes.uittredepunt import UittredepuntCollection
+from app.classes.vak import VakCollection
 from app.classes.workspace import Workspace
 from app.helper_functions.piping_functions import calc_Z_h, calc_Z_p, calc_Z_u
 
@@ -22,8 +25,22 @@ class Project():
     """Project class"""
     def __init__(self, PATH_WORKSPACE: str|Path) -> None:
         
-        # Initialize Workspace object
+        # Initialize Workspace object (also checks if input/output folders contain all necessary files)
         self.workspace = Workspace(PATH_WORKSPACE)
+
+        # Initialize collections
+        self.vak_collection = VakCollection(self.workspace.input.folderpath / "input.xlsx")
+        self.uittredepunt_collection = UittredepuntCollection(self.workspace.input.folderpath / "input.xlsx")
+        self.ondergrond_scenario_collection = OndergrondScenarioCollection(self.workspace.input.folderpath / "input.xlsx")
+
+        # Add uittredepunten and ondergrondscenarios to vakken
+        self.vak_collection._link_uittredepunten(self.uittredepunt_collection.uittredepunten)
+        self.uittredepunt_collection
+        
+        # u1 = v1.add_uittredepunt("km 2.3")
+        # u2 = v1.add_uittredepunt("km 3.0")
+
+
 
         #FIXME <--------------> Start stukje Oscar
         
