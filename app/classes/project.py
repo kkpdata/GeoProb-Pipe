@@ -28,18 +28,10 @@ class Project():
         # Initialize Workspace object (also checks if input/output folders contain all necessary files)
         self.workspace = Workspace(PATH_WORKSPACE)
 
-        # Initialize collections
+        # Initialize collections and link the instances of Uittredepunt and OndergrondScenario to the corresponding Vak instance
         self.vak_collection = VakCollection(self.workspace.input.folderpath / "input.xlsx")
-        self.uittredepunt_collection = UittredepuntCollection(self.workspace.input.folderpath / "input.xlsx")
-        self.ondergrond_scenario_collection = OndergrondScenarioCollection(self.workspace.input.folderpath / "input.xlsx")
-
-        # Add uittredepunten and ondergrondscenarios to vakken
-        self.vak_collection._link_uittredepunten(self.uittredepunt_collection.uittredepunten)
-        self.uittredepunt_collection
-        
-        # u1 = v1.add_uittredepunt("km 2.3")
-        # u2 = v1.add_uittredepunt("km 3.0")
-
+        self.uittredepunt_collection = UittredepuntCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection)
+        self.ondergrond_scenario_collection = OndergrondScenarioCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection)
 
 
         #FIXME <--------------> Start stukje Oscar
@@ -61,17 +53,20 @@ class Project():
         #FIXME <--------------> Einde stukje Oscar
 
         
-        # FIXME
-        list_reliability_calculations = []
+
+        self._list_reliability_calculations = []
         self.settings = pd.read_excel(self.workspace.input.folderpath / "settings.xlsx", index_col=0, header=0)
         
-        for uittredepunt in self.uittredepunten:
-            for ondergrond_scenario in df_ondergrondscenario[row_name == uittredepunt.vak]:
-                for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
-                    list_reliability_calculations.append(ReliabilityCalculation(self.settings, model, self.uittredepunt, self.ondergrond_scenarios))
+        # Make combinations of uittredepunten, ondergrondscenarios and models
+        # Note: inefficient nested for-loops, but these are not heavy calculations and it's easily understandable
+        for vak in self.vak_collection.values():
+            for uittredepunt in vak.uittredepunten:
+                for ondergrond_scenario in vak.ondergrond_scenarios:
+                    for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
+                        self._list_reliability_calculations.append(ReliabilityCalculation(self.settings, uittredepunt, ondergrond_scenario, model))
         
         # Start calculations
-        self._start_calculations(list_reliability_calculations)
+        self._start_calculations(self._list_reliability_calculations)
     
         
     # FIXME parallelize these calculations

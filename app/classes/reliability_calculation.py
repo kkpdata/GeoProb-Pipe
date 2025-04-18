@@ -12,11 +12,14 @@ from probabilistic_library import (
     StandardNormal,
 )
 
+from app.classes.ondergrond_scenario import OndergrondScenario
+from app.classes.uittredepunt import Uittredepunt
+
 
 class ReliabilityCalculation():
     """ReliabilityCalculation class containing calculation settings and results for 1 uittredepunt"""
 
-    def __init__(self, settings: pd.DataFrame, model=Callable):
+    def __init__(self, settings: pd.DataFrame, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable) -> None:
         
         self.name = None
         self.uittredepunt = None

@@ -47,7 +47,7 @@ SCALE: float = 0.102
 
 def start_tool(
     PATH_WORKSPACE: str | Path,
-):
+) -> Project:
     """Start PTK tool
 
     Args:
@@ -107,7 +107,7 @@ def start_tool(
         f"Total runtime (h:m:s): {int(time_diff.total_seconds() // 3600):02}:{int((time_diff.total_seconds() % 3600) // 60):02}:{int(time_diff.total_seconds() % 60):02}"
     )
 
-    return fc
+    return project
 
 
 if __name__ == "__main__":
@@ -119,6 +119,6 @@ if __name__ == "__main__":
     NON_FAILURE_THRESHOLD = None
 
     # Run tool
-    fc = start_tool(
+    project = start_tool(
         PATH_WORKSPACE
     )
