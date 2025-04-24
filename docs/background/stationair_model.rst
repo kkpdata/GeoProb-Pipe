@@ -37,15 +37,29 @@ en voor het achterland:
 
     W_{3} = \lambda_{3} tanh(\frac{L_{3}}{\lambda_{3}})
 
-In het geval van een radiale weerstand is de additionele weerstand:
+De totale weerstand is de som van bovenstaande weerstanden: :math:`\sum W = W_1 + L_2 + W_3`.
+
+In het geval van een radiale (intrede)weerstand is er een extra weerstandsfactor gedefinieerd:
 
 .. math::
 
     W_{radiaal} = 0.44 D
 
-De totale weerstand is de som van bovenstaande weerstanden: :math:`\sum W = W_1 + L_2 + W_3`.
+De radiale weerstand kan aan de totale weerstand :math:`\sum W` worden toegevoegd.
 
-Tussen de buitenteen en de binnenteen vindt er geen uitwisseling plaats tussen het zandpakket en de deklaag. Over deze lengte :math:`L_2` wordt lineair geïnterpoleerd. Een bijzonder geval is wanneer :math:`L_2 = 0`. We spreken dan van een kantelpunt. De definitie van de respons in het kantelpunt (zie bladzijde b3-7 van :cite:`trw_2004` is:
+De respons ter plaatse van de buitenteen :math:`r_{but}` en de binnenteen :math:`r_{bit}` van de dijk is gedefinieerd als:
+
+.. math::
+
+    r_{but} = \frac{(W_2 + L_2)}{\sum W}
+
+en
+
+.. math::
+
+    r_{bit} = \frac{(W_3)}{\sum W}
+
+Het model neemt aan dat tussen de buitenteen en de binnenteen van de dijk er geen uitwisseling plaatsvindt tussen het zandpakket en de deklaag. Over deze lengte :math:`L_2` wordt lineair geïnterpoleerd. Een bijzonder geval is wanneer :math:`L_2 = 0`. We spreken dan van een kantelpunt. De definitie van de respons in het kantelpunt (zie bladzijde b3-7 van :cite:`trw_2004` is:
 
 .. math::
 
@@ -65,6 +79,10 @@ Voorland:
 
     
 Onder de dijk:
+
+.. math::
+
+    r(x) = r_{bit} + (r_{but} - r_{bit}) \frac{x_{bit} - x}{L_{2}}
 
 Achterland: 
 

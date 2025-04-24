@@ -44,22 +44,4 @@ In de schematiseringshandleiding van het WBI2017 :cite:t:`sh_piping_2021` staat 
     
     F_{resistance} = \eta \cdot (\frac{16.5}{\gamma_{w}}) \tan(\theta)
 
----------------------------
-Grenstoestandfunctie piping
----------------------------
-
-De grenstoestandfunctie voor piping :cite:`calibration_piping_2016` is gedefinieerd als:
-
-.. math::
-    
-    Z_{p} = m_{p} \cdot \Delta H_{c} - (h -h_{exit} - r_{c} \cdot D_{cover})
-
-waarbij:
-- :math:`Z_{p}` = grenstoestandfunctie voor piping [-]
-- :math:`m_{p}` = modelfactor voor piping [-]
-- :math:`\Delta H_{c}` = kritiek verval voor piping in m
-- :math:`h` = waterstand in de rivier in m+NAP
-- :math:`h_{exit}` = niveau van de uittredepunt in m+NAP
-- :math:`r_{c}` = reductiefactor voor de deklaag
-- :math:`D_{cover}` = dikte van de deklaag in m
 
