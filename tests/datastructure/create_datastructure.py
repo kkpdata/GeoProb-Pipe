@@ -1,4 +1,5 @@
-"""Define and create a datastructure and variables for the app"""
+"""Define and create a datastructure and variables for the app
+Deze code geeft in hoofdlijnen aan welke velden er in de verschillende tabellen zitten. De tabellen zijn: 1) vakken, 2) uittredepunten en 3) ondergrondscenarios."""
 
 import os
 from dataclasses import dataclass
@@ -32,16 +33,16 @@ import pandas as pd
 class Variables:
     """Class to store a description of the variables used in the model."""
 
-    VaribleID: int
     VariableName: str  # name of the variable
     VariableDescription: str  # description of the variable
     VariableUnit: str  # dimension of the variable
     VariableType: str  # Input, Output, Constant, Calculated
     VariableDistribution: str  # Lognormal, Normal, Deterministic, n.b. CalculationSettings in different class
-    Spreidingstype: str  # _mean, _stdev, _vc
-    VariableDefaulValue: float
+    VariableSpreidingstype: str  # _mean, _stdev, _vc
+    VariableDefaultValue: float
     VariableLowerBound: float
     VariableUpperBound: float
+    VariableMemberOf: str  # name of the group the variable belongs to
 
 
 @dataclass
@@ -51,11 +52,12 @@ class Vakken:
     M_van: float
     M_tot: float
     Vaklengte: float
-    bodemhoogte_vak: float
-    c1_mean: float
-    c1_vc: float
-    c3_mean: float
-    c3_vc: float
+    mv_achterland_vak: float
+    L_achterland: float
+    c_voorland_mean: float
+    c_voorland_vc: float
+    #c_achterland_mean: float # to be calculated in the model
+    c_achterland_vc: float
 
 
 @dataclass
@@ -70,11 +72,17 @@ class Uittredepunten:
     L_intrede: float
     L_but: float
     L_bit: float
-    L3: float
     HydraLocatieID: str
     buitenwaterstand: float
-    bodemhoogte: float
+    mv_exit: float
     polderpeil: float
+    modelfactor_u_mean: float
+    modelfactor_u_stdev: float
+    modelfactor_h_mean: float
+    modelfactor_h_stdev: float
+    modelfactor_p_mean: float
+    modelfactor_p_stdev: float
+
 
 
 @dataclass
@@ -93,10 +101,8 @@ class Ondergrondscenarios:
     kD_wvp_mean: float
     kD_wvp_vc: float
     k_wvp_mean: float
-    k_wvp_stdev: float
     d70_mean: float
     d70_vc: float
-
 
 def create_table_from_dataclass(dataclass):
     """Create a pandas DataFrame from a dataclass instance."""

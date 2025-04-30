@@ -3,7 +3,7 @@
 Developer API
 =============
 
-LACT bestaat uit verschillende submodules.
+GeoProb-Pipe bestaat uit verschillende submodules.
 
 Geohydrology models
 -------------------
