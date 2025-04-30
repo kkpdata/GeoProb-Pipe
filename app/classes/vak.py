@@ -15,7 +15,7 @@ class Vak:
         
         # Set values from Excel row as attributes of the Vak instance
         for col, value in df_row.items():
-            attr_name = str(col).lower()  # Enforce lowercase attribute name to avoid case sensitivity issues
+            attr_name = str(col)
 
             # Custom mapping of attribute names
             if attr_name == "vak_id":
@@ -33,12 +33,27 @@ class Vak:
 
         
 class VakCollection(BaseCollection[Vak]):
-    def __init__(self, path_input_xlsx=Path) -> None:
+    def __init__(self, path_input_xlsx: Path) -> None:
         super().__init__()
         
-        # Read Excel, strip trailing whitespace, and convert to lowercase
-        # Note: the 2nd row is skipped because it contains the units of the variables, which is not needed in the code
-        self.df = pd.read_excel(path_input_xlsx, sheet_name="Vakken", skiprows=[1]).rename(columns=lambda x: x.strip().lower())
+        # Read Excel, strip trailing whitespace
+        self.df = pd.read_excel(path_input_xlsx, sheet_name="Vakken").rename(columns=lambda x: x.strip())
+
+        # Check if all required columns are present in the DataFrame
+        required_columns = ['vak_id',
+                            'vak_naam',
+                            'M_van',
+                            'M_tot',
+                            'vak_lengte',
+                            'mv_achterland_vak',
+                            'L_achterland',
+                            'c_voorland_mean',
+                            'c_voorland_stdev',
+                            'c_achterland_mean',
+                            'c_achterland_vc']
+        missing_columns = [col for col in required_columns if col not in self.df.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns in the 'Vakken' sheet of the input Excel file: {', '.join(missing_columns)}")
 
         # Create vakken from df
         for _, row in self.df.iterrows():
@@ -48,7 +63,7 @@ class VakCollection(BaseCollection[Vak]):
             if vak.id in self._items:
                 raise ValueError(f"Duplicate vak_id {vak.id} found")
             
-            self.add(vak.id, vak)
+            self.add(str(vak.id), vak)
 
 
 

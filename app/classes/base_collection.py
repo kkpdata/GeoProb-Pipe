@@ -42,11 +42,12 @@ class BaseCollection(Generic[T]):
         
         # Examples for accessing by ID, index and slice
         lines.append("\nMethods to access items:")
-        lines.append(f"  By ID: {class_name}['{self[1].id}'] -> {repr(self._items[self[1].id])}")
-        lines.append(f"  By index: {class_name}[1] -> {repr(self[1])}")
-        lines.append(f"  By slice: {class_name}[1:3] -> {repr(self[1:3])}")
-        
-        return "\n".join(lines)    
+        lines.append(f"  By ID: {class_name}['{self[0].id}'] -> {repr(self._items[str(self[0].id)])} (NOTE: ID should be given as string!)")
+        lines.append(f"  By collection index: {class_name}[0] -> {repr(self[0])}")
+        if len(self) > 1:
+            lines.append(f"  By slicing the collection: {class_name}[0:2] -> {repr(self[0:2])}")
+        return "\n".join(lines)
+    
     def __getitem__(self, index: Union[str, int, slice]) -> Union[T, list[T]]:
         if isinstance(index, int):  # Handle integer indexing
             return list(self._items.values())[index]
@@ -68,7 +69,7 @@ class BaseCollection(Generic[T]):
 
     # Normal methods
     def add(self, id: str, obj: T) -> None:
-        self._items[id] = obj
+        self._items[str(id)] = obj
 
     def keys(self) -> list[str]:
         return list(self._items.keys())

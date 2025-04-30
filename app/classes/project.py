@@ -28,19 +28,20 @@ class Project():
         # Initialize Workspace object (also checks if input/output folders contain all necessary files)
         self.workspace = Workspace(PATH_WORKSPACE)
 
-        # Initialize collections and link the instances of Uittredepunt and OndergrondScenario to the corresponding Vak instance
+        # Initialize collections. Note that UittredepuntCollection and OndergrondscenarioCollection link the
+        # instances of Uittredepunt and OndergrondScenario to the corresponding Vak instance
         self.vak_collection = VakCollection(self.workspace.input.folderpath / "input.xlsx")
         self.uittredepunt_collection = UittredepuntCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection)
         self.ondergrond_scenario_collection = OndergrondScenarioCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection)
-
+        
+        # Read overview of variables from Excel file
+        self.df_variabelen = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Overzicht_variabelen").rename(columns=lambda x: x.strip())
 
         #FIXME <--------------> Start stukje Oscar
         
         # Initialize parameters_collection object #FIXME
         # self.parameter_collection = ParameterCollection(self.workspace.input.folderpath)
-        
-        # TODO waar moet buitewaterstand komen?
-        
+                
         # Initialize uittredepunt, scenario and vak using data in parameters_collection
         # self.uittredepunten = ...self.parameter_collection...
         # self.scenario = ...self.parameter_collection...
@@ -54,19 +55,19 @@ class Project():
 
         
 
-        self._list_reliability_calculations = []
-        self.settings = pd.read_excel(self.workspace.input.folderpath / "settings.xlsx", index_col=0, header=0)
+        # self._list_reliability_calculations = []
+        # self.settings = pd.read_excel(self.workspace.input.folderpath / "settings.xlsx", index_col=0, header=0)
         
-        # Make combinations of uittredepunten, ondergrondscenarios and models
-        # Note: inefficient nested for-loops, but these are not heavy calculations and it's easily understandable
-        for vak in self.vak_collection.values():
-            for uittredepunt in vak.uittredepunten:
-                for ondergrond_scenario in vak.ondergrond_scenarios:
-                    for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
-                        self._list_reliability_calculations.append(ReliabilityCalculation(self.settings, uittredepunt, ondergrond_scenario, model))
+        # # Make combinations of uittredepunten, ondergrondscenarios and models
+        # # Note: inefficient nested for-loops, but these are not heavy calculations and it's easily understandable
+        # for vak in self.vak_collection.values():
+        #     for uittredepunt in vak.uittredepunten:
+        #         for ondergrond_scenario in vak.ondergrond_scenarios:
+        #             for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
+        #                 self._list_reliability_calculations.append(ReliabilityCalculation(self.settings, uittredepunt, ondergrond_scenario, model))
         
-        # Start calculations
-        self._start_calculations(self._list_reliability_calculations)
+        # # Start calculations
+        # self._start_calculations(self._list_reliability_calculations)
     
         
     # FIXME parallelize these calculations

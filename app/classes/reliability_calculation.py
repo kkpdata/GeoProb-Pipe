@@ -25,7 +25,7 @@ class ReliabilityCalculation():
         self.uittredepunt = None
         self.scenario = None
     
-        # self.reliability_project = self._setup_reliability_project(settings, model)
+        self.reliability_project = self._setup_reliability_project(settings, model)
     
 
     

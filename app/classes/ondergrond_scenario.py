@@ -17,11 +17,11 @@ class OndergrondScenario:
         
         # Set values from Excel row as attributes of the OndergrondScenario instance
         for col, value in df_row.items():
-            attr_name = str(col).lower()  # Enforce lowercase attribute name to avoid case sensitivity issues
+            attr_name = str(col)
             
             # Custom mapping of attribute names
-            if attr_name == "scenario_id":
-                # Rename scenario_id to id to simplify the attribute name
+            if attr_name == "ondergrondscenario_id":
+                # Rename ondergrondscenario_id to id to simplify the attribute name
                 attr_name = "id"
 
             # Check if attribute already exists
@@ -38,26 +38,45 @@ class OndergrondScenarioCollection(BaseCollection[OndergrondScenario]):
     def __init__(self, path_input_xlsx: Path, vak_collection: VakCollection) -> None:
         super().__init__()  # Initialize the base collection
         
-        # Read Excel, strip trailing whitespace, and convert to lowercase
-        # Note: the 2nd row is skipped because it contains the units of the variables, which is not needed in the code
-        self.df = pd.read_excel(path_input_xlsx, sheet_name="Ondergrondscenarios", skiprows=[1]).rename(columns=lambda x: x.strip().lower())
+        # Read Excel, strip trailing whitespace
+        self.df = pd.read_excel(path_input_xlsx, sheet_name="Ondergrondscenarios").rename(columns=lambda x: x.strip())
         
+        # Check if all required columns are present in the DataFrame
+        required_columns = ['vak_id',
+                            'ondergrondscenario_id',
+                            'ondergrondscenario_naam',
+                            'ondergrondscenario_kans',
+                            'top_zand_mean',
+                            'top_zand',
+                            'gamma_sat_deklaag_mean',
+                            'gamma_sat_deklaag_stdev',
+                            'D_wvp_mean',
+                            'D_wvp_stdev',
+                            'kD_wvp_mean',
+                            'kD_wvp_vc',
+                            'k_wvp_mean',
+                            'd70_mean',
+                            'd70_vc']
+        missing_columns = [col for col in required_columns if col not in self.df.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns in the 'Uittredepunten' sheet of the input Excel file: {', '.join(missing_columns)}")
+     
         # Create ondergrondscenarios from df. Note that the created OndergrondScenario is linked to the corresponding Vak
         for _, row in self.df.iterrows():
             
-            ondergrondscenario_id = row["scenario_id"]
+            ondergrondscenario_id = row["ondergrondscenario_id"]
 
             # Perform checks
             try:
-                vak = vak_collection[row["vak_id"]]
+                vak = vak_collection[str(row["vak_id"])]
             except KeyError:
                 # If the vak_id is not found in the vak_collection, raise an error
-                raise KeyError(f"Vak '{row["vak_id"]}' (corresponding to scenario '{ondergrondscenario_id}') not found in VakCollection")        
+                raise KeyError(f"Vak ID '{row["vak_id"]}' (corresponding to scenario '{ondergrondscenario_id}') not found in VakCollection")        
 
             if any(punt.id == ondergrondscenario_id for punt in vak.ondergrond_scenarios):
-                # Check for duplicate scenario_id within the same Vak
-                raise ValueError(f"Duplicate scenario_id: scenario '{ondergrondscenario_id}' already exists in vak '{vak.id}'")            
+                # Check for duplicate ondergrondscenario_id within the same Vak
+                raise ValueError(f"Duplicate ondergrondscenario_id: scenario '{ondergrondscenario_id}' already exists in vak '{vak.id}'")            
             
             scenario = OndergrondScenario(df_row=row, vak=vak)
             vak.ondergrond_scenarios.append(scenario)
-            self.add(scenario.id, scenario)
+            self.add(str(scenario.id), scenario)

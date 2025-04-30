@@ -18,7 +18,7 @@ class Uittredepunt:
         
         # Set values from Excel row as attributes of the Uittredepunt instance
         for col, value in df_row.items():
-            attr_name = str(col).lower()  # Enforce lowercase attribute name to avoid case sensitivity issues
+            attr_name = str(col)
             
             # Custom mapping of attribute names
             if attr_name == "uittredepunt_id":
@@ -40,9 +40,34 @@ class UittredepuntCollection(BaseCollection[Uittredepunt]):
     def __init__(self, path_input_xlsx: Path, vak_collection: VakCollection) -> None:
         super().__init__()  # Initialize the base collection
         
-        # Read Excel, strip trailing whitespace, and convert to lowercase
-        # Note: the 2nd row is skipped because it contains the units of the variables, which is not needed in the code
-        self.df = pd.read_excel(path_input_xlsx, sheet_name="Uittredepunten", skiprows=[1]).rename(columns=lambda x: x.strip().lower())
+        # Read Excel, strip trailing whitespace
+        self.df = pd.read_excel(path_input_xlsx, sheet_name="Uittredepunten").rename(columns=lambda x: x.strip())
+        
+        # Check if all required columns are present in the DataFrame
+        required_columns = ['vak_id',
+                            'uittredepunt_id',
+                            'uittredepunt_x_coord',
+                            'uittredepunt_y_coord',
+                            'uittredelocatie',
+                            'M_value',
+                            'vak_naam',
+                            'L_intrede',
+                            'L_but',
+                            'L_bit',
+                            'hydra_locatie_id',
+                            'buitenwaterstand',
+                            'mv_exit',
+                            'polderpeil',
+                            'modelfactor_u_mean',
+                            'modelfactor_u_stdev',
+                            'modelfactor_h_mean',
+                            'modelfactor_h_stdev',
+                            'modelfactor_p_mean',
+                            'modelfactor_p_stdev']
+        missing_columns = [col for col in required_columns if col not in self.df.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns in the 'Uittredepunten' sheet of the input Excel file: {', '.join(missing_columns)}")
+
         
         # Create uittredepunten from df. Note that the created Uittredepunt is linked to the corresponding Vak
         for _, row in self.df.iterrows():
@@ -51,10 +76,10 @@ class UittredepuntCollection(BaseCollection[Uittredepunt]):
 
             # Perform checks
             try:
-                vak = vak_collection[row["vak_id"]]
+                vak = vak_collection[str(row["vak_id"])]
             except KeyError:
                 # If the vak_id is not found in the vak_collection, raise an error
-                raise KeyError(f"Vak '{row["vak_id"]}' (corresponding to uittredepunt {uittredepunt_id}') not found in VakCollection")        
+                raise KeyError(f"Vak ID '{row["vak_id"]}' (corresponding to uittredepunt {uittredepunt_id}') not found in VakCollection")        
 
             if any(punt.id == uittredepunt_id for punt in vak.uittredepunten):
                 # Check for duplicate uittredepunt_id within the same Vak
@@ -62,4 +87,4 @@ class UittredepuntCollection(BaseCollection[Uittredepunt]):
             
             uittredepunt = Uittredepunt(df_row=row, vak=vak)
             vak.uittredepunten.append(uittredepunt)
-            self.add(uittredepunt.id, uittredepunt)
+            self.add(str(uittredepunt.id), uittredepunt)
