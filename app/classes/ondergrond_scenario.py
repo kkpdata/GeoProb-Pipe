@@ -31,7 +31,7 @@ class OndergrondScenario:
             setattr(self, attr_name, value)        
 
     def __repr__(self) -> str:
-        return f"OndergrondScenario(id={self.id}, scenario_probability={self.scenariokans}, valid={self.vak.id})"
+        return f"OndergrondScenario(id={self.id})"
     
     
 class OndergrondScenarioCollection(BaseCollection[OndergrondScenario]):
