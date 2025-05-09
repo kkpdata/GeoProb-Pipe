@@ -1,33 +1,36 @@
-from __future__ import annotations
-
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import pandas as pd
 
 from app.classes.base_collection import BaseCollection
-from app.classes.vak import VakCollection
+from app.classes.vak import Vak, VakCollection
+from app.helper_functions.data_validation import (
+    attribute_already_exists,
+    check_required_columns,
+    enforce_lower_upper_bounds,
+)
 
 
 class OndergrondScenario:
     
-    def __init__(self, df_row: pd.Series, vak: Vak) -> None:  # type: ignore
+    def __init__(self, df_row: pd.Series, vak: Vak, df_variable_overview: pd.DataFrame) -> None:
 
         self.vak = vak  # Link the corresponding Vak instance to this OndergrondScenario instance
         
         # Set values from Excel row as attributes of the OndergrondScenario instance
         for col, value in df_row.items():
-            attr_name = str(col)
+            attr_name = str(col)  # Make sure the attribute name is a string (just in case it's interpreted in a wrong format)
             
-            # Custom mapping of attribute names
+            # Perform data validation
+            attribute_already_exists(self, attr_name)
+            enforce_lower_upper_bounds(attr_name, value, df_variable_overview)
+            
+            # Custom mapping of attribute names (if needed)
             if attr_name == "ondergrondscenario_id":
                 # Rename ondergrondscenario_id to id to simplify the attribute name
                 attr_name = "id"
 
-            # Check if attribute already exists
-            if hasattr(self, attr_name):
-                raise AttributeError(f"{self.__class__.__name__} already has an attribute named '{attr_name}', please rename the column in the input Excel file.")
-            
+            # Set attribute dynamically
             setattr(self, attr_name, value)        
 
     def __repr__(self) -> str:
@@ -35,32 +38,15 @@ class OndergrondScenario:
     
     
 class OndergrondScenarioCollection(BaseCollection[OndergrondScenario]):
-    def __init__(self, path_input_xlsx: Path, vak_collection: VakCollection) -> None:
+    def __init__(self, path_input_xlsx: Path, vak_collection: VakCollection, df_variable_overview: pd.DataFrame) -> None:
         super().__init__()  # Initialize the base collection
         
-        # Read Excel, strip trailing whitespace
-        self.df = pd.read_excel(path_input_xlsx, sheet_name="Ondergrondscenarios").rename(columns=lambda x: x.strip())
-        
-        # Check if all required columns are present in the DataFrame
-        required_columns = ['vak_id',
-                            'ondergrondscenario_id',
-                            'ondergrondscenario_naam',
-                            'ondergrondscenario_kans',
-                            'top_zand_mean',
-                            'top_zand',
-                            'gamma_sat_deklaag_mean',
-                            'gamma_sat_deklaag_stdev',
-                            'D_wvp_mean',
-                            'D_wvp_stdev',
-                            'kD_wvp_mean',
-                            'kD_wvp_vc',
-                            'k_wvp_mean',
-                            'd70_mean',
-                            'd70_vc']
-        missing_columns = [col for col in required_columns if col not in self.df.columns]
-        if missing_columns:
-            raise ValueError(f"Missing required columns in the 'Uittredepunten' sheet of the input Excel file: {', '.join(missing_columns)}")
-     
+        # Read Excel, strip trailing whitespace. Also, unused ondergrondscenario's (ondergrondscenario_kans=Nan or ondergrondscenario_kans=0) are removed
+        self.df = pd.read_excel(path_input_xlsx, sheet_name="Ondergrondscenarios").rename(columns=lambda x: x.strip()).dropna(subset=['ondergrondscenario_kans']).loc[lambda x: x['ondergrondscenario_kans'] != 0]
+
+        # Data validation
+        check_required_columns(self, self.df)
+
         # Create ondergrondscenarios from df. Note that the created OndergrondScenario is linked to the corresponding Vak
         for _, row in self.df.iterrows():
             
@@ -77,6 +63,6 @@ class OndergrondScenarioCollection(BaseCollection[OndergrondScenario]):
                 # Check for duplicate ondergrondscenario_id within the same Vak
                 raise ValueError(f"Duplicate ondergrondscenario_id: scenario '{ondergrondscenario_id}' already exists in vak '{vak.id}'")            
             
-            scenario = OndergrondScenario(df_row=row, vak=vak)
+            scenario = OndergrondScenario(row, vak, df_variable_overview)
             vak.ondergrond_scenarios.append(scenario)
             self.add(str(scenario.id), scenario)

@@ -1,34 +1,37 @@
-from __future__ import annotations
-
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import pandas as pd
 from shapely.geometry import Point
 
 from app.classes.base_collection import BaseCollection
-from app.classes.vak import VakCollection
+from app.classes.vak import Vak, VakCollection
+from app.helper_functions.data_validation import (
+    attribute_already_exists,
+    check_required_columns,
+    enforce_lower_upper_bounds,
+)
 
 
 class Uittredepunt:
     
-    def __init__(self, df_row: pd.Series, vak: Vak) -> None:  # type: ignore
+    def __init__(self, df_row: pd.Series, vak: Vak, df_variable_overview: pd.DataFrame) -> None:
         
         self.vak = vak  # Link the corresponding Vak instance to this Uittredepunt instance
         
         # Set values from Excel row as attributes of the Uittredepunt instance
         for col, value in df_row.items():
-            attr_name = str(col)
+            attr_name = str(col)  # Make sure the attribute name is a string (just in case it's interpreted in a wrong format)
             
-            # Custom mapping of attribute names
+            # Perform data validation
+            attribute_already_exists(self, attr_name)
+            enforce_lower_upper_bounds(attr_name, value, df_variable_overview)
+
+            # Custom mapping of attribute names (if needed)
             if attr_name == "uittredepunt_id":
                 # Rename uittredepunt_id to id to simplify the attribute name
                 attr_name = "id"
 
-            # Check if attribute already exists
-            if hasattr(self, attr_name):
-                raise AttributeError(f"{self.__class__.__name__} already has an attribute named '{attr_name}', please rename the column in the input Excel file.")
-            
+            # Set attribute dynamically
             setattr(self, attr_name, value)        
 
 
@@ -37,37 +40,14 @@ class Uittredepunt:
 
 
 class UittredepuntCollection(BaseCollection[Uittredepunt]):
-    def __init__(self, path_input_xlsx: Path, vak_collection: VakCollection) -> None:
+    def __init__(self, path_input_xlsx: Path, vak_collection: VakCollection, df_variable_overview: pd.DataFrame) -> None:
         super().__init__()  # Initialize the base collection
         
         # Read Excel, strip trailing whitespace
         self.df = pd.read_excel(path_input_xlsx, sheet_name="Uittredepunten").rename(columns=lambda x: x.strip())
         
-        # Check if all required columns are present in the DataFrame
-        required_columns = ['vak_id',
-                            'uittredepunt_id',
-                            'uittredepunt_x_coord',
-                            'uittredepunt_y_coord',
-                            'uittredelocatie',
-                            'M_value',
-                            'vak_naam',
-                            'L_intrede',
-                            'L_but',
-                            'L_bit',
-                            'hydra_locatie_id',
-                            'buitenwaterstand',
-                            'mv_exit',
-                            'polderpeil',
-                            'modelfactor_u_mean',
-                            'modelfactor_u_stdev',
-                            'modelfactor_h_mean',
-                            'modelfactor_h_stdev',
-                            'modelfactor_p_mean',
-                            'modelfactor_p_stdev']
-        missing_columns = [col for col in required_columns if col not in self.df.columns]
-        if missing_columns:
-            raise ValueError(f"Missing required columns in the 'Uittredepunten' sheet of the input Excel file: {', '.join(missing_columns)}")
-
+        # Data validation
+        check_required_columns(self, self.df)
         
         # Create uittredepunten from df. Note that the created Uittredepunt is linked to the corresponding Vak
         for _, row in self.df.iterrows():
@@ -85,6 +65,6 @@ class UittredepuntCollection(BaseCollection[Uittredepunt]):
                 # Check for duplicate uittredepunt_id within the same Vak
                 raise ValueError(f"Duplicate uittredepunt_id: uittredepunt '{uittredepunt_id}' already exists in vak '{vak.id}'")            
             
-            uittredepunt = Uittredepunt(df_row=row, vak=vak)
+            uittredepunt = Uittredepunt(row, vak, df_variable_overview)
             vak.uittredepunten.append(uittredepunt)
             self.add(str(uittredepunt.id), uittredepunt)

@@ -47,6 +47,7 @@ class ReliabilityCalculation():
         for attr_name, row in parameter_collection_single_uittredepunt.iterrows():
             setattr(reliability_project.settings, attr_name, row['value'])
         reliability_project.variables["k"].distribution = DistributionType.log_normal
+        
         # project.variables["k"].mean = Uittredepunten_scenario.iloc[i]['k_WVP [m/dag]']
         # project.variables["k"].variation = Uittredepunten_scenario.iloc[i]['VC_k_WVP [-]']
         # project.variables["k"].design_quantile = 0.95
