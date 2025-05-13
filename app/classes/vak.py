@@ -4,14 +4,32 @@ import pandas as pd
 
 from app.classes.base_collection import BaseCollection
 from app.helper_functions.data_validation import (
-    attribute_already_exists,
-    check_required_columns,
+    check_attribute_already_exists,
     enforce_lower_upper_bounds,
+    check_variable_in_overview
 )
 
 
 class Vak:
     
+    # Required column names in the Vakken sheet of the input Excel file and their typehints, accessible through the class (self.__annotations__)
+    # These are stored as class-level type hints to make the attributes visible to static type checkers (e.g. Pylance).
+    # The actual values are set dynamically in __init__ using setattr and a list of values.
+    vak_id : int
+    vak_naam: str
+    M_van: float
+    M_tot: float
+    vak_lengte: float
+    mv_achterland_vak: float
+    L_achterland: float
+    c_voorland_mean: float
+    c_voorland_stdev: float
+    c_achterland_mean: float
+    c_achterland_vc: float
+
+    # Other class-level typehints
+    id: int  # Renamed version of vak_id
+
     def __init__(self, df_row: pd.Series, df_variable_overview: pd.DataFrame) -> None:
         
         # Initialize attributes which will be filled later
@@ -22,8 +40,9 @@ class Vak:
         for col, value in df_row.items():
             attr_name = str(col)  # Make sure the attribute name is a string (just in case it's interpreted in a wrong format)
 
-            # Perform data validation
-            attribute_already_exists(self, attr_name)
+            # Data validation
+            check_attribute_already_exists(self, attr_name)
+            check_variable_in_overview(attr_name, df_variable_overview)
             enforce_lower_upper_bounds(attr_name, value, df_variable_overview)
 
             # Custom mapping of attribute names (if needed)
@@ -44,9 +63,6 @@ class VakCollection(BaseCollection[Vak]):
         
         # Read Excel, strip trailing whitespace
         self.df = pd.read_excel(path_input_xlsx, sheet_name="Vakken").rename(columns=lambda x: x.strip())
-
-        # Data validation
-        check_required_columns(self, self.df)
 
         # Create vakken from df
         for _, row in self.df.iterrows():

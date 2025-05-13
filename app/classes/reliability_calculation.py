@@ -21,7 +21,7 @@ class ReliabilityCalculation():
 
     def __init__(self, settings: pd.DataFrame, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable) -> None:
         
-        self.name = None
+        self.id = {"uittredepunt": uittredepunt.id, "ondergrondscenario": ondergrond_scenario.id}
         self.uittredepunt = None
         self.scenario = None
     
@@ -52,6 +52,7 @@ class ReliabilityCalculation():
         # project.variables["k"].variation = Uittredepunten_scenario.iloc[i]['VC_k_WVP [-]']
         # project.variables["k"].design_quantile = 0.95
         # ...etc...
+        
         return reliability_project
 
     def _run(self):

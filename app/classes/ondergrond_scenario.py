@@ -5,13 +5,35 @@ import pandas as pd
 from app.classes.base_collection import BaseCollection
 from app.classes.vak import Vak, VakCollection
 from app.helper_functions.data_validation import (
-    attribute_already_exists,
-    check_required_columns,
+    check_attribute_already_exists,
+    check_variable_in_overview,
     enforce_lower_upper_bounds,
 )
 
 
 class OndergrondScenario:
+    
+    # Required column names in the Ondergrondscenarios sheet of the input Excel file and their typehints, accessible through the class (self.__annotations__)
+    # These are stored as class-level type hints to make the attributes visible to static type checkers (e.g. Pylance).
+    # The actual values are set dynamically in __init__ using setattr and a list of values.
+    vak_id: int
+    ondergrondscenario_id: int
+    ondergrondscenario_naam: str
+    ondergrondscenario_kans: float
+    top_zand_mean: float
+    top_zand: float
+    gamma_sat_deklaag_mean: float
+    gamma_sat_deklaag_stdev: float
+    D_wvp_mean: float
+    D_wvp_stdev: float
+    kD_wvp_mean: float
+    kD_wvp_vc: float
+    k_wvp_mean: float
+    d70_mean: float
+    d70_vc: float
+    
+    # Other class-level typehints
+    id: int  # Renamed version of ondergrondscenario_id
     
     def __init__(self, df_row: pd.Series, vak: Vak, df_variable_overview: pd.DataFrame) -> None:
 
@@ -21,8 +43,9 @@ class OndergrondScenario:
         for col, value in df_row.items():
             attr_name = str(col)  # Make sure the attribute name is a string (just in case it's interpreted in a wrong format)
             
-            # Perform data validation
-            attribute_already_exists(self, attr_name)
+            # Data validation
+            check_attribute_already_exists(self, attr_name)
+            check_variable_in_overview(attr_name, df_variable_overview)
             enforce_lower_upper_bounds(attr_name, value, df_variable_overview)
             
             # Custom mapping of attribute names (if needed)
@@ -43,9 +66,6 @@ class OndergrondScenarioCollection(BaseCollection[OndergrondScenario]):
         
         # Read Excel, strip trailing whitespace. Also, unused ondergrondscenario's (ondergrondscenario_kans=Nan or ondergrondscenario_kans=0) are removed
         self.df = pd.read_excel(path_input_xlsx, sheet_name="Ondergrondscenarios").rename(columns=lambda x: x.strip()).dropna(subset=['ondergrondscenario_kans']).loc[lambda x: x['ondergrondscenario_kans'] != 0]
-
-        # Data validation
-        check_required_columns(self, self.df)
 
         # Create ondergrondscenarios from df. Note that the created OndergrondScenario is linked to the corresponding Vak
         for _, row in self.df.iterrows():
