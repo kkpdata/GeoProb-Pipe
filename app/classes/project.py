@@ -18,7 +18,10 @@ from app.classes.reliability_calculation import ReliabilityCalculation
 from app.classes.uittredepunt import UittredepuntCollection
 from app.classes.vak import VakCollection
 from app.classes.workspace import Workspace
-from app.helper_functions.data_validation import check_completeness_input_variables
+from app.helper_functions.data_validation import (
+    check_completeness_input_variables,
+    check_variable_overview,
+)
 from app.helper_functions.piping_functions import calc_Z_h, calc_Z_p, calc_Z_u
 
 
@@ -31,9 +34,8 @@ class Project():
 
         # Read overview of variables from Excel file (includes e.g. upper and lower bounds, type of distribution, etc.)
         self.df_variable_overview = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Overzicht_variabelen", index_col=0, header=0).rename(columns=lambda x: x.strip())
-        if self.df_variable_overview.index.has_duplicates:
-            raise ValueError(f"Duplicate variables found in sheet 'Overzicht_variabelen': {self.df_variable_overview.index[self.df_variable_overview.index.duplicated()].unique().tolist()}")
-                
+        check_variable_overview(self.df_variable_overview)
+        
         # Initialize collections. Note that UittredepuntCollection and OndergrondscenarioCollection link the
         # instances of Uittredepunt and OndergrondScenario to the corresponding Vak instance
         self.vak_collection = VakCollection(self.workspace.input.folderpath / "input.xlsx", self.df_variable_overview)

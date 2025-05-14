@@ -5,8 +5,8 @@ import pandas as pd
 from app.classes.base_collection import BaseCollection
 from app.classes.vak import Vak, VakCollection
 from app.helper_functions.data_validation import (
+    check_attr_in_overview,
     check_attribute_already_exists,
-    check_variable_in_overview,
     enforce_lower_upper_bounds,
 )
 
@@ -45,8 +45,8 @@ class OndergrondScenario:
             
             # Data validation
             check_attribute_already_exists(self, attr_name)
-            check_variable_in_overview(attr_name, df_variable_overview)
-            enforce_lower_upper_bounds(attr_name, value, df_variable_overview)
+            check_attr_in_overview(attr_name, df_variable_overview)
+            enforce_lower_upper_bounds(self, attr_name, value, df_variable_overview, df_row["ondergrondscenario_id"])
             
             # Custom mapping of attribute names (if needed)
             if attr_name == "ondergrondscenario_id":
