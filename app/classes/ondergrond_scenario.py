@@ -48,9 +48,8 @@ class OndergrondScenario:
             check_attr_in_overview(attr_name, df_variable_overview)
             enforce_lower_upper_bounds(self, attr_name, value, df_variable_overview, df_row["ondergrondscenario_id"])
             
-            # Custom mapping of attribute names (if needed)
+            # Custom mapping of ondergrondscenario_id to id to simplify the attribute name
             if attr_name == "ondergrondscenario_id":
-                # Rename ondergrondscenario_id to id to simplify the attribute name
                 attr_name = "id"
 
             # Set attribute dynamically

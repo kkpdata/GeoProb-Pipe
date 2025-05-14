@@ -54,9 +54,8 @@ class Uittredepunt:
             check_attr_in_overview(attr_name, df_variable_overview)
             enforce_lower_upper_bounds(self, attr_name, value, df_variable_overview, df_row["uittredepunt_id"])
 
-            # Custom mapping of attribute names (if needed)
+            # Custom mapping of uittredepunt_id to id to simplify the attribute name
             if attr_name == "uittredepunt_id":
-                # Rename uittredepunt_id to id to simplify the attribute name
                 attr_name = "id"
 
             # Set attribute dynamically

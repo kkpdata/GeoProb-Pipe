@@ -11,39 +11,41 @@ from probabilistic_library import (
     ReliabilityProject,
     StandardNormal,
 )
+from probabilistic_library.sensitivity import SensitivitySettings
 
 from app.classes.ondergrond_scenario import OndergrondScenario
 from app.classes.uittredepunt import Uittredepunt
+from app.helper_functions.data_validation import is_number
 
 
 class ReliabilityCalculation():
     """ReliabilityCalculation class containing calculation settings and results for 1 uittredepunt"""
 
-    def __init__(self, settings: pd.DataFrame, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable) -> None:
+    def __init__(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable, df_settings: pd.DataFrame) -> None:
         
-        self.id = {"uittredepunt": uittredepunt.id, "ondergrondscenario": ondergrond_scenario.id}
-        self.uittredepunt = None
-        self.scenario = None
+        self._id = {"uittredepunt": uittredepunt.id, "ondergrondscenario": ondergrond_scenario.id, "model": model.__name__}
+        self._uittredepunt = uittredepunt
+        self._ondergrond_scenario = ondergrond_scenario
+        self._model = model
     
-        self.reliability_project = self._setup_reliability_project(settings, model)
-    
+        self.reliability_project = self._setup_reliability_project(df_settings)
 
     
-
-    
-    def _setup_reliability_project(self, settings: pd.DataFrame, model: Callable, parameter_collection_single_uittredepunt: pd.Series) -> ReliabilityProject:
+    def _setup_reliability_project(self, df_settings: pd.DataFrame) -> ReliabilityProject:
         reliability_project = ReliabilityProject()
 
-        # FIXME checken of attribute wel bestaat voordat ze geset worden
         # Set settings attributes
-        for attr_name, row in settings.iterrows():
-            setattr(reliability_project.settings, attr_name, row['value'])
+        print(f"INFO: list of available settings:\n{dir(SensitivitySettings)}")
+        for attr_name, row in df_settings.iterrows():
+            if attr_name in dir(SensitivitySettings):
+                setattr(reliability_project.settings, attr_name, row['value'])
+            else:
+                raise ValueError(f"Attribute {attr_name} not found in SensitivitySettings class. Available attributes:\n{dir(SensitivitySettings)}")
 
-        # Set model (uplift, heave or piping)
-        reliability_project.model = model
+        # Set variable attributes
         
-        # FIXME set variables, based on Oscar's code
-        # Set variables
+        # FIXME make sure that the attributes values are numbers using is_number()
+        is_number(...)
         for attr_name, row in parameter_collection_single_uittredepunt.iterrows():
             setattr(reliability_project.settings, attr_name, row['value'])
         reliability_project.variables["k"].distribution = DistributionType.log_normal
@@ -61,6 +63,22 @@ class ReliabilityCalculation():
     
     def plot_fragility_curve(self):
         raise NotImplementedError()
+
+    @property
+    def id(self):
+        return self._id
+    
+    @property
+    def uittredepunt(self):
+        return self._uittredepunt
+    
+    @property
+    def ondergrond_scenario(self):
+        return self._ondergrond_scenario
+    
+    @property
+    def model(self):
+        return self._model
 
     @property
     def settings(self):

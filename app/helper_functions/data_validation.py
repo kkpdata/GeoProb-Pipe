@@ -9,15 +9,10 @@ if TYPE_CHECKING:
     from app.classes.uittredepunt import Uittredepunt
     from app.classes.ondergrond_scenario import OndergrondScenario
 
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Type, Union
 
 from app.misc._default_values_constants import ALLOWED_SUFFIXES
 
-
-def variable_name_without_suffix(attr_name: Union[str, List[str]], list_suffixes: Optional[List[str]] = None) -> Union[str, List[str]]:
-    suffixes = list_suffixes or ALLOWED_SUFFIXES  # Use list_suffixes if provided, otherwise use the default allowed list suffixes
-    strip_suffix = lambda s: next((s[:-len(suf)] for suf in suffixes if s.endswith(suf)), s)
-    return strip_suffix(attr_name) if isinstance(attr_name, str) else [strip_suffix(s) for s in attr_name]
 
 def check_attribute_already_exists(instance: Vak | Uittredepunt | OndergrondScenario, attr_name: str) -> None:
     if hasattr(instance, attr_name):
@@ -39,11 +34,9 @@ def check_completeness_input_variables(df_variable_overview: pd.DataFrame, df_va
         variables_surplus = set_variable_names_given - set_variable_names_expected
         
         def link_variables_to_source(variable_names: set[str]) -> pd.DataFrame:
-            variables_names_without_suffix = set([variable_name_without_suffix(variable) for variable in variable_names])  # Note: make it a set to remove duplicates
-            print("variables_names_without_suffix", variables_names_without_suffix)
-            print("df_uittredepunt_collection.columns", df_uittredepunt_collection.columns)
+            variables_names_without_suffix = set([get_variable_name_without_suffix(variable) for variable in variable_names])  # Note: make it a set to remove duplicates
             df = pd.DataFrame({'variable name': list(variables_names_without_suffix)})
-            df["source input sheet"] = df["variable name"].apply(lambda x: "Vakken" if x in variable_name_without_suffix(df_vak_collection.columns.to_list()) else ("Uittredepunten" if x in variable_name_without_suffix(df_uittredepunt_collection.columns.to_list()) else ("Ondergrondscenarios" if x in variable_name_without_suffix(df_ondergrond_scenario_collection.columns.to_list()) else "Unknown")))
+            df["source input sheet"] = df["variable name"].apply(lambda x: "Vakken" if x in get_variable_name_without_suffix(df_vak_collection.columns.to_list()) else ("Uittredepunten" if x in get_variable_name_without_suffix(df_uittredepunt_collection.columns.to_list()) else ("Ondergrondscenarios" if x in get_variable_name_without_suffix(df_ondergrond_scenario_collection.columns.to_list()) else "Unknown")))
             return df
 
         if len(variables_missing) > 0:
@@ -71,25 +64,59 @@ def check_variable_overview(df_variable_overview: pd.DataFrame) -> None:
                 raise ValueError(f"Stochastic variable '{index}' in sheet 'Overzicht_variabelen' has no dispersion type specified (e.g. _stdev, _vc). Add it.")
 
 
-def check_attr_in_overview(attr_name: str, df_variable_overview: pd.DataFrame) -> None:
-    # Check if attribute exists in the sheet 'Overzicht_variabelen'
-    attr_name_without_suffix = variable_name_without_suffix(attr_name)
+# def check_attr_in_overview(attr_name: str, df_variable_overview: pd.DataFrame) -> None:
+#     # Check if attribute exists in the sheet 'Overzicht_variabelen'
+#     attr_name_without_suffix = get_variable_name_without_suffix(attr_name)
+#     if not attr_name_without_suffix in df_variable_overview.index:
+#         raise ValueError(f"Variable '{attr_name_without_suffix}' not found in sheet 'Overzicht_variabelen' of input Excel file")
+def check_attr_in_overview(attr_name_without_suffix: str, df_variable_overview: pd.DataFrame) -> None:
     if not attr_name_without_suffix in df_variable_overview.index:
-        raise ValueError(f"Variable '{attr_name}' not found in sheet 'Overzicht_variabelen' of input Excel file")
+        raise ValueError(f"Variable '{attr_name_without_suffix}' not found in sheet 'Overzicht_variabelen' of input Excel file")
+
+def is_number(var_value: Any) -> float:
+    return isinstance(var_value, (int, float)) and not pd.isna(var_value)
 
 
-def enforce_lower_upper_bounds(instance: Vak | Uittredepunt | OndergrondScenario, attr_name: str, attr_value: float, df_variable_overview: pd.DataFrame, id: str) -> None:
-    # Check if value lies within upper and lower bounds in df_variable_overview (if specified)
-    if attr_name.endswith("_mean"):
-        # Note that only for mean values the bounds are checked, not for dispersion values (e.g. _stdev, _vc)
-        attr_name_without_suffix = variable_name_without_suffix(attr_name, ["_mean"])
-        if pd.notna(df_variable_overview.at[attr_name_without_suffix, "variable_mean_lower_bound"]):
-            lower_bound = df_variable_overview.at[attr_name_without_suffix, 'variable_mean_lower_bound']
+# def enforce_lower_upper_bounds(instance: Vak | Uittredepunt | OndergrondScenario, attr_name: str, attr_value: float, df_variable_overview: pd.DataFrame, id: str) -> None:
+#     # Check if value lies within upper and lower bounds in df_variable_overview (if specified)
+#     if attr_name.endswith("_mean"):
+#         # Note that only for mean values the bounds are checked, not for dispersion values (e.g. _stdev, _vc)
+#         attr_name_without_suffix = get_variable_name_without_suffix(attr_name, ["_mean"])
+#         if pd.notna(df_variable_overview.at[attr_name_without_suffix, "variable_mean_lower_bound"]):
+#             lower_bound = df_variable_overview.at[attr_name_without_suffix, 'variable_mean_lower_bound']
+#             if not (lower_bound <= attr_value):
+#                 print(id)         
+#                 raise ValueError(f"Variable '{attr_name_without_suffix}' of {instance.__class__.__name__} with id '{id}' has a mean value that exceeds the lower bound (value: {attr_value} < lower bound: {lower_bound})")
+
+#         if pd.notna(df_variable_overview.at[attr_name_without_suffix, "variable_mean_upper_bound"]):
+#             upper_bound = df_variable_overview.at[attr_name_without_suffix, 'variable_mean_upper_bound']
+#             if not (attr_value <= upper_bound):
+#                 raise ValueError(f"Variable '{attr_name_without_suffix}' of {instance.__class__.__name__} with id '{id}' has a mean value that exceeds the upper bound (value: {attr_value} > upper bound: {upper_bound})")
+def enforce_lower_upper_bounds(attr_name_without_suffix: str, input_dict: dict, df_variable_overview: pd.DataFrame, cls: Type[Vak | Uittredepunt | OndergrondScenario], id: str) -> None:
+    
+    # Only enforce lower/upper bounds for variables
+    if input_dict["type"] == "variable":
+    
+        # Value (mean) is accessed differently for deterministic and stochastic variables
+        attr_value = input_dict["value"] if input_dict["distribution"] == "deterministic" else input_dict["mean"]
+    
+        # Make sure the attribute value is a number (int/float) before checking bounds
+        if not is_number(attr_value):
+            raise ValueError(f"Value of variable '{attr_name_without_suffix}' of {cls.__name__} with id '{id}' should be a number (int/float) since lower/upper bounds were specified, but it's {attr_value} of type {type(attr_value)}")
+        
+        # Check if value lies within upper and lower bounds in df_variable_overview (if specified)
+        lower_bound = df_variable_overview.at[attr_name_without_suffix, "variable_mean_lower_bound"]
+        upper_bound = df_variable_overview.at[attr_name_without_suffix, "variable_mean_upper_bound"]
+        
+        if pd.notna(lower_bound):
+            if not is_number(lower_bound):
+                raise ValueError(f"Lower bound of variable {attr_name_without_suffix} should be a number (int/float) but got {lower_bound} of type {type(lower_bound)}")
             if not (lower_bound <= attr_value):
                 print(id)         
-                raise ValueError(f"Variable '{attr_name_without_suffix}' of {instance.__class__.__name__} with id '{id}' has a mean value that exceeds the lower bound (value: {attr_value} < lower bound: {lower_bound})")
+                raise ValueError(f"Variable '{attr_name_without_suffix}' of {cls.__name__} with id '{id}' has a mean value that exceeds the lower bound (value: {attr_value} < lower bound: {lower_bound})")
 
-        if pd.notna(df_variable_overview.at[attr_name_without_suffix, "variable_mean_upper_bound"]):
-            upper_bound = df_variable_overview.at[attr_name_without_suffix, 'variable_mean_upper_bound']
+        if pd.notna(upper_bound):
+            if not is_number(upper_bound):
+                raise ValueError(f"Upper bound of variable {attr_name_without_suffix} should be a number (int/float) but got {upper_bound} of type {type(upper_bound)}")
             if not (attr_value <= upper_bound):
-                raise ValueError(f"Variable '{attr_name_without_suffix}' of {instance.__class__.__name__} with id '{id}' has a mean value that exceeds the upper bound (value: {attr_value} > upper bound: {upper_bound})")
+                raise ValueError(f"Variable '{attr_name_without_suffix}' of {cls.__name__} with id '{id}' has a mean value that exceeds the upper bound (value: {attr_value} > upper bound: {upper_bound})")

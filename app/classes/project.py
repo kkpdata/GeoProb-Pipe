@@ -35,30 +35,30 @@ class Project():
         # Read overview of variables from Excel file (includes e.g. upper and lower bounds, type of distribution, etc.)
         self.df_variable_overview = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Overzicht_variabelen", index_col=0, header=0).rename(columns=lambda x: x.strip())
         check_variable_overview(self.df_variable_overview)
+        print("\nOverzicht_variabelen successfully loaded from input.xlsx")
         
         # Initialize collections. Note that UittredepuntCollection and OndergrondscenarioCollection link the
         # instances of Uittredepunt and OndergrondScenario to the corresponding Vak instance
         self.vak_collection = VakCollection(self.workspace.input.folderpath / "input.xlsx", self.df_variable_overview)
-        self.uittredepunt_collection = UittredepuntCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection, self.df_variable_overview)
-        self.ondergrond_scenario_collection = OndergrondScenarioCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection, self.df_variable_overview)        
+        # self.uittredepunt_collection = UittredepuntCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection, self.df_variable_overview)
+        # self.ondergrond_scenario_collection = OndergrondScenarioCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection, self.df_variable_overview)        
+        # check_completeness_input_variables(self.df_variable_overview, self.vak_collection.df, self.uittredepunt_collection.df, self.ondergrond_scenario_collection.df)
+        # print("\nVakken, Uittredepunten & Ondergrondscenarios successfully loaded from input.xlsx")
 
-        # Data validation
-        check_completeness_input_variables(self.df_variable_overview, self.vak_collection.df, self.uittredepunt_collection.df, self.ondergrond_scenario_collection.df)
+        # # Read calculation settings from Excel file
+        # self.settings = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Settings", index_col=0, header=0)
+        # print("\nSettings successfully loaded from input.xlsx")
 
-        # Read settings from Excel file
-        self.settings = pd.read_excel(self.workspace.input.folderpath / "settings.xlsx", index_col=0, header=0)
- 
-        # Make combinations of uittredepunten, ondergrondscenarios and models
-        # Notes:
-        #   1. Not all combinations of uittredepunten and ondergrondscenarios are valid, so we need a helper loop through the vakken which holds the valid combinations
-        #   2. Nested for-loops are inefficient but used on purpose since there are no heavy calculations and it's easily understandable
-        self._list_reliability_calculations = []
-        for vak in self.vak_collection.values():
-            for uittredepunt in vak.uittredepunten:
-                for ondergrond_scenario in vak.ondergrond_scenarios:
-                    
-                    for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
-                        self._list_reliability_calculations.append(ReliabilityCalculation(self.settings, uittredepunt, ondergrond_scenario, model))
+        # # Make combinations of uittredepunten, ondergrondscenarios and models
+        # # Notes:
+        # #   1. Not all combinations of uittredepunten and ondergrondscenarios are valid, so we need a helper loop through the vakken which holds the valid combinations
+        # #   2. Nested for-loops are inefficient but used on purpose since there are no heavy calculations and it's easily understandable
+        # self._list_reliability_calculations = []
+        # for vak in self.vak_collection.values():
+        #     for uittredepunt in vak.uittredepunten:
+        #         for ondergrond_scenario in vak.ondergrond_scenarios:
+        #             for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
+        #                 self._list_reliability_calculations.append(ReliabilityCalculation(uittredepunt, ondergrond_scenario, model, self.settings))
         
         # # Start calculations
         # self._start_calculations(self._list_reliability_calculations)

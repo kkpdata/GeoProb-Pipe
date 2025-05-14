@@ -22,8 +22,6 @@ PATH_WORKSPACE: str | Path = r"..\\workspaces\example_new_calculations"
 # USE_EXISTING_TKX_RESULTS: bool = False
 
 # Whether to clean up the working directory in the workspace (True) or not (False).
-# Note that if set to False, the working directory size could become 100-500 GB or larger.
-# Make sure you have enough disk space!
 CLEANUP_WORK_DIR: bool = True
 
 # Define waterlevel (buitenwaterstand) range for which you want an integrated fragility curve

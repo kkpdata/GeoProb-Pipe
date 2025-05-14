@@ -105,17 +105,16 @@ def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path) -> Fil
     # Create FileSystem instance for input folder
     filesystem_input = FileSystem(PATH_WORKSPACE / "input")
 
-    # Make sure the "input" subfolder contains 2 .xlsx file named input.xlsx and settings.xlsx
+    # Make sure the "input" subfolder contains 1 .xlsx file named input.xlsx
     xlsx_input = [filepath.name for filepath in FileSystem.find_files_in_dir(filesystem_input.folderpath, "xlsx")]
-    xlsx_required = ["input.xlsx", "settings.xlsx"]
 
-    if len(xlsx_input) != 2 or not all(val in xlsx_input for val in xlsx_required):
+    if len(xlsx_input) != 1 or xlsx_input[0] != "input.xlsx":
         raise FileNotFoundError(
-            f"\nInput folder {filesystem_input.folderpath} should contain exactly 2 .xlsx files named:\ninput.xlsx (contains input parameter values)\nsettings.xlsx (contains probabilistic calculation settings)\n(currently found: {xlsx_input})"
+            f"\nInput folder {filesystem_input.folderpath} should contain exactly 1 .xlsx files named 'input.xlsx'\n(Currently found: {xlsx_input})"
         )
 
     # Check if input.xlsx has exactly four required sheets (case-sensitive!)
-    expected_sheets = {"Vakken", "Uittredepunten", "Ondergrondscenarios", "Overzicht_variabelen"}
+    expected_sheets = {"Vakken", "Uittredepunten", "Ondergrondscenarios", "Overzicht_variabelen", "Settings"}
     xlsx_input_folderpath = pd.ExcelFile(filesystem_input.folderpath / "input.xlsx")
 
     if set(xlsx_input_folderpath.sheet_names) != expected_sheets:
@@ -124,13 +123,6 @@ def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path) -> Fil
             f"{', '.join(expected_sheets)}\n"
             f"Found sheets: {', '.join(xlsx_input_folderpath.sheet_names)}\n"
             f"Note:\n1) Sheet names are case-sensitive!\n2) The order of sheets does not matter."
-        )
-
-    # Check if settings.xlsx has just one sheet named "Settings" (case-insensitive!)
-    xlsx_settings_folderpath = pd.ExcelFile(filesystem_input.folderpath / "settings.xlsx")
-    if len(xlsx_settings_folderpath.sheet_names) != 1 or xlsx_settings_folderpath.sheet_names[0] != "Settings":
-        raise FileNotFoundError(
-            f"\n{filesystem_input.folderpath / "settings.xlsx"} should contain exactly one sheet called 'Settings' (case-sensitive!)"
         )
         
     return filesystem_input
