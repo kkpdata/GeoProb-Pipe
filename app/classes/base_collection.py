@@ -1,3 +1,4 @@
+from itertools import islice
 from typing import Generic, Iterator, TypeVar, Union
 
 T = TypeVar("T")
@@ -32,20 +33,33 @@ class BaseCollection(Generic[T]):
 
     # Magic methods
     def __repr__(self) -> str:
-        class_name = self.__class__.__name__
-        lines = [f"{class_name} with {len(self)} items:"]
+
+        lines = [f"{self.__class__.__name__} with {len(self)} items:"]
         
-        lines.append("{")
-        for k, v in self._items.items():
-            lines.append(f"  {k}: {repr(v)},")
-        lines.append("}")
         
-        # Examples for accessing by ID, index and slice
+        ## Print instances within collection
+        SHOW_NUMBER_ATTRIBUTES = 2  # Defines number of attributes to show (to prevent long prints)
+        SHOW_NUMBER_SUBATTRIBUTES = 4  # Defines number of subattributes (i.e. attributes of attributes) to show (to prevent long prints)
+        def _show_limited_subattributes(instance: T) -> str:
+            attrs = list(instance.__dict__.items())[:SHOW_NUMBER_SUBATTRIBUTES]
+            return ", ".join(f"{ak}={repr(av)}" for ak, av in attrs)
+        
+        lines.append("    {")
+        for _, instance in islice(self._items.items(), SHOW_NUMBER_ATTRIBUTES):
+            lines.append(f"      {instance.__class__.__name__}({_show_limited_subattributes(instance)}, ...)")
+        lines.append("      ...")
+        lines.append("    }")
+        
+        # Print examples for accessing by ID, index and slice
         lines.append("\nMethods to access items:")
-        lines.append(f"  By ID: {class_name}['{self[0].id}'] -> {repr(self._items[str(self[0].id)])} (NOTE: ID should be given as string!)")
-        lines.append(f"  By collection index: {class_name}[0] -> {repr(self[0])}")
+        lines.append(f"    By ID: {self.__class__.__name__}['{self[0].id}'] (NOTE: ID should be given as string!) -> {self[0].__class__.__name__}({(_show_limited_subattributes(self._items[str(self[0].id)]))}, ...)")
+        lines.append(f"    By collection index: {self.__class__.__name__}[0] -> {self[0].__class__.__name__}({_show_limited_subattributes(self[0])}, ...)")
         if len(self) > 1:
-            lines.append(f"  By slicing the collection: {class_name}[0:2] -> {repr(self[0:2])}")
+            lines.append(f"    By slicing the collection: {self.__class__.__name__}[0:2] -> [" + 
+                         ", ".join(
+                             f"{instance.__class__.__name__}({_show_limited_subattributes(instance)}, ...)"
+                             for instance in self[0:2]
+                         ) + "]")
         return "\n".join(lines)
     
     def __getitem__(self, index: Union[str, int, slice]) -> Union[T, list[T]]:
