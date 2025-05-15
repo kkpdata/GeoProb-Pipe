@@ -9,15 +9,21 @@ if TYPE_CHECKING:
     from app.classes.uittredepunt import Uittredepunt
     from app.classes.ondergrond_scenario import OndergrondScenario
 
-from typing import Any, List, Optional, Union
+from collections.abc import Iterable
+from typing import Any, Optional, Union
 
 from app.misc._default_values_constants import ALLOWED_SUFFIXES
 
 
-def get_variable_name_without_suffix(attr_name: Union[str, List[str]], list_suffixes: Optional[List[str]] = None) -> Union[str, List[str]]:
+def strip_suffix_from_variable_name(var_name: str, list_suffixes: Optional[list[str]] = None) -> str:
     suffixes = list_suffixes or ALLOWED_SUFFIXES  # Use list_suffixes if provided, otherwise use the default allowed list suffixes
-    strip_suffix = lambda s: next((s[:-len(suf)] for suf in suffixes if s.endswith(suf)), s)
-    return list(dict.fromkeys(strip_suffix(attr_name) if isinstance(attr_name, str) else [strip_suffix(s) for s in attr_name]))  # Note: dict.fromkeys is used to remove duplicates while preserving order
+    return next((var_name[:-len(suf)] for suf in suffixes if var_name.endswith(suf)), var_name)
+
+
+def strip_suffix_from_list_variable_names(list_var_names: Iterable[str], list_suffixes: Optional[list[str]] = None) -> list[str]:
+    if isinstance(list_var_names, str):
+        raise TypeError("Input must be an iterable of strings (e.g. list/set/pd.Index), not a single string.")
+    return list(dict.fromkeys([strip_suffix_from_variable_name(var_name, list_suffixes) for var_name in list_var_names]))  # Note: dict.fromkeys is used to remove duplicates while preserving order
 
 
 def generate_variable_dict(attr_name_without_suffix: str, df_row: pd.Series, df_variable_overview: pd.DataFrame) -> dict:

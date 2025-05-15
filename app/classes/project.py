@@ -40,8 +40,8 @@ class Project():
         # Initialize collections. Note that UittredepuntCollection and OndergrondscenarioCollection link the
         # instances of Uittredepunt and OndergrondScenario to the corresponding Vak instance
         self.vak_collection = VakCollection(self.workspace.input.folderpath / "input.xlsx", self.df_variable_overview)
-        # self.uittredepunt_collection = UittredepuntCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection, self.df_variable_overview)
-        # self.ondergrond_scenario_collection = OndergrondScenarioCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection, self.df_variable_overview)        
+        self.uittredepunt_collection = UittredepuntCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection, self.df_variable_overview)
+        self.ondergrond_scenario_collection = OndergrondScenarioCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection, self.df_variable_overview)        
         # check_completeness_input_variables(self.df_variable_overview, self.vak_collection.df, self.uittredepunt_collection.df, self.ondergrond_scenario_collection.df)
         # print("\nVakken, Uittredepunten & Ondergrondscenarios successfully loaded from input.xlsx")
 

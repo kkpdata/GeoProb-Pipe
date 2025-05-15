@@ -1,6 +1,12 @@
-from itertools import islice
-from typing import Generic, Iterator, TypeVar, Union
+from __future__ import annotations  # makes all annotations lazy (no quotes needed)
 
+from itertools import islice
+from typing import TYPE_CHECKING, Generic, Iterator, TypeVar, Union
+
+if TYPE_CHECKING:
+    from app.classes.ondergrond_scenario import OndergrondScenario
+    from app.classes.uittredepunt import Uittredepunt
+    from app.classes.vak import Vak
 T = TypeVar("T")
 
 class BaseCollection(Generic[T]):
@@ -8,6 +14,8 @@ class BaseCollection(Generic[T]):
     A generic base class for managing a collection of items, each identified 
     by a unique string ID. This class provides common functionality for adding, 
     retrieving, iterating, and accessing items in the collection.
+
+    Check the __repr__ attribute for examples regarding accessing data
 
     Attributes:
         _items (dict): A dictionary that stores items using their unique string 
@@ -34,10 +42,10 @@ class BaseCollection(Generic[T]):
     # Magic methods
     def __repr__(self) -> str:
 
+        # Header text
         lines = [f"{self.__class__.__name__} with {len(self)} items:"]
         
-        
-        ## Print instances within collection
+        ## Text regarding instances within collection
         SHOW_NUMBER_ATTRIBUTES = 2  # Defines number of attributes to show (to prevent long prints)
         SHOW_NUMBER_SUBATTRIBUTES = 4  # Defines number of subattributes (i.e. attributes of attributes) to show (to prevent long prints)
         def _show_limited_subattributes(instance: T) -> str:
@@ -50,7 +58,7 @@ class BaseCollection(Generic[T]):
         lines.append("      ...")
         lines.append("    }")
         
-        # Print examples for accessing by ID, index and slice
+        # Text with examples for accessing by ID, index and slice
         lines.append("\nMethods to access items:")
         lines.append(f"    By ID: {self.__class__.__name__}['{self[0].id}'] (NOTE: ID should be given as string!) -> {self[0].__class__.__name__}({(_show_limited_subattributes(self._items[str(self[0].id)]))}, ...)")
         lines.append(f"    By collection index: {self.__class__.__name__}[0] -> {self[0].__class__.__name__}({_show_limited_subattributes(self[0])}, ...)")
@@ -93,3 +101,76 @@ class BaseCollection(Generic[T]):
 
     def items(self) -> list[tuple[str, T]]:
         return list(self._items.items())
+
+# # Pretty printing for the __repr__ attributes of Vak/Uittredepunt/OndergrondScenario instances
+# def _pretty_repr(self: Vak | Uittredepunt | OndergrondScenario) -> str:
+#     def format_value(v, indent=2):
+#         spacer = '    ' * indent
+
+#         if type(v).__name__ in ("Vak", "Uittredepunt", "OndergrondScenario"):
+#             # First, check if this is a Vak/Uittredepunt/OndergrondScenario instance (by name)
+#             # Truncate to first 4 attributes of the instance to prevent deep nesting
+#             items = list(v.__dict__.items())[:4]
+#             body = ''.join(f'{spacer}{k}: {format_value(val, indent + 1)}\n' for k, val in items)
+#             return f'{v.__class__.__name__}(\n{body}{spacer}...)\n{spacer[:-4]})'
+
+#         elif isinstance(v, dict):
+#             return '{\n' + ''.join(f'{spacer}{k}: {format_value(val, indent + 1)}\n' for k, val in v.items()) + '    ' * (indent - 1) + '}'
+
+#         elif hasattr(v, '__dict__'):
+#             return format_value(v.__dict__, indent)
+
+#         else:
+#             return repr(v)
+
+#     return (
+#         f"{self.__class__.__name__}(\n" +
+#         ''.join(f'    {k}: {format_value(v)}\n' for k, v in self.__dict__.items()) +
+#         ")"
+#     )
+def _pretty_repr(self: Vak | Uittredepunt | OndergrondScenario) -> str:
+    def format_value(v, indent=2):
+        spacer = '    ' * indent
+
+        # Special case 1: Single instance of Vak/Uittredepunt/OndergrondScenario
+        if type(v).__name__ in ("Vak", "Uittredepunt", "OndergrondScenario"):
+            return format_instance(v, indent)
+
+        # Special case 2: List of Uittredepunt or OndergrondScenario
+        if isinstance(v, list) and v and type(v[0]).__name__ in ("Uittredepunt", "OndergrondScenario"):
+            sliced = v[:2]
+            body = ''.join(
+                f'{spacer}{format_instance(item, indent + 1)}\n'
+                for item in sliced
+            )
+            return '[\n' + body + f'{spacer}...]\n'
+
+        # Regular dict
+        elif isinstance(v, dict):
+            return '{\n' + ''.join(
+                f'{spacer}{k}: {format_value(val, indent + 1)}\n'
+                for k, val in v.items()
+            ) + '    ' * (indent - 1) + '}'
+
+        # Recursively format objects with __dict__
+        elif hasattr(v, '__dict__'):
+            return format_value(v.__dict__, indent)
+
+        # Fallback
+        else:
+            return repr(v)
+
+    def format_instance(obj, indent=2):
+        spacer = '    ' * indent
+        items = list(obj.__dict__.items())[:4]
+        body = ''.join(
+            f'{spacer}{k}: {format_value(val, indent + 1)}\n'
+            for k, val in items
+        )
+        return f'{obj.__class__.__name__}(\n{body}{spacer}...)\n{spacer[:-4]})'
+
+    return (
+        f"{self.__class__.__name__}(\n" +
+        ''.join(f'    {k}: {format_value(v)}\n' for k, v in self.__dict__.items()) +
+        ")"
+    )
