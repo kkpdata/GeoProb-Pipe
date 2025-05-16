@@ -20,7 +20,7 @@ def strip_suffix_from_list_parameter_names(list_var_names: Iterable[str], list_s
 
 def generate_variable_dict(attr_name_without_suffix: str, df_row: pd.Series, df_overview_parameters: pd.DataFrame) -> dict:
     var_dict = {"type": df_overview_parameters.at[attr_name_without_suffix, "parameter_type"]}
-    var_dict["distribution"] = df_overview_parameters.at[attr_name_without_suffix, "parameter_distribution"]
+    var_dict["distribution"] = df_overview_parameters.at[attr_name_without_suffix, "parameter_distribution"]  # Note: all supported distribution strings can be found in probabilistic_library.statistic.DistributionType
     
     if var_dict["distribution"] == "deterministic":
         var_dict["value"] = df_row[attr_name_without_suffix]

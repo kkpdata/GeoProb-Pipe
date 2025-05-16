@@ -22,23 +22,38 @@ def check_attribute_already_exists(instance: Vak | Uittredepunt | OndergrondScen
 
 
 def checks_input_parameters(df_overview_parameters: pd.DataFrame, df_vak_collection: pd.DataFrame, df_uittredepunt_collection: pd.DataFrame, df_ondergrond_scenario_collection: pd.DataFrame) -> None:
+    
+    # Parameter names given
+    set_parameter_names_given = set(df_vak_collection.columns).union(df_uittredepunt_collection.columns, df_ondergrond_scenario_collection.columns)
+    
+    if not all(isinstance(param_name, str) for param_name in set_parameter_names_given):
+        # Parameter names should all be strings
+        raise ValueError(f"Parameter names in sheet 'Vakken'/'Uittredepunten'/'Ondergrondscenarios' must all be strings. Found invalid names: {[type(param_name).__name__ for param_name in set_parameter_names_given if not isinstance(param_name, str)]}")
+    
+    if any(" " in param_name for param_name in set_parameter_names_given):
+        # Prevent spaces in parameter names since we're using dot notation for accessing attributes later in the tool
+        raise ValueError(f"Parameter names in sheet 'Vakken'/'Uittredepunten'/'Ondergrondscenarios' are not allowed to contain spaces. Found invalid names: {[param_name for param_name in set_parameter_names_given if ' ' in param_name]}")
+
+    # Parameter names expected
     set_parameter_names_expected = set()
     
-    # All expected metadata should be given in de Vakken/Uittredepunten/Ondergrondscenarios sheets
     for index, row in df_overview_parameters[df_overview_parameters["parameter_type"] == "metadata"].iterrows():
+        # All expected metadata should be given in de Vakken/Uittredepunten/Ondergrondscenarios sheets
         set_parameter_names_expected.update([str(index)])
 
-    # All expected variables should be given in de Vakken/Uittredepunten/Ondergrondscenarios sheets, but we need to check if
-    # the suffix "_mean" should be added (necessary if the input is stochastic). Otherwise, if deterministic, simply add the variable name
     for index, row in df_overview_parameters[df_overview_parameters["parameter_type"] == "variable"].iterrows():
+        # All expected variables should be given in de Vakken/Uittredepunten/Ondergrondscenarios sheets, but we need to check if
+        # the suffix "_mean" should be added (necessary if the input is stochastic). Otherwise, if deterministic, simply add the variable name
         if pd.notna(row["parameter_spreidingstype"]):
             set_parameter_names_expected.update([str(index) + "_mean", str(index) + row["parameter_spreidingstype"]])
         else:
             set_parameter_names_expected.update([str(index)])
 
-    set_parameter_names_given = set(df_vak_collection.columns).union(df_uittredepunt_collection.columns, df_ondergrond_scenario_collection.columns)
+    if any(" " in c for c in set_parameter_names_expected):
+        # Prevent spaces in parameter names since we're using dot notation for accessing attributes later in the tool 
+        raise ValueError(f"Parameter names in sheet 'Overzicht_parameters' are not allowed to contain spaces: {[c for c in set_parameter_names_expected if ' ' in c]}")
 
-    # Check for missing or surplus input
+    # Check for missing or surplus input parameters
     if set_parameter_names_expected != set_parameter_names_given:
         parameters_missing = set_parameter_names_expected - set_parameter_names_given
         parameters_surplus = set_parameter_names_given - set_parameter_names_expected
@@ -56,6 +71,9 @@ def checks_input_parameters(df_overview_parameters: pd.DataFrame, df_vak_collect
 
 def checks_overview_parameters(df_overview_parameters: pd.DataFrame) -> None:
     
+    if not all(isinstance(i, str) for i in df_overview_parameters.index):
+        raise ValueError(f"All parameter names in sheet 'Overzicht_parameters' must be strings/text. Found: {[type(i).__name__ for i in df_overview_parameters.index if not isinstance(i, str)]}")
+
     if df_overview_parameters.index.has_duplicates:
         # Check duplicates
         raise ValueError(f"Duplicate variables found in sheet 'Overzicht_parameters': {df_overview_parameters.index[df_overview_parameters.index.duplicated()].unique().tolist()}")

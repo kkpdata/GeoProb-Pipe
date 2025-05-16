@@ -12,6 +12,8 @@ from probabilistic_library import (
     ReliabilityProject,
     StandardNormal,
 )
+from probabilistic_library.reliability import Settings
+from probabilistic_library.statistic import Stochast
 
 from app.classes.ondergrond_scenario import OndergrondScenarioCollection
 from app.classes.reliability_calculation import ReliabilityCalculation
@@ -52,20 +54,24 @@ class Project():
         self.uittredepunt_collection = UittredepuntCollection(df_uittredepunten, self.vak_collection, self.df_overview_parameters)
         self.ondergrond_scenario_collection = OndergrondScenarioCollection(df_ondergrond_scenarios, self.vak_collection, self.df_overview_parameters)        
 
+        # FIXME CONSTANTEN MOETEN NOG INGELEZEN WORDEN!
+
         # Read calculation settings from Excel file
-        self.settings = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Settings", index_col=0, header=0)
+        self.df_settings = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Settings", index_col=0, header=0)
         print("\nSettings successfully loaded from input.xlsx")
 
-        # # Make combinations of uittredepunten, ondergrondscenarios and models
-        # # Notes:
-        # #   1. Not all combinations of uittredepunten and ondergrondscenarios are valid, so we need a helper loop through the vakken which holds the valid combinations
-        # #   2. Nested for-loops are inefficient but used on purpose since there are no heavy calculations and it's easily understandable
-        # self._list_reliability_calculations = []
-        # for vak in self.vak_collection.values():
-        #     for uittredepunt in vak.uittredepunten:
-        #         for ondergrond_scenario in vak.ondergrond_scenarios:
-        #             for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
-        #                 self._list_reliability_calculations.append(ReliabilityCalculation(uittredepunt, ondergrond_scenario, model, self.settings))
+        # Make combinations of uittredepunten, ondergrondscenarios and models
+        # Notes:
+        #   1. Not all combinations of uittredepunten and ondergrondscenarios are valid, so we need a helper loop through the vakken which holds the valid combinations
+        #   2. Nested for-loops are inefficient but used on purpose since there are no heavy calculations and it's easily understandable
+        print(f"INFO: list of available settings:\n{Settings().__dir__()}")
+        print(f"INFO: list of available variable attributes:\n{Stochast().__dir__()}")
+        self._list_reliability_calculations = []
+        for vak in self.vak_collection.values():
+            for uittredepunt in vak.uittredepunten:
+                for ondergrond_scenario in vak.ondergrond_scenarios:
+                    for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
+                        self._list_reliability_calculations.append(ReliabilityCalculation(uittredepunt, ondergrond_scenario, model, self.df_settings))
         
         # # Start calculations
         # self._start_calculations(self._list_reliability_calculations)
