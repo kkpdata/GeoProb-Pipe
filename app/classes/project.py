@@ -33,7 +33,7 @@ class Project():
         
         # Initialize Workspace object (also checks if input/output folders contain all necessary files)
         self.workspace = Workspace(PATH_WORKSPACE)
-        print("\nINFO: workspace (I/O folders) set up correctly")
+        print("\nINFO: workspace (I/O folders) successfully processed")
 
         # Read overview data of parameters from input Excel file (includes e.g. upper and lower bounds, type of distribution, etc.) and carry out checks
         self.df_overview_parameters = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Overzicht_parameters", index_col=0, header=0).rename(columns=lambda x: x.strip())
@@ -46,7 +46,7 @@ class Project():
         df_uittredepunten = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Uittredepunten").rename(columns=lambda x: x.strip())
         df_ondergrond_scenarios = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Ondergrondscenarios").rename(columns=lambda x: x.strip()).dropna(subset=['ondergrondscenario_kans']).loc[lambda x: x['ondergrondscenario_kans'] != 0]
         checks_input_parameters(self.df_overview_parameters, df_vakken, df_uittredepunten, df_ondergrond_scenarios)
-        print("INFO: data from 'input.xlsx' successfully loaded")
+        print("INFO: parameter data successfully loaded from 'input.xlsx'")
         
         # Initialize collections. Note that UittredepuntCollection and OndergrondscenarioCollection link the
         # instances of Uittredepunt and OndergrondScenario to the corresponding Vak instance
@@ -58,14 +58,13 @@ class Project():
 
         # Read calculation settings from Excel file
         self.df_settings = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Settings", index_col=0, header=0)
-        print("\nSettings successfully loaded from input.xlsx")
+        print("\nINFO: settings successfully loaded from input.xlsx")
+        print(f"INFO: full list of available settings:\n{Settings().__dir__()}")
 
         # Make combinations of uittredepunten, ondergrondscenarios and models
         # Notes:
         #   1. Not all combinations of uittredepunten and ondergrondscenarios are valid, so we need a helper loop through the vakken which holds the valid combinations
         #   2. Nested for-loops are inefficient but used on purpose since there are no heavy calculations and it's easily understandable
-        print(f"INFO: list of available settings:\n{Settings().__dir__()}")
-        print(f"INFO: list of available variable attributes:\n{Stochast().__dir__()}")
         self._list_reliability_calculations = []
         for vak in self.vak_collection.values():
             for uittredepunt in vak.uittredepunten:
