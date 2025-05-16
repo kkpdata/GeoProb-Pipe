@@ -102,32 +102,6 @@ class BaseCollection(Generic[T]):
     def items(self) -> list[tuple[str, T]]:
         return list(self._items.items())
 
-# # Pretty printing for the __repr__ attributes of Vak/Uittredepunt/OndergrondScenario instances
-# def _pretty_repr(self: Vak | Uittredepunt | OndergrondScenario) -> str:
-#     def format_value(v, indent=2):
-#         spacer = '    ' * indent
-
-#         if type(v).__name__ in ("Vak", "Uittredepunt", "OndergrondScenario"):
-#             # First, check if this is a Vak/Uittredepunt/OndergrondScenario instance (by name)
-#             # Truncate to first 4 attributes of the instance to prevent deep nesting
-#             items = list(v.__dict__.items())[:4]
-#             body = ''.join(f'{spacer}{k}: {format_value(val, indent + 1)}\n' for k, val in items)
-#             return f'{v.__class__.__name__}(\n{body}{spacer}...)\n{spacer[:-4]})'
-
-#         elif isinstance(v, dict):
-#             return '{\n' + ''.join(f'{spacer}{k}: {format_value(val, indent + 1)}\n' for k, val in v.items()) + '    ' * (indent - 1) + '}'
-
-#         elif hasattr(v, '__dict__'):
-#             return format_value(v.__dict__, indent)
-
-#         else:
-#             return repr(v)
-
-#     return (
-#         f"{self.__class__.__name__}(\n" +
-#         ''.join(f'    {k}: {format_value(v)}\n' for k, v in self.__dict__.items()) +
-#         ")"
-#     )
 def _pretty_repr(self: Vak | Uittredepunt | OndergrondScenario) -> str:
     def format_value(v, indent=2):
         spacer = '    ' * indent
