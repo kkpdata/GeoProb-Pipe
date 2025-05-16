@@ -1,19 +1,17 @@
-from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
-from shapely.geometry import Point
 
 from app.classes.base_collection import BaseCollection, _pretty_repr
 from app.classes.vak import Vak, VakCollection
 from app.helper_functions.data_validation import (
-    check_attr_in_overview,
     check_attribute_already_exists,
+    check_attribute_in_overview,
     enforce_lower_upper_bounds,
 )
-from app.helper_functions.variable_functions import (
+from app.helper_functions.parameter_functions import (
     generate_variable_dict,
-    strip_suffix_from_list_variable_names,
+    strip_suffix_from_list_parameter_names,
 )
 
 
@@ -31,19 +29,20 @@ class Uittredepunt:
     hydra_locatie_id: str
 
 
-    def __init__(self, df_row: pd.Series, vak: Vak, df_variable_overview: pd.DataFrame, input_variable_names_without_suffix: list[str]) -> None:
+    def __init__(self, df_row: pd.Series, vak: Vak, df_overview_parameters: pd.DataFrame, input_parameter_names_without_suffix: list[str]) -> None:
         
-        # For each variable of this Uittredepunt instance, generate a dictionary containing its parameters
-        for attr_name_without_suffix in input_variable_names_without_suffix:
+        # Add each input parameter to the Uittredepunt instance
+        for attr_name_without_suffix in input_parameter_names_without_suffix:
             check_attribute_already_exists(self, attr_name_without_suffix)
-            check_attr_in_overview(attr_name_without_suffix, df_variable_overview)
+            check_attribute_in_overview(attr_name_without_suffix, df_overview_parameters)
             
-            if df_variable_overview.at[attr_name_without_suffix, "variable_type"] == "metadata":
+            # TODO nice to have: convert x,y coordinates to a Shapely Point
+            if df_overview_parameters.at[attr_name_without_suffix, "parameter_type"] == "metadata":
                 # Metadata should be set on the Uittredepunt instance directly
                 name = "id" if attr_name_without_suffix == "uittredepunt_id" else attr_name_without_suffix  # Rename uittredepunt_id to id to simplify the attribute name
                 setattr(self, name, df_row[attr_name_without_suffix])
                 
-            elif df_variable_overview.at[attr_name_without_suffix, "variable_type"] in ["variable", "constant"]:
+            elif df_overview_parameters.at[attr_name_without_suffix, "parameter_type"] in ["variable", "constant"]:
                 # Variables and constants should be set on the variables attribute of the Uittredepunt instance
                 if not hasattr(self, "variables"):
                     # Create a SimpleNamespace to hold the variables/constants of this Uittredepunt instance
@@ -51,9 +50,9 @@ class Uittredepunt:
                     
                 # Generate input_dict for the variable or constant. This is a dictionary containing the parameters (e.g. mean, stdev/vc, etc.)
                 # All input dicts will be stored in the variables attribute of the Uittredepunt instance
-                input_dict = generate_variable_dict(attr_name_without_suffix, df_row, df_variable_overview)
+                input_dict = generate_variable_dict(attr_name_without_suffix, df_row, df_overview_parameters)
                 
-                enforce_lower_upper_bounds(attr_name_without_suffix, input_dict, df_variable_overview, self.__class__, df_row["uittredepunt_id"])
+                enforce_lower_upper_bounds(attr_name_without_suffix, input_dict, df_overview_parameters, self.__class__, df_row["uittredepunt_id"])
                 
                 setattr(self.variables, attr_name_without_suffix, input_dict)
 
@@ -65,14 +64,12 @@ class Uittredepunt:
 
 
 class UittredepuntCollection(BaseCollection[Uittredepunt]):
-    def __init__(self, path_input_xlsx: Path, vak_collection: VakCollection, df_variable_overview: pd.DataFrame) -> None:
+    def __init__(self, df_uittredepunten: pd.DataFrame, vak_collection: VakCollection, df_overview_parameters: pd.DataFrame) -> None:
         super().__init__()  # Initialize the base collection
-        
-        # Read Excel, strip trailing whitespace
-        self.df = pd.read_excel(path_input_xlsx, sheet_name="Uittredepunten").rename(columns=lambda x: x.strip())
+        self.df = df_uittredepunten
         
         # Get unique column names from the df (without suffix)
-        input_variable_names_without_suffix = strip_suffix_from_list_variable_names(self.df.columns)
+        input_parameter_names_without_suffix = strip_suffix_from_list_parameter_names(self.df.columns)
         
         # Create uittredepunten from df. Note that the created Uittredepunt is linked to the corresponding Vak
         for _, row in self.df.iterrows():
@@ -91,7 +88,7 @@ class UittredepuntCollection(BaseCollection[Uittredepunt]):
                 raise ValueError(f"Duplicate uittredepunt_id: uittredepunt '{uittredepunt_id}' already exists in vak '{vak.id}'")            
             
             # Create Uittredepunt instance
-            uittredepunt = Uittredepunt(row, vak, df_variable_overview, input_variable_names_without_suffix)
+            uittredepunt = Uittredepunt(row, vak, df_overview_parameters, input_parameter_names_without_suffix)
             
             # Add Uittredepunt instance as attribute to the corresponding Vak instance 
             vak.uittredepunten.append(uittredepunt)

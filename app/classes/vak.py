@@ -1,19 +1,18 @@
-from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
 
-from app.classes.base_collection import BaseCollection
+from app.classes.base_collection import BaseCollection, _pretty_repr
 from app.helper_functions.data_validation import (
-    check_attr_in_overview,
     check_attribute_already_exists,
+    check_attribute_in_overview,
     enforce_lower_upper_bounds,
 )
-from app.helper_functions.variable_functions import (
+from app.helper_functions.parameter_functions import (
     generate_variable_dict,
-    strip_suffix_from_list_variable_names,
+    strip_suffix_from_list_parameter_names,
 )
-from app.classes.base_collection import _pretty_repr
+
 
 class Vak:
     
@@ -26,19 +25,19 @@ class Vak:
     vak_lengte: float
     
 
-    def __init__(self, df_row: pd.Series, df_variable_overview: pd.DataFrame, input_variable_names_without_suffix: list[str]) -> None:
+    def __init__(self, df_row: pd.Series, df_overview_parameters: pd.DataFrame, input_parameter_names_without_suffix: list[str]) -> None:
         
-        # For each variable of this Vak instance, generate a dictionary containing its parameters
-        for attr_name_without_suffix in input_variable_names_without_suffix:
+        # Add each input parameter to the Vak instance
+        for attr_name_without_suffix in input_parameter_names_without_suffix:
             check_attribute_already_exists(self, attr_name_without_suffix)
-            check_attr_in_overview(attr_name_without_suffix, df_variable_overview)
+            check_attribute_in_overview(attr_name_without_suffix, df_overview_parameters)
             
-            if df_variable_overview.at[attr_name_without_suffix, "variable_type"] == "metadata":
+            if df_overview_parameters.at[attr_name_without_suffix, "parameter_type"] == "metadata":
                 # Metadata should be set on the Vak instance directly
                 name = "id" if attr_name_without_suffix == "vak_id" else attr_name_without_suffix  # Rename vak_id to id to simplify the attribute name
                 setattr(self, name, df_row[attr_name_without_suffix])
                 
-            elif df_variable_overview.at[attr_name_without_suffix, "variable_type"] in ["variable", "constant"]:
+            elif df_overview_parameters.at[attr_name_without_suffix, "parameter_type"] in ["variable", "constant"]:
                 # Variables and constants should be set on the variables attribute of the Vak instance
                 if not hasattr(self, "variables"):
                     # Create a SimpleNamespace to hold the variables/constants of this Vak instance
@@ -46,9 +45,9 @@ class Vak:
                     
                 # Generate input_dict for the variable or constant. This is a dictionary containing the parameters (e.g. mean, stdev/vc, etc.)
                 # All input dicts will be stored in the variables attribute of the Vak instance
-                input_dict = generate_variable_dict(attr_name_without_suffix, df_row, df_variable_overview)
+                input_dict = generate_variable_dict(attr_name_without_suffix, df_row, df_overview_parameters)
                 
-                enforce_lower_upper_bounds(attr_name_without_suffix, input_dict, df_variable_overview, self.__class__, df_row["vak_id"])
+                enforce_lower_upper_bounds(attr_name_without_suffix, input_dict, df_overview_parameters, self.__class__, df_row["vak_id"])
                 
                 setattr(self.variables, attr_name_without_suffix, input_dict)
         
@@ -61,20 +60,18 @@ class Vak:
         
         
 class VakCollection(BaseCollection[Vak]):
-    def __init__(self, path_input_xlsx: Path, df_variable_overview: pd.DataFrame) -> None:
+    def __init__(self, df_vakken: pd.DataFrame, df_overview_parameters: pd.DataFrame) -> None:
         super().__init__()
-        
-        # Read Excel, strip trailing whitespace
-        self.df = pd.read_excel(path_input_xlsx, sheet_name="Vakken").rename(columns=lambda x: x.strip())
+        self.df = df_vakken
 
         # Get unique column names from the df (without suffix)
-        input_variable_names_without_suffix = strip_suffix_from_list_variable_names(self.df.columns)
+        input_parameter_names_without_suffix = strip_suffix_from_list_parameter_names(self.df.columns)
 
         # Create Vak instances from df
         for _, row in self.df.iterrows():
             
             # Create Vak instance
-            vak = Vak(row, df_variable_overview, input_variable_names_without_suffix)
+            vak = Vak(row, df_overview_parameters, input_parameter_names_without_suffix)
             
             # Check for duplicate vak_id before adding Vak to collection
             if vak.id in self._items:

@@ -114,7 +114,7 @@ def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path) -> Fil
         )
 
     # Check if input.xlsx has exactly four required sheets (case-sensitive!)
-    expected_sheets = {"Vakken", "Uittredepunten", "Ondergrondscenarios", "Overzicht_variabelen", "Settings"}
+    expected_sheets = {"Vakken", "Uittredepunten", "Ondergrondscenarios", "Overzicht_parameters", "Settings"}
     xlsx_input_folderpath = pd.ExcelFile(filesystem_input.folderpath / "input.xlsx")
 
     if set(xlsx_input_folderpath.sheet_names) != expected_sheets:

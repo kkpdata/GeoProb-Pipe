@@ -11,10 +11,9 @@ if TYPE_CHECKING:
 
 from typing import Any, Type
 
-from app.helper_functions.variable_functions import (
-    strip_suffix_from_list_variable_names,
+from app.helper_functions.parameter_functions import (
+    strip_suffix_from_list_parameter_names,
 )
-from app.misc._default_values_constants import ALLOWED_SUFFIXES
 
 
 def check_attribute_already_exists(instance: Vak | Uittredepunt | OndergrondScenario, attr_name: str) -> None:
@@ -22,60 +21,68 @@ def check_attribute_already_exists(instance: Vak | Uittredepunt | OndergrondScen
         raise AttributeError(f"{instance.__class__.__name__} already has an attribute named '{attr_name}', please rename the column in the input Excel file.")
 
 
-def check_completeness_input_variables(df_variable_overview: pd.DataFrame, df_vak_collection: pd.DataFrame, df_uittredepunt_collection: pd.DataFrame, df_ondergrond_scenario_collection: pd.DataFrame) -> None:
-    set_variable_names_expected = set()
-    for index, row in df_variable_overview[df_variable_overview["variable_type"] == "Input"].iterrows():
-        if pd.notna(row["variable_spreidingstype"]):
-            set_variable_names_expected.update([str(index) + "_mean", str(index) + row["variable_spreidingstype"]])
+def checks_input_parameters(df_overview_parameters: pd.DataFrame, df_vak_collection: pd.DataFrame, df_uittredepunt_collection: pd.DataFrame, df_ondergrond_scenario_collection: pd.DataFrame) -> None:
+    set_parameter_names_expected = set()
+    
+    # All expected metadata should be given in de Vakken/Uittredepunten/Ondergrondscenarios sheets
+    for index, row in df_overview_parameters[df_overview_parameters["parameter_type"] == "metadata"].iterrows():
+        set_parameter_names_expected.update([str(index)])
+
+    # All expected variables should be given in de Vakken/Uittredepunten/Ondergrondscenarios sheets, but we need to check if
+    # the suffix "_mean" should be added (necessary if the input is stochastic). Otherwise, if deterministic, simply add the variable name
+    for index, row in df_overview_parameters[df_overview_parameters["parameter_type"] == "variable"].iterrows():
+        if pd.notna(row["parameter_spreidingstype"]):
+            set_parameter_names_expected.update([str(index) + "_mean", str(index) + row["parameter_spreidingstype"]])
         else:
-            set_variable_names_expected.update([str(index)])
+            set_parameter_names_expected.update([str(index)])
 
-    set_variable_names_given = set(df_vak_collection.columns).union(df_uittredepunt_collection.columns, df_ondergrond_scenario_collection.columns)
+    set_parameter_names_given = set(df_vak_collection.columns).union(df_uittredepunt_collection.columns, df_ondergrond_scenario_collection.columns)
 
-    if set_variable_names_expected != set_variable_names_given:
-        variables_missing = set_variable_names_expected - set_variable_names_given
-        variables_surplus = set_variable_names_given - set_variable_names_expected
+    # Check for missing or surplus input
+    if set_parameter_names_expected != set_parameter_names_given:
+        parameters_missing = set_parameter_names_expected - set_parameter_names_given
+        parameters_surplus = set_parameter_names_given - set_parameter_names_expected
         
         def link_variables_to_source(variable_names: set[str]) -> pd.DataFrame:
-            df = pd.DataFrame({'variable name': list(strip_suffix_from_list_variable_names(variable_names))})  # Note: make it a set to remove duplicates, then cast it back again to a list
-            df["source input sheet"] = df["variable name"].apply(lambda x: "Vakken" if x in strip_suffix_from_list_variable_names(df_vak_collection.columns) else ("Uittredepunten" if x in strip_suffix_from_list_variable_names(df_uittredepunt_collection.columns) else ("Ondergrondscenarios" if x in strip_suffix_from_list_variable_names(df_ondergrond_scenario_collection.columns) else "Unknown")))
+            df = pd.DataFrame({'variable name': list(strip_suffix_from_list_parameter_names(variable_names))})  # Note: make it a set to remove duplicates, then cast it back again to a list
+            df["source input sheet"] = df["variable name"].apply(lambda x: "Vakken" if x in strip_suffix_from_list_parameter_names(df_vak_collection.columns) else ("Uittredepunten" if x in strip_suffix_from_list_parameter_names(df_uittredepunt_collection.columns) else ("Ondergrondscenarios" if x in strip_suffix_from_list_parameter_names(df_ondergrond_scenario_collection.columns) else "Unknown")))
             return df
 
-        if len(variables_missing) > 0:
-            raise ValueError(f"\nMissing variables in input Excel file:\n\n{link_variables_to_source(variables_missing)}\n\nHave a look at the sheet 'Overzicht_variabelen' for an overview of expected variables.\nNote that if a variable (e.g. called 'my_variable') is stochastic, two input variables are expected: 'my_variable_mean' and 'my_variable_<variabele_spreidingstype>' (e.g. 'my_variable_stdev').")
-        elif len(variables_surplus) > 0:
-            raise ValueError(f"\nToo many variables in input Excel file:\n\n{link_variables_to_source(variables_surplus)}\n\nPossible causes:\n1. The variables are not defined in sheet 'Overzicht_variabelen'.\n2. The variables are defined in 'Overzicht_variabelen' but no 'variabele_spreidingstype' is specified.\n3. Unknown reason")
+        if len(parameters_missing) > 0:
+            raise ValueError(f"\nMissing variables in input Excel file:\n\n{link_variables_to_source(parameters_missing)}\n\nHave a look at the sheet 'Overzicht_parameters' for an overview of expected variables.\nNote that if a variable (e.g. called 'my_variable') is stochastic, two input variables are expected: 'my_variable_mean' and 'my_variable_<variabele_spreidingstype>' (e.g. 'my_variable_stdev').")
+        elif len(parameters_surplus) > 0:
+            raise ValueError(f"\nToo many variables in input Excel file:\n\n{link_variables_to_source(parameters_surplus)}\n\nPossible causes:\n1. The variables are not defined in sheet 'Overzicht_parameters'.\n2. The variables are defined in 'Overzicht_parameters' but no 'variabele_spreidingstype' is specified.\n3. Unknown reason")
 
 
-def check_variable_overview(df_variable_overview: pd.DataFrame) -> None:
+def checks_overview_parameters(df_overview_parameters: pd.DataFrame) -> None:
     
-    if df_variable_overview.index.has_duplicates:
+    if df_overview_parameters.index.has_duplicates:
         # Check duplicates
-        raise ValueError(f"Duplicate variables found in sheet 'Overzicht_variabelen': {df_variable_overview.index[df_variable_overview.index.duplicated()].unique().tolist()}")
+        raise ValueError(f"Duplicate variables found in sheet 'Overzicht_parameters': {df_overview_parameters.index[df_overview_parameters.index.duplicated()].unique().tolist()}")
 
-    for index, row in df_variable_overview[df_variable_overview["variable_type"].isin(["Input", "Constant"])].iterrows():
+    for index, row in df_overview_parameters[df_overview_parameters["parameter_type"].isin(["Input", "Constant"])].iterrows():
         # Check all input variables and constants
         
-        if row["variable_distribution"] == "deterministic":
-            if pd.notna(row["variable_spreidingstype"]):
+        if row["parameter_distribution"] == "deterministic":
+            if pd.notna(row["parameter_spreidingstype"]):
                 # Make sure all deterministic variables have no dispersion type specified (e.g. _stdev, _vc)
-                raise ValueError(f"Deterministic variable '{index}' in sheet 'Overzicht_variabelen' should have no dispersion type speciifed (e.g. _stdev, _vc). Remove it.")
+                raise ValueError(f"Deterministic variable '{index}' in sheet 'Overzicht_parameters' should have no dispersion type speciifed (e.g. _stdev, _vc). Remove it.")
         else:
-            if pd.isna(row["variable_spreidingstype"]):
+            if pd.isna(row["parameter_spreidingstype"]):
                 # Make sure all stochastic variables have a dispersion type specified (e.g. _stdev, _vc)
-                raise ValueError(f"Stochastic variable '{index}' in sheet 'Overzicht_variabelen' has no dispersion type specified (e.g. _stdev, _vc). Add it.")
+                raise ValueError(f"Stochastic variable '{index}' in sheet 'Overzicht_parameters' has no dispersion type specified (e.g. _stdev, _vc). Add it.")
 
 
-def check_attr_in_overview(attr_name_without_suffix: str, df_variable_overview: pd.DataFrame) -> None:
-    if not attr_name_without_suffix in df_variable_overview.index:
-        raise ValueError(f"Variable '{attr_name_without_suffix}' not found in sheet 'Overzicht_variabelen' of input Excel file")
+def check_attribute_in_overview(attr_name_without_suffix: str, df_overview_parameters: pd.DataFrame) -> None:
+    if not attr_name_without_suffix in df_overview_parameters.index:
+        raise ValueError(f"Variable '{attr_name_without_suffix}' not found in sheet 'Overzicht_parameters' of input Excel file")
 
 
 def is_number(var_value: Any) -> float:
     return isinstance(var_value, (int, float)) and not pd.isna(var_value)
 
 
-def enforce_lower_upper_bounds(attr_name_without_suffix: str, input_dict: dict, df_variable_overview: pd.DataFrame, cls: Type[Vak | Uittredepunt | OndergrondScenario], id: str) -> None:
+def enforce_lower_upper_bounds(attr_name_without_suffix: str, input_dict: dict, df_overview_parameters: pd.DataFrame, cls: Type[Vak | Uittredepunt | OndergrondScenario], id: str) -> None:
     
     # Only enforce lower/upper bounds for variables
     if input_dict["type"] == "variable":
@@ -87,9 +94,9 @@ def enforce_lower_upper_bounds(attr_name_without_suffix: str, input_dict: dict, 
         if not is_number(attr_value):
             raise ValueError(f"Value of variable '{attr_name_without_suffix}' of {cls.__name__} with id '{id}' should be a number (int/float) since lower/upper bounds were specified, but it's {attr_value} of type {type(attr_value)}")
         
-        # Check if value lies within upper and lower bounds in df_variable_overview (if specified)
-        lower_bound = df_variable_overview.at[attr_name_without_suffix, "variable_mean_lower_bound"]
-        upper_bound = df_variable_overview.at[attr_name_without_suffix, "variable_mean_upper_bound"]
+        # Check if value lies within upper and lower bounds in df_overview_parameters (if specified)
+        lower_bound = df_overview_parameters.at[attr_name_without_suffix, "parameter_mean_lower_bound"]
+        upper_bound = df_overview_parameters.at[attr_name_without_suffix, "parameter_mean_upper_bound"]
         
         if pd.notna(lower_bound):
             if not is_number(lower_bound):

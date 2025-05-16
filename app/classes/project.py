@@ -19,8 +19,8 @@ from app.classes.uittredepunt import UittredepuntCollection
 from app.classes.vak import VakCollection
 from app.classes.workspace import Workspace
 from app.helper_functions.data_validation import (
-    check_completeness_input_variables,
-    check_variable_overview,
+    checks_input_parameters,
+    checks_overview_parameters,
 )
 from app.helper_functions.piping_functions import calc_Z_h, calc_Z_p, calc_Z_u
 
@@ -31,23 +31,30 @@ class Project():
         
         # Initialize Workspace object (also checks if input/output folders contain all necessary files)
         self.workspace = Workspace(PATH_WORKSPACE)
+        print("\nINFO: workspace (I/O folders) set up correctly")
 
-        # Read overview of variables from Excel file (includes e.g. upper and lower bounds, type of distribution, etc.)
-        self.df_variable_overview = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Overzicht_variabelen", index_col=0, header=0).rename(columns=lambda x: x.strip())
-        check_variable_overview(self.df_variable_overview)
-        print("\nOverzicht_variabelen successfully loaded from input.xlsx")
+        # Read overview data of parameters from input Excel file (includes e.g. upper and lower bounds, type of distribution, etc.) and carry out checks
+        self.df_overview_parameters = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Overzicht_parameters", index_col=0, header=0).rename(columns=lambda x: x.strip())
+        checks_overview_parameters(self.df_overview_parameters)
+
+        # Read input data of vakken, uittredepunten and ondergrondscenarios data from input Excel file and carry out checks.
+        # Note that the df's are not set on self (Project) but are added below to VakCollection/UittredepuntCollection/OndergrondScenarioCollection
+        # Strip trailing whitespace in column names. Also, unused ondergrondscenario's (ondergrondscenario_kans=Nan or ondergrondscenario_kans=0) are removed since these are not relevant
+        df_vakken = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Vakken").rename(columns=lambda x: x.strip())
+        df_uittredepunten = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Uittredepunten").rename(columns=lambda x: x.strip())
+        df_ondergrond_scenarios = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Ondergrondscenarios").rename(columns=lambda x: x.strip()).dropna(subset=['ondergrondscenario_kans']).loc[lambda x: x['ondergrondscenario_kans'] != 0]
+        checks_input_parameters(self.df_overview_parameters, df_vakken, df_uittredepunten, df_ondergrond_scenarios)
+        print("INFO: data from 'input.xlsx' successfully loaded")
         
         # Initialize collections. Note that UittredepuntCollection and OndergrondscenarioCollection link the
         # instances of Uittredepunt and OndergrondScenario to the corresponding Vak instance
-        self.vak_collection = VakCollection(self.workspace.input.folderpath / "input.xlsx", self.df_variable_overview)
-        self.uittredepunt_collection = UittredepuntCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection, self.df_variable_overview)
-        self.ondergrond_scenario_collection = OndergrondScenarioCollection(self.workspace.input.folderpath / "input.xlsx", self.vak_collection, self.df_variable_overview)        
-        # check_completeness_input_variables(self.df_variable_overview, self.vak_collection.df, self.uittredepunt_collection.df, self.ondergrond_scenario_collection.df)
-        # print("\nVakken, Uittredepunten & Ondergrondscenarios successfully loaded from input.xlsx")
+        self.vak_collection = VakCollection(df_vakken, self.df_overview_parameters)
+        self.uittredepunt_collection = UittredepuntCollection(df_uittredepunten, self.vak_collection, self.df_overview_parameters)
+        self.ondergrond_scenario_collection = OndergrondScenarioCollection(df_ondergrond_scenarios, self.vak_collection, self.df_overview_parameters)        
 
-        # # Read calculation settings from Excel file
-        # self.settings = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Settings", index_col=0, header=0)
-        # print("\nSettings successfully loaded from input.xlsx")
+        # Read calculation settings from Excel file
+        self.settings = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Settings", index_col=0, header=0)
+        print("\nSettings successfully loaded from input.xlsx")
 
         # # Make combinations of uittredepunten, ondergrondscenarios and models
         # # Notes:

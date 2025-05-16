@@ -1,4 +1,3 @@
-from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
@@ -6,13 +5,13 @@ import pandas as pd
 from app.classes.base_collection import BaseCollection, _pretty_repr
 from app.classes.vak import Vak, VakCollection
 from app.helper_functions.data_validation import (
-    check_attr_in_overview,
     check_attribute_already_exists,
+    check_attribute_in_overview,
     enforce_lower_upper_bounds,
 )
-from app.helper_functions.variable_functions import (
+from app.helper_functions.parameter_functions import (
     generate_variable_dict,
-    strip_suffix_from_list_variable_names,
+    strip_suffix_from_list_parameter_names,
 )
 
 
@@ -28,19 +27,19 @@ class OndergrondScenario:
     # Other class-level typehints
     id: int  # Renamed version of ondergrondscenario_id
     
-    def __init__(self, df_row: pd.Series, vak: Vak, df_variable_overview: pd.DataFrame, input_variable_names_without_suffix: list[str]) -> None:
+    def __init__(self, df_row: pd.Series, vak: Vak, df_overview_parameters: pd.DataFrame, input_parameter_names_without_suffix: list[str]) -> None:
 
-        # For each variable of this OndergrondScenario instance, generate a dictionary containing its parameters
-        for attr_name_without_suffix in input_variable_names_without_suffix:
+        # Add each input parameter to the OndergrondScenario instance
+        for attr_name_without_suffix in input_parameter_names_without_suffix:
             check_attribute_already_exists(self, attr_name_without_suffix)
-            check_attr_in_overview(attr_name_without_suffix, df_variable_overview)
+            check_attribute_in_overview(attr_name_without_suffix, df_overview_parameters)
             
-            if df_variable_overview.at[attr_name_without_suffix, "variable_type"] == "metadata":
+            if df_overview_parameters.at[attr_name_without_suffix, "parameter_type"] == "metadata":
                 # Metadata should be set on the OndergrondScenario instance directly
                 name = "id" if attr_name_without_suffix == "ondergrondscenario_id" else attr_name_without_suffix  # Rename ondergrondscenario_id to id to simplify the attribute name
                 setattr(self, name, df_row[attr_name_without_suffix])
                 
-            elif df_variable_overview.at[attr_name_without_suffix, "variable_type"] in ["variable", "constant"]:
+            elif df_overview_parameters.at[attr_name_without_suffix, "parameter_type"] in ["variable", "constant"]:
                 # Variables and constants should be set on the variables attribute of the OndergrondScenario instance
                 if not hasattr(self, "variables"):
                     # Create a SimpleNamespace to hold the variables/constants of this OndergrondScenario instance
@@ -48,67 +47,46 @@ class OndergrondScenario:
                     
                 # Generate input_dict for the variable or constant. This is a dictionary containing the parameters (e.g. mean, stdev/vc, etc.)
                 # All input dicts will be stored in the variables attribute of the OndergrondScenario instance
-                input_dict = generate_variable_dict(attr_name_without_suffix, df_row, df_variable_overview)
+                input_dict = generate_variable_dict(attr_name_without_suffix, df_row, df_overview_parameters)
                 
-                enforce_lower_upper_bounds(attr_name_without_suffix, input_dict, df_variable_overview, self.__class__, df_row["ondergrondscenario_id"])
+                enforce_lower_upper_bounds(attr_name_without_suffix, input_dict, df_overview_parameters, self.__class__, df_row["ondergrondscenario_id"])
                 
                 setattr(self.variables, attr_name_without_suffix, input_dict)
 
 
         self.vak = vak  # Link the corresponding Vak instance to this OndergrondScenario instance
-
-
-        # self.vak = vak  # Link the corresponding Vak instance to this OndergrondScenario instance
-        
-        # # Set values from Excel row as attributes of the OndergrondScenario instance
-        # for col, value in df_row.items():
-        #     attr_name = str(col)  # Make sure the attribute name is a string (just in case it's interpreted in a wrong format)
-            
-        #     # Data validation
-        #     check_attribute_already_exists(self, attr_name)
-        #     check_attr_in_overview(attr_name, df_variable_overview)
-        #     enforce_lower_upper_bounds(self, attr_name, value, df_variable_overview, df_row["ondergrondscenario_id"])
-            
-        #     # Custom mapping of ondergrondscenario_id to id to simplify the attribute name
-        #     if attr_name == "ondergrondscenario_id":
-        #         attr_name = "id"
-
-        #     # Set attribute dynamically
-        #     setattr(self, attr_name, value)        
+    
 
     def __repr__(self) -> str:
         return _pretty_repr(self)
     
     
 class OndergrondScenarioCollection(BaseCollection[OndergrondScenario]):
-    def __init__(self, path_input_xlsx: Path, vak_collection: VakCollection, df_variable_overview: pd.DataFrame) -> None:
+    def __init__(self, df_ondergrond_scenarios: pd.DataFrame, vak_collection: VakCollection, df_overview_parameters: pd.DataFrame) -> None:
         super().__init__()  # Initialize the base collection
-        
-        # Read Excel, strip trailing whitespace.
-        # Also, unused ondergrondscenario's (ondergrondscenario_kans=Nan or ondergrondscenario_kans=0) are removed
-        self.df = pd.read_excel(path_input_xlsx, sheet_name="Ondergrondscenarios").rename(columns=lambda x: x.strip()).dropna(subset=['ondergrondscenario_kans']).loc[lambda x: x['ondergrondscenario_kans'] != 0]
+        self.df = df_ondergrond_scenarios
 
         # Get unique column names from the df (without suffix)
-        input_variable_names_without_suffix = strip_suffix_from_list_variable_names(self.df.columns)
+        input_parameter_names_without_suffix = strip_suffix_from_list_parameter_names(self.df.columns)
 
         # Create ondergrondscenarios from df. Note that the created OndergrondScenario is linked to the corresponding Vak
         for _, row in self.df.iterrows():
             
-            ondergrondscenario_id = row["ondergrondscenario_id"]
+            ondergrond_scenario_id = row["ondergrondscenario_id"]
 
             # Perform checks
             try:
                 vak = vak_collection[str(row["vak_id"])]
             except KeyError:
                 # If the vak_id is not found in the vak_collection, raise an error
-                raise KeyError(f"Vak ID '{row["vak_id"]}' (corresponding to scenario '{ondergrondscenario_id}') not found in VakCollection")        
+                raise KeyError(f"Vak ID '{row["vak_id"]}' (corresponding to scenario '{ondergrond_scenario_id}') not found in VakCollection")        
 
-            if any(punt.id == ondergrondscenario_id for punt in vak.ondergrond_scenarios):
+            if any(punt.id == ondergrond_scenario_id for punt in vak.ondergrond_scenarios):
                 # Check for duplicate ondergrondscenario_id within the same Vak
-                raise ValueError(f"Duplicate ondergrondscenario_id: scenario '{ondergrondscenario_id}' already exists in vak '{vak.id}'")            
+                raise ValueError(f"Duplicate ondergrondscenario_id: scenario '{ondergrond_scenario_id}' already exists in vak '{vak.id}'")            
             
             # Create OndergrondScenario instance
-            scenario = OndergrondScenario(row, vak, df_variable_overview, input_variable_names_without_suffix)
+            scenario = OndergrondScenario(row, vak, df_overview_parameters, input_parameter_names_without_suffix)
             
             # Add OndergrondScenario instance as attribute to the corresponding Vak instance 
             vak.ondergrond_scenarios.append(scenario)
