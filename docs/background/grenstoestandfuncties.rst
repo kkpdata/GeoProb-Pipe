@@ -2,18 +2,14 @@
 Grenstoestandfuncties
 #####################
 
-Grenstoestandfuncties WBI
-=========================
-
 In :cite:`sh_piping_2021` en :cite:`calibration_piping_2016` zijn de grenstoestandfuncties gedefinieerd zoals het basisinstrumentariumd die hanteert. Falen treedt op als de grenstoestandfuncties van opbarsten, heave en piping bereikt zijn.
 Deze paragraaf is overgenomen uit bijlage C van :cite:`sh_piping_2021` en waarbij de variabelen hernoemd zijn naar de notatie die in deze package gehanteerd wordt, zie :ref:`Lijst van variabelen`. 
 
 TODO: plaatje van de foutenboom toevoegen
 
 
-------------------------------
 Grenstoestandfunctie opbarsten
-------------------------------
+==============================
 
 De grenstoestandsfunctie voor opbarsten (uplift) :math:`Z_{u}` is gebaseerd op een vergelijking van de naar beneden gerichte druk die door het gewicht van de deklaag wordt uitgeoefend (weerstand) en de naar boven gerichte waterdruk in de watervoerende zandlaag (belasting), hier uitgedrukt in vorm van een stijghoogteverschil. De grenstoestandfunctie voor opbarsten :cite:`calibration_piping_2016` is gedefinieerd als:
 
@@ -47,24 +43,46 @@ waarbij:
 - :math:`r_{exit}` = dempingsfactor bij uittredepunt [-]
 - :math:`h` = Buitenwaterstand in m+NAP
 
+
 De dempingsfactor bij het uittredepunt :math:`r_{exit}` is in :cite:`sh_piping_2021` bewust niet verder gedefinieerd. In principe kan dat via grondwaterstromingsanalyses (analytisch of numeriek, stationair of tijdsafhankelijk) of expert judgement gebeuren, bij voorkeur via monitoring.
 
-HIER BEGINNEN
+Het polderpeil :math:`h_{ref}` is de benedenstroomse randvoorwaarde. Het wordt ook het referentieniveau genoemd, 
+vandaar :math:`h_{ref}`. Deze randvoorwaarde is ook belangrijk bij het afleiden van de dempingsfactor :math:`r_{exit}` op basis van peilbuismetingen. 
 
+Bij stijgende buitenwaterstanden zal het polderpeil door kwel kunnen stijgen. Bij de schematisatie van de pipingberekeningen dient hierbij rekening gehouden te worden, bijvoorbeeld door een hogere waarde voor :math:`h_{ref}` te kiezen. In dit geval wordt de stijghoogte bij het uittredepunt :math:`\phi_{exit}` overschat. Dit is niet erg, omdat de faalkans wordt bepaald door het mechanisme piping. 
 
---------------------------
+De dempingsfactor :math:`r_{exit}` op elke willekeurige locatie in het dwarsprofiel kan worden beschreven door een analytische oplossing in het geval van een stationaire situatie. De dempingsfactor :math:`r_{exit}` is dan een functie van de geometrie van het profiel (:math:`L_{voorland}`, :math:`L_{dijk}` en :math:`L_{achterland}`), de transmissiviteit :math:`kD` van het watervoerende pakket en de weerstand van het voor- en achterland (:math:`c_{voorland}` en :math:`c_{achterland}`). Zie hiervoor :ref:`stationair-model` en :cite:`sh_piping_2021`.
+
 Grenstoestandfunctie heave
---------------------------
+==========================
 
+Zandtransport kan alleen optreden als de verticale uitstroomgradiënt bij het uittredepunt een
+kritieke waarde voor heave overschrijdt. 
 De grenstoestandfunctie voor heave :cite:`calibration_piping_2016` is gedefinieerd als:
 
 .. math::
     
-    Z_{h} = m_{h} \cdot \Delta H_{c} - (h -h_{exit} - r_{c} \cdot D_{cover})
+    Z_{h} = m_{h} \cdot i_{c,h} - i_{exit} = m_{h} \cdot i_{c,h} - \frac{(\phi_{exit} - h_{exit})}{d_{deklaag}}
 
----------------------------
+waarbij:
+
+- :math:`Z_{h}` = grenstoestandfunctie voor heave [-]
+- :math:`m_{h}` = modelfactor voor heave [-]
+- :math:`i_{c,h}` = Kritieke heave gradiënt [-]
+- :math:`i_{exit}` = Optredende heave gradient [-]
+
+In afwijking van de definitie in het WBI is ook hier consequent een modelfactor :math:`m_{u}` toegepast omdat er ook onzekerheden zijn die niet door dit model beschreven worden.
+
+De stijghoogte in het uittredepunt :math:`\phi_{exit}` wordt beschreven door gebruik te maken van het stationaire grondwaterstromingsmodel. Dus geldt:
+
+.. math::
+..
+.. \phi_{exit} = f(L_{voorland}, L_{dijk}, L_{achterland},kD,c_{voorland},c_{achterland})
+
+Zie hiervoor :ref:`stationair-model` en :cite:`sh_piping_2021`.
+
 Grenstoestandfunctie piping
----------------------------
+===========================
 
 De grenstoestandfunctie voor piping :cite:`calibration_piping_2016` is gedefinieerd als:
 
@@ -82,19 +100,6 @@ waarbij:
 - :math:`r_{c}` = reductiefactor voor de deklaag
 - :math:`D_{cover}` = dikte van de deklaag in m
 
-
----------
-Opbarsten
----------
-
-
-.. math::
-    
-    Z_{o} = m_{u} \cdot \Delta H_{c} - (h -h_{exit} - r_{c} \cdot D_{cover})
-
-
-Grenstoestandfuncties met model 4a
-==================================
 
 Indien het model 4a geintegreerd wordt in de grenstoestandfuncties, is de respons bij het uittredepunt afhankelijk van de geometrie, de weerstand van het voorland :math:`c_{voorland}`, de transmissiviteit van het watervoerend pakket :math:`kD` en de weerstand van het achterland :math:`c_{achterland}`. 
 Ook de kwelweglengte is anders gedefinieerd dan in de basisinstrumentarium. De kwelweglengte is gedefinieerd als de afstand van het uittredepunt tot het punt waar de waterstand in het watervoerend pakket gelijk is aan de waterstand in de rivier. De kwelweglengte is gedefinieerd als:
@@ -114,12 +119,8 @@ waarbij:
 - :math:`kD` = transmissiviteit van het watervoerend pakket in m²/d
 - :math:`c_{voorland}` = weerstand van het voorland in dagen
 
-
-
-
---------------------
 Lijst van variabelen
---------------------
+====================
 
 .. csv-table:: Lijst van variabelen
    :header: "Naam van variabele","Beschrijving","Eenheid","Type"
@@ -180,8 +181,6 @@ Lijst van variabelen
     ":math:`k_{v,boven gws}`","Verticale doorlatendheid deklaag boven grondwaterstand","m/d","Constant"
     ":math:`k_{v,onder gws}`","Verticale doorlatendheid deklaag onder grondwaterstand","m/d","Constant"
     ":math:`gws_{m,mv}`","Grondwaterstand meters min maaiveld (scheiding verticale doorlatendheid)","m","Constant"
-
-
 
 
 .. bibliography

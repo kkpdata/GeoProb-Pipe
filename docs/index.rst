@@ -8,6 +8,11 @@ Welcome to GeoProb-Pipe's documentation!
 
 **GeoProb-Pipe** is a Python app om probabilistische pipingberekeningen uit te voeren. De grenstoestandfuncties zijn aangepast zodat de respons in het watervoerende pakket beschreven wordt door model4a van het Technisch Rapport Waterspanningen bij Dijken :cite:`trw_2004`. Deze documentatie is bedoeld om de gebruiker achtergronden te geven bij keuzes die gemaakt zijn bij de implementatie van de grenstoestandfuncties en de analytische oplossing van het stationaire model. De documentatie is ook bedoeld voor ontwikkelaars die de bibliotheek verder willen ontwikkelen.
 
+Gebruik
+-------
+
+starten met het kiezen van uittredepunten.
+
 
 Achtergronden
 -------------
@@ -39,16 +44,6 @@ Referenties
    :maxdepth: 2
 
    references
-
-
-
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-
 
 Indices and tables
 ==================
