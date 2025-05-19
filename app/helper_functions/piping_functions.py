@@ -74,7 +74,7 @@ def calc_d_pot_c_u(d_cover: float, gamma_sat_cover: float, gamma_w: float) -> fl
 
 
 # Berekening Z-functie opbarsten
-def calc_Z_u(d_pot_c_u: float, pot_exit: float, h_exit: float, mu: float, c_voorland) -> float:
+def calc_Z_u(d_pot_c_u: float, pot_exit: float, h_exit: float, mu: float) -> float:
     r"""Grenstoestandfunctie voor opbarsten (uplift).
 
     Args:
