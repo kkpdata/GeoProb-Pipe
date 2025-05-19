@@ -30,8 +30,8 @@ jobs:
         run: |
           coverage run -m pytest --ignore=tests
           coverage report -m
-          rm images/coverage.svg
-          coverage-badge -o images/coverage.svg
+          rm readme_images/coverage.svg
+          coverage-badge -o readme_images/coverage.svg
 # TODO: Ignoring the tests-directory (for now) because they are not yet built for automated testing.
 
 # TODO
