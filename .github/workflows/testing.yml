@@ -26,15 +26,15 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install pytest coverage coverage-badge
 
+      - name: Run tests with coverage
+        run: |
+          coverage run -m pytest
+          coverage report -m
+          rm images/coverage.svg
+          coverage-badge -o images/coverage.svg
 
-# TODO:
-#      - name: Run tests with coverage
-#        run: |
-#          coverage run -m pytest
-#          coverage report -m
-#          rm images/coverage.svg
-#          coverage-badge -o images/coverage.svg
-#
+
+# TODO
 #      - name: Commit changes
 #        run: |
 #          git config --local user.email "action@github.com"
