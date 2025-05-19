@@ -32,7 +32,7 @@ jobs:
           coverage report -m
           rm images/coverage.svg
           coverage-badge -o images/coverage.svg
-
+# TODO: Ignoring the tests-directory (for now) because they are not yet built for automated testing.
 
 # TODO
 #      - name: Commit changes
