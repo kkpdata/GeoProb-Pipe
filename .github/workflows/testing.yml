@@ -34,13 +34,12 @@ jobs:
           coverage-badge -o readme_images/coverage.svg
 # TODO: Ignoring the tests-directory (for now) because they are not yet built for automated testing.
 
-# TODO
-#      - name: Commit changes
-#        run: |
-#          git config --local user.email "action@github.com"
-#          git config --local user.name "GitHub Actions"
-#          git add .
-#          git commit -m "Testing and coverage"
-#          git push
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Actions"
+          git add .
+          git commit -m "Testing and coverage"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
