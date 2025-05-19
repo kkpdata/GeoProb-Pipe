@@ -28,7 +28,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          coverage run -m pytest
+          coverage run -m pytest --ignore=tests
           coverage report -m
           rm images/coverage.svg
           coverage-badge -o images/coverage.svg
