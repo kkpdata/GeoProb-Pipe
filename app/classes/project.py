@@ -58,7 +58,7 @@ class Project():
 
         # Read calculation settings from Excel file
         self.df_settings = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Settings", index_col=0, header=0)
-        print("\nINFO: settings successfully loaded from input.xlsx")
+        print("INFO: settings successfully loaded from input.xlsx")
         print(f"INFO: full list of available settings:\n{Settings().__dir__()}")
 
         # Make combinations of uittredepunten, ondergrondscenarios and models
