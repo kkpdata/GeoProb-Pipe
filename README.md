@@ -1,3 +1,5 @@
+![Coverage](./readme_images/coverage.svg)
+
 # GeoProb-Pipe
 Tool voor het parallel uitvoeren van probabilistische pipingberekeningen. De tool maakt gebruik van de probabilistische bibliotheek van Deltares.
 

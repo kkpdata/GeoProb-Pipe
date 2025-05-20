@@ -28,7 +28,7 @@ from app.helper_functions.piping_functions import calc_Z_h, calc_Z_p, calc_Z_u
 
 
 class Project():
-    """Project class"""
+    """ Project class """
     def __init__(self, PATH_WORKSPACE: str|Path) -> None:
         
         # Initialize Workspace object (also checks if input/output folders contain all necessary files)
