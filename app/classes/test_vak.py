@@ -10,7 +10,7 @@ def test_vak_collection():
 
     assert 1+1 == 2
 
-    # repo_root = repository_root_path()
+    repo_root = repository_root_path()
     # workspace_path = os.path.join(repo_root, "workspaces", "example_new_calculations")
     # workspace = Workspace(workspace_path)
     # df_overview_parameters = read_excel(
