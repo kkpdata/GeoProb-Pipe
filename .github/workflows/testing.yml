@@ -32,10 +32,6 @@ jobs:
           coverage report -m
           if [ -f readme_images/coverage.svg ]; then rm readme_images/coverage.svg; fi
           coverage-badge -o readme_images/coverage.svg
-# TODO:
-#  - Ignoring the tests-directory (for now) because they are not yet built for automated testing.
-#  - Unsure if coverage works. I am skipping the directory tests successfully. But, the coverage result is 100%, which
-#    means coverage has come across 100% of the code. However, I have no tests implemented yet.
 
       - name: Commit changes
         run: |

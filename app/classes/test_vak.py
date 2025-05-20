@@ -1,5 +1,5 @@
 
-def test_dummy():
+def test_vak_collection():
 
     ##
     from app.classes.vak import VakCollection
