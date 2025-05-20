@@ -4,7 +4,7 @@ name: Automated testing and coverage
 on:
   push:
     branches:
-      - 'cp_miscellaneous'
+      - 'main'
   workflow_dispatch:
 
 
@@ -38,7 +38,11 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions"
           git add .
-          git commit -m "Testing and coverage"
-          git push
+          if ! git diff --cached --quiet; then
+            git commit -m "Testing and coverage"
+            git push
+          else
+            echo "No changes to commit"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
