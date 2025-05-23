@@ -100,7 +100,7 @@ class ReliabilityCalculation():
             
             if var_dict["dispersion_type"] == "_stdev":
                 self.reliability_project.variables[var_name].deviation = var_dict["dispersion_value"]
-            elif var_dict["dispersion_type"] == "_stdev":
+            elif var_dict["dispersion_type"] == "_vc":
                 self.reliability_project.variables[var_name].variation = var_dict["dispersion_value"]
             else:
                 raise ValueError(f"Disperion type '{var_dict["dispersion_type"]}' of variable '{var_name}' is not implemented. Allowed types: {ALLOWED_DISPERSION_TYPES}")
