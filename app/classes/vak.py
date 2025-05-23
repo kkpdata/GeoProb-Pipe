@@ -1,70 +1,81 @@
-from pathlib import Path
+from types import SimpleNamespace
 
 import pandas as pd
 
-from app.classes.base_collection import BaseCollection
+from app.classes.base_collection import BaseCollection, _pretty_repr
+from app.helper_functions.data_validation import (
+    check_attribute_already_exists,
+    check_attribute_in_overview,
+    enforce_lower_upper_bounds,
+)
+from app.helper_functions.parameter_functions import (
+    generate_variable_dict,
+    strip_suffix_from_list_parameter_names,
+)
 
 
 class Vak:
     
-    def __init__(self, df_row: pd.Series) -> None:
+    # Metadata attributes of the Vak class. These are stored as class-level type hints to make the attributes visible to static type checkers (e.g. Pylance).
+    # The actual values are set dynamically in __init__ using setattr and a list of values.
+    id: int  # Note: this is a renamed version of vak_id
+    vak_naam: str
+    M_van: float
+    M_tot: float
+    vak_lengte: float
+    
+
+    def __init__(self, df_row: pd.Series, df_overview_parameters: pd.DataFrame, input_parameter_names_without_suffix: list[str]) -> None:
+        
+        # Add each input parameter to the Vak instance
+        for attr_name_without_suffix in input_parameter_names_without_suffix:
+            check_attribute_already_exists(self, attr_name_without_suffix)
+            check_attribute_in_overview(attr_name_without_suffix, df_overview_parameters)
+            
+            if df_overview_parameters.at[attr_name_without_suffix, "parameter_type"] == "metadata":
+                # Metadata should be set on the Vak instance directly
+                name = "id" if attr_name_without_suffix == "vak_id" else attr_name_without_suffix  # Rename vak_id to id to simplify the attribute name
+                setattr(self, name, df_row[attr_name_without_suffix])
+                
+            elif df_overview_parameters.at[attr_name_without_suffix, "parameter_type"] in ["variable", "constant"]:
+                # Variables and constants should be set on the variables attribute of the Vak instance
+                if not hasattr(self, "variables"):
+                    # Create a SimpleNamespace to hold the variables/constants of this Vak instance
+                    self.variables = SimpleNamespace()
+                    
+                # Generate input_dict for the variable or constant. This is a dictionary containing the parameters (e.g. mean, stdev/vc, etc.)
+                # All input dicts will be stored in the variables attribute of the Vak instance
+                input_dict = generate_variable_dict(attr_name_without_suffix, df_row, df_overview_parameters)
+                
+                enforce_lower_upper_bounds(attr_name_without_suffix, input_dict, df_overview_parameters, self.__class__, df_row["vak_id"])
+                
+                setattr(self.variables, attr_name_without_suffix, input_dict)
         
         # Initialize attributes which will be filled later
         self.uittredepunten = []  # Filled in the UittredepuntCollection class and shows all Uittredepunten in this Vak
         self.ondergrond_scenarios = []  # Filled in the OndergrondScenarioCollection class and shows all OndergrondScenarios in this Vak
-        
-        # Set values from Excel row as attributes of the Vak instance
-        for col, value in df_row.items():
-            attr_name = str(col)
-
-            # Custom mapping of attribute names
-            if attr_name == "vak_id":
-                # Rename vak_id to id to simplify the attribute name
-                attr_name = "id"
-
-            # Check if attribute already exists
-            if hasattr(self, attr_name):
-                raise AttributeError(f"{self.__class__.__name__} already has an attribute named '{attr_name}', please rename the column in the input Excel file.")
-            
-            setattr(self, attr_name, value) 
 
     def __repr__(self) -> str:
-        return f"Vak(id={self.id})"
-
+        return _pretty_repr(self)
+        
         
 class VakCollection(BaseCollection[Vak]):
-    def __init__(self, path_input_xlsx: Path) -> None:
+    def __init__(self, df_vakken: pd.DataFrame, df_overview_parameters: pd.DataFrame) -> None:
         super().__init__()
-        
-        # Read Excel, strip trailing whitespace
-        self.df = pd.read_excel(path_input_xlsx, sheet_name="Vakken").rename(columns=lambda x: x.strip())
+        self.df = df_vakken
 
-        # Check if all required columns are present in the DataFrame
-        required_columns = ['vak_id',
-                            'vak_naam',
-                            'M_van',
-                            'M_tot',
-                            'vak_lengte',
-                            'mv_achterland_vak',
-                            'L_achterland',
-                            'c_voorland_mean',
-                            'c_voorland_stdev',
-                            'c_achterland_mean',
-                            'c_achterland_vc']
-        missing_columns = [col for col in required_columns if col not in self.df.columns]
-        if missing_columns:
-            raise ValueError(f"Missing required columns in the 'Vakken' sheet of the input Excel file: {', '.join(missing_columns)}")
+        # Get unique column names from the df (without suffix)
+        input_parameter_names_without_suffix = strip_suffix_from_list_parameter_names(self.df.columns)
 
-        # Create vakken from df
+        # Create Vak instances from df
         for _, row in self.df.iterrows():
-            vak = Vak(row)
+            
+            # Create Vak instance
+            vak = Vak(row, df_overview_parameters, input_parameter_names_without_suffix)
             
             # Check for duplicate vak_id before adding Vak to collection
             if vak.id in self._items:
                 raise ValueError(f"Duplicate vak_id {vak.id} found")
             
+            # Add Vak instance to the collection
             self.add(str(vak.id), vak)
-
-
-
-

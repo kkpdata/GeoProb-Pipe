@@ -1,9 +1,6 @@
-######
-Piping
-######
-----------
+##########
 Sellmeijer
-----------
+##########
 
 De formulering van Sellmeijer zoals die gedefinieerd is in het WBI2017 is:
 
