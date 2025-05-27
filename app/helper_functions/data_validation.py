@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from app.classes.uittredepunt import Uittredepunt
     from app.classes.ondergrond_scenario import OndergrondScenario
 
-from typing import Any, Type
+from typing import Any, Optional, Type
 
 from app.helper_functions.parameter_functions import (
     strip_suffix_from_list_parameter_names,
@@ -100,31 +100,56 @@ def is_number(var_value: Any) -> float:
     return isinstance(var_value, (int, float)) and not pd.isna(var_value)
 
 
-def enforce_lower_upper_bounds(attr_name_without_suffix: str, input_dict: dict, df_overview_parameters: pd.DataFrame, cls: Type[Vak | Uittredepunt | OndergrondScenario], id: str) -> None:
+# def enforce_lower_upper_bounds(attr_name_without_suffix: str, input_dict: dict, df_overview_parameters: pd.DataFrame, cls: Type[Vak | Uittredepunt | OndergrondScenario], id: str) -> None:
     
-    # Only enforce lower/upper bounds for variables
-    if input_dict["type"] == "variable":
+#     # Only enforce lower/upper bounds for variables
+#     if input_dict["type"] == "variable":
     
-        # Value (mean) is accessed differently for deterministic and stochastic variables
-        attr_value = input_dict["value"] if input_dict["distribution"] == "deterministic" else input_dict["mean"]
+#         # Value (mean) is accessed differently for deterministic and stochastic variables
+#         attr_value = input_dict["value"] if input_dict["distribution"] == "deterministic" else input_dict["mean"]
     
-        # Make sure the attribute value is a number (int/float) before checking bounds
-        if not is_number(attr_value):
-            raise ValueError(f"Value of variable '{attr_name_without_suffix}' of {cls.__name__} with id '{id}' should be a number (int/float) since lower/upper bounds were specified, but it's {attr_value} of type {type(attr_value)}")
+#         # Make sure the attribute value is a number (int/float) before checking bounds
+#         if not is_number(attr_value):
+#             raise ValueError(f"Value of variable '{attr_name_without_suffix}' of {cls.__name__} with id '{id}' should be a number (int/float) since lower/upper bounds were specified, but it's {attr_value} of type {type(attr_value)}")
         
-        # Check if value lies within upper and lower bounds in df_overview_parameters (if specified)
-        lower_bound = df_overview_parameters.at[attr_name_without_suffix, "parameter_mean_lower_bound"]
-        upper_bound = df_overview_parameters.at[attr_name_without_suffix, "parameter_mean_upper_bound"]
+#         # Check if value lies within upper and lower bounds in df_overview_parameters (if specified)
+#         lower_bound = df_overview_parameters.at[attr_name_without_suffix, "parameter_mean_lower_bound"]
+#         upper_bound = df_overview_parameters.at[attr_name_without_suffix, "parameter_mean_upper_bound"]
         
-        if pd.notna(lower_bound):
-            if not is_number(lower_bound):
-                raise ValueError(f"Lower bound of variable {attr_name_without_suffix} should be a number (int/float) but got {lower_bound} of type {type(lower_bound)}")
-            if not (lower_bound <= attr_value):
-                print(id)         
-                raise ValueError(f"Variable '{attr_name_without_suffix}' of {cls.__name__} with id '{id}' has a mean value that exceeds the lower bound (value: {attr_value} < lower bound: {lower_bound})")
+#         if pd.notna(lower_bound):
+#             if not is_number(lower_bound):
+#                 raise ValueError(f"Lower bound of variable {attr_name_without_suffix} should be a number (int/float) but got {lower_bound} of type {type(lower_bound)}")
+#             if not (lower_bound <= attr_value):
+#                 print(id)         
+#                 raise ValueError(f"Variable '{attr_name_without_suffix}' of {cls.__name__} with id '{id}' has a mean value that exceeds the lower bound (value: {attr_value} < lower bound: {lower_bound})")
 
-        if pd.notna(upper_bound):
-            if not is_number(upper_bound):
-                raise ValueError(f"Upper bound of variable {attr_name_without_suffix} should be a number (int/float) but got {upper_bound} of type {type(upper_bound)}")
-            if not (attr_value <= upper_bound):
-                raise ValueError(f"Variable '{attr_name_without_suffix}' of {cls.__name__} with id '{id}' has a mean value that exceeds the upper bound (value: {attr_value} > upper bound: {upper_bound})")
+#         if pd.notna(upper_bound):
+#             if not is_number(upper_bound):
+#                 raise ValueError(f"Upper bound of variable {attr_name_without_suffix} should be a number (int/float) but got {upper_bound} of type {type(upper_bound)}")
+#             if not (attr_value <= upper_bound):
+#                 raise ValueError(f"Variable '{attr_name_without_suffix}' of {cls.__name__} with id '{id}' has a mean value that exceeds the upper bound (value: {attr_value} > upper bound: {upper_bound})")
+
+
+def enforce_lower_upper_bounds(parameter_dict: dict, id_print: str) -> None:
+    # Note: only appplicable to variables and constants
+
+    
+    # Value (mean) is accessed differently for deterministic and stochastic parameters
+    attr_value = parameter_dict["value"] if parameter_dict["distribution"] == "deterministic" else parameter_dict["mean"]
+    
+    # Make sure the attribute value is a number (int/float) before checking bounds
+    if not is_number(attr_value):
+        raise ValueError(f"Value of parameter '{parameter_dict["name"]}' ({id_print}) should be a number (int/float) since lower/upper bounds were specified, but it's {attr_value} of type {type(attr_value)}")
+    
+    # Check if value lies within upper and lower bounds in parameter_dict (if specified)
+    if pd.notna(parameter_dict["lower_bound_mean"]):
+        if not is_number(parameter_dict["lower_bound_mean"]):
+            raise ValueError(f"Lower bound of parameter {parameter_dict["name"]} should be a number (int/float) but got {parameter_dict["lower_bound_mean"]} of type {type(parameter_dict["lower_bound_mean"])}")
+        if not (parameter_dict["lower_bound_mean"] <= attr_value):
+            raise ValueError(f"Parameter '{parameter_dict["name"]}' ({id_print}) has a mean value that exceeds the lower bound (value: {attr_value} < lower bound: {parameter_dict["lower_bound_mean"]})")
+
+    if pd.notna(parameter_dict["upper_bound_mean"]):
+        if not is_number(parameter_dict["upper_bound_mean"]):
+            raise ValueError(f"Upper bound of parameter {parameter_dict["name"]} should be a number (int/float) but got {parameter_dict["upper_bound_mean"]} of type {type(parameter_dict["upper_bound_mean"])}")
+        if not (attr_value <= parameter_dict["upper_bound_mean"]):
+            raise ValueError(f"Parameter '{parameter_dict["name"]}' ({id_print}) has a mean value that exceeds the upper bound (value: {attr_value} > upper bound: {parameter_dict["upper_bound_mean"]})")

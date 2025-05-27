@@ -54,15 +54,13 @@ class Project():
         self.uittredepunt_collection = UittredepuntCollection(df_uittredepunten, self.vak_collection, self.df_overview_parameters)
         self.ondergrond_scenario_collection = OndergrondScenarioCollection(df_ondergrond_scenarios, self.vak_collection, self.df_overview_parameters)        
 
-        # FIXME CONSTANTEN MOETEN NOG INGELEZEN WORDEN!
-
         # Read calculation settings from Excel file
         self.df_settings = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Settings", index_col=0, header=0)
         print("INFO: settings successfully loaded from input.xlsx")
         print(f"INFO: full list of available settings:\n{Settings().__dir__()}")
 
         # Make combinations of uittredepunten, ondergrondscenarios and models
-        # Notes:
+    # Notes:
         #   1. Not all combinations of uittredepunten and ondergrondscenarios are valid, so we need a helper loop through the vakken which holds the valid combinations
         #   2. Nested for-loops are inefficient but used on purpose since there are no heavy calculations and it's easily understandable
         self._list_reliability_calculations = []
@@ -70,7 +68,12 @@ class Project():
             for uittredepunt in vak.uittredepunten:
                 for ondergrond_scenario in vak.ondergrond_scenarios:
                     for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
-                        self._list_reliability_calculations.append(ReliabilityCalculation(uittredepunt, ondergrond_scenario, model, self.df_settings))
+                        self._list_reliability_calculations.append(ReliabilityCalculation(uittredepunt,
+                                                                                          ondergrond_scenario,
+                                                                                          model,
+                                                                                          self.df_overview_parameters[self.df_overview_parameters["parameter_type"] == "constant"],
+                                                                                          self.df_settings)
+                                                                   )
         
         # # Start calculations
         # self._start_calculations(self._list_reliability_calculations)

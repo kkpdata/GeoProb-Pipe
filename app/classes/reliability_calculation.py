@@ -1,9 +1,11 @@
 import inspect
 from collections.abc import Iterable
+from types import SimpleNamespace
 from typing import Any, Callable
 
 import pandas as pd
 from misc._default_values_constants import ALLOWED_DISPERSION_TYPES
+from pandas import DataFrame
 from probabilistic_library import (
     CombineProject,
     CombinerMethod,
@@ -16,21 +18,27 @@ from probabilistic_library import (
 )
 from probabilistic_library.project import ZModel
 from probabilistic_library.reliability import Settings
+from probabilistic_library.utils import FrozenList
 
 from app.classes.ondergrond_scenario import OndergrondScenario
 from app.classes.uittredepunt import Uittredepunt
-from app.helper_functions.data_validation import is_number
+from app.helper_functions.data_validation import enforce_lower_upper_bounds
+from app.helper_functions.parameter_functions import (
+    generate_parameter_dict_for_constant,
+)
 
 
 class ReliabilityCalculation():
-    """ReliabilityCalculation class containing calculation settings and results for 1 uittredepunt"""
+    """ReliabilityCalculation class"""
 
-    def __init__(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable, df_settings: pd.DataFrame) -> None:
+    def __init__(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable, df_constants: pd.DataFrame, df_settings: pd.DataFrame) -> None:
         
         self._id = {"uittredepunt": uittredepunt.id, "ondergrondscenario": ondergrond_scenario.id, "model": model.__name__}
         self._uittredepunt = uittredepunt
         self._ondergrond_scenario = ondergrond_scenario
         self._model = model
+        self._constants = df_constants
+        self._df_settings = df_settings
         
         # Setup ReliabilityProject
         self.reliability_project = ReliabilityProject()
@@ -44,7 +52,12 @@ class ReliabilityCalculation():
         self._setup_variables(self._uittredepunt, self._ondergrond_scenario)
         
         # Constants
-        # self._setup_constants()  # FIXME constants should be added
+        self._setup_constants()  # FIXME constants should be added
+        
+        
+        # FIXME ADD CHECK TO MAKE SURE ALL REQUIRED VARIABLES (INPUT ARGS OF THE MODEL) ARE SET
+        # DO THIS BY CHECKING ALL VARIABLES
+        
         
         # Calculation settings
         self._setup_settings(df_settings)
@@ -63,26 +76,37 @@ class ReliabilityCalculation():
 
     def _setup_variables(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario) -> None:
         # Setup the different variables of the ReliabilityProject
-        # Note: all supported variable attributes can be found in probabilistic_library.statistic.Stochast.__dir__
-        
+        # Notes: before a variable is assigned it is checked whether it is a valid input parameter of the current model function.
+
         # Vak variables
         for var_name, var_dict in uittredepunt.vak.variables.__dict__.items():
             if var_name in inspect.signature(self._model).parameters:
+                enforce_lower_upper_bounds(var_dict, f"Vak ID {uittredepunt.vak.id}")
                 self._set_reliability_project_variable(var_name, var_dict)
 
         # Uittredepunt variables
         for var_name, var_dict in uittredepunt.variables.__dict__.items():
             if var_name in inspect.signature(self._model).parameters:
+                enforce_lower_upper_bounds(var_dict, f"Uittredepunt ID {uittredepunt.id}")
                 self._set_reliability_project_variable(var_name, var_dict)
             
         # Ondergrondscenario variables
         for var_name, var_dict in ondergrond_scenario.variables.__dict__.items():
             if var_name in inspect.signature(self._model).parameters:
+                enforce_lower_upper_bounds(var_dict, f"Ondergrondscenario ID {ondergrond_scenario.id}")
                 self._set_reliability_project_variable(var_name, var_dict)
         
 
     def _setup_constants(self):
-        raise NotImplementedError
+        
+        for var_name, row in self._constants.iterrows():
+            if var_name in inspect.signature(self._model).parameters:
+                constant_dict=generate_parameter_dict_for_constant(str(var_name), df_overview_row=row)
+                
+                enforce_lower_upper_bounds(constant_dict, "located paramter overview sheet")
+                self._set_reliability_project_variable(str(var_name), var_dict=constant_dict)
+                
+        
 
 
     def _run(self):
@@ -91,6 +115,9 @@ class ReliabilityCalculation():
     
 
     def _set_reliability_project_variable(self, var_name: str, var_dict: dict[str, Any]) -> None:
+        # Create the Stochastic variable in the ReliabilityProject
+        # Note: all supported variable attributes can be found in probabilistic_library.statistic.Stochast.__dir__
+        
         self.reliability_project.variables[var_name].distribution = var_dict["distribution"]
         
         if var_dict["distribution"] == "deterministic":
@@ -120,29 +147,35 @@ class ReliabilityCalculation():
     
     
     @property
-    def uittredepunt(self):
+    def uittredepunt(self) -> Uittredepunt:
         return self._uittredepunt
     
     
     @property
-    def ondergrond_scenario(self):
+    def ondergrond_scenario(self) -> OndergrondScenario:
         return self._ondergrond_scenario
     
     
     @property
-    def model(self):
+    def model(self) -> Callable:
         return self._model
 
 
     @property
-    def settings(self):
-        return self.reliability_project.settings
+    def settings(self) -> SimpleNamespace:
+        """Return the settings of the reliability project as a SimpleNamespace object, which includes the settings DataFrame (simple overview) and the Settings object (actually used in ReliabilityProject)."""
+        return SimpleNamespace(df=self._df_settings, obj=self.reliability_project.settings)
 
 
     @property
-    def variables(self):
+    def variables(self) -> FrozenList:
         return self.reliability_project.variables
 
+
+    @property
+    def constants(self) -> DataFrame:
+        return self._constants
+    
 
     # FIXME add properties:
     # self.beta = None

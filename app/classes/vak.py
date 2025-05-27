@@ -9,7 +9,7 @@ from app.helper_functions.data_validation import (
     enforce_lower_upper_bounds,
 )
 from app.helper_functions.parameter_functions import (
-    generate_variable_dict,
+    generate_parameter_dict_for_variable,
     strip_suffix_from_list_parameter_names,
 )
 
@@ -32,12 +32,14 @@ class Vak:
             check_attribute_already_exists(self, attr_name_without_suffix)
             check_attribute_in_overview(attr_name_without_suffix, df_overview_parameters)
             
-            if df_overview_parameters.at[attr_name_without_suffix, "parameter_type"] == "metadata":
+            df_overview_row = df_overview_parameters.loc[attr_name_without_suffix]  # Select relevant row from the parameter overview
+            
+            if df_overview_row["parameter_type"] == "metadata":
                 # Metadata should be set on the Vak instance directly
                 name = "id" if attr_name_without_suffix == "vak_id" else attr_name_without_suffix  # Rename vak_id to id to simplify the attribute name
                 setattr(self, name, df_row[attr_name_without_suffix])
                 
-            elif df_overview_parameters.at[attr_name_without_suffix, "parameter_type"] in ["variable", "constant"]:
+            elif df_overview_row.at["parameter_type"] in ["variable", "constant"]:
                 # Variables and constants should be set on the variables attribute of the Vak instance
                 if not hasattr(self, "variables"):
                     # Create a SimpleNamespace to hold the variables/constants of this Vak instance
@@ -45,10 +47,11 @@ class Vak:
                     
                 # Generate input_dict for the variable or constant. This is a dictionary containing the parameters (e.g. mean, stdev/vc, etc.)
                 # All input dicts will be stored in the variables attribute of the Vak instance
-                input_dict = generate_variable_dict(attr_name_without_suffix, df_row, df_overview_parameters)
-                
-                enforce_lower_upper_bounds(attr_name_without_suffix, input_dict, df_overview_parameters, self.__class__, df_row["vak_id"])
-                
+                # This function also calls a helper function to enforce lower and upper bounds on the variable
+                input_dict = generate_parameter_dict_for_variable(attr_name_without_suffix,
+                                                                  df_overview_row=df_overview_row,
+                                                                  df_row=df_row)
+                                
                 setattr(self.variables, attr_name_without_suffix, input_dict)
         
         # Initialize attributes which will be filled later

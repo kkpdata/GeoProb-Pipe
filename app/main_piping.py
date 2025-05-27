@@ -47,7 +47,7 @@ def start_tool(
     PATH_WORKSPACE: str | Path,
 ) -> Project:
     """Start PTK tool
-
+p
     Args:
         PATH_WORKSPACE: path to the folder that contains all required input and where all output and working files will be stored
         USE_EXISTING_TKX_RESULTS (bool): whether to use precalculated .tkx files (True) or to start new calculations (False)
