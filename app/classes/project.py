@@ -24,7 +24,7 @@ from app.helper_functions.data_validation import (
     checks_input_parameters,
     checks_overview_parameters,
 )
-from app.helper_functions.piping_functions import calc_Z_h, calc_Z_p, calc_Z_u
+from app.helper_functions.z_functions import calc_Z_h, calc_Z_p, calc_Z_u
 
 
 class Project():
@@ -60,14 +60,15 @@ class Project():
         print(f"INFO: full list of available settings:\n{Settings().__dir__()}")
 
         # Make combinations of uittredepunten, ondergrondscenarios and models
-    # Notes:
+        # Notes:
         #   1. Not all combinations of uittredepunten and ondergrondscenarios are valid, so we need a helper loop through the vakken which holds the valid combinations
         #   2. Nested for-loops are inefficient but used on purpose since there are no heavy calculations and it's easily understandable
         self._list_reliability_calculations = []
         for vak in self.vak_collection.values():
             for uittredepunt in vak.uittredepunten:
                 for ondergrond_scenario in vak.ondergrond_scenarios:
-                    for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
+                    for model in [calc_Z_u, calc_Z_h]:
+                    # for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
                         self._list_reliability_calculations.append(ReliabilityCalculation(uittredepunt,
                                                                                           ondergrond_scenario,
                                                                                           model,
@@ -75,11 +76,10 @@ class Project():
                                                                                           self.df_settings)
                                                                    )
         
-        # # Start calculations
-        # self._start_calculations(self._list_reliability_calculations)
+        # Start calculations
+        self._start_calculations(self._list_reliability_calculations)
     
     
-    # FIXME parallelize these calculations
     def _start_calculations(self, list_reliability_calculations: list[ReliabilityCalculation]):
         
         def run_reliability_calculation(reliability_calculation: ReliabilityCalculation):

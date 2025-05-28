@@ -1,3 +1,5 @@
+import math
+
 ###################################################################################
 # Functies hieronder direct volgend uit variabelen van input.xlsx
 ###################################################################################
@@ -191,19 +193,19 @@ def calc_L_kwelweg(
 def calc_dphi_c_u(
     d_deklaag: float, 
     gamma_sat_deklaag: float, 
-    gamma_w: float
+    gamma_water: float
     ) -> float:
     r"""Berekening grenspotentiaal ten opzichte van maaiveldniveau in m
 
     Args:
         d_deklaag (float): Dikte van de cohesieve deklaag [m]
         gamma_sat_deklaag (float): verzadigd volumegewicht van de deklaag [kN/m3]
-        gamma_w (float): volumegewicht van water [kN/m3]
+        gamma_water (float): volumegewicht van water [kN/m3]
 
     Returns:
         float: grenspotentiaal ten opzichte van maaiveldniveau [m]
     """
-    return d_deklaag * (gamma_sat_deklaag - gamma_w) / gamma_w
+    return d_deklaag * (gamma_sat_deklaag - gamma_water) / gamma_water
 
 
 def calc_i_exit(

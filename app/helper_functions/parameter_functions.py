@@ -18,25 +18,6 @@ def strip_suffix_from_list_parameter_names(list_var_names: Iterable[str], list_s
     return list(dict.fromkeys([strip_suffix_from_parameter_name(var_name, list_suffixes) for var_name in list_var_names]))  # Note: dict.fromkeys is used to remove duplicates while preserving order
 
 
-# def generate_variable_dict(attr_name_without_suffix: str, df_row: pd.Series, df_overview_parameters: pd.DataFrame) -> dict:
-#     var_dict = {"type": df_overview_parameters.at[attr_name_without_suffix, "parameter_type"]}
-#     var_dict["distribution"] = df_overview_parameters.at[attr_name_without_suffix, "parameter_distribution"]  # Note: all supported distribution strings can be found in probabilistic_library.statistic.DistributionType
-    
-#     if var_dict["distribution"] == "deterministic":
-#         var_dict["value"] = df_row[attr_name_without_suffix]
-#     else:
-#         var_dict["mean"] = df_row[attr_name_without_suffix + "_mean"]
-#         var_dict["dispersion_type"] = df_overview_parameters.at[attr_name_without_suffix, "parameter_spreidingstype"]
-#         var_dict["dispersion_value"] = df_row[attr_name_without_suffix + var_dict["dispersion_type"]]
-    
-#     var_dict["unit"] = df_overview_parameters.at[attr_name_without_suffix, "parameter_unit"]
-    
-#     # Note that both deterministic and stochastic variables can have lower and upper bounds
-#     var_dict["lower_bound_mean"] = df_overview_parameters.at[attr_name_without_suffix, "parameter_mean_lower_bound"]
-#     var_dict["upper_bound_mean"] = df_overview_parameters.at[attr_name_without_suffix, "parameter_mean_upper_bound"]
-
-#     return var_dict
-
 def generate_parameter_dict_for_variable(attr_name: str, df_overview_row: pd.Series, df_row: pd.Series) -> dict:
     return _generate_parameter_dict(attr_name, df_overview_row, df_row=df_row)
 

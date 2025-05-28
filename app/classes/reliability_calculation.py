@@ -43,26 +43,26 @@ class ReliabilityCalculation():
         # Setup ReliabilityProject
         self.reliability_project = ReliabilityProject()
         
+        # Calculation settings
+        self._setup_settings(df_settings)
+        
         # Model & Variables
         # First the model (Z-function that will be run) must be set, since probabilistic_library defines the variables of a ReliabilityProject
         # based on the input args of the model function. Other args (i.e. variables from the input Excel) are not allowed, so we need to know which
         # input args the current model requires so we can add the relevant variables.
         self.reliability_project.model = self._model
 
-        self._setup_variables(self._uittredepunt, self._ondergrond_scenario)
+        list_assigned_variables = self._setup_variables(self._uittredepunt, self._ondergrond_scenario)
         
         # Constants
-        self._setup_constants()  # FIXME constants should be added
+        list_assigned_constants = self._setup_constants()  # FIXME constants should be added
         
+        # Make sure all variables and constants are set in the ReliabilityProject
+        expected_parameters = [parameter.name for parameter in self.reliability_project.variables.get_list()]
+        if set(list_assigned_variables + list_assigned_constants) != set(expected_parameters):
+            raise ValueError(f"Not all input parameters expected by model '{self._model.__name__}' were set in the ReliabilityProject.\nMissing parameters: {set(expected_parameters) - set(list_assigned_variables + list_assigned_constants)}")
         
-        # FIXME ADD CHECK TO MAKE SURE ALL REQUIRED VARIABLES (INPUT ARGS OF THE MODEL) ARE SET
-        # DO THIS BY CHECKING ALL VARIABLES
-        
-        
-        # Calculation settings
-        self._setup_settings(df_settings)
-        
-    
+
     def _setup_settings(self, df_settings: pd.DataFrame) -> None:
 
         # Setup the settings of the ReliabilityProject
@@ -74,39 +74,50 @@ class ReliabilityCalculation():
                 raise ValueError(f"Attribute '{attr_name}' not found in SensitivitySettings class. Available attributes:\n{Settings().__dir__()}")
 
 
-    def _setup_variables(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario) -> None:
+    def _setup_variables(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario) -> list[str]:
         # Setup the different variables of the ReliabilityProject
         # Notes: before a variable is assigned it is checked whether it is a valid input parameter of the current model function.
 
+        list_assigned_variables = []
+
+        # FIXME code below can be optimized (repetitive tasks)
         # Vak variables
         for var_name, var_dict in uittredepunt.vak.variables.__dict__.items():
             if var_name in inspect.signature(self._model).parameters:
                 enforce_lower_upper_bounds(var_dict, f"Vak ID {uittredepunt.vak.id}")
                 self._set_reliability_project_variable(var_name, var_dict)
+                list_assigned_variables.append(var_name)
 
         # Uittredepunt variables
         for var_name, var_dict in uittredepunt.variables.__dict__.items():
             if var_name in inspect.signature(self._model).parameters:
                 enforce_lower_upper_bounds(var_dict, f"Uittredepunt ID {uittredepunt.id}")
                 self._set_reliability_project_variable(var_name, var_dict)
+                list_assigned_variables.append(var_name)
             
         # Ondergrondscenario variables
         for var_name, var_dict in ondergrond_scenario.variables.__dict__.items():
             if var_name in inspect.signature(self._model).parameters:
                 enforce_lower_upper_bounds(var_dict, f"Ondergrondscenario ID {ondergrond_scenario.id}")
                 self._set_reliability_project_variable(var_name, var_dict)
+                list_assigned_variables.append(var_name)
         
+        return list_assigned_variables
 
-    def _setup_constants(self):
+    def _setup_constants(self) -> list[str]:
+        
+        list_assigned_constants = []
         
         for var_name, row in self._constants.iterrows():
             if var_name in inspect.signature(self._model).parameters:
-                constant_dict=generate_parameter_dict_for_constant(str(var_name), df_overview_row=row)
+                constant_dict = generate_parameter_dict_for_constant(str(var_name), df_overview_row=row)
                 
                 enforce_lower_upper_bounds(constant_dict, "located paramter overview sheet")
                 self._set_reliability_project_variable(str(var_name), var_dict=constant_dict)
                 
-        
+                list_assigned_constants.append(str(var_name))
+                
+        return list_assigned_constants
 
 
     def _run(self):

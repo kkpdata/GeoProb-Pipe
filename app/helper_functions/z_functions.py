@@ -1,33 +1,27 @@
-import piping_functions_nieuw as piping_functions
+import app.helper_functions.piping_functions_nieuw as piping_functions
 
 
-#TODO
-#noem dit anders
-def uitvoeringsfunctie_z_h(
-    vak, 
-    uittredepunt, 
-    ondergrondscenario,
-    constanten
+def calc_Z_h(
+    L_achterland: float,
+    c_voorland: float,
+    c_achterland: float,
+    L_intrede: float,
+    L_but: float,
+    L_bit: float,
+    polderpeil: float,
+    buitenwaterstand: float,
+    mv_exit: float,
+    top_zand: float,
+    kD_wvp: float,
+    modelfactor_h: float,
+    i_c_h: float,
     ) -> float:  
     r"""Berekening van de grenstoesstandfunctie voor heave
 
     Returns:
         float: Z waarde van de grenstoestandfunctie voor heave
     """
-    L_achterland = vak.L_achterland
-    c_voorland = vak.c_voorland
-    c_achterland = vak.c_achterland
-    L_intrede = uittredepunt.L_intrede
-    L_but = uittredepunt.L_but
-    L_bit = uittredepunt.L_bit
-    polderpeil = uittredepunt.polderpeil
-    buitenwaterstand = uittredepunt.buitenwaterstand
-    mv_exit = uittredepunt.mv_exit
-    top_zand = ondergrondscenario.top_zand
-    kD = ondergrondscenario.kD
-    modelfactor_h = constanten.modelfactor_h
-    i_c_h = constanten.i_c_h    
-        
+    
     L_voorland = piping_functions.calc_L_voorland(
         L_intrede = L_intrede,
         L_but = L_but,
@@ -39,12 +33,12 @@ def uitvoeringsfunctie_z_h(
     )    
     
     lambda_voorland = piping_functions.calc_lambda_voorland(
-        kD = kD,
+        kD_wvp = kD_wvp,
         c_voorland = c_voorland
     )
     
     lambda_achterland = piping_functions.calc_lambda_achterland(
-        kD = kD,
+        kD_wvp = kD_wvp,
         c_achterland = c_achterland
     )
 
@@ -112,10 +106,20 @@ def uitvoeringsfunctie_z_h(
 
 
 def calc_Z_u(
-    vak, 
-    uittredepunt, 
-    ondergrondscenario,
-    constanten
+    L_achterland: float,
+    c_voorland: float,
+    c_achterland: float,
+    polderpeil: float,
+    buitenwaterstand: float,
+    L_intrede: float,
+    L_but: float,
+    L_bit: float,
+    mv_exit: float,
+    top_zand: float,
+    kD_wvp: float,
+    modelfactor_u: float,
+    gamma_water: float,
+    gamma_sat_deklaag: float,
     ) -> float:
     r"""Grenstoestandfunctie voor opbarsten (uplift).
     
@@ -123,21 +127,6 @@ def calc_Z_u(
         float: Z waarde van de grenstoestandfunctie voor opbarsten
     """
     
-    L_achterland = vak.L_achterland
-    c_voorland = vak.c_voorland
-    c_achterland = vak.c_achterland
-    polderpeil = uittredepunt.polderpeil
-    buitenwaterstand = uittredepunt.buitenwaterstand
-    L_intrede = uittredepunt.L_intrede
-    L_but = uittredepunt.L_but
-    L_bit = uittredepunt.L_bit
-    mv_exit = uittredepunt.mv_exit
-    top_zand = ondergrondscenario.top_zand
-    kD_wvp = ondergrondscenario.kD_wvp
-    modelfactor_u = constanten.modelfactor_u    
-    gamma_w = constanten.gamma_w
-    gamma_sat_deklaag = constanten.gamma_sat_deklaag  
-
     L_voorland = piping_functions.calc_L_voorland(
         L_intrede = L_intrede,
         L_but = L_but,
@@ -209,7 +198,7 @@ def calc_Z_u(
     dphi_c_u = piping_functions.calc_dphi_c_u(
         d_deklaag = d_deklaag,
         gamma_sat_deklaag = gamma_sat_deklaag,
-        gamma_w = gamma_w
+        gamma_water = gamma_water
     )
 
     z_u = piping_functions.calc_z_u(
@@ -223,10 +212,25 @@ def calc_Z_u(
 
 
 def calc_Z_p(
-    vak, 
-    uittredepunt, 
-    ondergrondscenario,
-    constanten
+    c_voorland: float,
+    buitenwaterstand: float,
+    polderpeil: float,
+    mv_exit: float,
+    L_but: float,
+    L_intrede: float,
+    modelfactor_p: float,
+    d70: float,
+    D_wvp: float,
+    kD_wvp: float,
+    top_zand: float,
+    gamma_water: float,
+    g: float,
+    v: float,
+    theta: float,
+    eta: float,
+    d70_m: float,
+    gamma_korrel: float,
+    r_c_deklaag: float,
     ) -> float:
     
     r"""Grenstoestandfunctie voor het mechanisme piping
@@ -234,26 +238,6 @@ def calc_Z_p(
     Returns:
         float: Z waarde van de grenstoestandfunctie voor piping
     """
-
-    c_voorland = vak.c_voorland
-    buitenwaterstand = uittredepunt.buitenwaterstand
-    polderpeil = uittredepunt.polderpeil
-    mv_exit = uittredepunt.mv_exit
-    L_but = uittredepunt.L_but
-    L_intrede = uittredepunt.L_intrede
-    modelfactor_p = ondergrondscenario.modelfactor_p
-    d70 = ondergrondscenario.d70
-    D_wvp = ondergrondscenario.D_wvp
-    kD_wvp = ondergrondscenario.kD_wvp
-    top_zand = ondergrondscenario.top_zand
-    gamma_water = constanten.gamma_water
-    g = constanten.g
-    v = constanten.v  
-    theta = constanten.theta 
-    eta = constanten.eta
-    d70_m = constanten.d70_m
-    gamma_korrel = constanten.gamma_korrel
-    r_c_deklaag = constanten.r_c_deklaag
     
     L_voorland = piping_functions.calc_L_voorland(
         L_intrede = L_intrede,
