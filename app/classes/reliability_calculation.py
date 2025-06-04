@@ -48,19 +48,19 @@ class ReliabilityCalculation():
         
         # Model & Variables
         # First the model (Z-function that will be run) must be set, since probabilistic_library defines the variables of a ReliabilityProject
-        # based on the input args of the model function. Other args (i.e. variables from the input Excel) are not allowed, so we need to know which
+        # based on the input args of the evaluated model function. Other args (i.e. variables from the input Excel) are not allowed, so we need to know which
         # input args the current model requires so we can add the relevant variables.
         self.reliability_project.model = self._model
 
         list_assigned_variables = self._setup_variables(self._uittredepunt, self._ondergrond_scenario)
         
         # Constants
-        list_assigned_constants = self._setup_constants()  # FIXME constants should be added
+        list_assigned_constants = self._setup_constants()
         
         # Make sure all variables and constants are set in the ReliabilityProject
         expected_parameters = [parameter.name for parameter in self.reliability_project.variables.get_list()]
         if set(list_assigned_variables + list_assigned_constants) != set(expected_parameters):
-            raise ValueError(f"Not all input parameters expected by model '{self._model.__name__}' were set in the ReliabilityProject.\nMissing parameters: {set(expected_parameters) - set(list_assigned_variables + list_assigned_constants)}")
+            raise ValueError(f"Not all input parameters expected by model '{self._model.__name__}' were set in the ReliabilityProject.\nExpected parameters: {expected_parameters}\nSet parameters: {list_assigned_variables+list_assigned_constants}\nMissing parameters: {set(expected_parameters) - set(list_assigned_variables + list_assigned_constants)}")
         
 
     def _setup_settings(self, df_settings: pd.DataFrame) -> None:
@@ -111,16 +111,15 @@ class ReliabilityCalculation():
         for var_name, row in self._constants.iterrows():
             if var_name in inspect.signature(self._model).parameters:
                 constant_dict = generate_parameter_dict_for_constant(str(var_name), df_overview_row=row)
-                
-                enforce_lower_upper_bounds(constant_dict, "located paramter overview sheet")
+                enforce_lower_upper_bounds(constant_dict, "located parameter overview sheet")
                 self._set_reliability_project_variable(str(var_name), var_dict=constant_dict)
-                
+            
                 list_assigned_constants.append(str(var_name))
                 
         return list_assigned_constants
 
 
-    def _run(self):
+    def run(self):
         # Run the reliability project
         self.reliability_project.run()
     
@@ -128,25 +127,28 @@ class ReliabilityCalculation():
     def _set_reliability_project_variable(self, var_name: str, var_dict: dict[str, Any]) -> None:
         # Create the Stochastic variable in the ReliabilityProject
         # Note: all supported variable attributes can be found in probabilistic_library.statistic.Stochast.__dir__
-        
-        self.reliability_project.variables[var_name].distribution = var_dict["distribution"]
-        
-        if var_dict["distribution"] == "deterministic":
-            self.reliability_project.variables[var_name].mean = var_dict["value"]
-        else:
-            self.reliability_project.variables[var_name].mean = var_dict["mean"]
-            
-            if var_dict["dispersion_type"] == "_stdev":
-                self.reliability_project.variables[var_name].deviation = var_dict["dispersion_value"]
-            elif var_dict["dispersion_type"] == "_vc":
-                self.reliability_project.variables[var_name].variation = var_dict["dispersion_value"]
-            else:
-                raise ValueError(f"Disperion type '{var_dict["dispersion_type"]}' of variable '{var_name}' is not implemented. Allowed types: {ALLOWED_DISPERSION_TYPES}")
-    
-        if pd.notna(var_dict["lower_bound_mean"]):
-            self.reliability_project.variables[var_name].minimum = var_dict["lower_bound_mean"]
-            self.reliability_project.variables[var_name].maximum = var_dict["upper_bound_mean"]
 
+        try:
+            self.reliability_project.variables[var_name].distribution = var_dict["distribution"]
+            
+            if var_dict["distribution"] == "deterministic":
+                self.reliability_project.variables[var_name].mean = var_dict["value"]
+            else:
+                self.reliability_project.variables[var_name].mean = var_dict["mean"]
+                
+                if var_dict["dispersion_type"] == "_stdev":
+                    self.reliability_project.variables[var_name].deviation = var_dict["dispersion_value"]
+                elif var_dict["dispersion_type"] == "_vc":
+                    self.reliability_project.variables[var_name].variation = var_dict["dispersion_value"]
+                else:
+                    raise ValueError(f"Disperion type '{var_dict["dispersion_type"]}' of variable '{var_name}' is not implemented. Allowed types: {ALLOWED_DISPERSION_TYPES}")
+        
+            if pd.notna(var_dict["lower_bound_mean"]):
+                self.reliability_project.variables[var_name].minimum = var_dict["lower_bound_mean"]
+                self.reliability_project.variables[var_name].maximum = var_dict["upper_bound_mean"]
+        except AttributeError as e:
+            raise AttributeError(f"Trying to set variable '{var_name}', which is not an input arg of function {self._model.__name__}. The probabilistic_library package only allows variables defined as input args of the evaluated model function.\nError message: {e}")
+    
     
     def plot_fragility_curve(self):
         raise NotImplementedError()
@@ -187,13 +189,31 @@ class ReliabilityCalculation():
     def constants(self) -> DataFrame:
         return self._constants
     
+    
+    @property
+    def design_point(self):
+        return self.reliability_project.design_point
+    
+    
+    @property
+    def beta(self):
+        return self.design_point.reliability_index
 
-    # FIXME add properties:
-    # self.beta = None
-    # self.failure_probability = None
-    # self.waterlevels = None
-    # self.influence_factors = None
-    # self.alphas = None
+
+    @property
+    def alphas(self):
+        return {a.identifier: a.alpha for a in self.design_point.alphas.get_list()}
+
+
+    @property
+    def influence_factors(self):
+        return {a.identifier: a.influence_factor for a in self.design_point.alphas.get_list()}
+
+
+    @property
+    def is_converged(self):
+        return self.design_point.is_converged
+
 
 class ReliabilityCalculationSet:
     """ReliabilityCalculationSet class containing multiple ReliabilityCalculation instances"""

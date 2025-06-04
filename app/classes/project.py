@@ -1,5 +1,7 @@
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import Callable
 
 import pandas as pd
 from probabilistic_library import (
@@ -25,6 +27,18 @@ from app.helper_functions.data_validation import (
     checks_overview_parameters,
 )
 from app.helper_functions.z_functions import calc_Z_h, calc_Z_p, calc_Z_u
+
+
+def _start_calculations(list_reliability_calculations: list[ReliabilityCalculation]) -> None:
+    # FIXME perhaps find a better locaton for this function, since it is not really part of the Project class
+    def run_reliability_calculation(reliability_calculation: ReliabilityCalculation) -> None:
+        try:
+            reliability_calculation.run()
+        except Exception as e:
+            print(f"ERROR: could not run running reliability calculation {reliability_calculation.id}: {e}")
+
+    with ThreadPoolExecutor() as executor:
+        executor.map(run_reliability_calculation, list_reliability_calculations)
 
 
 class Project():
@@ -56,37 +70,55 @@ class Project():
 
         # Read calculation settings from Excel file
         self.df_settings = pd.read_excel(self.workspace.input.folderpath / "input.xlsx", sheet_name="Settings", index_col=0, header=0)
-        print("INFO: settings successfully loaded from input.xlsx")
+        print("INFO: settings successfully loaded from 'input.xlsx'")
         print(f"INFO: full list of available settings:\n{Settings().__dir__()}")
 
-        # Make combinations of uittredepunten, ondergrondscenarios and models
+        # Build ReliabilityCalculations objects (= combinations of uittredepunten, ondergrondscenarios for each model) and run these
         # Notes:
-        #   1. Not all combinations of uittredepunten and ondergrondscenarios are valid, so we need a helper loop through the vakken which holds the valid combinations
-        #   2. Nested for-loops are inefficient but used on purpose since there are no heavy calculations and it's easily understandable
-        self._list_reliability_calculations = []
-        for vak in self.vak_collection.values():
-            for uittredepunt in vak.uittredepunten:
-                for ondergrond_scenario in vak.ondergrond_scenarios:
-                    for model in [calc_Z_u, calc_Z_h]:
-                    # for model in [calc_Z_u, calc_Z_h, calc_Z_p]:
-                        self._list_reliability_calculations.append(ReliabilityCalculation(uittredepunt,
-                                                                                          ondergrond_scenario,
-                                                                                          model,
-                                                                                          self.df_overview_parameters[self.df_overview_parameters["parameter_type"] == "constant"],
-                                                                                          self.df_settings)
-                                                                   )
+        #   1. Due to limitations in the probabilistic_library, we cannot first set up all calculations and then run them. After setting up calculations for each model (uplift/heave/piping), we need to run them immediately before setting up the next model.
+        #   2. Not all combinations of uittredepunten and ondergrondscenarios are valid, so we need a helper-loop through the vakken which holds the valid combinations
+        #   3. Nested for-loops are inefficient but used on purpose since there are no heavy calculations and it's easily understandable
+        def _build_and_run_calculations(model: Callable) -> list[ReliabilityCalculation]:
+            list_calculations = []
+            for vak in self.vak_collection.values():
+                for uittredepunt in vak.uittredepunten:
+                    for ondergrond_scenario in vak.ondergrond_scenarios:
+                        list_calculations.append(
+                            ReliabilityCalculation(
+                                uittredepunt,
+                                ondergrond_scenario,
+                                model,
+                                self.df_overview_parameters[
+                                    self.df_overview_parameters["parameter_type"] == "constant"
+                                ],
+                                self.df_settings
+                            )
+                        )
+            _start_calculations(list_calculations)
+                        
+            return list_calculations
         
-        # Start calculations
-        self._start_calculations(self._list_reliability_calculations)
-    
-    
-    def _start_calculations(self, list_reliability_calculations: list[ReliabilityCalculation]):
-        
-        def run_reliability_calculation(reliability_calculation: ReliabilityCalculation):
-            try:
-                reliability_calculation._run()
-            except Exception as e:
-                print(f"ERROR: could not run running reliability calculation {reliability_calculation.name}: {e}")
+        self.calculations = {
+                            "uplift": _build_and_run_calculations(calc_Z_u),
+                            "heave": _build_and_run_calculations(calc_Z_h),
+                            "piping": _build_and_run_calculations(calc_Z_p),
+                            }
+        print("INFO: calculations were performed successfully")
 
-        with ThreadPoolExecutor() as executor:
-            executor.map(run_reliability_calculation, list_reliability_calculations)
+    @property
+    def results(self) -> pd.DataFrame:
+        """Returns a DataFrame with the results of the calculations."""
+        # Combine results from the calculations into a single DataFrame
+        df_results = pd.DataFrame.from_dict(self.calculations, orient="index").T.melt(var_name="model", value_name="reliability_calculation")
+
+        df_results["id"] = df_results["reliability_calculation"].apply(lambda x: x.id)
+        df_results["converged"] = df_results["reliability_calculation"].apply(lambda x: x.is_converged)
+        df_results["beta"] = df_results["reliability_calculation"].apply(lambda x: x.beta)
+        df_results["alphas"] = df_results["reliability_calculation"].apply(lambda x: x.alphas)
+        df_results["influence_factors"] = df_results["reliability_calculation"].apply(lambda x: x.influence_factors)
+        
+        return df_results
+    
+    
+    # @property
+    # def alphas(self)

@@ -119,7 +119,7 @@ def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path) -> Fil
 
     if set(xlsx_input_folderpath.sheet_names) != expected_sheets:
         raise FileNotFoundError(
-            f"\n{filesystem_input.folderpath / 'input.xlsx'} should contain exactly these sheets"
+            f"\n{filesystem_input.folderpath / 'input.xlsx'} should contain exactly these sheets:\n"
             f"{', '.join(expected_sheets)}\n"
             f"Found sheets: {', '.join(xlsx_input_folderpath.sheet_names)}\n"
             f"Note:\n1) Sheet names are case-sensitive!\n2) The order of sheets does not matter."

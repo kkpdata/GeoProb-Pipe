@@ -63,16 +63,19 @@ def calc_Z_h(
         L_dijk = L_dijk,
         W_achterland = W_achteland
     )
-
-    r_exit = piping_functions.calc_r_exit(
-        L_voorland = L_voorland,
-        L_achterland = L_achterland,
-        L_dijk = L_dijk,
-        L_intrede= L_intrede,
-        r_bit = r_bit,
-        r_but = r_but,
-        lambda_achterland = lambda_achterland 
-    )       
+    
+    # FIXME check r_exit
+    print("WARNING!! CUSTOM R_EXIT IS USED")
+    r_exit=0.31
+    # r_exit = piping_functions.calc_r_exit(
+    #     L_voorland = L_voorland,
+    #     L_achterland = L_achterland,
+    #     L_dijk = L_dijk,
+    #     L_intrede= L_intrede,
+    #     r_bit = r_bit,
+    #     r_but = r_but,
+    #     lambda_achterland = lambda_achterland 
+    # )       
            
     phi_exit = piping_functions.calc_phi_exit(
         polderpeil = polderpeil,
@@ -168,16 +171,19 @@ def calc_Z_u(
         L_dijk = L_dijk,
         W_achterland = W_achteland
     )
-
-    r_exit = piping_functions.calc_r_exit(
-        L_voorland = L_voorland,
-        L_achterland = L_achterland,
-        L_dijk = L_dijk,
-        L_intrede= L_intrede,
-        r_bit = r_bit,
-        r_but = r_but,
-        lambda_achterland = lambda_achterland 
-    )       
+    
+    # FIXME check r_exit
+    print("WARNING!! CUSTOM R_EXIT IS USED")
+    r_exit=8
+    # r_exit = piping_functions.calc_r_exit(
+    #     L_voorland = L_voorland,
+    #     L_achterland = L_achterland,
+    #     L_dijk = L_dijk,
+    #     L_intrede= L_intrede,
+    #     r_bit = r_bit,
+    #     r_but = r_but,
+    #     lambda_achterland = lambda_achterland 
+    # )       
 
     phi_exit = piping_functions.calc_phi_exit(
         polderpeil = polderpeil,

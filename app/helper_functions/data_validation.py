@@ -101,7 +101,7 @@ def is_number(var_value: Any) -> float:
 
 
 def enforce_lower_upper_bounds(parameter_dict: dict, id_print: str) -> None:
-    # Note: only appplicable to variables and constants
+    # Note: only appplicable to input parameters (variables and constants)
 
     
     # Value (mean) is accessed differently for deterministic and stochastic parameters
