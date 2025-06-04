@@ -1,4 +1,5 @@
 import math
+from .model4a import Model4a
 
 ###################################################################################
 # Functies hieronder direct volgend uit variabelen van input.xlsx
@@ -224,6 +225,39 @@ def calc_i_exit(
         float: heave gradient in [-]
     """
     return (phi_exit - h_exit) / d_deklaag
+
+# functie om r_exit te berekenen met behulp van model4a module
+def calc_r_exit_model4a(
+     k_wvp: float,
+     D_wvp: float,
+     c_voorland: float,
+     c_achterland: float,
+     L_intrede: float,
+     L_but: float,
+     L_bit: float,
+     L_achterland: float,
+) -> float:
+    # L_voorland uitrekenen met behulp van de functie calc_L_voorland
+    L_voorland = calc_L_voorland(L_intrede, L_but)
+    # Maak een Model4a object aan met uitgangspunt x_bit = 0.0. Dit betekent
+    # dat de lokale x waarde gelijk is aan L_bit.
+    # uittredepunten moeten altijd binnendijks van de binnenteenlijn liggen, 
+    # # dus x_but moet negatief zijn.
+    model4a = Model4a(
+        k=k_wvp,
+        D=D_wvp,
+        c1=c_voorland,
+        c3=c_achterland,
+        L1=L_voorland,
+        L3=L_achterland,
+        x_but=-1.0*abs(L_but-L_bit),  # x_but moet negatief zijn, x_bit is 0.0
+        x_bit=0.0,)  # x_bit is 0.0
+    # Bereken de respons bij het uittredepunt
+    r_exit, _, _ = model4a.respons(L_bit)
+    return r_exit
+
+
+
 
 
 #r_but en r_bit? staan niet in de Excel
