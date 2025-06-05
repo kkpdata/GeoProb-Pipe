@@ -123,10 +123,9 @@ def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path) -> Tup
             filepaths = ', '.join(hrd_matches["filepath"].tolist())
             raise ValueError(f"Expected exactly one matching HRD .sqlite file, but found {len(hrd_matches)}:\n{filepaths}")
         else:
-            raise ValueError("No matching HRD .sqlite file found.")
+            raise ValueError("One HRD .sqlite file is required in the input folder, but none was found.")
 
     hrd_path = hrd_matches["filepath"].iloc[0]
-
         
     return filesystem_input, filesystem_input.folderpath / "input.xlsx", hrd_path
 
