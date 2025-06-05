@@ -15,6 +15,7 @@ def calc_Z_h(
     kD_wvp: float,
     modelfactor_h: float,
     i_c_h: float,
+    D_wvp: float,
     ) -> float:  
     r"""Berekening van de grenstoesstandfunctie voor heave
 
@@ -52,29 +53,15 @@ def calc_Z_h(
         L_achterland = L_achterland
     )
 
-    r_bit = piping_functions.calc_r_bit(
-        W_voorland = W_voorland,
-        L_dijk = L_dijk,
-        W_achterland = W_achteland
-    )
-
-    r_but = piping_functions.calc_r_but(
-        W_voorland = W_voorland,
-        L_dijk = L_dijk,
-        W_achterland = W_achteland
-    )
-    
-    # FIXME check r_exit
-    print("WARNING!! CUSTOM R_EXIT IS USED")
-    # r_exit=0.31
     r_exit = piping_functions.calc_r_exit_model4a(
-        L_voorland = L_voorland,
-        L_achterland = L_achterland,
-        L_dijk = L_dijk,
-        L_intrede= L_intrede,
-        r_bit = r_bit,
-        r_but = r_but,
-        lambda_achterland = lambda_achterland 
+        kD_wvp=kD_wvp,
+        D_wvp=D_wvp,
+        c_voorland=c_voorland,
+        c_achterland=c_achterland,
+        L_intrede=L_intrede,
+        L_but=L_but,
+        L_bit=L_bit,
+        L_achterland=L_achterland,
     )       
            
     phi_exit = piping_functions.calc_phi_exit(
@@ -123,6 +110,7 @@ def calc_Z_u(
     modelfactor_u: float,
     gamma_water: float,
     gamma_sat_deklaag: float,
+    D_wvp: float,
     ) -> float:
     r"""Grenstoestandfunctie voor opbarsten (uplift).
     
@@ -160,30 +148,16 @@ def calc_Z_u(
         L_achterland = L_achterland
     )
 
-    r_bit = piping_functions.calc_r_bit(
-        W_voorland = W_voorland,
-        L_dijk = L_dijk,
-        W_achterland = W_achteland
-    )
-
-    r_but = piping_functions.calc_r_but(
-        W_voorland = W_voorland,
-        L_dijk = L_dijk,
-        W_achterland = W_achteland
-    )
-    
-    # FIXME check r_exit
-    print("WARNING!! CUSTOM R_EXIT IS USED")
-    r_exit=8
-    # r_exit = piping_functions.calc_r_exit(
-    #     L_voorland = L_voorland,
-    #     L_achterland = L_achterland,
-    #     L_dijk = L_dijk,
-    #     L_intrede= L_intrede,
-    #     r_bit = r_bit,
-    #     r_but = r_but,
-    #     lambda_achterland = lambda_achterland 
-    # )       
+    r_exit = piping_functions.calc_r_exit_model4a(
+        kD_wvp=kD_wvp,
+        D_wvp=D_wvp,
+        c_voorland=c_voorland,
+        c_achterland=c_achterland,
+        L_intrede=L_intrede,
+        L_but=L_but,
+        L_bit=L_bit,
+        L_achterland=L_achterland,
+    )       
 
     phi_exit = piping_functions.calc_phi_exit(
         polderpeil = polderpeil,

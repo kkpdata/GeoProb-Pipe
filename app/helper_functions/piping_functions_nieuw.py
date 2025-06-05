@@ -1,4 +1,5 @@
 import math
+
 from .model4a import Model4a
 
 ###################################################################################
@@ -228,7 +229,7 @@ def calc_i_exit(
 
 # functie om r_exit te berekenen met behulp van model4a module
 def calc_r_exit_model4a(
-     k_wvp: float,
+     kD_wvp: float,
      D_wvp: float,
      c_voorland: float,
      c_achterland: float,
@@ -244,7 +245,7 @@ def calc_r_exit_model4a(
     # uittredepunten moeten altijd binnendijks van de binnenteenlijn liggen, 
     # # dus x_but moet negatief zijn.
     model4a = Model4a(
-        k=k_wvp,
+        kD=kD_wvp,
         D=D_wvp,
         c1=c_voorland,
         c3=c_achterland,

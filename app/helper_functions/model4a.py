@@ -9,7 +9,7 @@ from .geohydro_functions import calc_lambda, calc_r_BIT, calc_r_BUT, calc_W
 class Model4a:
     """Class for groundwater model 4A Technisch Rapport Waterspanningen bij Dijken"""
 
-    k: float
+    kD: float
     D: float
     c1: float
     c3: float
@@ -23,16 +23,12 @@ class Model4a:
         return abs(self.x_bit - self.x_but)
 
     @property
-    def kD(self) -> float:
-        return self.k * self.D
-
-    @property
     def lambda1(self) -> float:
-        return calc_lambda(self.k * self.D, self.c1)
+        return calc_lambda(self.kD, self.c1)
 
     @property
     def lambda3(self) -> float:
-        return calc_lambda(self.k * self.D, self.c3)
+        return calc_lambda(self.kD, self.c3)
 
     @property
     def W1(self) -> float:
