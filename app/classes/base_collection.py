@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from app.classes.ondergrond_scenario import OndergrondScenario
     from app.classes.uittredepunt import Uittredepunt
     from app.classes.vak import Vak
+    from app.classes.overschrijdingsfrequentielijn import Overschrijdingsfrequentielijn
 T = TypeVar("T")
 
 class BaseCollection(Generic[T]):
@@ -102,11 +103,11 @@ class BaseCollection(Generic[T]):
     def items(self) -> list[tuple[str, T]]:
         return list(self._items.items())
 
-def _pretty_repr(self: Vak | Uittredepunt | OndergrondScenario) -> str:
+def _pretty_repr(self: Vak | Uittredepunt | OndergrondScenario | Overschrijdingsfrequentielijn) -> str:
     def format_value(v, indent=2):
         spacer = '    ' * indent
 
-        # Special case 1: Single instance of Vak/Uittredepunt/OndergrondScenario
+        # Special case 1: Single instance of Vak/Uittredepunt/OndergrondScenario/Overschrijdingsfrequentielijn
         if type(v).__name__ in ("Vak", "Uittredepunt", "OndergrondScenario"):
             return format_instance(v, indent)
 

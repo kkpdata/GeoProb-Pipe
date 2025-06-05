@@ -2,6 +2,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+import pydra_core as pydra
+
 sys.path.append(str(Path(__file__).parents[1]))  # Add repo to sys.path to make sure all imports are correctly found
 
 from app.classes.project import Project
@@ -24,18 +26,6 @@ PATH_WORKSPACE: str | Path = r"..\\workspaces\example_new_calculations"
 # Whether to clean up the working directory in the workspace (True) or not (False).
 CLEANUP_WORK_DIR: bool = True
 
-# Define waterlevel (buitenwaterstand) range for which you want an integrated fragility curve
-# Format: [range_start, range_end]. Suggested values:
-#   - range_start: should be at min. the daily waterlevel
-#   - range_end: should be max. either the dike crest level (kruinniveau) or the 95th percentile of the waterlevel statistics (MU, SCALE)
-WATERLEVEL_RANGE: list[float] = [0.5, 3.75]
-
-# Define the distribution parameters of the load (waterlevel) Gumbel uncertainty distribution below
-# Use the script helper_functions/fit_extreme_value_dis_water_level.py for this
-
-# Traject 17-1
-MU: float = 2.57
-SCALE: float = 0.102
 
 
 # ====================================
