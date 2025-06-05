@@ -66,16 +66,16 @@ def calc_Z_h(
     
     # FIXME check r_exit
     print("WARNING!! CUSTOM R_EXIT IS USED")
-    r_exit=0.31
-    # r_exit = piping_functions.calc_r_exit(
-    #     L_voorland = L_voorland,
-    #     L_achterland = L_achterland,
-    #     L_dijk = L_dijk,
-    #     L_intrede= L_intrede,
-    #     r_bit = r_bit,
-    #     r_but = r_but,
-    #     lambda_achterland = lambda_achterland 
-    # )       
+    # r_exit=0.31
+    r_exit = piping_functions.calc_r_exit_model4a(
+        L_voorland = L_voorland,
+        L_achterland = L_achterland,
+        L_dijk = L_dijk,
+        L_intrede= L_intrede,
+        r_bit = r_bit,
+        r_but = r_but,
+        lambda_achterland = lambda_achterland 
+    )       
            
     phi_exit = piping_functions.calc_phi_exit(
         polderpeil = polderpeil,

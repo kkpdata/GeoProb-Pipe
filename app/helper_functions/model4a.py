@@ -1,7 +1,8 @@
-from dataclasses import dataclass
-# from typing import List
 import math
-from .geohydro_functions import calc_lambda, calc_W, calc_r_BIT, calc_r_BUT
+from dataclasses import dataclass
+from typing import Tuple
+
+from .geohydro_functions import calc_lambda, calc_r_BIT, calc_r_BUT, calc_W
 
 
 @dataclass
@@ -56,8 +57,6 @@ class Model4a:
     @property
     def r_BIT(self) -> float:
         return calc_r_BIT(self.W1, self.L2, self.W3)
-
-    from typing import Tuple
 
     def respons(self, x: float) -> Tuple[float, float, float]:
         """calculate response at x given model
