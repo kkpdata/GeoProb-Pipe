@@ -20,9 +20,6 @@ class FileSystem:
         self.files["filepath"] = self.find_files_in_dir(self.folderpath, extension)
         self.files["filename"] = [file.name for file in self.files["filepath"]]
 
-        # self.subfolders = pd.DataFrame()
-        # self.subfolders["subfolderpath"] = self.find_subfolders(self.folderpath)
-        # self.subfolders["subfoldername"] = [folder.name for folder in self.subfolders["subfolderpath"]]
 
     @staticmethod
     def validate_path(path_to_check: str | Path) -> Path:

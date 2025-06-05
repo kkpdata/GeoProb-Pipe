@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Tuple
 
 import pandas as pd
 
@@ -19,7 +20,8 @@ class Workspace:
         self.folderpath = FileSystem.validate_path(PATH_WORKSPACE)
 
         self.output = _prepare_output_folder(self.folderpath, checks=True)
-        self.input = _prepare_input_folder(self.folderpath, self.output.folderpath)
+        self.input, self.excel_path, self.hrd_path = _prepare_input_folder(self.folderpath, self.output.folderpath)
+
 
         # FIXME add functionality to read existing results (without running prob. calculations again)
         # self.output = _prepare_output_folder(self.folderpath, USE_EXISTING_TKX_RESULTS, checks=True)
@@ -58,29 +60,13 @@ def _prepare_output_folder(PATH_WORKSPACE: Path, checks: bool) -> FileSystem:
         Path.mkdir(PATH_WORKSPACE / "output", parents=False, exist_ok=False)
         print(f"INFO: output folder was succesfully created in project folder ({PATH_WORKSPACE / 'output'})")
 
-    # FIXME extension of output files is not correct (shouldn't be .tkx)
     # Create FileSystem instance for output folder
-    filesystem_output = FileSystem(PATH_WORKSPACE / "output", "tkx")
+    filesystem_output = FileSystem(PATH_WORKSPACE / "output")
     
-    # FIXME customize checks for STPH files
-    # if checks:
-    #     # Perform checks
-    #     if USE_EXISTING_TKX_RESULTS and filesystem_output.files.empty:
-    #         # Raise error if existing PTK calculation results should be used but no .tkx files were found
-    #         raise FileNotFoundError(
-    #             f"You specified USE_EXISTING_TKX_RESULTS=True meaning that the output folder {filesystem_output.folderpath} should contain .tkx files with results from a previous run. However, no .tkx files were found."
-    #         )
-    #     elif not USE_EXISTING_TKX_RESULTS and not filesystem_output.files.empty:
-    #         # Raise error if new PTK calculations should be started but the found output working folder is not empty
-    #         # Let the user take of this in order to prevent accidental deletion of files.
-    #         raise FileExistsError(
-    #             f"You specified USE_EXISTING_TKX_RESULTS=False, meaning new calculations will be run. The project folder contains a subfolder 'output' with results from a previous run. Delete (or archive) this folder before you continue: {filesystem_output.folderpath}."
-    #         )
-
     return filesystem_output
 
 # FIXME docstring
-def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path) -> FileSystem:
+def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path) -> Tuple[FileSystem, Path, Path]:
 
     """Prepare input subfolder
 
@@ -125,7 +111,24 @@ def _prepare_input_folder(PATH_WORKSPACE: Path, path_output_folder: Path) -> Fil
             f"Note:\n1) Sheet names are case-sensitive!\n2) The order of sheets does not matter."
         )
         
-    return filesystem_input
+    # Find HRD path
+    hrd_matches = filesystem_input.files.loc[
+        lambda df: df["filename"].str.endswith(".sqlite") &
+                (df["filename"] != "hlcd.sqlite") &
+                ~df["filename"].str.endswith(".config.sqlite")
+    ]  # The .zip files containing HRD have multiple .sqlite files, but we only want the one that ends with .sqlite (not ending with .config.sqlite) and is not called 'hlcd.sqlite' 
+
+    if len(hrd_matches) != 1:
+        if len(hrd_matches) > 1:
+            filepaths = ', '.join(hrd_matches["filepath"].tolist())
+            raise ValueError(f"Expected exactly one matching HRD .sqlite file, but found {len(hrd_matches)}:\n{filepaths}")
+        else:
+            raise ValueError("No matching HRD .sqlite file found.")
+
+    hrd_path = hrd_matches["filepath"].iloc[0]
+
+        
+    return filesystem_input, filesystem_input.folderpath / "input.xlsx", hrd_path
 
 
 def _prepare_work_dir(PATH_WORKSPACE: Path) -> FileSystem:
