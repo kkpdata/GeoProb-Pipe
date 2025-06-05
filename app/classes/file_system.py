@@ -20,9 +20,9 @@ class FileSystem:
         self.files["filepath"] = self.find_files_in_dir(self.folderpath, extension)
         self.files["filename"] = [file.name for file in self.files["filepath"]]
 
-        self.subfolders = pd.DataFrame()
-        self.subfolders["subfolderpath"] = self.find_subfolders(self.folderpath)
-        self.subfolders["subfoldername"] = [folder.name for folder in self.subfolders["subfolderpath"]]
+        # self.subfolders = pd.DataFrame()
+        # self.subfolders["subfolderpath"] = self.find_subfolders(self.folderpath)
+        # self.subfolders["subfoldername"] = [folder.name for folder in self.subfolders["subfolderpath"]]
 
     @staticmethod
     def validate_path(path_to_check: str | Path) -> Path:
@@ -44,7 +44,7 @@ class FileSystem:
 
     @staticmethod
     def find_files_in_dir(dir: str | Path, extension: str | None = None) -> list[Path]:
-        """Find all files with a specified extension in a folder
+        """Find all files with a specified extension in a folder and its subfolders.
         Note: files starting with ~$ are ignored since these are generally temporary files
 
         Args:
@@ -56,9 +56,9 @@ class FileSystem:
             list[Path]: list of paths to the found files in the dir. Returns None if no files were found.
         """
         if isinstance(extension, str):
-            files = [file for file in Path(dir).resolve().glob(f"*.{extension}") if file.is_file() and not file.name.startswith("~$")]
+            files = [file for file in Path(dir).resolve().rglob(f"*.{extension}") if file.is_file() and not file.name.startswith("~$")]
         else:
-            files = [file for file in Path(dir).resolve().glob(f"*") if file.is_file() and not file.name.startswith("~$")]
+            files = [file for file in Path(dir).resolve().rglob(f"*") if file.is_file() and not file.name.startswith("~$")]
         return files
 
     @staticmethod
