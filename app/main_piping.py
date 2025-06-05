@@ -58,7 +58,6 @@ p
     # Calculate fragility curve and integrate it with the waterlevel statistics
     project = Project(
         PATH_WORKSPACE,
-
     )
 
     # # Overview of fragility curve results

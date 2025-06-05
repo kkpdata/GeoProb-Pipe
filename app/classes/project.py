@@ -20,18 +20,6 @@ from app.helper_functions.data_validation import (
 from app.helper_functions.z_functions import calc_Z_h, calc_Z_p, calc_Z_u
 
 
-def _start_calculations(list_reliability_calculations: list[ReliabilityCalculation]) -> None:
-    # FIXME perhaps find a better locaton for this function, since it is not really part of the Project class
-    def run_reliability_calculation(reliability_calculation: ReliabilityCalculation) -> None:
-        try:
-            reliability_calculation.run()
-        except Exception as e:
-            print(f"ERROR: could not run running reliability calculation {reliability_calculation.id}: {e}")
-
-    with ThreadPoolExecutor() as executor:
-        executor.map(run_reliability_calculation, list_reliability_calculations)
-
-
 class Project():
     """ Project class """
     def __init__(self, PATH_WORKSPACE: str|Path) -> None:
@@ -75,18 +63,20 @@ class Project():
             list_calculations = []
             for vak in self.vak_collection.values():
                 for uittredepunt in vak.uittredepunten:
-                    for ondergrond_scenario in vak.ondergrond_scenarios:
-                        list_calculations.append(
-                            ReliabilityCalculation(
-                                uittredepunt,
-                                ondergrond_scenario,
-                                model,
-                                self.df_overview_parameters[
-                                    self.df_overview_parameters["parameter_type"] == "constant"
-                                ],
-                                self.df_settings
+                    for buitenwaterstand in uittredepunt.overschrijdingsfrequentielijn.overschrijdingsfrequentielijn.level:
+                        for ondergrond_scenario in vak.ondergrond_scenarios:
+                            list_calculations.append(
+                                ReliabilityCalculation(
+                                    uittredepunt,
+                                    buitenwaterstand,
+                                    ondergrond_scenario,
+                                    model,
+                                    self.df_overview_parameters[
+                                        self.df_overview_parameters["parameter_type"] == "constant"
+                                    ],
+                                    self.df_settings
+                                )
                             )
-                        )
             _start_calculations(list_calculations)
                         
             return list_calculations
@@ -115,3 +105,14 @@ class Project():
     
     # @property
     # def alphas(self)
+    
+def _start_calculations(list_reliability_calculations: list[ReliabilityCalculation]) -> None:
+    # FIXME perhaps find a better location for this function, since it is not really part of the Project class
+    def run_reliability_calculation(reliability_calculation: ReliabilityCalculation) -> None:
+        try:
+            reliability_calculation.run()
+        except Exception as e:
+            print(f"ERROR: could not run running reliability calculation {reliability_calculation.id}: {e}")
+
+    with ThreadPoolExecutor() as executor:
+        executor.map(run_reliability_calculation, list_reliability_calculations)

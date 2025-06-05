@@ -46,4 +46,4 @@ class OverschrijdingsfrequentielijnCollection(BaseCollection[Overschrijdingsfreq
 
         # Assign the correct Overschrijdingsfrequentielijn to each Uittredepunt
         for uittredepunt in uittredepunt_collection:
-            uittredepunt.overschrijdingsfrequentielijn.append(self[uittredepunt.hydra_locatie_id])
+            uittredepunt.overschrijdingsfrequentielijn = self[uittredepunt.hydra_locatie_id]

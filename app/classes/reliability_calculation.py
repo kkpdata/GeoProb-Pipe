@@ -1,8 +1,8 @@
 import inspect
-from collections.abc import Iterable
 from types import SimpleNamespace
 from typing import Any, Callable
 
+import numpy as np
 import pandas as pd
 from misc._default_values_constants import ALLOWED_DISPERSION_TYPES
 from pandas import DataFrame
@@ -31,14 +31,15 @@ from app.helper_functions.parameter_functions import (
 class ReliabilityCalculation():
     """ReliabilityCalculation class"""
 
-    def __init__(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable, df_constants: pd.DataFrame, df_settings: pd.DataFrame) -> None:
+    def __init__(self, uittredepunt: Uittredepunt, buitenwaterstand: float, ondergrond_scenario: OndergrondScenario, model: Callable, df_constants: pd.DataFrame, df_settings: pd.DataFrame) -> None:
         
-        self._id = {"uittredepunt": uittredepunt.id, "ondergrondscenario": ondergrond_scenario.id, "model": model.__name__}
-        self._uittredepunt = uittredepunt
-        self._ondergrond_scenario = ondergrond_scenario
-        self._model = model
-        self._constants = df_constants
-        self._df_settings = df_settings
+        self.id = {"uittredepunt": uittredepunt.id, "ondergrondscenario": ondergrond_scenario.id, "model": model.__name__}
+        self.uittredepunt = uittredepunt
+        self.buitenwaterstand = buitenwaterstand
+        self.ondergrond_scenario = ondergrond_scenario
+        self.model = model
+        self.constants = df_constants
+        self.df_settings = df_settings
         
         # Setup ReliabilityProject
         self.reliability_project = ReliabilityProject()
@@ -47,20 +48,31 @@ class ReliabilityCalculation():
         self._setup_settings(df_settings)
         
         # Model & Variables
-        # First the model (Z-function that will be run) must be set, since probabilistic_library defines the variables of a ReliabilityProject
+        # First the model (Z-function that will be run) must be set, since the probabilistic_library defines the variables of a ReliabilityProject
         # based on the input args of the evaluated model function. Other args (i.e. variables from the input Excel) are not allowed, so we need to know which
         # input args the current model requires so we can add the relevant variables.
-        self.reliability_project.model = self._model
+        self.reliability_project.model = self.model
 
-        list_assigned_variables = self._setup_variables(self._uittredepunt, self._ondergrond_scenario)
+        # Buitenwaterstand (from Overschrijdingsfrequentielijn)
+        # Special variable since it comes from Pydra (and not the input Excel file), so it is set separately
+        self._set_reliability_project_variable("buitenwaterstand", {"distribution": "deterministic",
+                                                                    "value": self.buitenwaterstand,
+                                                                    "lower_bound_mean": np.nan,
+                                                                    "upper_bound_mean": np.nan,
+                                                                    }
+                                               )
+        list_assigned_parameters = ["buitenwaterstand"]  # Keep track of the parameters that were assigned to the ReliabilityProject	
+
+        # Variables
+        list_assigned_parameters += self._setup_variables(self.uittredepunt, self.ondergrond_scenario)
         
         # Constants
-        list_assigned_constants = self._setup_constants()
+        list_assigned_parameters += self._setup_constants()
         
         # Make sure all variables and constants are set in the ReliabilityProject
         expected_parameters = [parameter.name for parameter in self.reliability_project.variables.get_list()]
-        if set(list_assigned_variables + list_assigned_constants) != set(expected_parameters):
-            raise ValueError(f"Not all input parameters expected by model '{self._model.__name__}' were set in the ReliabilityProject.\nExpected parameters: {expected_parameters}\nSet parameters: {list_assigned_variables+list_assigned_constants}\nMissing parameters: {set(expected_parameters) - set(list_assigned_variables + list_assigned_constants)}")
+        if set(list_assigned_parameters) != set(expected_parameters):
+            raise ValueError(f"Not all input parameters expected by model '{self.model.__name__}' were set in the ReliabilityProject.\nExpected parameters: {expected_parameters}\nSet parameters: {list_assigned_variables+list_assigned_constants}\nMissing parameters: {set(expected_parameters) - set(list_assigned_variables + list_assigned_constants)}")
         
 
     def _setup_settings(self, df_settings: pd.DataFrame) -> None:
@@ -83,21 +95,21 @@ class ReliabilityCalculation():
         # FIXME code below can be optimized (repetitive tasks)
         # Vak variables
         for var_name, var_dict in uittredepunt.vak.variables.__dict__.items():
-            if var_name in inspect.signature(self._model).parameters:
+            if var_name in inspect.signature(self.model).parameters:
                 enforce_lower_upper_bounds(var_dict, f"Vak ID {uittredepunt.vak.id}")
                 self._set_reliability_project_variable(var_name, var_dict)
                 list_assigned_variables.append(var_name)
 
         # Uittredepunt variables
         for var_name, var_dict in uittredepunt.variables.__dict__.items():
-            if var_name in inspect.signature(self._model).parameters:
+            if var_name in inspect.signature(self.model).parameters:
                 enforce_lower_upper_bounds(var_dict, f"Uittredepunt ID {uittredepunt.id}")
                 self._set_reliability_project_variable(var_name, var_dict)
                 list_assigned_variables.append(var_name)
             
         # Ondergrondscenario variables
         for var_name, var_dict in ondergrond_scenario.variables.__dict__.items():
-            if var_name in inspect.signature(self._model).parameters:
+            if var_name in inspect.signature(self.model).parameters:
                 enforce_lower_upper_bounds(var_dict, f"Ondergrondscenario ID {ondergrond_scenario.id}")
                 self._set_reliability_project_variable(var_name, var_dict)
                 list_assigned_variables.append(var_name)
@@ -108,8 +120,8 @@ class ReliabilityCalculation():
         
         list_assigned_constants = []
         
-        for var_name, row in self._constants.iterrows():
-            if var_name in inspect.signature(self._model).parameters:
+        for var_name, row in self.constants.iterrows():
+            if var_name in inspect.signature(self.model).parameters:
                 constant_dict = generate_parameter_dict_for_constant(str(var_name), df_overview_row=row)
                 enforce_lower_upper_bounds(constant_dict, "located parameter overview sheet")
                 self._set_reliability_project_variable(str(var_name), var_dict=constant_dict)
@@ -145,6 +157,7 @@ class ReliabilityCalculation():
         
             if pd.notna(var_dict["lower_bound_mean"]):
                 self.reliability_project.variables[var_name].minimum = var_dict["lower_bound_mean"]
+            if pd.notna(var_dict["upper_bound_mean"]):
                 self.reliability_project.variables[var_name].maximum = var_dict["upper_bound_mean"]
         except AttributeError as e:
             raise AttributeError(f"Trying to set variable '{var_name}', which is not an input arg of function {self._model.__name__}. The probabilistic_library package only allows variables defined as input args of the evaluated model function.\nError message: {e}")
@@ -155,40 +168,15 @@ class ReliabilityCalculation():
 
 
     @property
-    def id(self):
-        return self._id
-    
-    
-    @property
-    def uittredepunt(self) -> Uittredepunt:
-        return self._uittredepunt
-    
-    
-    @property
-    def ondergrond_scenario(self) -> OndergrondScenario:
-        return self._ondergrond_scenario
-    
-    
-    @property
-    def model(self) -> Callable:
-        return self._model
-
-
-    @property
     def settings(self) -> SimpleNamespace:
         """Return the settings of the reliability project as a SimpleNamespace object, which includes the settings DataFrame (simple overview) and the Settings object (actually used in ReliabilityProject)."""
-        return SimpleNamespace(df=self._df_settings, obj=self.reliability_project.settings)
+        return SimpleNamespace(df=self.df_settings, obj=self.reliability_project.settings)
 
 
     @property
     def variables(self) -> FrozenList:
         return self.reliability_project.variables
 
-
-    @property
-    def constants(self) -> DataFrame:
-        return self._constants
-    
     
     @property
     def design_point(self):

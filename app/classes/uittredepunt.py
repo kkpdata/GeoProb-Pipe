@@ -61,7 +61,7 @@ class Uittredepunt:
 
         self.vak = vak  # Link the corresponding Vak instance to this Uittredepunt instance
 
-        self.overschrijdingsfrequentielijn = []  # Filled in the Overschrijdingsfrequentielijn class and contains the exceedance frequency line for every Uittredepunt
+        self.overschrijdingsfrequentielijn = None  # Filled in the Overschrijdingsfrequentielijn class and contains the exceedance frequency line for every Uittredepunt
 
 
     def __repr__(self) -> str:
