@@ -27,11 +27,6 @@ def calc_Z_h(
         L_intrede = L_intrede,
         L_but = L_but,
     )
-
-    L_dijk = piping_functions.calc_L_dijk(
-        L_bit = L_bit,
-        L_but = L_but
-    )    
     
     lambda_voorland = piping_functions.calc_lambda_voorland(
         kD_wvp = kD_wvp,
@@ -43,16 +38,6 @@ def calc_Z_h(
         c_achterland = c_achterland
     )
 
-    W_voorland = piping_functions.calc_W_voorland(
-        lambda_voorland = lambda_voorland,
-        L_voorland = L_voorland
-    )
-
-    W_achteland = piping_functions.calc_W_achterland(
-        lambda_achterland = lambda_achterland,
-        L_achterland = L_achterland
-    )
-
     r_exit = piping_functions.calc_r_exit_model4a(
         kD_wvp=kD_wvp,
         D_wvp=D_wvp,
@@ -62,6 +47,7 @@ def calc_Z_h(
         L_but=L_but,
         L_bit=L_bit,
         L_achterland=L_achterland,
+        L_voorland=L_voorland
     )       
            
     phi_exit = piping_functions.calc_phi_exit(
@@ -123,11 +109,6 @@ def calc_Z_u(
         L_but = L_but,
     )
 
-    L_dijk = piping_functions.calc_L_dijk(
-        L_bit = L_bit,
-        L_but = L_but
-    )
-
     lambda_voorland = piping_functions.calc_lambda_voorland(
         kD_wvp = kD_wvp,
         c_voorland = c_voorland
@@ -136,16 +117,6 @@ def calc_Z_u(
     lambda_achterland = piping_functions.calc_lambda_achterland(
         kD_wvp = kD_wvp,
         c_achterland = c_achterland
-    )
-
-    W_voorland = piping_functions.calc_W_voorland(
-        lambda_voorland = lambda_voorland,
-        L_voorland = L_voorland
-    )
-
-    W_achteland = piping_functions.calc_W_achterland(
-        lambda_achterland = lambda_achterland,
-        L_achterland = L_achterland
     )
 
     r_exit = piping_functions.calc_r_exit_model4a(
@@ -157,6 +128,7 @@ def calc_Z_u(
         L_but=L_but,
         L_bit=L_bit,
         L_achterland=L_achterland,
+        L_voorland=L_voorland
     )       
 
     phi_exit = piping_functions.calc_phi_exit(

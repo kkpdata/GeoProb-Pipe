@@ -40,23 +40,6 @@ def calc_h_exit(
     """
     return max(polderpeil, mv_exit)
 
-
-def calc_L_dijk(
-    L_bit: float, 
-    L_but: float
-    ) -> float:
-    r"""Berekent de dijkzate in m
-
-    Args:
-        L_bit (float): afstand van uittredepunten tot binnenteenlijn [m]
-        L_but (float): afstand van uittredepunten tot buitenteenlijn [m]  
-
-    Returns:
-        float: dijkzate [m] 
-    """
-    return abs(L_but - L_bit)
-
-
 def calc_L_voorland(
     L_intrede: float, 
     L_but:float
@@ -237,9 +220,10 @@ def calc_r_exit_model4a(
      L_but: float,
      L_bit: float,
      L_achterland: float,
-) -> float:
+     L_voorland: float
+    ) -> float:
     # L_voorland uitrekenen met behulp van de functie calc_L_voorland
-    L_voorland = calc_L_voorland(L_intrede, L_but)
+    #L_voorland = calc_L_voorland(L_intrede, L_but)
     # Maak een Model4a object aan met uitgangspunt x_bit = 0.0. Dit betekent
     # dat de lokale x waarde gelijk is aan L_bit.
     # uittredepunten moeten altijd binnendijks van de binnenteenlijn liggen, 
@@ -256,83 +240,6 @@ def calc_r_exit_model4a(
     # Bereken de respons bij het uittredepunt
     r_exit, _, _ = model4a.respons(L_bit)
     return r_exit
-
-
-
-
-
-#r_but en r_bit? staan niet in de Excel
-def calc_r_bit(
-    W_voorland: float, 
-    L_dijk: float, 
-    W_achterland: float
-    )-> float:
-    r"""Calculates response in stationary models at innertoe based on given weights.
-
-    .. math::
-
-        r_{BIT} = \frac{W_{3}}{W_{1} + L_{2} + W_{3}}
-
-    Args:
-        W_voorland (float): geohydrologische weerstand van het voorland [m]
-        L_dijk (float): dijkzate [m]
-        W_achterland (float): geohydrologische weerstand van het achterland [m]
-
-    Returns:
-        float: response at inner toe [0.0-1.0]
-    """
-    return (W_achterland) / (W_voorland + L_dijk + W_achterland)
-
-
-def calc_r_but(
-    W_voorland: float, 
-    L_dijk: float, 
-    W_achterland: float
-    )-> float:
-    r"""Calculates response in stationary models at outer toe based on given weights.
-
-    .. math::
-
-        r_{BUT} = \frac{L_{2} + W_{3}}{W_{1} + L_{2} + W_{3}}
-
-    Args:
-        W_voorland (float): geohydrologische weerstand van het voorland [m]
-        L_dijk (float): dijkzate [m]
-        W_achterland (float): geohydrologische weerstand van het achterland [m]
-
-    Returns:
-        float: response at outer toe [0.0-1.0]
-    """
-    return (L_dijk + W_achterland) / (W_voorland + L_dijk + W_achterland)
-
-#TODO klopt de functie calc_r_exit?
-def calc_r_exit(
-    L_achterland: float,
-    L_bit: float,
-    lambda_achterland: float,
-    r_BIT: float
-    ):
-    
-    r""" berekening van de respons ter plaatse van het uittredepunt
-    
-    Args:
-        L_achterland (float): afstand van uittredepunt tot achterlandlengte [m]
-        L_bit (float): afstand van uittredepunt tot binnenteenlijn [m]
-        lambda_achterland (float): de spreidingslengte van het achterland [m]
-        r_BIT (float): respons bij binnenteenlijn [-]
-
-    Returns:
-        float: respons bij uittredepunt [-]
-    
-    """
-    
-    respons = (r_BIT * 
-         math.sinh((L_achterland - L_bit) / lambda_achterland) / 
-         math.sinh(L_achterland / lambda_achterland)
-        )
-    
-    return respons
-
 
 def calc_phi_exit(
     polderpeil: float, 
