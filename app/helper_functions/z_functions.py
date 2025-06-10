@@ -28,16 +28,6 @@ def calc_Z_h(
         L_but = L_but,
     )
     
-    lambda_voorland = piping_functions.calc_lambda_voorland(
-        kD_wvp = kD_wvp,
-        c_voorland = c_voorland
-    )
-    
-    lambda_achterland = piping_functions.calc_lambda_achterland(
-        kD_wvp = kD_wvp,
-        c_achterland = c_achterland
-    )
-
     r_exit = piping_functions.calc_r_exit_model4a(
         kD_wvp=kD_wvp,
         D_wvp=D_wvp,
@@ -107,16 +97,6 @@ def calc_Z_u(
     L_voorland = piping_functions.calc_L_voorland(
         L_intrede = L_intrede,
         L_but = L_but,
-    )
-
-    lambda_voorland = piping_functions.calc_lambda_voorland(
-        kD_wvp = kD_wvp,
-        c_voorland = c_voorland
-    )
-    
-    lambda_achterland = piping_functions.calc_lambda_achterland(
-        kD_wvp = kD_wvp,
-        c_achterland = c_achterland
     )
 
     r_exit = piping_functions.calc_r_exit_model4a(

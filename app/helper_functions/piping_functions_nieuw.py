@@ -242,7 +242,7 @@ def calc_r_exit_model4a(
     return r_exit
 
 def calc_phi_exit(
-    polderpeil: float, 
+    h_exit: float, 
     r_exit: float, 
     buitenwaterstand: float
     ) -> float:  # Van respons naar potentiaal
@@ -250,17 +250,17 @@ def calc_phi_exit(
 
     .. math::
 
-        \phi_exit(x) = polderpeil + r(x) (buitenwaterstand - polderpeil)
+        \phi_exit(x) = h_exit + r(x) (buitenwaterstand - polderpeil)
 
     Args:
-        polderpeil (float): polderpeil [m+NAP]
+        h_exit (float): Benedestroomse randvoorwaarde verval  [m+NAP]
         r_exit (float): Dempingsfactor bij uittredepunten [-]
         buitenwaterstand (float): buitenwaterstand [m+NAP]
 
     Returns:
         float: Theoretische stijghoogte bij uittredepunten [m+NAP]
     """
-    return polderpeil + r_exit * (buitenwaterstand - polderpeil)
+    return h_exit + r_exit * (buitenwaterstand - h_exit)
 
 def calc_dh_c(
     d70: float,
