@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from app.helper_functions import geohydro_functions, model4a, piping_functions
+from app.helper_functions import geohydro_functions, model4a, piping_functions_old
 
 # Define the input variables for the functions for Uplift, Heave and Piping
 # dist_L_geom: float
@@ -58,19 +58,19 @@ class LimitStatePipingModel4a:
 
     @property
     def Dcover(self) -> float:
-        return piping_functions.calc_Dcover(self.mv, self.top_zand)
+        return piping_functions_old.calc_Dcover(self.mv, self.top_zand)
 
     @property
     def h_exit(self) -> float:
-        return piping_functions.calc_h_exit(self.pp, self.mv)
+        return piping_functions_old.calc_h_exit(self.pp, self.mv)
 
     @property
     def dhred(self) -> float:
-        return piping_functions.calc_dH_red(self.h, self.h_exit, self.rc, self.Dcover)
+        return piping_functions_old.calc_dH_red(self.h, self.h_exit, self.rc, self.Dcover)
 
     @property
     def d_pot_c_u(self) -> float:
-        return piping_functions.calc_d_pot_c_u(
+        return piping_functions_old.calc_d_pot_c_u(
             self.Dcover, self.gamma_sat_cover, self.gamma_w
         )
 
@@ -115,29 +115,29 @@ class LimitStatePipingModel4a:
 
     @property
     def i_optredend(self) -> float:
-        return piping_functions.calc_i_optredend(
+        return piping_functions_old.calc_i_optredend(
             self.pot_exit, self.h_exit, self.Dcover
         )
 
     @property
     def dhc(self) -> float:
-        return piping_functions.calc_dH_sellmeijer(
+        return piping_functions_old.calc_dH_sellmeijer(
             self.d70, self.k, self.D, self.L_kwelweg, self.gamma_w
         )
 
     @property
     def Z_u(self) -> float:
-        return piping_functions.calc_Z_u(
+        return piping_functions_old.calc_Z_u(
             self.d_pot_c_u, self.pot_exit, self.h_exit, self.mu
         )
 
     @property
     def Z_h(self) -> float:
-        return piping_functions.calc_Z_h(self.i_c_h, self.i_optredend, self.mh)
+        return piping_functions_old.calc_Z_h(self.i_c_h, self.i_optredend, self.mh)
 
     @property
     def Z_p(self) -> float:
-        return piping_functions.calc_Z_p(self.dhc, self.dhred, self.mp)
+        return piping_functions_old.calc_Z_p(self.dhc, self.dhred, self.mp)
 
     @property
     def Z_combin(self) -> float:

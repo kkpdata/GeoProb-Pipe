@@ -1,313 +1,382 @@
-"""This module contains multiple functions as defined in :cite:t:`sh_piping_2021`"""
-
 import math
 
-############################################################################################################
-# General functions
-############################################################################################################
+from .model4a import Model4a
 
+###################################################################################
+# Functies hieronder direct volgend uit variabelen van input.xlsx
+###################################################################################
 
-def calc_Dcover(
-    bodemhoogte: float, zandhoogte: float
-) -> float:  # Functie voor berekening deklaagdikte
+def calc_d_deklaag(
+    mv_exit: float, 
+    top_zand: float
+    ) -> float:  
     r"""
 
     Berekening deklaagdikte, de minimale dikte van de deklaag is 0.1 m omdat negatieve deklaagdiktes niet mogelijk zijn.
 
     Args:
-        bodemhoogte (float): hoogte van de bodem in m+NAP
-        zandhoogte (float): hoogte van de zandlaag in m+NAP
+        mv_exit (float): Bodemhoogte ter plaatse van Uittredepunten [m+NAP]
+        top_zand (float): Geschematiseerde top van het zak in het vak [m+NAP]
 
     Returns:
-        float: deklaagdikte in m
+        float: deklaagdikte [m]
     """
-    return max(bodemhoogte - zandhoogte, 0.1)
+    return max(mv_exit - top_zand, 0.1)
 
 
-def calc_h_exit(na: float, nb: float):
+def calc_h_exit(
+    polderpeil: float, 
+    mv_exit: float
+    ) -> float:
     r"""Berekening van het niveau van het uittredepunt op basis van polderpeil of maaiveldniveau.
-    functie geeft de maximale waarde van na en nb terug.
+    functie geeft de maximale waarde van polderpeil en mv_exit terug.
 
     Args:
-        na (float): niveau 1(polderpeil) in m+NAP
-        nb (float): niveau 2 (maaiveldniveau) in m+NAP
+        polderpeil (float): polderpeil [m+NAP]
+        mv_exit (float): maaiveldniveau van uittredepunt [m+NAP]
 
     Returns:
         float: niveau bij het uittredepunt in m+NAP
     """
-    return max(na, nb)
+    return max(polderpeil, mv_exit)
 
-
-def calc_dH_red(h: float, h_exit: float, rc: float, Dcover: float) -> float:
-    r"""Berekening van het gereduceerde verval over een waterkering
-
-    Args:
-        h (float): buitenwaterstand in m+NAP
-        h_exit (float): niveau bij het uittredepunt in m+NAP
-        rc (float): reductiefactor van het verval evenredig met de dikte van de deklaag [-]
-        Dcover (float): deklaagdikte in m
-
-    Returns:
-        float: gereduceerd verval in m
-    """
-    return h - h_exit - rc * Dcover
-
-
-############################################################################################################
-# Functions for uplift and heave
-############################################################################################################
-
-
-# Berekening grenspotentiaal
-def calc_d_pot_c_u(d_cover: float, gamma_sat_cover: float, gamma_w: float) -> float:
-    r"""Berekening grenspotentiaal ten opzichte van maaiveldniveau.
+def calc_L_voorland(
+    L_intrede: float, 
+    L_but:float
+    ) -> float:
+    r"""Berekent de geometrische voorlandlengte in m
 
     Args:
-        d_cover (float): deklaagdikte in m
-        gamma_sat_cover (float): verzadigd volumegewicht van de deklaag in kN/m3
-        gamma_w (float): volumegewicht van water in kN/m3
+        L_intrede (float): afstand van uittredepunten tot binnenteenlijn [m]
+        L_but (float): afstand van uittredepunten tot buitenteenlijn [m]
 
     Returns:
-        float: grenspotentiaal in m ten opzichte van maaiveldniveau
+        float: geometrische voorlandlengte [m]
     """
-    return d_cover * (gamma_sat_cover - gamma_w) / gamma_w
+    return abs(L_intrede - L_but)
 
 
-# Berekening Z-functie opbarsten
-def calc_Z_u(d_pot_c_u: float, pot_exit: float, h_exit: float, mu: float) -> float:
-    r"""Grenstoestandfunctie voor opbarsten (uplift).
+def calc_lambda_achterland(
+    kD_wvp: float, 
+    c_achterland: float
+    ) -> float:
+    r"""Berekent de spreidingslengte van het achterland in m
+
+    .. math::
+
+        \lambda = \sqrt{kDc}
 
     Args:
-        d_pot_c_u (float): grenspotentiaal in m ten opzichte van maaiveldniveau
-        pot_exit (float): stijghoogte ter plaatse van uittredepunt in m+NAP
-        h_exit (float): niveau bij het uittredepunt in m+NAP
-        mu: modelfactor voor uplift
+        kD (float): Transmissiviteit van het watervoerende pakket [m2/dag]
+        c_achterland (float): Weerstand van de deklaag in het achterland [dag]
 
     Returns:
-        float: Z waarde van de grenstoestandfunctie voor opbarsten
+        float: spreidingslengte van het achterland [m]
     """
-    return mu * d_pot_c_u - (pot_exit - h_exit)
+    return (kD_wvp * c_achterland)**(1/2)
 
 
-# Berekening veiligheidsfactor opbarsten op basis van stijghoogte
-def calc_F_u(d_pot_c_u: float, pot_exit: float, h_exit: float) -> float:
-    r"""Berekening van de veiligheidsfactor voor opbarsten op basis van effectieve spanningen
+def calc_lambda_voorland(
+    kD_wvp: float, 
+    c_voorland: float
+    ) -> float:
+    r"""Berekent de spreidingslengte van het achterland in m
+
+    .. math::
+
+        \lambda = \sqrt{kDc}
 
     Args:
-        d_pot_c_u (float): grenspotentiaal in m ten opzichte van maaiveldniveau
-        pot_exit (float): stijghoogte ter plaatse van uittredepunt in m+NAP
-        h_exit (float): niveau bij het uittredepunt in m+NAP
+        kD (float): Transmissiviteit van het watervoerende pakket [m2/dag]
+        c_voorland (float): Weerstand van de deklaag in het voorland [dag]
 
     Returns:
-        float: veiligheidsfactor voor opbarsten op basis stijghoogte
+        float: spreidingslengte van het voorland [m]
     """
-    if pot_exit <= h_exit:
-        Fu = 8.00
-    else:
-        Fu = d_pot_c_u / (pot_exit - h_exit)
-    return Fu
+    return (kD_wvp * c_voorland)**(1/2)
 
+###################################################################################
+# Functies hieronder bevatten uitkomsten uit bovenliggnde functies als input
+###################################################################################
 
-# Berekening veiligheidsfactor opbarsten op basis van spanningen
-def calc_F_u_macro(
-    d_cover: float,
-    gamma_sat_cover: float,
-    gamma_w: float,
-    pot_exit: float,
-    h_exit: float,
-) -> float:
-    r"""Berekening van de veiligheidsfactor voor opbarsten op basis van spanningen ter plaatse van scheidingsvlak tussen deklaag en zandlaag. Deze methode wordt toegepast bij macrostabiliteit.
+def calc_dh_red(
+    buitenwaterstand: float, 
+    h_exit: float, 
+    r_c_deklaag: float, 
+    d_deklaag: float
+    ) -> float:
+    r"""Berekening van het gereduceerde verval over de waterkering
 
     Args:
-        d_cover (float): deklaagdikte in m
-        gamma_sat_cover (float): verzadigd volumegewicht van de deklaag in kN/m3
-        gamma_w (float): volumegewicht van water in kN/m3
-        pot_exit (float): stijghoogte ter plaatse van uittredepunt in m+NAP
-        h_exit (float): niveau bij het uittredepunt in m+NAP
+        buitenwaterstand (float): buitenwaterstand [m+NAP]
+        h_exit (float): Benedestroomse randvoorwaarde verval [m+NAP]
+        r_c_deklaag (float): Reductieconstante van het verval over de deklaag [-]
+        d_deklaag (float): deklaagdikte in m
 
     Returns:
-        float: veiligheidsfactor voor opbarsten op basis van spanningen
+        float: gereduceerd verval [m]
     """
-    if pot_exit <= h_exit:
-        Fu = 8.00
-    else:
-        # opwaartse waterdruk in WVP
-        sigma_w = (pot_exit - (h_exit - d_cover)) * gamma_w
-        # neerwaartse druk grond
-        sigma_g = d_cover * gamma_sat_cover
-        # Fu_macro is verhouding neerwaarts / opwaarts
-        Fu = sigma_g / sigma_w
-    return Fu
+    return buitenwaterstand - h_exit - r_c_deklaag * d_deklaag
 
 
-def calc_i_optredend(
-    pot_exit: float, h_exit: float, d_cover: float
-) -> float:  # Berekening optreden heave gradient
+def calc_W_achterland(
+    lambda_achterland: float, 
+    L_achterland: float
+    ) -> float:
+    r"""Berekent de geohydrologische weerstand van het achterland in m
+
+    .. math::
+
+        W = \lambda tanh(\frac{L}{\lambda})
+
+    Args:
+        lambda_achterland (float): de spreidingslengte van het achterland [m]
+        L_achterland (float): afstand van uittredepunten tot achterlandlengte [m]
+
+    Returns:
+        float: geohydrologische weerstand van het achterland [m]
+    """
+    return lambda_achterland * math.tanh(L_achterland / lambda_achterland)
+
+
+def calc_W_voorland(
+    lambda_voorland: float, 
+    L_voorland: float
+    ) -> float:
+    r"""Berekent de geohydrologische weerstand van het voorland in m
+
+    .. math::
+
+        W = \lambda tanh(\frac{L}{\lambda})
+
+    Args:
+        lambda_voorland (float): de spreidingslengte van het voorland [m]
+        L_voorland (float): Geometrische voorlandlengte [m]
+
+    Returns:
+        float: geohydrologische weerstand van het voorland [m]
+    """
+    return lambda_voorland * math.tanh(L_voorland / lambda_voorland)
+
+
+def calc_L_kwelweg(
+    L_but: float,
+    W_voorland: float
+    ) -> float:
+    r"""Berekent de kwelweglengte in m
+    Args:
+        L_but (float): afstand van uittredepunten tot buitenteenlijn [m]
+        W_voorland (float): geohydrologische weerstand van het voorland [m]
+    
+    Returns:
+        float: kwelweglengte [m]
+    """
+
+    return W_voorland + L_but
+
+
+def calc_dphi_c_u(
+    d_deklaag: float, 
+    gamma_sat_deklaag: float, 
+    gamma_water: float
+    ) -> float:
+    r"""Berekening grenspotentiaal ten opzichte van maaiveldniveau in m
+
+    Args:
+        d_deklaag (float): Dikte van de cohesieve deklaag [m]
+        gamma_sat_deklaag (float): verzadigd volumegewicht van de deklaag [kN/m3]
+        gamma_water (float): volumegewicht van water [kN/m3]
+
+    Returns:
+        float: grenspotentiaal ten opzichte van maaiveldniveau [m]
+    """
+    return d_deklaag * (gamma_sat_deklaag - gamma_water) / gamma_water
+
+
+def calc_i_exit(
+    phi_exit: float, 
+    h_exit: float, 
+    d_deklaag: float
+    ) -> float:  
     r"""Berekening van de optredende heave gradient. De heave gradient is het stijghoogteverschil over de deklaag gedeeld door de deklaagdikte.
 
     Args:
-        pot_exit (float): stijghoogte in het watervoerende zandpakket ter plaatse van uittredepunt in m+NAP
-        h_exit (float): niveau bij het uittredepunt in m+NAP
-        d_cover (float): deklaagdikte in m
+        phi_exit (float): stijghoogte in het watervoerende zandpakket ter plaatse van uittredepunt in m+NAP
+        h_exit (float): niveau bij het uittredepunt [m+NAP]
+        d_deklaag (float): deklaagdikte [m]
 
     Returns:
         float: heave gradient in [-]
     """
-    return (pot_exit - h_exit) / d_cover
+    return (phi_exit - h_exit) / d_deklaag
 
+# functie om r_exit te berekenen met behulp van model4a module
+def calc_r_exit_model4a(
+     kD_wvp: float,
+     D_wvp: float,
+     c_voorland: float,
+     c_achterland: float,
+     L_intrede: float,
+     L_but: float,
+     L_bit: float,
+     L_achterland: float,
+     L_voorland: float
+    ) -> float:
+    # L_voorland uitrekenen met behulp van de functie calc_L_voorland
+    #L_voorland = calc_L_voorland(L_intrede, L_but)
+    # Maak een Model4a object aan met uitgangspunt x_bit = 0.0. Dit betekent
+    # dat de lokale x waarde gelijk is aan L_bit.
+    # uittredepunten moeten altijd binnendijks van de binnenteenlijn liggen, 
+    # # dus x_but moet negatief zijn.
+    model4a = Model4a(
+        kD=kD_wvp,
+        D=D_wvp,
+        c1=c_voorland,
+        c3=c_achterland,
+        L1=L_voorland,
+        L3=L_achterland,
+        x_but=-1.0*abs(L_but-L_bit),  # x_but moet negatief zijn, x_bit is 0.0
+        x_bit=0.0,)  # x_bit is 0.0
+    # Bereken de respons bij het uittredepunt
+    r_exit, _, _ = model4a.respons(L_bit)
+    return r_exit
 
-def calc_Z_h(
-    i_c_h: float, i_optredend: float, mh: float
-) -> float:  # Berekening Z-functie heave
-    r"""Berekening van de grenstoesstandfunctie voor heave
+def calc_phi_exit(
+    polderpeil: float, 
+    r_exit: float, 
+    buitenwaterstand: float
+    ) -> float:  # Van respons naar potentiaal
+    r"""Berekent de theoretische stijghoogte bij uittredepunten in m+NAP
+
+    .. math::
+
+        \phi_exit(x) = polderpeil + r(x) (buitenwaterstand - polderpeil)
 
     Args:
-        i_c_h (float): kritische heave gradient in [-]
-        i_optredend (float): optredende heave gradient in [-]
+        polderpeil (float): Benedestroomse randvoorwaarde verval  [m+NAP]
+        r_exit (float): Dempingsfactor bij uittredepunten [-]
+        buitenwaterstand (float): buitenwaterstand [m+NAP]
 
     Returns:
-        float: Z waarde van de grenstoestandfunctie voor heave
+        float: Theoretische stijghoogte bij uittredepunten [m+NAP]
     """
-    return (mh * i_c_h) - i_optredend
+    return polderpeil + r_exit * (buitenwaterstand - polderpeil)
 
-
-def calc_F_h(
-    i_c_h: float, i_optredend: float
-) -> float:  # Berekening veiligheidsfactor heave
-    r"""
-
-    Berekening van de veiligheidsfactor F_h voor heave. Als de optredende heave gradient negatief is, wordt de
-    veiligheidsfactor op 5.00 gezet.
-
-    Args:
-        i_c_h (float): kritische heave gradient in [-]
-        i_optredend (float): optredende heave gradient in [-]
-
-    Returns:
-        float: veiligheidsfactor voor heave
-    """
-    if i_optredend <= 0:
-        F_h = 8.00
-    else:
-        F_h = i_c_h / i_optredend
-    return F_h
-
-
-############################################################################################################
-# functions piping
-############################################################################################################
-
-
-# functions from PipingCalculationUtilities
-def calc_dH_sellmeijer_inc_calc_settings(
+def calc_dh_c(
     d70: float,
-    k_z: float,
-    D: float,
-    L: float,
-    gamma_w: float,
-    visc: float,
+    D_wvp: float,
+    kD_wvp: float,
+    L_kwelweg: float,
+    gamma_water: float,
+    g: float,
+    v: float,
     theta: float,
-    coefficient_white: float,
-    d70_ref: float,
-    gamma_p: float,
-) -> float:  # Functie voor berekening kritiek verval Sellmeijer
-    r"""Berekening kritiek verval methode Sellmeijer inclusief berekeningsinstellingen
+    eta: float,
+    d70_m: float,
+    gamma_korrel: float,
+    ) -> float:  
+    r"""Berekening kritiek verval methode Sellmeijer inclusief berekeningsinstellingen 
 
     Args:
-        d70 (float): 70% percentiel van de korrelgrootteverdeling in m
-        k_z (float): doorlatendheid zandlaag in m/d
-        D (float): dikte van de zandlaag in m
-        L (float): kwelweglengte in m
-        gamma_w (float): volumegewicht van water in kN/m3
-        visc (float): kinematische viscositeit in m2/s
-        theta (float): rolweerstandshoek in graden (37.0)
-        coefficient_white (float): coefficiënt van White (0.25)
-        d70_ref (float): gemiddelde d70 in kleine schaalproeven (2.08E-4 m)
-        gamma_p (float): (schijnbaar) volumegewicht van de zandkorrels onder water in kN/m3 (26.0)
+        d70 (float): 70% percentiel van de korrelgrootteverdeling [m]
+        D_wvp (float): dikte van het watervoerende pakket [m]
+        kD_wvp (float): transmissiviteit van het watervoerende pakket [m2/dag]
+        L_kwelweg (float): kwelweglengte in m
+        gamma_water (float): volumegewicht van water [kN/m3]
+        g (float): Zwaartekrachtversnelling [m/s2]
+        v (float): kinematische viscositeit [m2/s]
+        theta (float): rolweerstandshoek [graden] 
+        eta (float): coefficiënt van White [-]
+        d70_m (float): gemiddelde d70 in kleine schaalproeven [m]
+        gamma_korrel (float): (schijnbaar) volumegewicht van de zandkorrels onder water [kN/m3]
 
     Returns:
-        float: kritiek verval in m
+        float: kritiek verval [m]
     """
+    # Berekenen van de doorlatendheid
+    k_wvp_calc = kD_wvp / D_wvp  # Omrekenen transmissiviteit naar doorlatendheid
+
     # Omrekenen doorlatendheid van m/d naar m/s
-    k = k_z / (24 * 3600)
+    k_wvp_calc_sec = k_wvp_calc / (24 * 3600)
     # Intrinsieke doorlatendheid
-    k_intr = (visc / 9.81) * k
+    k_intr = (v / g) * k_wvp_calc_sec
     # Berekening Fres
     Fres = (
-        coefficient_white
-        * ((gamma_p - gamma_w) / gamma_w)
+        eta
+        * ((gamma_korrel - gamma_water) / gamma_water)
         * math.tan(theta * math.pi / 180.00)
     )
-    # Fres = 0.25 * ((26.0 - gamma_w) / gamma_w) * math.tan(37.0 * math.pi / 180.00)
     # Berekening Fscale
-    Fscale = pow(d70 / d70_ref, 0.4) * d70_ref / pow(k_intr * L, (1.0 / 3.0))
+    Fscale = pow(d70 / d70_m, 0.4) * d70_m / pow(k_intr * L_kwelweg, (1.0 / 3.0))
     # Berekening Fgeometry
-    if D == L:
-        D = D - 0.001
+    if D_wvp == L_kwelweg:
+        D_wvp = D_wvp - 0.001
     else:
         pass
-    totdemacht = 0.04 + (0.28 / (pow(D / L, 2.8) - 1.0))
-    Fgeom = 0.91 * pow(D / L, totdemacht)
-    return Fres * Fscale * Fgeom * L
+    totdemacht = 0.04 + (0.28 / (pow(D_wvp / L_kwelweg, 2.8) - 1.0))
+    Fgeom = 0.91 * pow(D_wvp / L_kwelweg, totdemacht)
+    return Fres * Fscale * Fgeom * L_kwelweg
 
 
-# deze functie is gevalideerd aan de resultaten in riskeer. Dit is de functie van de LBO1 piping berekening.
-# het verschil met de andere functie is de dat de rolweerstandshoek en sleepkrachtfactor als input worden gegeven.
-def calc_dH_sellmeijer(
-    d70: float, k_z: float, D: float, L: float, gamma_w: float
-) -> float:  # Functie voor berekening kritiek verval Sellmeijer
-    r"""Berekening kritiek verval methode Sellmeijer
+###################################################################################
+# Z-functies
+###################################################################################
+
+def calc_z_h(
+    modelfactor_h: float,
+    i_c_h: float,
+    i_exit: float
+    ) -> float:
+    r"""Grenstoestandfunctie voor het mechanisme heave
+    
+    Args:
+        modelfactor_h (float): modelfactor voor heave
+        i_c_h (float): kritiek verval [m]
+        i_exit (float): gereduceerd verval [m]
+    
+    Returns:
+        float: Z waarde van de grenstoestandfunctie voor heave 
+    """
+
+    return (modelfactor_h * i_c_h) - i_exit
+
+
+def calc_z_u(
+    modelfactor_u: float,
+    dphi_c_u: float,
+    phi_exit: float,
+    h_exit: float
+    ) -> float:
+    r"""Grenstoestandfunctie voor het mechanisme opbarsten (uplift)
 
     Args:
-        d70 (float): 70% percentiel van de korrelgrootteverdeling in m
-        k_z (float): doorlatendheid zandlaag in m/d
-        D (float): dikte van de zandlaag in m
-        L (float): kwelweglengte in m
-        gamma_w (float): volumegewicht van water in kN/m3
+        modelfactor_u (float): modelfactor voor uplift
+        dphi_c_u (float): kritiek verval [m]
+        phi_exit (float): stijghoogte in het watervoerende zandpakket ter plaatse van uittredepunt [m+NAP]
+        h_exit (float): niveau bij het uittredepunt [m+NAP]
 
     Returns:
-        float: kritiek verval in m
+        float: Z waarde van de grenstoestandfunctie voor uplift 
     """
-    # Omrekenen doorlatendheid van m/d naar m/s
-    k = k_z / (24 * 3600)
-    # Intrinsieke doorlatendheid
-    k_intr = (0.00000133 / 9.81) * k
-    # Berekening Fres
-    Fres = 0.25 * ((26.0 - gamma_w) / gamma_w) * math.tan(37.0 * math.pi / 180.00)
-    # Berekening Fscale
-    Fscale = pow(d70 / 2.08e-4, 0.4) * 2.08e-4 / pow(k_intr * L, (1.0 / 3.0))
-    # Berekening Fgeometry
-    if D == L:
-        D = D - 0.001
-    else:
-        pass
-    totdemacht = 0.04 + (0.28 / (pow(D / L, 2.8) - 1.0))
-    Fgeom = 0.91 * pow(D / L, totdemacht)
-    return Fres * Fscale * Fgeom * L
 
+    return modelfactor_u * dphi_c_u - (phi_exit - h_exit)
 
-def calc_Z_p(dhc: float, dhred: float, mp: float) -> float:
+def calc_z_p(
+    modelfactor_p: float,
+    dh_c: float,
+    dh_red: float
+    ) -> float:
     r"""Grenstoestandfunctie voor het mechanisme piping
 
     Args:
-        mp (float): modelfactor voor piping
-        dhc (float): kritiek verval in m
-        dhred (float): gereduceerd verval in m
+        modelfactor_p (float): modelfactor voor piping
+        dh_c (float): kritiek verval [m]
+        dh_red (float): gereduceerd verval [m]
 
     Returns:
         float: Z waarde van de grenstoestandfunctie voor piping
     """
-    return (mp * dhc) - dhred
+
+    return (modelfactor_p * dh_c) - dh_red
 
 
-def calc_F_p(dhc: float, dhred: float) -> float:
-    r"""Berekening van de veiligheidsfactor F_p voor piping. Als het gereduceerde verval kleiner of gelijk aan 0.01, wordt gerekend met een gereduceerd verval van 0.01._
-
-    Args:
-        dhc (float): kritiek verval in m
-        dhred (float): gereduceerd verval in m
-
-    Returns:
-        float: veiligheidsfactor voor piping
-    """
-    return dhc / max(dhred, 0.01)

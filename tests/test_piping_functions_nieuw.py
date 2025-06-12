@@ -2,7 +2,7 @@
 
 import pytest
 
-from app.helper_functions import piping_functions_nieuw
+from app.helper_functions import piping_functions
 
 ## testcase model 4a
 # k = 40 #m/d
@@ -31,7 +31,7 @@ from app.helper_functions import piping_functions_nieuw
 # D70 = 2.7E-4 m
 
 def test_calc_r_exit_model4a():
-    assert piping_functions_nieuw.calc_r_exit_model4a(40.0, 50.0, 10.0, 50.0, 
+    assert piping_functions.calc_r_exit_model4a(40.0, 50.0, 10.0, 50.0, 
                                                       (150.0+45.0+10.),(45.0+10.0), 
                                                       10.0, 3000.0) == pytest.approx(0.648606379956042, 0.001)
 
