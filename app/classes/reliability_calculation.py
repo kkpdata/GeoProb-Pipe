@@ -12,6 +12,7 @@ from probabilistic_library import (
     CombineType,
     CompareType,
     DistributionType,
+    FragilityValue,
     ReliabilityMethod,
     ReliabilityProject,
     StandardNormal,
@@ -31,11 +32,10 @@ from app.helper_functions.parameter_functions import (
 class ReliabilityCalculation():
     """ReliabilityCalculation class"""
 
-    def __init__(self, uittredepunt: Uittredepunt, buitenwaterstand: float, ondergrond_scenario: OndergrondScenario, model: Callable, df_constants: pd.DataFrame, df_settings: pd.DataFrame) -> None:
+    def __init__(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable, df_constants: pd.DataFrame, df_settings: pd.DataFrame) -> None:
         
         self.id = {"uittredepunt": uittredepunt.id, "ondergrondscenario": ondergrond_scenario.id, "model": model.__name__}
         self.uittredepunt = uittredepunt
-        self.buitenwaterstand = buitenwaterstand
         self.ondergrond_scenario = ondergrond_scenario
         self.model = model
         self.constants = df_constants
@@ -54,13 +54,8 @@ class ReliabilityCalculation():
         self.reliability_project.model = self.model
 
         # Buitenwaterstand (from Overschrijdingsfrequentielijn)
-        # Special variable since it comes from Pydra (and not the input Excel file), so it is set separately
-        self._set_reliability_project_variable("buitenwaterstand", {"distribution": "deterministic",
-                                                                    "value": self.buitenwaterstand,
-                                                                    "lower_bound_mean": np.nan,
-                                                                    "upper_bound_mean": np.nan,
-                                                                    }
-                                               )
+        # Special variable since it comes from Pydra (and not the input Excel file), so it is set separately        
+        self._set_buitenwaterstand_overschrijdingsfrequentielijn(self.uittredepunt)
         list_assigned_parameters = ["buitenwaterstand"]  # Keep track of the parameters that were assigned to the ReliabilityProject	
 
         # Variables
@@ -130,15 +125,26 @@ class ReliabilityCalculation():
                 
         return list_assigned_constants
 
-
-    def run(self):
-        # Run the reliability project
-        self.reliability_project.run()
     
+    def _set_buitenwaterstand_overschrijdingsfrequentielijn(self, uittredepunt: Uittredepunt) -> None:
+        # Add the overschrijdingsfrequentielijn as stochastic variable to the ReliabilityProject
+        
+        waterlevel = uittredepunt.overschrijdingsfrequentielijn.overschrijdingsfrequentielijn.level
+        exceedance_frequency = uittredepunt.overschrijdingsfrequentielijn.overschrijdingsfrequentielijn.exceedance_frequency
+        
+        self.reliability_project.variables["buitenwaterstand"].distribution = "cdf_curve"
+
+        for i in range(0, len(waterlevel)):
+            fc = FragilityValue()
+            fc.x = waterlevel[i]
+            fc.probability_of_failure = exceedance_frequency[i]
+            self.reliability_project.variables["buitenwaterstand"].fragility_values.append(fc)
+
+        
 
     def _set_reliability_project_variable(self, var_name: str, var_dict: dict[str, Any]) -> None:
         # Create the Stochastic variable in the ReliabilityProject
-        # Note: all supported variable attributes can be found in probabilistic_library.statistic.Stochast.__dir__
+        # Note: all supported variable attributes can be found in probabilistic_library.statistic.Stochast().__dir__()
 
         try:
             self.reliability_project.variables[var_name].distribution = var_dict["distribution"]
@@ -163,8 +169,9 @@ class ReliabilityCalculation():
             raise AttributeError(f"Trying to set variable '{var_name}', which is not an input arg of function {self._model.__name__}. The probabilistic_library package only allows variables defined as input args of the evaluated model function.\nError message: {e}")
     
     
-    def plot_fragility_curve(self):
-        raise NotImplementedError()
+    def run(self):
+        # Run the reliability project
+        self.reliability_project.run()
 
 
     @property

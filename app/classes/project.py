@@ -63,20 +63,18 @@ class Project():
             list_calculations = []
             for vak in self.vak_collection.values():
                 for uittredepunt in vak.uittredepunten:
-                    for buitenwaterstand in uittredepunt.overschrijdingsfrequentielijn.overschrijdingsfrequentielijn.level:
-                        for ondergrond_scenario in vak.ondergrond_scenarios:
-                            list_calculations.append(
-                                ReliabilityCalculation(
-                                    uittredepunt,
-                                    buitenwaterstand,
-                                    ondergrond_scenario,
-                                    model,
-                                    self.df_overview_parameters[
-                                        self.df_overview_parameters["parameter_type"] == "constant"
-                                    ],
-                                    self.df_settings
-                                )
+                    for ondergrond_scenario in vak.ondergrond_scenarios:
+                        list_calculations.append(
+                            ReliabilityCalculation(
+                                uittredepunt,
+                                ondergrond_scenario,
+                                model,
+                                self.df_overview_parameters[
+                                    self.df_overview_parameters["parameter_type"] == "constant"
+                                ],
+                                self.df_settings
                             )
+                        )
             _start_calculations(list_calculations)
                         
             return list_calculations

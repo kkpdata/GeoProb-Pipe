@@ -2,8 +2,6 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-import pydra_core as pydra
-
 sys.path.append(str(Path(__file__).parents[1]))  # Add repo to sys.path to make sure all imports are correctly found
 
 from app.classes.project import Project
@@ -15,17 +13,14 @@ from app.classes.project import Project
 # Define path to workspace (either absolute or relative)
 PATH_WORKSPACE: str | Path = r"..\\workspaces\example_new_calculations"
 
-
-
-
 #FIXME implement feature to re-use existing results
 # # Whether existing calculation results should be used
 # # If True, the .tkx files that are found the "PATH_WORKSPACE/output" folder are used
 # USE_EXISTING_TKX_RESULTS: bool = False
 
 # Whether to clean up the working directory in the workspace (True) or not (False).
+# FIXME not implemented, perhaps not necessary
 CLEANUP_WORK_DIR: bool = True
-
 
 
 # ====================================
@@ -55,34 +50,17 @@ p
     time_start = datetime.now()
     print(f"Start time: {time_start.strftime('%d %b %Y %H:%M:%S')}")
 
-    # Calculate fragility curve and integrate it with the waterlevel statistics
+    # Setup project and automatically start calculations
     project = Project(
         PATH_WORKSPACE,
     )
 
-    # # Overview of fragility curve results
-    # results = fc.toolkit.results.overview
+    # Overview of results
+    results = project.results
 
-    # # Some fragility curve input and results can also be accessed from the FragilityCurve object,
-    # # which are references to the corresponding attributes in fc.toolkit.results
-    # betas = fc.betas
-    # influence_factors = fc.influence_factors
-    # variables = fc.variables
-    # waterlevels = fc.waterlevels
-
-    # # Design point properties are accessed like this
-    # design_point_beta = fc.design_point.beta
-    # design_point_influence_factors = fc.design_point.influence_factors
-    # design_point_waterlevel = fc.design_point.waterlevel
-
-    # # Plot the fragility curve, waterlevel statistics and influence factors found in the PTK calculations
-    # fc.plot_fragility_curve()
-    # fc.plot_waterlevel_statistics()
-    # fc.plot_influence_factors()
-
-    # # Save dataframe to csv
+    # Save dataframe to csv
     # # FIXME improve output data
-    # fc.toolkit.results.overview.to_excel(fc.workspace.output.folderpath / "fragility_curve_data.xlsx")
+    results.to_excel(project.workspace.output.folderpath / "fragility_curve_data.xlsx")
 
     # # Print info
     # print(f"\nResults are saved to: {fc.workspace.output.folderpath}")
