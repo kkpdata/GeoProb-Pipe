@@ -59,5 +59,15 @@ windows:
 sphinx-build -M html docs\ docs\_build
 ```
 
+# Quickstart
+Tool wordt gestart door `main_piping.py` te runnen.
+
+Benodigdheden:
+- Een projectmap in "workspaces" (bijv. .../workspaces/my_project) met daarin een submap "input" (.../workspaces/my_project/input)
+- De input-map bevat:
+  - input.xlsx (gebruik hiervoor het meegeleverde template input.xlsx)
+  - Unzipped HRD .sqlite (hydraulische database). Deze mag zowel in de input-map als in een submap staan.
+
+
 # Disclaimer
 Het gebruik van deze tool gebeurt volledig op eigen risico. Door deze tool te gebruiken, accepteert de gebruiker volledige verantwoordelijkheid. De ontwikkelaars kunnen geen garanties geven over de werking, nauwkeurigheid of volledigheid van de tool, en kunnen op geen enkele manier verantwoordelijk worden gehouden voor eventuele fouten, schade, of verliezen die voortvloeien uit het gebruik van deze software.
