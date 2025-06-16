@@ -1,4 +1,5 @@
 import inspect
+from abc import ABC, abstractmethod
 from types import SimpleNamespace
 from typing import Any, Callable
 
@@ -6,18 +7,7 @@ import numpy as np
 import pandas as pd
 from misc._default_values_constants import ALLOWED_DISPERSION_TYPES
 from pandas import DataFrame
-from probabilistic_library import (
-    CombineProject,
-    CombinerMethod,
-    CombineType,
-    CompareType,
-    DistributionType,
-    FragilityValue,
-    ReliabilityMethod,
-    ReliabilityProject,
-    StandardNormal,
-)
-from probabilistic_library.project import ZModel
+from probabilistic_library import CombineProject, FragilityValue, ReliabilityProject
 from probabilistic_library.reliability import Settings
 from probabilistic_library.utils import FrozenList
 
@@ -29,8 +19,46 @@ from app.helper_functions.parameter_functions import (
 )
 
 
-class ReliabilityCalculation():
-    """ReliabilityCalculation class"""
+class ResultsTemplate(ABC):
+    @property
+    def settings(self) -> SimpleNamespace:
+        """Return the settings of the reliability project as a SimpleNamespace object, which includes the settings DataFrame (simple overview) and the Settings object (actually used in ReliabilityProject)."""
+        return SimpleNamespace(df=self.df_settings, obj=self.reliability_project.settings)
+
+
+    @property
+    def variables(self) -> FrozenList:
+        return self.reliability_project.variables
+
+    
+    @property
+    def design_point(self):
+        return self.reliability_project.design_point
+    
+    
+    @property
+    def beta(self):
+        return self.design_point.reliability_index
+
+
+    @property
+    def alphas(self):
+        return {a.identifier: a.alpha for a in self.design_point.alphas.get_list()}
+
+
+    @property
+    def influence_factors(self):
+        return {a.identifier: a.influence_factor for a in self.design_point.alphas.get_list()}
+
+
+    @property
+    def is_converged(self):
+        return self.design_point.is_converged
+
+
+
+class ReliabilityCalculation(ResultsTemplate):
+    """ReliabilityCalculation class for calculations of either the uplift, heave or piping model for each unique uittredepunt-ondergrondscenario combination."""
 
     def __init__(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable, df_constants: pd.DataFrame, df_settings: pd.DataFrame) -> None:
         
@@ -174,45 +202,12 @@ class ReliabilityCalculation():
         self.reliability_project.run()
 
 
-    @property
-    def settings(self) -> SimpleNamespace:
-        """Return the settings of the reliability project as a SimpleNamespace object, which includes the settings DataFrame (simple overview) and the Settings object (actually used in ReliabilityProject)."""
-        return SimpleNamespace(df=self.df_settings, obj=self.reliability_project.settings)
+class CombinedReliabilityCalculation(ResultsTemplate):
+    """CombinedReliabilityCalculation class for combined calculations of the uplift/heave/piping models for each unique uittredepunt-ondergrondscenario combination."""
 
-
-    @property
-    def variables(self) -> FrozenList:
-        return self.reliability_project.variables
-
-    
-    @property
-    def design_point(self):
-        return self.reliability_project.design_point
-    
-    
-    @property
-    def beta(self):
-        return self.design_point.reliability_index
-
-
-    @property
-    def alphas(self):
-        return {a.identifier: a.alpha for a in self.design_point.alphas.get_list()}
-
-
-    @property
-    def influence_factors(self):
-        return {a.identifier: a.influence_factor for a in self.design_point.alphas.get_list()}
-
-
-    @property
-    def is_converged(self):
-        return self.design_point.is_converged
-
-
-class ReliabilityCalculationSet:
-    """ReliabilityCalculationSet class containing multiple ReliabilityCalculation instances"""
-
-    def __init__(self, list_scenario_calculations: list[ReliabilityCalculation]) -> None:
-        self.calculations = list_scenario_calculations
+    def __init__(self, reliability_project: CombineProject, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario) -> None:
+        self.id = {"uittredepunt": uittredepunt.id, "ondergrondscenario": ondergrond_scenario.id}
+        self.uittredepunt = uittredepunt
+        self.ondergrond_scenario = ondergrond_scenario
+        self.reliability_project = reliability_project
 

@@ -32,20 +32,11 @@ def start_tool(
     PATH_WORKSPACE: str | Path,
 ) -> Project:
     """Start PTK tool
-p
     Args:
         PATH_WORKSPACE: path to the folder that contains all required input and where all output and working files will be stored
-        USE_EXISTING_TKX_RESULTS (bool): whether to use precalculated .tkx files (True) or to start new calculations (False)
-        CLEANUP_WORK_DIR (bool): whether to cleanup temporary (calculation) files in the working directory
-        COMBINE_FRAGILITY_CURVES (bool): #FIXME not implemented yet, boolean to toggle combining multiple fragility curves into one.
-        FRAGILITY_CURVE_NON_FAILURE_ADJUSTMENT (bool): #FIXME not implemented yet, boolean whether to modify a fragility curve with a non-failure threshold
-        NON_FAILURE_THRESHOLD (dict): #FIXME not implemented yet, defines non-failure threshold when FRAGILITY_CURVE_NON_FAILURE_ADJUSTMENT==True
-        WATERLEVEL_RANGE (list[float]): range of waterlevels for which we want a integrated fragility curve
-        MU (float): mode (modus) of the load (water level) uncertainty distribution (Gumbel fit)
-        SCALE (float): scale parameter of the Gumbel fit of the load (water level) uncertainty distribution
 
     Returns:
-        FragilityCurve: fragility curve instance
+        Project: project instance
     """
     time_start = datetime.now()
     print(f"Start time: {time_start.strftime('%d %b %Y %H:%M:%S')}")
@@ -55,12 +46,14 @@ p
         PATH_WORKSPACE,
     )
 
-    # Overview of results
-    results = project.results
+    # Print hints how to interacts with the results
+    print("\nHINTS:\n \t- Show the different result DataFrames using `project.results.unique_models` or `project.results.combined`")
+    results_unique_models = project.results.unique_models
+    results_combined = project.results.combined
 
-    # Save dataframe to csv
+    # Save DataFrame of combined results to csv
     # # FIXME improve output data
-    results.to_excel(project.workspace.output.folderpath / "fragility_curve_data.xlsx")
+    results_combined.to_excel(project.workspace.output.folderpath / "fragility_curve_data_combined.xlsx")
 
     # # Print info
     # print(f"\nResults are saved to: {fc.workspace.output.folderpath}")
@@ -76,12 +69,6 @@ p
 
 
 if __name__ == "__main__":
-
-    # FIXME variables in preparation of next update, currently set to None
-    USE_EXISTING_TKX_RESULTS = None
-    COMBINE_FRAGILITY_CURVES = None
-    FRAGILITY_CURVE_NON_FAILURE_ADJUSTMENT = None
-    NON_FAILURE_THRESHOLD = None
 
     # Run tool
     project = start_tool(
