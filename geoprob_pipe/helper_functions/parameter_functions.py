@@ -4,7 +4,7 @@ from typing import Optional
 
 import pandas as pd
 
-from app.misc._default_values_constants import ALLOWED_SUFFIXES
+from geoprob_pipe.globals import ALLOWED_SUFFIXES
 
 
 def strip_suffix_from_parameter_name(var_name: str, list_suffixes: Optional[list[str]] = None) -> str:

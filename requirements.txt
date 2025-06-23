@@ -1,1 +1,6 @@
 dotenv
+pandas
+pydra-core
+gitpython
+openpyxl
+colorlog

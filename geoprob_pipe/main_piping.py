@@ -1,3 +1,58 @@
+from datetime import datetime
+from geoprob_pipe import Project
+from geoprob_pipe.helper_functions.utils import repository_root_path
+from geoprob_pipe.utils.loggers import initiate_app_logger
+from dotenv import load_dotenv
+import os
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)  # Preferably address FutureWarnings: part of pydra-core
+
+
+# Import environment variables
+repo_root = repository_root_path()
+load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
+
+# Initiate logger
+initiate_app_logger(repo_root=repo_root)
+
+# Initiate GeoProb-Pipe project object
+project = Project(os.getenv("PATH_WORKSPACE"))
+
+##
+
+time_start = datetime.now()
+print(f"Start time: {time_start.strftime('%d %b %Y %H:%M:%S')}")
+
+# Setup project and automatically start calculations
+project = Project(
+    PATH_WORKSPACE,
+)
+
+# Print hints how to interacts with the results
+print \
+    ("\nHINTS:\n \t- Show the different result DataFrames using `project.results.unique_models` or `project.results.combined`")
+results_unique_models = project.results.unique_models
+results_combined = project.results.combined
+
+# Save DataFrame of combined results to csv
+# # FIXME improve output data
+results_combined.to_excel(project.workspace.output.folderpath / "fragility_curve_data_combined.xlsx")
+
+# # Print info
+# print(f"\nResults are saved to: {fc.workspace.output.folderpath}")
+
+time_end = datetime.now()
+time_diff = time_end - time_start
+print(f"\nFinished succesfully, end time: {time_end.strftime('%d %b %Y %H:%M:%S')}")
+print(
+    f"Total runtime (h:m:s): {int(time_diff.total_seconds() // 3600):02}:{int((time_diff.total_seconds() % 3600) // 60):02}:{int(time_diff.total_seconds() % 60):02}"
+)
+
+
+
+##
+
+
 import sys
 from datetime import datetime
 from pathlib import Path

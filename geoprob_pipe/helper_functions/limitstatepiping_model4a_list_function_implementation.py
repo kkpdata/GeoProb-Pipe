@@ -2,7 +2,7 @@
 
 from typing import List
 
-from app.helper_functions import geohydro_functions, model4a, piping_functions_old
+from geoprob_pipe.helper_functions import geohydro_functions, model4a, piping_functions_old
 
 # Define the input variables for the functions for Uplift, Heave and Piping
 # dist_L_geom: float

@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING
 import pandas as pd
 
 if TYPE_CHECKING:
-    from app.classes.vak import Vak
-    from app.classes.uittredepunt import Uittredepunt
-    from app.classes.ondergrond_scenario import OndergrondScenario
+    from geoprob_pipe.classes.vak import Vak
+    from geoprob_pipe.classes.uittredepunt import Uittredepunt
+    from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenario
 
 from typing import Any, Optional, Type
 
-from app.helper_functions.parameter_functions import (
+from geoprob_pipe.helper_functions.parameter_functions import (
     strip_suffix_from_list_parameter_names,
 )
 

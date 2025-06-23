@@ -4,13 +4,13 @@ from typing import Callable
 import pandas as pd
 from probabilistic_library import CombineProject, CombinerMethod, CombineType
 
-from app.classes.ondergrond_scenario import OndergrondScenario
-from app.classes.reliability_calculation import (
+from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenario
+from geoprob_pipe.classes.reliability_calculation import (
     CombinedReliabilityCalculation,
     ReliabilityCalculation,
 )
-from app.classes.uittredepunt import Uittredepunt
-from app.classes.vak import VakCollection
+from geoprob_pipe.classes.uittredepunt import Uittredepunt
+from geoprob_pipe.classes.vak import VakCollection
 
 
 def _result_dict(reliability_calculation: CombinedReliabilityCalculation|ReliabilityCalculation) -> dict:

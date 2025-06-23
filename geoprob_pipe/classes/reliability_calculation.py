@@ -5,16 +5,16 @@ from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
-from misc._default_values_constants import ALLOWED_DISPERSION_TYPES
+from geoprob_pipe.globals import ALLOWED_DISPERSION_TYPES
 from pandas import DataFrame
 from probabilistic_library import CombineProject, FragilityValue, ReliabilityProject
 from probabilistic_library.reliability import Settings
 from probabilistic_library.utils import FrozenList
 
-from app.classes.ondergrond_scenario import OndergrondScenario
-from app.classes.uittredepunt import Uittredepunt
-from app.helper_functions.data_validation import enforce_lower_upper_bounds
-from app.helper_functions.parameter_functions import (
+from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenario
+from geoprob_pipe.classes.uittredepunt import Uittredepunt
+from geoprob_pipe.helper_functions.data_validation import enforce_lower_upper_bounds
+from geoprob_pipe.helper_functions.parameter_functions import (
     generate_parameter_dict_for_constant,
 )
 

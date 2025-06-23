@@ -4,10 +4,10 @@ from itertools import islice
 from typing import TYPE_CHECKING, Generic, Iterator, TypeVar, Union
 
 if TYPE_CHECKING:
-    from app.classes.ondergrond_scenario import OndergrondScenario
-    from app.classes.uittredepunt import Uittredepunt
-    from app.classes.vak import Vak
-    from app.classes.overschrijdingsfrequentielijn import Overschrijdingsfrequentielijn
+    from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenario
+    from geoprob_pipe.classes.uittredepunt import Uittredepunt
+    from geoprob_pipe.classes.vak import Vak
+    from geoprob_pipe.classes.overschrijdingsfrequentielijn import Overschrijdingsfrequentielijn
 T = TypeVar("T")
 
 class BaseCollection(Generic[T]):

@@ -2,14 +2,14 @@ from types import SimpleNamespace
 
 import pandas as pd
 
-from app.classes.base_collection import BaseCollection, _pretty_repr
-from app.classes.vak import Vak, VakCollection
-from app.helper_functions.data_validation import (
+from geoprob_pipe.classes.base_collection import BaseCollection, _pretty_repr
+from geoprob_pipe.classes.vak import Vak, VakCollection
+from geoprob_pipe.helper_functions.data_validation import (
     check_attribute_already_exists,
     check_attribute_in_overview,
     enforce_lower_upper_bounds,
 )
-from app.helper_functions.parameter_functions import (
+from geoprob_pipe.helper_functions.parameter_functions import (
     generate_parameter_dict_for_variable,
     strip_suffix_from_list_parameter_names,
 )
