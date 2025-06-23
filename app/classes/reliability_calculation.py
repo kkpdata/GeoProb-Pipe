@@ -140,6 +140,8 @@ class ReliabilityCalculation(ResultsTemplate):
         return list_assigned_variables
 
     def _setup_constants(self) -> list[str]:
+        # Setup the constants of the ReliabilityProject
+        # Notes: before a constant is assigned it is checked whether it is a valid input parameter of the current model function.
         
         list_assigned_constants = []
         

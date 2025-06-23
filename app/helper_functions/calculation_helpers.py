@@ -16,11 +16,14 @@ from app.classes.vak import VakCollection
 def _result_dict(reliability_calculation: CombinedReliabilityCalculation|ReliabilityCalculation) -> dict:
     """Helper function to convert a ReliabilityCalculation instance to a dictionary for easy access"""
     return {
-        "uittredepunt": reliability_calculation.id["uittredepunt"],
-        "ondergrondscenario": reliability_calculation.id["ondergrondscenario"],
+        "uittredepunt_id": reliability_calculation.id["uittredepunt"],
+        "uittredepunt": reliability_calculation.uittredepunt,
+        "ondergrondscenario_id": reliability_calculation.id["ondergrondscenario"],
+        "ondergrondscenario": reliability_calculation.ondergrond_scenario,
         "reliability_calculation": reliability_calculation,
         "converged": reliability_calculation.is_converged,
         "beta": reliability_calculation.beta,
+        "failure_probability": reliability_calculation.reliability_project.design_point.probability_failure,
         "alphas": reliability_calculation.alphas,
         "influence_factors": reliability_calculation.influence_factors,
     }
@@ -60,7 +63,7 @@ def build_and_run_unique_model_calculations(model: Callable, vak_collection: Vak
         start_calculations(list_calculations)
         
     # Return the calculations in a DataFrame for easy access. The DataFrame is sorted by uittredepunt and by ondergrondscenario    
-    return pd.DataFrame([_result_dict(calc) for calc in list_calculations]).sort_values(by=["uittredepunt", "ondergrondscenario"]).reset_index(drop=True)
+    return pd.DataFrame([_result_dict(calc) for calc in list_calculations]).sort_values(by=["uittredepunt_id", "ondergrondscenario_id"]).reset_index(drop=True)
 
 
 # FIXME docstring
