@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import pandas as pd
 from pandas.api.types import CategoricalDtype
-
+from datetime import datetime
 try:
     import probabilistic_library
 except ModuleNotFoundError:
@@ -10,29 +10,21 @@ except ModuleNotFoundError:
         "No module named 'probabilistic_library'. This package is not publicly available or part of the repository. \n"
         "Please request the wheel-file through the developer and install it manually. Due to copyright reasons, do \n"
         "not commit the wheel-file into the repository.")
-
 from probabilistic_library.reliability import Settings
-
 from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenarioCollection
-from geoprob_pipe.classes.overschrijdingsfrequentielijn import (
-    OverschrijdingsfrequentielijnCollection,
-)
+from geoprob_pipe.classes.overschrijdingsfrequentielijn import OverschrijdingsfrequentielijnCollection
 from geoprob_pipe.classes.uittredepunt import UittredepuntCollection
 from geoprob_pipe.classes.vak import VakCollection
 from geoprob_pipe.classes.workspace import Workspace
 from geoprob_pipe.helper_functions.calculation_helpers import (
-    build_and_run_combined_calculations,
-    build_and_run_unique_model_calculations,
-)
-from geoprob_pipe.helper_functions.data_validation import (
-    checks_input_parameters,
-    checks_overview_parameters,
-)
+    build_and_run_combined_calculations, build_and_run_unique_model_calculations)
+from geoprob_pipe.helper_functions.data_validation import checks_input_parameters, checks_overview_parameters
 from geoprob_pipe.helper_functions.z_functions import calc_Z_h, calc_Z_p, calc_Z_u
-
 import logging
 
+
 logger = logging.getLogger("geoprob_pipe_logger")
+
 
 @dataclass
 class _DataClassResults:
@@ -46,13 +38,14 @@ class Project:
     """ Project class """
     def __init__(
             self,
-            PATH_WORKSPACE: str|Path  # TODO: Replace with env
+            path_to_workspace: str|Path  # TODO: Replace with env
     ) -> None:
 
-        logger.info("Initiating project. ")
+        logger.info("Initiating project.")
+        self.time_start = datetime.now()
 
         # Initialize Workspace object (also checks if input/output folders contain all necessary files)
-        self.workspace = Workspace(PATH_WORKSPACE)
+        self.workspace = Workspace(path_to_workspace)
         logger.info("Workspace (I/O folders) successfully processed")
 
         # Read overview data of parameters from input Excel file (includes e.g. upper and lower bounds, type of
@@ -65,17 +58,23 @@ class Project:
         # Note that the df's are not set on self (Project) but are added below to VakCollection/UittredepuntCollection/OndergrondScenarioCollection
         # Strip trailing whitespace in column names. Also, unused ondergrondscenario's (ondergrondscenario_kans=Nan or ondergrondscenario_kans=0) are removed since these are not relevant
         df_vakken = pd.read_excel(self.workspace.excel_path, sheet_name="Vakken").rename(columns=lambda x: x.strip())
-        df_uittredepunten = pd.read_excel(self.workspace.excel_path, sheet_name="Uittredepunten").rename(columns=lambda x: x.strip())
-        df_ondergrond_scenarios = pd.read_excel(self.workspace.excel_path, sheet_name="Ondergrondscenarios").rename(columns=lambda x: x.strip()).dropna(subset=['ondergrondscenario_kans']).loc[lambda x: x['ondergrondscenario_kans'] != 0]
+        df_uittredepunten = pd.read_excel(self.workspace.excel_path, sheet_name="Uittredepunten").rename(
+            columns=lambda x: x.strip())
+        df_ondergrond_scenarios = pd.read_excel(self.workspace.excel_path, sheet_name="Ondergrondscenarios").rename(
+            columns=lambda x: x.strip()).dropna(subset=['ondergrondscenario_kans']).loc[
+            lambda x: x['ondergrondscenario_kans'] != 0]
         checks_input_parameters(self.df_overview_parameters, df_vakken, df_uittredepunten, df_ondergrond_scenarios)
         logger.info(f"Parameter data successfully loaded from `{self.workspace.excel_path.name}`")
 
         # Initialize collections. Note that UittredepuntCollection and OndergrondscenarioCollection link the
         # instances of Uittredepunt and OndergrondScenario to the corresponding Vak instance
         self.vak_collection = VakCollection(df_vakken, self.df_overview_parameters)
-        self.uittredepunt_collection = UittredepuntCollection(df_uittredepunten, self.vak_collection, self.df_overview_parameters)
-        self.ondergrond_scenario_collection = OndergrondScenarioCollection(df_ondergrond_scenarios, self.vak_collection, self.df_overview_parameters)        
-        self.overschrijdingsfrequentielijn_collection = OverschrijdingsfrequentielijnCollection(self.workspace.hrd_path, self.uittredepunt_collection)
+        self.uittredepunt_collection = UittredepuntCollection(
+            df_uittredepunten, self.vak_collection, self.df_overview_parameters)
+        self.ondergrond_scenario_collection = OndergrondScenarioCollection(
+            df_ondergrond_scenarios, self.vak_collection, self.df_overview_parameters)
+        self.overschrijdingsfrequentielijn_collection = OverschrijdingsfrequentielijnCollection(
+            self.workspace.hrd_path, self.uittredepunt_collection)
         logger.info(f"HRD .sqlite file successfully loaded from `{self.workspace.hrd_path.name}`")
 
         # Read calculation settings from Excel file
@@ -84,13 +83,19 @@ class Project:
         logger.info(f"full list of available settings (set these in `{self.workspace.excel_path.name}`):\n"
                     f"{Settings().__dir__()}")
 
-        # Build and run ReliabilityCalculations objects (= combinations of uittredepunten, ondergrondscenarios) for each model (uplift/heave/piping).
-        # Note: due to limitations in the probabilistic_library, we cannot first set up all calculations and then run them. After setting up calculations for each model (uplift/heave/piping), we need to run them immediately before setting up the next model.
+        # Build and run ReliabilityCalculations objects (= combinations of uittredepunten, ondergrondscenarios) for
+        # each model (uplift/heave/piping).
+        # Note: due to limitations in the probabilistic_library, we cannot first set up all calculations and then run
+        # them. After setting up calculations for each model (uplift/heave/piping), we need to run them immediately
+        # before setting up the next model.
         self._calculations_unique_models = {
-                                            "uplift": build_and_run_unique_model_calculations(calc_Z_u, self.vak_collection, self.df_overview_parameters, self.df_settings),
-                                            "heave": build_and_run_unique_model_calculations(calc_Z_h, self.vak_collection, self.df_overview_parameters, self.df_settings),
-                                            "piping": build_and_run_unique_model_calculations(calc_Z_p, self.vak_collection, self.df_overview_parameters, self.df_settings),
-                                        }
+            "uplift": build_and_run_unique_model_calculations(
+                calc_Z_u, self.vak_collection, self.df_overview_parameters, self.df_settings),
+            "heave": build_and_run_unique_model_calculations(
+                calc_Z_h, self.vak_collection, self.df_overview_parameters, self.df_settings),
+            "piping": build_and_run_unique_model_calculations(
+                calc_Z_p, self.vak_collection, self.df_overview_parameters, self.df_settings),
+        }
 
         self._calculations_combined = self._combined_df_calculations_unique_model.groupby(
             ["uittredepunt", "ondergrondscenario"]).apply(lambda df_group: build_and_run_combined_calculations(
@@ -98,8 +103,10 @@ class Project:
             self.uittredepunt_collection[str(df_group.name[0])],
             self.ondergrond_scenario_collection[str(df_group.name[1])])).reset_index(drop=True)
 
-        logger.info(f"Calculations were performed successfully")
-
+        self.time_end = datetime.now()
+        time_diff = self.time_end - self.time_start
+        print(f"{time_diff.total_seconds()=}")
+        logger.info(f"Calculations were performed successfully in ")
 
     @property
     def results(self) -> _DataClassResults:
