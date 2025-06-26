@@ -18,11 +18,6 @@ PATH_WORKSPACE: str | Path = r"..\\workspaces\example_new_calculations"
 # # If True, the .tkx files that are found the "PATH_WORKSPACE/output" folder are used
 # USE_EXISTING_TKX_RESULTS: bool = False
 
-# Whether to clean up the working directory in the workspace (True) or not (False).
-# FIXME not implemented, perhaps not necessary
-CLEANUP_WORK_DIR: bool = True
-
-
 # ====================================
 # End of User Input Section
 # ====================================
@@ -47,13 +42,15 @@ def start_tool(
     )
 
     # Print hints how to interacts with the results
-    print("\nHINTS:\n \t- Show the different result DataFrames using `project.results.unique_models` or `project.results.combined`")
-    results_unique_models = project.results.unique_models
-    results_combined = project.results.combined
+    print("\nHINTS:\n \t- Show the different result DataFrames using `project.results.unique` or `project.results.combined_models` or `project.results.uittredepunt`")
+    results_unique_models = project.results.unique
+    results_combined = project.results.combined_models
+    results_uittredepunt = project.results.uittredepunt
+
 
     # Save DataFrame of combined results to csv
     # # FIXME improve output data
-    results_combined.to_excel(project.workspace.output.folderpath / "fragility_curve_data_combined.xlsx")
+    results_uittredepunt.to_excel(project.workspace.output.folderpath / "fragility_curve_data_combined.xlsx")
 
     # # Print info
     # print(f"\nResults are saved to: {fc.workspace.output.folderpath}")
