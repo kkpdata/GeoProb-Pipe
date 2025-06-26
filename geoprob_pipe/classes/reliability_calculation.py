@@ -5,16 +5,16 @@ from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
-from misc._default_values_constants import ALLOWED_DISPERSION_TYPES
+from geoprob_pipe.globals import ALLOWED_DISPERSION_TYPES
 from pandas import DataFrame
 from probabilistic_library import CombineProject, FragilityValue, ReliabilityProject
 from probabilistic_library.reliability import Settings
 from probabilistic_library.utils import FrozenList
 
-from app.classes.ondergrond_scenario import OndergrondScenario
-from app.classes.uittredepunt import Uittredepunt
-from app.helper_functions.data_validation import enforce_lower_upper_bounds
-from app.helper_functions.parameter_functions import (
+from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenario
+from geoprob_pipe.classes.uittredepunt import Uittredepunt
+from geoprob_pipe.helper_functions.data_validation import enforce_lower_upper_bounds
+from geoprob_pipe.helper_functions.parameter_functions import (
     generate_parameter_dict_for_constant,
 )
 
@@ -60,7 +60,8 @@ class ResultsTemplate(ABC):
 class ReliabilityCalculation(ResultsTemplate):
     """ReliabilityCalculation class for calculations of either the uplift, heave or piping model for each unique uittredepunt-ondergrondscenario combination."""
 
-    def __init__(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable, df_constants: pd.DataFrame, df_settings: pd.DataFrame) -> None:
+    def __init__(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable,
+                 df_constants: pd.DataFrame, df_settings: pd.DataFrame) -> None:
         
         self.id = {"uittredepunt": uittredepunt.id, "ondergrondscenario": ondergrond_scenario.id, "model": model.__name__}
         self.uittredepunt = uittredepunt
@@ -76,9 +77,10 @@ class ReliabilityCalculation(ResultsTemplate):
         self._setup_settings(df_settings)
         
         # Model & Variables
-        # First the model (Z-function that will be run) must be set, since the probabilistic_library defines the variables of a ReliabilityProject
-        # based on the input args of the evaluated model function. Other args (i.e. variables from the input Excel) are not allowed, so we need to know which
-        # input args the current model requires so we can add the relevant variables.
+        # First the model (Z-function that will be run) must be set, since the probabilistic_library defines the
+        # variables of a ReliabilityProject based on the input args of the evaluated model function. Other args (i.e.
+        # variables from the input Excel) are not allowed, so we need to know which input args the current model
+        # requires so we can add the relevant variables.
         self.reliability_project.model = self.model
 
         # Buitenwaterstand (from Overschrijdingsfrequentielijn)

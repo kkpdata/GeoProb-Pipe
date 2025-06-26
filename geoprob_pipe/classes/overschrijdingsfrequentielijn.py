@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pydra_core as pydra
 
-from app.classes.base_collection import BaseCollection, _pretty_repr
-from app.classes.uittredepunt import UittredepuntCollection
+from geoprob_pipe.classes.base_collection import BaseCollection, _pretty_repr
+from geoprob_pipe.classes.uittredepunt import UittredepuntCollection
 
 
 class Overschrijdingsfrequentielijn:

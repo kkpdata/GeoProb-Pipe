@@ -2,10 +2,10 @@
 def test_vak_collection():
 
     ##
-    from app.classes.vak import VakCollection
+    from geoprob_pipe.classes.vak import VakCollection
     from pandas import read_excel
-    from app.classes.workspace import Workspace
-    from app.helper_functions.utils import repository_root_path
+    from geoprob_pipe.classes.workspace import Workspace
+    from geoprob_pipe.helper_functions.utils import repository_root_path
     import os
 
     assert 1+1 == 2

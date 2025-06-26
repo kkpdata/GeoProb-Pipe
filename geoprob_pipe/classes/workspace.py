@@ -3,7 +3,7 @@ from typing import Tuple
 
 import pandas as pd
 
-from app.classes.file_system import FileSystem
+from geoprob_pipe.classes.file_system import FileSystem
 
 
 # FIXME docstring

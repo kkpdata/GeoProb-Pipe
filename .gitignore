@@ -1,3 +1,7 @@
+# GeoProb-Pipe
+geoprob_pipe.ini
+geoprob_pipe.log
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

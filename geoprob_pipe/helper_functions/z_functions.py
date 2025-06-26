@@ -1,4 +1,4 @@
-import app.helper_functions.piping_functions as piping_functions
+import geoprob_pipe.helper_functions.piping_functions as piping_functions
 
 
 def calc_Z_h(
