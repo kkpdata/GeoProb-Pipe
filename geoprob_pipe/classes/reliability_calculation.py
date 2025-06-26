@@ -56,7 +56,6 @@ class ResultsTemplate(ABC):
         return self.design_point.is_converged
 
 
-
 class ReliabilityCalculation(ResultsTemplate):
     """ReliabilityCalculation class for calculations of either the uplift, heave or piping model for each unique uittredepunt-ondergrondscenario combination."""
 
@@ -97,7 +96,11 @@ class ReliabilityCalculation(ResultsTemplate):
         # Make sure all variables and constants are set in the ReliabilityProject
         expected_parameters = [parameter.name for parameter in self.reliability_project.variables.get_list()]
         if set(list_assigned_parameters) != set(expected_parameters):
-            raise ValueError(f"Not all input parameters expected by model '{self.model.__name__}' were set in the ReliabilityProject.\nExpected parameters: {expected_parameters}\nSet parameters: {list_assigned_variables+list_assigned_constants}\nMissing parameters: {set(expected_parameters) - set(list_assigned_variables + list_assigned_constants)}")
+            raise ValueError(
+                f"Not all input parameters expected by model '{self.model.__name__}' were set in the "
+                f"ReliabilityProject.\nExpected parameters: {expected_parameters}\nSet parameters: "
+                f"{list_assigned_variables+list_assigned_constants}\nMissing parameters: "
+                f"{set(expected_parameters) - set(list_assigned_variables + list_assigned_constants)}")
         
 
     def _setup_settings(self, df_settings: pd.DataFrame) -> None:

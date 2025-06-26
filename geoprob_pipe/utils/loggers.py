@@ -21,6 +21,7 @@ def initiate_app_logger(repo_root: str):
     console_handler.setLevel(logging.INFO)
     formatter = ColoredFormatter(
         "%(log_color)s%(asctime)s - %(levelname)s - %(message)s",
+        datefmt= "%Y-%m-%d %H:%M:%S",
         log_colors={
             "INFO": "green",
         }

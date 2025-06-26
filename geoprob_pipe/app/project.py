@@ -10,26 +10,19 @@ except ModuleNotFoundError:
         "No module named 'probabilistic_library'. This package is not publicly available or part of the repository. \n"
         "Please request the wheel-file through the developer and install it manually. Due to copyright reasons, do \n"
         "not commit the wheel-file into the repository.")
-from probabilistic_library.reliability import Settings
 import logging
-
 from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenarioCollection
-from geoprob_pipe.classes.overschrijdingsfrequentielijn import (
-    OverschrijdingsfrequentielijnCollection,
-)
+from geoprob_pipe.classes.overschrijdingsfrequentielijn import OverschrijdingsfrequentielijnCollection
 from geoprob_pipe.classes.uittredepunt import UittredepuntCollection
 from geoprob_pipe.classes.vak import VakCollection
 from geoprob_pipe.classes.workspace import Workspace
 from geoprob_pipe.helper_functions.calculation_helpers import (
-    build_and_run_combined_calculations,
-    build_and_run_unique_model_calculations,
-)
-from geoprob_pipe.helper_functions.data_validation import (
-    checks_input_parameters,
-    checks_overview_parameters,
-)
+    build_and_run_combined_calculations, build_and_run_unique_model_calculations)
+from geoprob_pipe.helper_functions.data_validation import checks_input_parameters, checks_overview_parameters
 from geoprob_pipe.helper_functions.statistics_utils import convert_failure_probability_to_beta
 from geoprob_pipe.helper_functions.z_functions import calc_Z_h, calc_Z_p, calc_Z_u
+import time
+
 
 logger = logging.getLogger("geoprob_pipe_logger")
 
@@ -41,6 +34,16 @@ class _DataClassResults:
     unique: pd.DataFrame
     combined_models: pd.DataFrame
     uittredepunt: pd.DataFrame
+
+
+def provide_explanation_to_user():
+    time.sleep(1)  # Timer to make sure the logger is finished first.
+    print("""
+    You can now use the interactive console to explore and/or export the results. Some examples:
+        print(project.results.unique_models)
+        print(project.results.combined)
+        project.results.combined.to_excel(project.workspace.output.folderpath / "fragility_curve_data_combined.xlsx")
+    """)
 
 
 class Project:
@@ -88,27 +91,11 @@ class Project:
             self.workspace.hrd_path, self.uittredepunt_collection)
         logger.info(f"HRD .sqlite file successfully loaded from `{self.workspace.hrd_path.name}`")
 
-        # Read calculation settings from Excel file
-        self.df_settings = pd.read_excel(self.workspace.excel_path, sheet_name="Settings", index_col=0, header=0)
-        logger.info(f"Settings successfully loaded from `{self.workspace.excel_path.name}`")
-        logger.info(f"Full list of available settings (set these in `{self.workspace.excel_path.name}`):\n"
-                    f"{Settings().__dir__()}")
+        # Read calculation settings
+        self._read_calculation_settings()
 
-        # Build and run ReliabilityCalculations objects (= combinations of uittredepunten, ondergrondscenarios) for
-        # each model (uplift/heave/piping).
-        # Note: due to limitations in the probabilistic_library, we cannot first set up all calculations and then run
-        # them. After setting up calculations for each model (uplift/heave/piping), we need to run them immediately
-        # before setting up the next model.
-        self._calculations_unique = {
-            "uplift": build_and_run_unique_model_calculations(
-                calc_Z_u, self.vak_collection, self.df_overview_parameters, self.df_settings),
-            "heave": build_and_run_unique_model_calculations(
-                calc_Z_h, self.vak_collection, self.df_overview_parameters, self.df_settings),
-            "piping": build_and_run_unique_model_calculations(
-                calc_Z_p, self.vak_collection, self.df_overview_parameters, self.df_settings),
-        }
-        # TODO: Code is relatively long in the above sections. User does not see feedback about that. Include
-        #  Live-element?
+        # Build and run calculations
+        self._build_and_run_calculations()
 
         # Use the probabilistic_library to combine the calculations of the separate models (uplift/heave/piping) into
         # one beta/failure probability for each uittredepunt and ondergrondscenario combination
@@ -134,6 +121,57 @@ class Project:
         self.time_end = datetime.now()
         time_diff = self.time_end - self.time_start
         logger.info(f"Calculations were performed successfully in {int(time_diff.total_seconds())} seconds.")
+        provide_explanation_to_user()
+
+    def _read_calculation_settings(self):
+        """ Read calculation settings from Excel file. """
+        self.df_settings = pd.read_excel(self.workspace.excel_path, sheet_name="Settings", index_col=0, header=0)
+        logger.info(f"Settings successfully loaded from `{self.workspace.excel_path.name}`.")
+        time.sleep(1)  # Some time to make sure the print below, is printed after the logger print.
+
+        print(f"""
+    For your information, display a full list of settings by printing:
+        from probabilistic_library.reliability import Settings
+        print(Settings().__dir__())
+    This unfortunately lacks in further documentation, but the parameter names are relatively descriptive. 
+        """)
+
+    def _build_and_run_calculations(self):
+        """ Build and run ReliabilityCalculations objects.
+
+        These objects are combinations of uittredepunten and ondergrondscenarios for each model (uplift/heave/piping).
+
+        Note: due to limitations in the probabilistic_library, it is not possible to set up all calculations first and
+        then run them. After setting up a calculations for each model (uplift/heave/piping), we need to run them
+        immediately before setting up the next model.
+        """
+
+        logger.info(f"Building and running uplift calculations.")
+        df_uplift = build_and_run_unique_model_calculations(
+            model=calc_Z_u,
+            vak_collection=self.vak_collection,
+            df_overview_parameters=self.df_overview_parameters,
+            df_settings=self.df_settings)
+
+        logger.info(f"Building and running heave calculations.")
+        df_heave = build_and_run_unique_model_calculations(
+            model=calc_Z_h,
+            vak_collection=self.vak_collection,
+            df_overview_parameters=self.df_overview_parameters,
+            df_settings=self.df_settings)
+
+        logger.info(f"Building and running piping calculations.")
+        df_piping = build_and_run_unique_model_calculations(
+            model=calc_Z_p,
+            vak_collection=self.vak_collection,
+            df_overview_parameters=self.df_overview_parameters,
+            df_settings=self.df_settings)
+
+        self._calculations_unique = {
+            "uplift": df_uplift,
+            "heave": df_heave,
+            "piping": df_piping,
+        }
 
     @property
     def results(self) -> _DataClassResults:
@@ -144,7 +182,6 @@ class Project:
             combined_models = self._calculations_combined_models,
             uittredepunt = self._calculations_uittredepunt
         )
-
 
     @property
     def _combined_df_calculations_unique_model(self) -> pd.DataFrame:
@@ -176,4 +213,3 @@ class Project:
             col for col in df_unique_model_results.columns if col not in known]]
         
         return df_unique_model_results
-    
