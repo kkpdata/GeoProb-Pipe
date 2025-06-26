@@ -1,6 +1,7 @@
 import geoprob_pipe.helper_functions.piping_functions as piping_functions
 
 
+# noinspection PyPep8Naming
 def calc_Z_h(
     L_achterland: float,
     c_voorland: float,
@@ -17,7 +18,7 @@ def calc_Z_h(
     i_c_h: float,
     D_wvp: float,
     ) -> float:  
-    r"""Berekening van de grenstoesstandfunctie voor heave
+    r"""Berekening van de grenstoestandfunctie voor heave
 
     Returns:
         float: Z waarde van de grenstoestandfunctie voor heave
@@ -71,6 +72,7 @@ def calc_Z_h(
     return z_h
 
 
+# noinspection PyPep8Naming
 def calc_Z_u(
     L_achterland: float,
     c_voorland: float,
@@ -143,6 +145,7 @@ def calc_Z_u(
     return z_u
 
 
+# noinspection PyPep8Naming
 def calc_Z_p(
     c_voorland: float,
     buitenwaterstand: float,
@@ -170,7 +173,7 @@ def calc_Z_p(
     Returns:
         float: Z waarde van de grenstoestandfunctie voor piping
     """
-    
+
     L_voorland = piping_functions.calc_L_voorland(
         L_intrede = L_intrede,
         L_but = L_but,

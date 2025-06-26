@@ -1,55 +1,49 @@
 import inspect
-from abc import ABC, abstractmethod
+from abc import ABC
 from types import SimpleNamespace
-from typing import Any, Callable
-
-import numpy as np
+from typing import Any, Callable, Optional
 import pandas as pd
 from geoprob_pipe.globals import ALLOWED_DISPERSION_TYPES
-from pandas import DataFrame
 from probabilistic_library import CombineProject, FragilityValue, ReliabilityProject
 from probabilistic_library.reliability import Settings
 from probabilistic_library.utils import FrozenList
-
 from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenario
 from geoprob_pipe.classes.uittredepunt import Uittredepunt
 from geoprob_pipe.helper_functions.data_validation import enforce_lower_upper_bounds
-from geoprob_pipe.helper_functions.parameter_functions import (
-    generate_parameter_dict_for_constant,
-)
-
+from geoprob_pipe.helper_functions.parameter_functions import generate_parameter_dict_for_constant
+import time
 
 class ResultsTemplate(ABC):
+
+    def __init__(self):
+        self.df_settings: Optional[pd.DataFrame] = None
+        self.reliability_project: Optional[ReliabilityProject] = None
+
     @property
     def settings(self) -> SimpleNamespace:
-        """Return the settings of the reliability project as a SimpleNamespace object, which includes the settings DataFrame (simple overview) and the Settings object (actually used in ReliabilityProject)."""
+        """ Return the settings of the reliability project as a SimpleNamespace object, which includes the settings
+        DataFrame (simple overview) and the Settings object (actually used in ReliabilityProject). """
         return SimpleNamespace(df=self.df_settings, obj=self.reliability_project.settings)
-
 
     @property
     def variables(self) -> FrozenList:
         return self.reliability_project.variables
 
-    
     @property
     def design_point(self):
         return self.reliability_project.design_point
-    
-    
+
     @property
     def beta(self):
         return self.design_point.reliability_index
-
 
     @property
     def alphas(self):
         return {a.identifier: a.alpha for a in self.design_point.alphas.get_list()}
 
-
     @property
     def influence_factors(self):
         return {a.identifier: a.influence_factor for a in self.design_point.alphas.get_list()}
-
 
     @property
     def is_converged(self):
@@ -57,18 +51,25 @@ class ResultsTemplate(ABC):
 
 
 class ReliabilityCalculation(ResultsTemplate):
-    """ReliabilityCalculation class for calculations of either the uplift, heave or piping model for each unique uittredepunt-ondergrondscenario combination."""
+    """ ReliabilityCalculation class for calculations of either the uplift, heave or piping model for each unique
+    uittredepunt-ondergrondscenario combination."""
 
     def __init__(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario, model: Callable,
                  df_constants: pd.DataFrame, df_settings: pd.DataFrame) -> None:
         
-        self.id = {"uittredepunt": uittredepunt.id, "ondergrondscenario": ondergrond_scenario.id, "model": model.__name__}
+        super().__init__()
+
+        self.id = {
+            "uittredepunt": uittredepunt.id,
+            "ondergrondscenario": ondergrond_scenario.id,
+            "model": model.__name__,
+        }
         self.uittredepunt = uittredepunt
         self.ondergrond_scenario = ondergrond_scenario
         self.model = model
         self.constants = df_constants
         self.df_settings = df_settings
-        
+
         # Setup ReliabilityProject
         self.reliability_project = ReliabilityProject()
         
@@ -85,7 +86,8 @@ class ReliabilityCalculation(ResultsTemplate):
         # Buitenwaterstand (from Overschrijdingsfrequentielijn)
         # Special variable since it comes from Pydra (and not the input Excel file), so it is set separately        
         self._set_buitenwaterstand_overschrijdingsfrequentielijn(self.uittredepunt)
-        list_assigned_parameters = ["buitenwaterstand"]  # Keep track of the parameters that were assigned to the ReliabilityProject	
+        list_assigned_parameters = ["buitenwaterstand"]
+        # -> Keep track of the parameters that were assigned to the ReliabilityProject
 
         # Variables
         list_assigned_parameters += self._setup_variables(self.uittredepunt, self.ondergrond_scenario)
@@ -98,24 +100,23 @@ class ReliabilityCalculation(ResultsTemplate):
         if set(list_assigned_parameters) != set(expected_parameters):
             raise ValueError(
                 f"Not all input parameters expected by model '{self.model.__name__}' were set in the "
-                f"ReliabilityProject.\nExpected parameters: {expected_parameters}\nSet parameters: "
-                f"{list_assigned_variables+list_assigned_constants}\nMissing parameters: "
-                f"{set(expected_parameters) - set(list_assigned_variables + list_assigned_constants)}")
-        
+                f"ReliabilityProject.\n"
+                f"Expected parameters: {expected_parameters}\n"
+                f"Set parameters: {list_assigned_parameters}\n"
+                f"Missing parameters: {set(expected_parameters) - set(list_assigned_parameters)}")
 
     def _setup_settings(self, df_settings: pd.DataFrame) -> None:
 
-        # Setup the settings of the ReliabilityProject
+        # Set up the settings of the ReliabilityProject
         # Note: all supported settings can be found in probabilistic_library.reliability.Settings.__dir__
         for attr_name, row in df_settings.iterrows():
             if attr_name in Settings().__dir__():
-                setattr(self.reliability_project.settings, attr_name, row['value'])
+                setattr(self.reliability_project.settings, str(attr_name), row['value'])
             else:
                 raise ValueError(f"Attribute '{attr_name}' not found in SensitivitySettings class. Available attributes:\n{Settings().__dir__()}")
 
-
     def _setup_variables(self, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario) -> list[str]:
-        # Setup the different variables of the ReliabilityProject
+        # Set up the different variables of the ReliabilityProject
         # Notes: before a variable is assigned it is checked whether it is a valid input parameter of the current model function.
 
         list_assigned_variables = []
@@ -145,7 +146,7 @@ class ReliabilityCalculation(ResultsTemplate):
         return list_assigned_variables
 
     def _setup_constants(self) -> list[str]:
-        # Setup the constants of the ReliabilityProject
+        # Set up the constants of the ReliabilityProject
         # Notes: before a constant is assigned it is checked whether it is a valid input parameter of the current model function.
         
         list_assigned_constants = []
@@ -160,7 +161,6 @@ class ReliabilityCalculation(ResultsTemplate):
                 
         return list_assigned_constants
 
-    
     def _set_buitenwaterstand_overschrijdingsfrequentielijn(self, uittredepunt: Uittredepunt) -> None:
         # Add the overschrijdingsfrequentielijn as stochastic variable to the ReliabilityProject
         
@@ -174,8 +174,6 @@ class ReliabilityCalculation(ResultsTemplate):
             fc.x = waterlevel[i]
             fc.probability_of_failure = exceedance_frequency[i]
             self.reliability_project.variables["buitenwaterstand"].fragility_values.append(fc)
-
-        
 
     def _set_reliability_project_variable(self, var_name: str, var_dict: dict[str, Any]) -> None:
         # Create the Stochastic variable in the ReliabilityProject
@@ -194,25 +192,35 @@ class ReliabilityCalculation(ResultsTemplate):
                 elif var_dict["dispersion_type"] == "_vc":
                     self.reliability_project.variables[var_name].variation = var_dict["dispersion_value"]
                 else:
-                    raise ValueError(f"Disperion type '{var_dict["dispersion_type"]}' of variable '{var_name}' is not implemented. Allowed types: {ALLOWED_DISPERSION_TYPES}")
+                    raise ValueError(
+                        f"Dispersion type '{var_dict["dispersion_type"]}' of variable '{var_name}' is not implemented. "
+                        f"Allowed types: {ALLOWED_DISPERSION_TYPES}")
         
             if pd.notna(var_dict["lower_bound_mean"]):
                 self.reliability_project.variables[var_name].minimum = var_dict["lower_bound_mean"]
             if pd.notna(var_dict["upper_bound_mean"]):
                 self.reliability_project.variables[var_name].maximum = var_dict["upper_bound_mean"]
         except AttributeError as e:
-            raise AttributeError(f"Trying to set variable '{var_name}', which is not an input arg of function {self._model.__name__}. The probabilistic_library package only allows variables defined as input args of the evaluated model function.\nError message: {e}")
-    
-    
+            raise AttributeError(
+                f"Trying to set variable '{var_name}', which is not an input arg of function {self.model.__name__}. "
+                f"The probabilistic_library package only allows variables defined as input args of the evaluated model "
+                f"function.\n"
+                f"Error message: {e}")
+
     def run(self):
         # Run the reliability project
+        start_time = time.time()
         self.reliability_project.run()
+        end_time = time.time()
+        # print(f"duration = {end_time - start_time}")
 
 
 class CombinedReliabilityCalculation(ResultsTemplate):
     """CombinedReliabilityCalculation class for combined calculations of the uplift/heave/piping models for each unique uittredepunt-ondergrondscenario combination."""
 
-    def __init__(self, reliability_project: CombineProject, uittredepunt: Uittredepunt, ondergrond_scenario: OndergrondScenario) -> None:
+    def __init__(self, reliability_project: CombineProject, uittredepunt: Uittredepunt,
+                 ondergrond_scenario: OndergrondScenario) -> None:
+        super().__init__()
         self.id = {"uittredepunt": uittredepunt.id, "ondergrondscenario": ondergrond_scenario.id}
         self.uittredepunt = uittredepunt
         self.ondergrond_scenario = ondergrond_scenario

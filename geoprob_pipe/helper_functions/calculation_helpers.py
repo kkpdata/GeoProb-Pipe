@@ -1,4 +1,5 @@
-from concurrent.futures import ThreadPoolExecutor
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Callable
 import pandas as pd
 from probabilistic_library import CombineProject, CombinerMethod, CombineType
@@ -7,6 +8,7 @@ from geoprob_pipe.classes.reliability_calculation import CombinedReliabilityCalc
 from geoprob_pipe.classes.uittredepunt import Uittredepunt
 from geoprob_pipe.classes.vak import VakCollection
 import logging
+import threading
 
 
 logger = logging.getLogger("geoprob_pipe_logger")
@@ -28,22 +30,59 @@ def _result_dict(reliability_calculation: CombinedReliabilityCalculation|Reliabi
     }
 
 
-def start_calculations(list_reliability_calculations: list[ReliabilityCalculation]):
-    """ Starts running all calculations through a ThreadPoolExecutor. It therefore first needs to define a function
-    which can be called in the executor. """
+def start_calculations(
+        list_reliability_calculations: list[ReliabilityCalculation],
+        model_name: str
+):
+    """ Starts running the provided calculations through a ThreadPoolExecutor. """
+    total = list_reliability_calculations.__len__()
+    completed = 0
+    start_time = time.time()
+    lock = threading.Lock()
 
+    # Define execution function
     def run_reliability_calculation(reliability_calculation: ReliabilityCalculation):
+        nonlocal completed
         try:
             reliability_calculation.run()
         except Exception as e:
             print(f"ERROR: Could not run running reliability calculation {reliability_calculation.id}: {e}")
+        finally:
+            with lock:
+                completed += 1
 
+    # Define function that reports progress
+    def progress_reporter():
+        while True:
+            with lock:
+                if completed >= total:
+                    duration = int(time.time() - start_time)
+                    logger.info(f" -> Finished all {total} of '{model_name}' calculations in under {duration} seconds. "
+                                f"That is on average under {round(duration/total, 3)} seconds per calculation.")
+                    break
+            time.sleep(1)
+
+    # Start reporting thread
+    reporter_thread = threading.Thread(target=progress_reporter)
+    reporter_thread.start()
+
+    # # Run calculations in parallel
+    # with ThreadPoolExecutor() as executor:
+    #     futures = [executor.submit(run_reliability_calculation, calc) for calc in list_reliability_calculations]
+    #     for _ in as_completed(futures):
+    #         pass  # Just to ensure all tasks complete
+
+
+    # Run calculations in parallel
     with ThreadPoolExecutor() as executor:
         executor.map(run_reliability_calculation, list_reliability_calculations)
 
 
 def build_and_run_unique_model_calculations(
-        model: Callable, vak_collection: VakCollection, df_overview_parameters: pd.DataFrame, df_settings: pd.DataFrame
+        model: Callable,
+        vak_collection: VakCollection,
+        df_overview_parameters: pd.DataFrame,
+        df_settings: pd.DataFrame,
 ) -> pd.DataFrame:
     """
 
@@ -69,19 +108,15 @@ def build_and_run_unique_model_calculations(
             for ondergrond_scenario in vak.ondergrond_scenarios:
                 list_calculations.append(
                     ReliabilityCalculation(
-                        uittredepunt,
-                        ondergrond_scenario,
-                        model,
-                        df_overview_parameters[df_overview_parameters["parameter_type"] == "constant"],
-                        df_settings
+                        uittredepunt=uittredepunt,
+                        ondergrond_scenario=ondergrond_scenario,
+                        model=model,
+                        df_constants=df_overview_parameters[df_overview_parameters["parameter_type"] == "constant"],
+                        df_settings=df_settings
                     )
                 )
-        start_calculations(list_calculations)
-        # TODO: How does this work, because, it starts the same list after each iteration of vak? The list is not
-        #  emptied upon each iteration. Is then the ThreadPoolExecutor restarted on each iteration. If not, does the
-        #  ThreadPoolExecutor know which calculations are already run?
-        #   --> Ik heb dit even nagebootst in scratch_1.py. Lijkt inderdaad dubbel te berekenen.
-        
+    start_calculations(list_calculations, model_name=model.__name__)
+
     # Return the calculations in a DataFrame for easy access. The DataFrame is sorted by uittredepunt and by ondergrondscenario    
     return pd.DataFrame([_result_dict(calc) for calc in list_calculations]).sort_values(
         by=["uittredepunt_id", "ondergrondscenario_id"]).reset_index(drop=True)
@@ -115,4 +150,3 @@ def build_and_run_combined_calculations(
     combined_project.run()
     
     return pd.Series(_result_dict(CombinedReliabilityCalculation(combined_project, uittredepunt, ondergrond_scenario)))
-    

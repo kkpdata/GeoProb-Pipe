@@ -105,6 +105,7 @@ class Project:
                 df_group,
                 self.uittredepunt_collection[str(df_group.name[0])],
                 self.ondergrond_scenario_collection[str(df_group.name[1])])).reset_index(drop=True)
+        logger.info("Alpha1")
 
         # Use the chances of the underlying scenarios to calculate the combined failure probability for each
         # uittredepunt
@@ -116,6 +117,7 @@ class Project:
             'combined_failure_probability'].sum()
         self._calculations_uittredepunt["beta"] = self._calculations_uittredepunt["combined_failure_probability"].apply(
             lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
+        logger.info("Alpha2")
 
         # Log finish
         self.time_end = datetime.now()
@@ -172,6 +174,8 @@ class Project:
             "heave": df_heave,
             "piping": df_piping,
         }
+
+        logger.info("Calculations for the 3 limit states are build and started. Await message until finished. ")
 
     @property
     def results(self) -> _DataClassResults:
