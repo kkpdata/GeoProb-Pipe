@@ -58,7 +58,6 @@ class Project:
 
         # Initialize Workspace object (also checks if input/output folders contain all necessary files)
         self.workspace = Workspace(path_to_workspace)
-        logger.info("Workspace (I/O folders) successfully processed")
 
         # Read overview data of parameters from input Excel file (includes e.g. upper and lower bounds, type of
         # distribution, etc.) and carry out checks
@@ -209,9 +208,30 @@ class Project:
         )
 
     def export_results(self):
-        # df = self.results.df_limit_states
-        pass
 
+        # Results of limit state calculations
+        df = self.results.df_limit_states
+        df = df[["uittredepunt_id", "ondergrondscenario_id", "model", "converged", "beta", "failure_probability"]]
+        df.loc[:, 'beta'] = df['beta'].round(2)
+        # TODO Later Should Middel: Alpha en/of influence_factors exporteren in een aparte Excel.
+        #  Daarbij eveneens afronden.
+        # TODO Later Should Klein: Bespreken wat we met resultaten doen die niet 'converged' zijn.
+        df.to_excel(excel_writer=self.workspace.output.folderpath / "df_limit_states.xlsx")
+        # TODO Nu Must Middel: Visualiseer de limit state resultaten.
+        #  Indien dat niet al bestaat, dan visualiseren in een eenvoudige maar overzichtelijke grafiek. Geen map nodig
+        #  (voor nu).
+
+        # Results of combined calculations
+        df = self.results.df_combined
+        df = df[["uittredepunt_id", "ondergrondscenario_id", "converged", "beta", "failure_probability"]]
+        df.loc[:, 'beta'] = df['beta'].round(2)
+        df.to_excel(excel_writer=self.workspace.output.folderpath / "df_combined.xlsx")
+        # TODO Nu Must Middel: Visualiseer de combined resultaten.
+        #  Indien dat niet al bestaat, dan visualiseren in een eenvoudige maar overzichtelijke grafiek. Geen map nodig
+        #  (voor nu).
+        # TODO Nu Must Middel: Visualiseer een vergelijking tussen de combined en de limit state resultaten.
+        #  Indien dat niet al bestaat, dan visualiseren in een eenvoudige maar overzichtelijke grafiek. Geen map nodig
+        #  (voor nu).
 
     @property
     def _df_calculation_results_limit_states(self) -> pd.DataFrame:

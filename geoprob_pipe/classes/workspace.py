@@ -2,6 +2,11 @@ from pathlib import Path
 from typing import Tuple
 import pandas as pd
 from geoprob_pipe.classes.file_system import FileSystem
+import logging
+from datetime import datetime
+
+
+logger = logging.getLogger("geoprob_pipe_logger")
 
 
 class Workspace:
@@ -18,6 +23,7 @@ class Workspace:
         self.output = _prepare_output_folder(self.folderpath)
         self.input, self.excel_path, self.hrd_path = _prepare_input_folder(self.folderpath)
         # TODO Later Could Groot: Add functionality to read existing results (without running prob. calculations again)
+        logger.info("Workspace (I/O folders) successfully processed")
 
     def update_output_filesystem(self) -> None:
         """
@@ -41,15 +47,11 @@ def _prepare_output_folder(path_workspace: Path) -> FileSystem:
     Returns:
         FileSystem: _description_
     """
-    # Create output folder if it didn't exist yet
-    if not Path(path_workspace / "output").exists():
-        Path.mkdir(path_workspace / "output", parents=False, exist_ok=False)
-        print(f"INFO: output folder was successfully created in project folder ({path_workspace / 'output'})")
-
-    # Create FileSystem instance for output folder
-    filesystem_output = FileSystem(path_workspace / "output")
-    
-    return filesystem_output
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
+    export_path = path_workspace / "output" / timestamp
+    export_path.mkdir(exist_ok=False, parents=True)
+    logger.info(f"Output folder was successfully created in workspace folder: output/{timestamp}/")
+    return FileSystem(export_path)
 
 
 def _prepare_input_folder(path_workspace: Path) -> Tuple[FileSystem, Path, Path]:
