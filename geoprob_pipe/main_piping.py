@@ -21,6 +21,7 @@ initiate_app_logger(repo_root=repo_root)
 # Initiate GeoProb-Pipe project object
 project = Project(os.getenv("PATH_WORKSPACE"))
 
+# project._calculations_unique['piping']['reliability_calculation'].iloc[0].run_duration
 
 ##
 

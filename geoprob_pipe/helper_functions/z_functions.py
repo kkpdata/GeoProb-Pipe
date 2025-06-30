@@ -231,3 +231,10 @@ def calc_Z_p(
     )
 
     return z_p
+
+
+MODEL_NAMES = {
+    "calc_Z_h": "Heave",
+    "calc_Z_u": "Uplift",
+    "calc_Z_p": "Piping",
+}

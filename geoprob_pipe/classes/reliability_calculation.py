@@ -69,10 +69,11 @@ class ReliabilityCalculation(ResultsTemplate):
         self.model = model
         self.constants = df_constants
         self.df_settings = df_settings
+        self.run_duration: Optional[float] = None
 
         # Setup ReliabilityProject
         self.reliability_project = ReliabilityProject()
-        
+
         # Calculation settings
         self._setup_settings(df_settings)
         
@@ -211,12 +212,12 @@ class ReliabilityCalculation(ResultsTemplate):
         # Run the reliability project
         start_time = time.time()
         self.reliability_project.run()
-        end_time = time.time()
-        # print(f"duration = {end_time - start_time}")
+        self.run_duration = time.time() - start_time
 
 
 class CombinedReliabilityCalculation(ResultsTemplate):
-    """CombinedReliabilityCalculation class for combined calculations of the uplift/heave/piping models for each unique uittredepunt-ondergrondscenario combination."""
+    """ CombinedReliabilityCalculation class for combined calculations of the uplift/heave/piping models for each
+    unique uittredepunt-ondergrondscenario combination. """
 
     def __init__(self, reliability_project: CombineProject, uittredepunt: Uittredepunt,
                  ondergrond_scenario: OndergrondScenario) -> None:
@@ -225,4 +226,3 @@ class CombinedReliabilityCalculation(ResultsTemplate):
         self.uittredepunt = uittredepunt
         self.ondergrond_scenario = ondergrond_scenario
         self.reliability_project = reliability_project
-

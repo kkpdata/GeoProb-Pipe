@@ -17,7 +17,7 @@ from geoprob_pipe.classes.uittredepunt import UittredepuntCollection
 from geoprob_pipe.classes.vak import VakCollection
 from geoprob_pipe.classes.workspace import Workspace
 from geoprob_pipe.helper_functions.calculation_helpers import (
-    build_and_run_combined_calculations, build_and_run_unique_model_calculations)
+    build_and_run_combined_calculation, build_and_run_unique_model_calculations)
 from geoprob_pipe.helper_functions.data_validation import checks_input_parameters, checks_overview_parameters
 from geoprob_pipe.helper_functions.statistics_utils import convert_failure_probability_to_beta
 from geoprob_pipe.helper_functions.z_functions import calc_Z_h, calc_Z_p, calc_Z_u
@@ -72,6 +72,7 @@ class Project:
         # ondergrond scenario's (ondergrondscenario_kans=Nan or ondergrondscenario_kans=0) are removed since these are
         # not relevant
         df_vakken = pd.read_excel(self.workspace.excel_path, sheet_name="Vakken").rename(columns=lambda x: x.strip())
+        # TODO Later Must Groot: Volledige object georiënteerde/gebruiksvriendelijke validatie voor de invoer bestanden.
         df_uittredepunten = pd.read_excel(self.workspace.excel_path, sheet_name="Uittredepunten").rename(
             columns=lambda x: x.strip())
         df_ondergrond_scenarios = pd.read_excel(self.workspace.excel_path, sheet_name="Ondergrondscenarios").rename(
@@ -94,18 +95,13 @@ class Project:
         # Read calculation settings
         self._read_calculation_settings()
 
-        # Build and run calculations
-        self._build_and_run_calculations()
+        # Build and run calculations per limit state
+        self._build_and_run_calculations_per_limit_state()
+        # TODO Nu Must Klein: Exporteer df met resultaten per limit state.
 
-        # Use the probabilistic_library to combine the calculations of the separate models (uplift/heave/piping) into
-        # one beta/failure probability for each uittredepunt and ondergrondscenario combination
-        self._calculations_combined_models = self._combined_df_calculations_unique_model.groupby(
-            ["uittredepunt_id", "ondergrondscenario_id"]).apply(
-            lambda df_group: build_and_run_combined_calculations(
-                df_group,
-                self.uittredepunt_collection[str(df_group.name[0])],
-                self.ondergrond_scenario_collection[str(df_group.name[1])])).reset_index(drop=True)
-        logger.info("Alpha1")
+        # Build and run combined limit state calculations
+        self._build_and_run_combined_limit_state_calculations()
+        # TODO Nu Must Klein: Exporteer df met resultaten per combinatie.
 
         # Use the chances of the underlying scenarios to calculate the combined failure probability for each
         # uittredepunt
@@ -117,7 +113,9 @@ class Project:
             'combined_failure_probability'].sum()
         self._calculations_uittredepunt["beta"] = self._calculations_uittredepunt["combined_failure_probability"].apply(
             lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
-        logger.info("Alpha2")
+
+        # TODO Later Must Middel: Exporteer df met resultaten per uittredepunt.
+        # TODO Later Must Middel: Exporteer df met resultaten per vak.
 
         # Log finish
         self.time_end = datetime.now()
@@ -138,8 +136,8 @@ class Project:
     This unfortunately lacks in further documentation, but the parameter names are relatively descriptive. 
         """)
 
-    def _build_and_run_calculations(self):
-        """ Build and run ReliabilityCalculations objects.
+    def _build_and_run_calculations_per_limit_state(self):
+        """ Build and run ReliabilityCalculations objects per limit state.
 
         These objects are combinations of uittredepunten and ondergrondscenarios for each model (uplift/heave/piping).
 
@@ -148,21 +146,21 @@ class Project:
         immediately before setting up the next model.
         """
 
-        logger.info(f"Building and running uplift calculations.")
+        logger.info(f"[Uplift] Building and running calculations.")
         df_uplift = build_and_run_unique_model_calculations(
             model=calc_Z_u,
             vak_collection=self.vak_collection,
             df_overview_parameters=self.df_overview_parameters,
             df_settings=self.df_settings)
 
-        logger.info(f"Building and running heave calculations.")
+        logger.info(f"[Heave] Building and running calculations.")
         df_heave = build_and_run_unique_model_calculations(
             model=calc_Z_h,
             vak_collection=self.vak_collection,
             df_overview_parameters=self.df_overview_parameters,
             df_settings=self.df_settings)
 
-        logger.info(f"Building and running piping calculations.")
+        logger.info(f"[Piping] Building and running 'piping' calculations.")
         df_piping = build_and_run_unique_model_calculations(
             model=calc_Z_p,
             vak_collection=self.vak_collection,
@@ -175,7 +173,29 @@ class Project:
             "piping": df_piping,
         }
 
-        logger.info("Calculations for the 3 limit states are build and started. Await message until finished. ")
+    def _build_and_run_combined_limit_state_calculations(self):
+        """ Use the probabilistic_library to combine the calculations of the separate models (uplift/heave/piping) into
+        one beta/failure probability for each uittredepunt and ondergrondscenario combination.
+
+        :return:
+        """
+
+        logger.info(f"[Combined] Building and running calculations.")
+        df_grouped = self._combined_df_calculations_unique_model.groupby(["uittredepunt_id", "ondergrondscenario_id"])
+        total = df_grouped.__len__()
+        time_start = time.time()
+
+        # Build and run calculations
+        self._calculations_combined_models = df_grouped.apply(
+            lambda df_group: build_and_run_combined_calculation(
+                df_group,
+                self.uittredepunt_collection[str(df_group.name[0])],
+                self.ondergrond_scenario_collection[str(df_group.name[1])])).reset_index(drop=True)
+
+        # Reporting finished
+        duration = int(time.time() - time_start)
+        logger.info(f"[Combined] Finished all {total} calculations in under {duration} seconds. "
+                    f"That is on average under {round(duration / total, 3)} seconds per calculation.")
 
     @property
     def results(self) -> _DataClassResults:

@@ -1,5 +1,5 @@
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from typing import Callable
 import pandas as pd
 from probabilistic_library import CombineProject, CombinerMethod, CombineType
@@ -10,6 +10,7 @@ from geoprob_pipe.classes.vak import VakCollection
 import logging
 import threading
 
+from geoprob_pipe.helper_functions.z_functions import MODEL_NAMES
 
 logger = logging.getLogger("geoprob_pipe_logger")
 
@@ -32,7 +33,7 @@ def _result_dict(reliability_calculation: CombinedReliabilityCalculation|Reliabi
 
 def start_calculations(
         list_reliability_calculations: list[ReliabilityCalculation],
-        model_name: str
+        model_name: str,
 ):
     """ Starts running the provided calculations through a ThreadPoolExecutor. """
     total = list_reliability_calculations.__len__()
@@ -57,7 +58,7 @@ def start_calculations(
             with lock:
                 if completed >= total:
                     duration = int(time.time() - start_time)
-                    logger.info(f" -> Finished all {total} of '{model_name}' calculations in under {duration} seconds. "
+                    logger.info(f"[{model_name}] Finished all {total} of calculations in under {duration} seconds. "
                                 f"That is on average under {round(duration/total, 3)} seconds per calculation.")
                     break
             time.sleep(1)
@@ -102,6 +103,9 @@ def build_and_run_unique_model_calculations(
     :return:
     """
 
+    model_name = {}
+
+    # Build calculations
     list_calculations = []
     for vak in vak_collection.values():
         for uittredepunt in vak.uittredepunten:
@@ -115,14 +119,17 @@ def build_and_run_unique_model_calculations(
                         df_settings=df_settings
                     )
                 )
-    start_calculations(list_calculations, model_name=model.__name__)
 
-    # Return the calculations in a DataFrame for easy access. The DataFrame is sorted by uittredepunt and by ondergrondscenario    
+    # Run calculations
+    start_calculations(list_calculations, model_name=MODEL_NAMES[model.__name__])
+
+    # Return the calculations in a DataFrame for easy access. The DataFrame is sorted by uittredepunt and by
+    # ondergrondscenario
     return pd.DataFrame([_result_dict(calc) for calc in list_calculations]).sort_values(
         by=["uittredepunt_id", "ondergrondscenario_id"]).reset_index(drop=True)
 
 
-def build_and_run_combined_calculations(
+def build_and_run_combined_calculation(
         df_group: pd.DataFrame,
         uittredepunt: Uittredepunt,
         ondergrond_scenario: OndergrondScenario
@@ -148,5 +155,6 @@ def build_and_run_combined_calculations(
     combined_project.settings.combine_type = CombineType.parallel
     combined_project.settings.combiner_method = CombinerMethod.importance_sampling
     combined_project.run()
+    # TODO Nu Should Middel: Implementeer ThreadPoolExecutor voor 'run combined'.
     
     return pd.Series(_result_dict(CombinedReliabilityCalculation(combined_project, uittredepunt, ondergrond_scenario)))
