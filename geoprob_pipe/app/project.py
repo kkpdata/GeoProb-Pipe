@@ -16,8 +16,8 @@ from geoprob_pipe.classes.overschrijdingsfrequentielijn import Overschrijdingsfr
 from geoprob_pipe.classes.uittredepunt import UittredepuntCollection
 from geoprob_pipe.classes.vak import VakCollection
 from geoprob_pipe.classes.workspace import Workspace
-from geoprob_pipe.helper_functions.calculation_helpers import (
-    build_and_run_combined_calculation, build_and_run_unique_model_calculations)
+from geoprob_pipe.calculations.combined import build_and_run_combined_calculation
+from geoprob_pipe.calculations.limit_states import build_and_run_unique_model_calculations
 from geoprob_pipe.helper_functions.data_validation import checks_input_parameters, checks_overview_parameters
 from geoprob_pipe.helper_functions.statistics_utils import convert_failure_probability_to_beta
 from geoprob_pipe.helper_functions.z_functions import calc_Z_h, calc_Z_p, calc_Z_u
@@ -31,9 +31,9 @@ logger = logging.getLogger("geoprob_pipe_logger")
 class _DataClassResults:
     """Used for dot-accessing the calculation results
     """
-    unique: pd.DataFrame
-    combined_models: pd.DataFrame
-    uittredepunt: pd.DataFrame
+    df_limit_states: pd.DataFrame
+    df_combined: pd.DataFrame
+    df_uittredepunt: pd.DataFrame
 
 
 def provide_explanation_to_user():
@@ -181,7 +181,7 @@ class Project:
         """
 
         logger.info(f"[Combined] Building and running calculations.")
-        df_grouped = self._combined_df_calculations_unique_model.groupby(["uittredepunt_id", "ondergrondscenario_id"])
+        df_grouped = self._df_calculation_results_limit_states.groupby(["uittredepunt_id", "ondergrondscenario_id"])
         total = df_grouped.__len__()
         time_start = time.time()
 
@@ -191,6 +191,7 @@ class Project:
                 df_group,
                 self.uittredepunt_collection[str(df_group.name[0])],
                 self.ondergrond_scenario_collection[str(df_group.name[1])])).reset_index(drop=True)
+        # TODO Nu Should Middel: Implement Thread Executor for this.
 
         # Reporting finished
         duration = int(time.time() - time_start)
@@ -202,20 +203,20 @@ class Project:
         """ Returns a dataclass with dot-access to the results of the unique model calculations (uplift/heave/piping)
         and of the combined calculations. """
         return _DataClassResults(
-            unique = self._combined_df_calculations_unique_model,
-            combined_models = self._calculations_combined_models,
-            uittredepunt = self._calculations_uittredepunt
+            df_limit_states=self._df_calculation_results_limit_states,
+            df_combined=self._calculations_combined_models,
+            df_uittredepunt=self._calculations_uittredepunt
         )
 
-    @property
-    def _combined_df_calculations_unique_model(self) -> pd.DataFrame:
-        """ Merge the DataFrames of the unique model calculations (uplift/heave/piping) into a single DataFrame for
-        convenient access.
+    def export_results(self):
+        # df = self.results.df_limit_states
+        pass
 
-        Returns:
-            pd.DataFrame: Containing the results of the unique model calculations, sorted by uittredepunt,
-                          ondergrondscenario and model type (uplift/heave/piping).
-        """
+
+    @property
+    def _df_calculation_results_limit_states(self) -> pd.DataFrame:
+        """ Merge the DataFrames of the unique limit state calculations (uplift/heave/piping) into a single DataFrame
+        for convenient access. The dataframe is sorted by uittredepunt, ondergrondscenario and limit state type. """
         
         # Store the model type in a new column
         df_unique_model_results = pd.concat(

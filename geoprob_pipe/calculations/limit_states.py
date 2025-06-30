@@ -2,33 +2,16 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable
 import pandas as pd
-from probabilistic_library import CombineProject, CombinerMethod, CombineType
-from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenario
-from geoprob_pipe.classes.reliability_calculation import CombinedReliabilityCalculation, ReliabilityCalculation
-from geoprob_pipe.classes.uittredepunt import Uittredepunt
+from geoprob_pipe.classes.reliability_calculation import ReliabilityCalculation
 from geoprob_pipe.classes.vak import VakCollection
 import logging
 import threading
 
 from geoprob_pipe.helper_functions.z_functions import MODEL_NAMES
+from geoprob_pipe.calculations.utils import _result_dict
+
 
 logger = logging.getLogger("geoprob_pipe_logger")
-
-
-def _result_dict(reliability_calculation: CombinedReliabilityCalculation|ReliabilityCalculation) -> dict:
-    """ Helper function to convert a ReliabilityCalculation instance to a dictionary for easy access. """
-    return {
-        "uittredepunt_id": reliability_calculation.id["uittredepunt"],
-        "uittredepunt": reliability_calculation.uittredepunt,
-        "ondergrondscenario_id": reliability_calculation.id["ondergrondscenario"],
-        "ondergrondscenario": reliability_calculation.ondergrond_scenario,
-        "reliability_calculation": reliability_calculation,
-        "converged": reliability_calculation.is_converged,
-        "beta": reliability_calculation.beta,
-        "failure_probability": reliability_calculation.reliability_project.design_point.probability_failure,
-        "alphas": reliability_calculation.alphas,
-        "influence_factors": reliability_calculation.influence_factors,
-    }
 
 
 def start_calculations(
@@ -103,8 +86,6 @@ def build_and_run_unique_model_calculations(
     :return:
     """
 
-    model_name = {}
-
     # Build calculations
     list_calculations = []
     for vak in vak_collection.values():
@@ -128,33 +109,3 @@ def build_and_run_unique_model_calculations(
     return pd.DataFrame([_result_dict(calc) for calc in list_calculations]).sort_values(
         by=["uittredepunt_id", "ondergrondscenario_id"]).reset_index(drop=True)
 
-
-def build_and_run_combined_calculation(
-        df_group: pd.DataFrame,
-        uittredepunt: Uittredepunt,
-        ondergrond_scenario: OndergrondScenario
-) -> pd.Series:
-    """
-
-    :param df_group: All three models (uplift/heave/piping) for a unique combination of uittredepunt and
-        ondergrondscenario
-    :param uittredepunt:
-    :param ondergrond_scenario:
-    :return: Series containing the combined reliability calculation result for the unique combination of uittredepunt
-        and ondergrondscenario
-    """
-
-    # Extract the model results of uplift/heave/piping from the DataFrame group
-    models = {row["model"]: row["reliability_calculation"] for _, row in df_group.iterrows()}
-
-    # Set up and run combined project
-    combined_project = CombineProject()
-    combined_project.design_points.append(models["uplift"].design_point)
-    combined_project.design_points.append(models["heave"].design_point)
-    combined_project.design_points.append(models["piping"].design_point)
-    combined_project.settings.combine_type = CombineType.parallel
-    combined_project.settings.combiner_method = CombinerMethod.importance_sampling
-    combined_project.run()
-    # TODO Nu Should Middel: Implementeer ThreadPoolExecutor voor 'run combined'.
-    
-    return pd.Series(_result_dict(CombinedReliabilityCalculation(combined_project, uittredepunt, ondergrond_scenario)))

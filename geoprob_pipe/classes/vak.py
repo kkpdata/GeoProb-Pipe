@@ -1,13 +1,7 @@
 from types import SimpleNamespace
-
 import pandas as pd
-
 from geoprob_pipe.classes.base_collection import BaseCollection, _pretty_repr
-from geoprob_pipe.helper_functions.data_validation import (
-    check_attribute_already_exists,
-    check_attribute_in_overview,
-    enforce_lower_upper_bounds,
-)
+from geoprob_pipe.helper_functions.data_validation import (check_attribute_already_exists, check_attribute_in_overview)
 from geoprob_pipe.helper_functions.parameter_functions import (
     generate_parameter_dict_for_variable,
     strip_suffix_from_list_parameter_names,
@@ -16,7 +10,8 @@ from geoprob_pipe.helper_functions.parameter_functions import (
 
 class Vak:
     
-    # Metadata attributes of the Vak class. These are stored as class-level type hints to make the attributes visible to static type checkers (e.g. Pylance).
+    # Metadata attributes of the Vak class. These are stored as class-level type hints to make the attributes visible
+    # to static type checkers (e.g. Pylance).
     # The actual values are set dynamically in __init__ using setattr and a list of values.
     id: int  # Note: this is a renamed version of vak_id
     vak_naam: str
@@ -25,18 +20,21 @@ class Vak:
     vak_lengte: float
     
 
-    def __init__(self, df_row: pd.Series, df_overview_parameters: pd.DataFrame, input_parameter_names_without_suffix: list[str]) -> None:
+    def __init__(self, df_row: pd.Series, df_overview_parameters: pd.DataFrame,
+                 input_parameter_names_without_suffix: list[str]) -> None:
         
         # Add each input parameter to the Vak instance
         for attr_name_without_suffix in input_parameter_names_without_suffix:
             check_attribute_already_exists(self, attr_name_without_suffix)
             check_attribute_in_overview(attr_name_without_suffix, df_overview_parameters)
             
-            df_overview_row = df_overview_parameters.loc[attr_name_without_suffix]  # Select relevant row from the parameter overview
+            df_overview_row = df_overview_parameters.loc[attr_name_without_suffix]
+            # Select relevant row from the parameter overview
             
             if df_overview_row["parameter_type"] == "metadata":
                 # Metadata should be set on the Vak instance directly
-                name = "id" if attr_name_without_suffix == "vak_id" else attr_name_without_suffix  # Rename vak_id to id to simplify the attribute name
+                name = "id" if attr_name_without_suffix == "vak_id" else attr_name_without_suffix
+                # Rename vak_id to id to simplify the attribute name
                 setattr(self, name, df_row[attr_name_without_suffix])
                 
             elif df_overview_row.at["parameter_type"] in ["variable", "constant"]:
@@ -45,7 +43,8 @@ class Vak:
                     # Create a SimpleNamespace to hold the variables/constants of this Vak instance
                     self.variables = SimpleNamespace()
                     
-                # Generate input_dict for the variable or constant. This is a dictionary containing the parameters (e.g. mean, stdev/vc, etc.)
+                # Generate input_dict for the variable or constant. This is a dictionary containing the parameters
+                # (e.g. mean, stdev/vc, etc.)
                 # All input dicts will be stored in the variables attribute of the Vak instance
                 # This function also calls a helper function to enforce lower and upper bounds on the variable
                 input_dict = generate_parameter_dict_for_variable(attr_name_without_suffix,
@@ -56,7 +55,8 @@ class Vak:
         
         # Initialize attributes which will be filled later
         self.uittredepunten = []  # Filled in the UittredepuntCollection class and shows all Uittredepunten in this Vak
-        self.ondergrond_scenarios = []  # Filled in the OndergrondScenarioCollection class and shows all OndergrondScenarios in this Vak
+        self.ondergrond_scenarios = []  # Filled in the OndergrondScenarioCollection class and shows all
+        # OndergrondScenarios in this Vak
 
     def __repr__(self) -> str:
         return _pretty_repr(self)

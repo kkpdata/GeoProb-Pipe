@@ -27,6 +27,7 @@ from geoprob_pipe.helper_functions import geohydro_functions, model4a, piping_fu
 # h: float
 
 
+# noinspection PyPep8Naming
 def calc_Z_combin_piping(X: List[float]) -> List[float]:
     r"""
 
@@ -57,10 +58,10 @@ def calc_Z_combin_piping(X: List[float]) -> List[float]:
 
     Returns:
         Y (List[float]): lijst me de volgende elementen:
-            Y[0] (float): Dcover: deklaagdikte in m
+            Y[0] (float): D_cover: deklaagdikte in m
             Y[1] (float): h_exit: niveau uittredepunt m+NAP
             Y[2] (float): d_pot_c_u: grenspotentiaal in m
-            Y[3] (float): dhred: gereduceerd verval in m
+            Y[3] (float): dh_red: gereduceerd verval in m
             Y[4] (float): k: doorlatendheid zandlaag in m/d
             Y[5] (float): r_exit: respons in uittredepunt [-]
             Y[6] (float): pot_exit: potentiaal in uittredepunt in m+NAP
@@ -96,16 +97,16 @@ def calc_Z_combin_piping(X: List[float]) -> List[float]:
     ] = X
 
     # Berekening deklaagdikte
-    Dcover = piping_functions_old.calc_Dcover(mv, top_zand)
+    D_cover = piping_functions_old.calc_Dcover(mv, top_zand)
 
     # Berekening niveau bij het uittredepunt
     h_exit = piping_functions_old.calc_h_exit(pp, mv)
 
     # Berekening gereduceerd verval
-    dhred = piping_functions_old.calc_dH_red(h, h_exit, rc, Dcover)
+    dh_red = piping_functions_old.calc_dH_red(h, h_exit, rc, D_cover)
 
     # Berekening grenspotentiaal
-    d_pot_c_u = piping_functions_old.calc_d_pot_c_u(Dcover, gamma_sat_cover, gamma_w)
+    d_pot_c_u = piping_functions_old.calc_d_pot_c_u(D_cover, gamma_sat_cover, gamma_w)
 
     # Berekening geometrische waarden voor potentiaalberekening
     L1 = dist_L_geom - dist_BUT
@@ -116,32 +117,37 @@ def calc_Z_combin_piping(X: List[float]) -> List[float]:
     k = kD / D
     # aanroepen functie potentiaalberekening, x_bit = 0.0 zodat we dist_BIT kunnen gebruiken als x)
     pot_model = model4a.Model4a(
-        k=k, D=D, c1=c_1, c3=c_3, L1=L1, L3=L3_geom, x_but=(0.0 - L2), x_bit=0.0
+        kD=k*D, D=D, c1=c_1, c3=c_3, L1=L1, L3=L3_geom, x_but=(0.0 - L2), x_bit=0.0
     )
     r_exit, r_but, r_bit = pot_model.respons(dist_BIT)
     pot_exit = geohydro_functions.calc_respons2pot(pp, r_exit, h)
 
     # Kwelweglengte
+    # noinspection PyPep8Naming
     L_kwelweg = pot_model.W1 + dist_BUT
 
     # uplift
-    Z_u = piping_functions_old.calc_Z_u(d_pot_c_u, pot_exit, h_exit, mu)
+    # noinspection PyPep8Naming
+    z_u = piping_functions_old.calc_Z_u(d_pot_c_u, pot_exit, h_exit, mu)
 
     # heave
-    i_optredend = piping_functions_old.calc_i_optredend(pot_exit, h_exit, Dcover)
-    Z_h = piping_functions_old.calc_Z_h(i_c_h, i_optredend, mh)
+    i_optredend = piping_functions_old.calc_i_optredend(pot_exit, h_exit, D_cover)
+    # noinspection PyPep8Naming
+    z_h = piping_functions_old.calc_Z_h(i_c_h, i_optredend, mh)
 
     # piping
     dhc = piping_functions_old.calc_dH_sellmeijer(d70, k, D, L_kwelweg, gamma_w)
-    Z_p = piping_functions_old.calc_Z_p(dhc, dhred, mp)
+    # noinspection PyPep8Naming
+    z_p = piping_functions_old.calc_Z_p(dhc, dh_red, mp)
 
     # combinatie
-    Z_combin = max(Z_u, Z_h, Z_p)
+    Z_combin = max(z_u, z_h, z_p)
 
-    return [Dcover,h_exit,d_pot_c_u,dhred,k,r_exit,pot_exit,L_kwelweg,i_optredend,dhc,Z_u,Z_h,Z_p,Z_combin]
+    return [D_cover,h_exit,d_pot_c_u,dh_red,k,r_exit,pot_exit,L_kwelweg,i_optredend,dhc,Z_u,Z_h,Z_p,Z_combin]
     
 
 
+# noinspection PyPep8Naming
 def Z_u(X: List[float]) -> float:
     r"""Grenstoestandfunctie voor uplift.
 
@@ -175,6 +181,7 @@ def Z_u(X: List[float]) -> float:
     return calc_Z_combin_piping(X)[10]
 
 
+# noinspection PyPep8Naming
 def Z_h(X: List[float]) -> float:
     r"""Grenstoestandfunctie voor uplift.
 
@@ -207,6 +214,7 @@ def Z_h(X: List[float]) -> float:
     return calc_Z_combin_piping(X)[11]
 
 
+# noinspection PyPep8Naming
 def Z_p(X: List[float]) -> float:
     r"""Grenstoestandfunctie voor uplift.
 

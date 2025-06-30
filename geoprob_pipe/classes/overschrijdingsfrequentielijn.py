@@ -7,14 +7,15 @@ from geoprob_pipe.classes.uittredepunt import UittredepuntCollection
 
 
 class Overschrijdingsfrequentielijn:
-    def __init__(self, HRD_PATH: Path, hydra_locatie_id: str):
+    def __init__(self, hrd_path: Path, hydra_locatie_id: str):
 
         self.id = hydra_locatie_id
-        self.overschrijdingsfrequentielijn = self._calculate_overschrijdingsfrequentielijn(HRD_PATH, hydra_locatie_id)
-        
-    def _calculate_overschrijdingsfrequentielijn(self, HRD_PATH: Path, hydra_locatie_id: str):
+        self.overschrijdingsfrequentielijn = self._calculate_overschrijdingsfrequentielijn(hrd_path, hydra_locatie_id)
+
+    @staticmethod
+    def _calculate_overschrijdingsfrequentielijn(hrd_path: Path, hydra_locatie_id: str):
         # Read HRD
-        hrd = pydra.HRDatabase(HRD_PATH)
+        hrd = pydra.HRDatabase(hrd_path.__str__())
         
         # Setup calculation object exceedance frequency line
         fl = pydra.ExceedanceFrequencyLine("h")
@@ -33,16 +34,17 @@ class Overschrijdingsfrequentielijn:
 
         
 class OverschrijdingsfrequentielijnCollection(BaseCollection[Overschrijdingsfrequentielijn]):
-    def __init__(self, HRD_PATH: Path, uittredepunt_collection: UittredepuntCollection) -> None:
+
+    def __init__(self, hrd_path: Path, uittredepunt_collection: UittredepuntCollection) -> None:
         super().__init__()  # Initialize the base collection
-        self.HRD_PATH = HRD_PATH
+        self.hrd_path = hrd_path
 
         # Create Overschrijdingsfrequentielijn for each hydra_locatie_id in the UittredepuntCollection
-        # Since the calculations for Overschrijdingsfrequentielijn might take a while, we only calculate it once per unique hydra_locatie_id
-        # and later assign it to the corresponding Uittredepunt instances.
+        # Since the calculations for Overschrijdingsfrequentielijn might take a while, we only calculate it once per
+        # unique hydra_locatie_id and later assign it to the corresponding Uittredepunt instances.
         unique_hydra_locatie_ids = list(set(uittredepunt.hydra_locatie_id for uittredepunt in uittredepunt_collection))
         for hydra_locatie_id in unique_hydra_locatie_ids:
-            self.add(hydra_locatie_id, Overschrijdingsfrequentielijn(self.HRD_PATH, hydra_locatie_id))
+            self.add(hydra_locatie_id, Overschrijdingsfrequentielijn(self.hrd_path, hydra_locatie_id))
 
         # Assign the correct Overschrijdingsfrequentielijn to each Uittredepunt
         for uittredepunt in uittredepunt_collection:

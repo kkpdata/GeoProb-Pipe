@@ -10,6 +10,16 @@ if TYPE_CHECKING:
     from geoprob_pipe.classes.overschrijdingsfrequentielijn import Overschrijdingsfrequentielijn
 T = TypeVar("T")
 
+
+SHOW_NUMBER_ATTRIBUTES = 2  # Defines number of attributes to show (to prevent long prints)
+SHOW_NUMBER_SUBATTRIBUTES = 4  # Defines number of subattributes (i.e. attributes of attributes) to show (to prevent long prints)
+
+
+def _show_limited_subattributes(instance: T) -> str:
+    attrs = list(instance.__dict__.items())[:SHOW_NUMBER_SUBATTRIBUTES]
+    return ", ".join(f"{ak}={repr(av)}" for ak, av in attrs)
+
+
 class BaseCollection(Generic[T]):
     """
     A generic base class for managing a collection of items, each identified 
@@ -44,16 +54,9 @@ class BaseCollection(Generic[T]):
     def __repr__(self) -> str:
 
         # Header text
-        lines = [f"{self.__class__.__name__} with {len(self)} items:"]
-        
-        ## Text regarding instances within collection
-        SHOW_NUMBER_ATTRIBUTES = 2  # Defines number of attributes to show (to prevent long prints)
-        SHOW_NUMBER_SUBATTRIBUTES = 4  # Defines number of subattributes (i.e. attributes of attributes) to show (to prevent long prints)
-        def _show_limited_subattributes(instance: T) -> str:
-            attrs = list(instance.__dict__.items())[:SHOW_NUMBER_SUBATTRIBUTES]
-            return ", ".join(f"{ak}={repr(av)}" for ak, av in attrs)
-        
-        lines.append("    {")
+        lines = [f"{self.__class__.__name__} with {len(self)} items:", "    {"]
+
+        # Text regarding instances within collection
         for _, instance in islice(self._items.items(), SHOW_NUMBER_ATTRIBUTES):
             lines.append(f"      {instance.__class__.__name__}({_show_limited_subattributes(instance)}, ...)")
         lines.append("      ...")
@@ -87,12 +90,12 @@ class BaseCollection(Generic[T]):
     def __len__(self) -> int:
         return len(self._items)
 
-    def __contains__(self, id: str) -> bool:
-        return id in self._items
+    def __contains__(self, identifier: str) -> bool:
+        return identifier in self._items
 
     # Normal methods
-    def add(self, id: str, obj: T) -> None:
-        self._items[str(id)] = obj
+    def add(self, identifier: str, obj: T) -> None:
+        self._items[str(identifier)] = obj
 
     def keys(self) -> list[str]:
         return list(self._items.keys())

@@ -12,7 +12,8 @@ class FileSystem:
 
         Args:
             path_folder (str | Path): path of folder for which a FileSystem instance will be created
-            extension (Optional[str], optional): extension of specific files to include in the FileSystem instance. Defaults to None, which returns all files path_folder regardless of extension.
+            extension (Optional[str], optional): extension of specific files to include in the FileSystem instance.
+                Defaults to None, which returns all files path_folder regardless of extension.
         """
         self.folderpath = self.validate_path(path_folder)
 
@@ -40,32 +41,36 @@ class FileSystem:
             return Path(path_to_check).resolve()
 
     @staticmethod
-    def find_files_in_dir(dir: str | Path, extension: str | None = None) -> list[Path]:
+    def find_files_in_dir(path_to_dir: str | Path, extension: str | None = None) -> list[Path]:
         """Find all files with a specified extension in a folder and its subfolders.
         Note: files starting with ~$ are ignored since these are generally temporary files
 
         Args:
-            dir (str | Path): folder to search in
+            path_to_dir (str | Path): folder to search in
             extension (str, None): extension without the dot (e.g. "txt" instead of ".txt").
-                                   If None is passed all files in dir, regarless of extension, are returned
+                                   If None is passed all files in dir, regardless of extension, are returned
 
         Returns:
             list[Path]: list of paths to the found files in the dir. Returns None if no files were found.
         """
         if isinstance(extension, str):
-            files = [file for file in Path(dir).resolve().rglob(f"*.{extension}") if file.is_file() and not file.name.startswith("~$")]
+            files = [file
+                     for file in Path(path_to_dir).resolve().rglob(f"*.{extension}")
+                     if file.is_file() and not file.name.startswith("~$")]
         else:
-            files = [file for file in Path(dir).resolve().rglob(f"*") if file.is_file() and not file.name.startswith("~$")]
+            files = [file
+                     for file in Path(path_to_dir).resolve().rglob(f"*")
+                     if file.is_file() and not file.name.startswith("~$")]
         return files
 
     @staticmethod
-    def find_subfolders(dir: str | Path) -> list[Path]:
+    def find_subfolders(path_to_dir: str | Path) -> list[Path]:
         """Find all subfolders within a parent folder
 
         Args:
-            dir (str | Path): folder to search in
+            path_to_dir (str | Path): folder to search in
 
         Returns:
             list[Path]: list of paths to the found subfolders in the dir.
         """
-        return [subfolder for subfolder in Path(dir).iterdir() if subfolder.is_dir()]
+        return [subfolder for subfolder in Path(path_to_dir).iterdir() if subfolder.is_dir()]
