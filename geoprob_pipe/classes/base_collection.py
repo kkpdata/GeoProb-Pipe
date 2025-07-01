@@ -4,10 +4,10 @@ from itertools import islice
 from typing import TYPE_CHECKING, Generic, Iterator, TypeVar, Union
 
 if TYPE_CHECKING:
-    from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenario
-    from geoprob_pipe.classes.uittredepunt import Uittredepunt
-    from geoprob_pipe.classes.vak import Vak
-    from geoprob_pipe.classes.overschrijdingsfrequentielijn import Overschrijdingsfrequentielijn
+    from geoprob_pipe.input_data.ondergrond_scenario import OndergrondScenario
+    from geoprob_pipe.input_data.uittredepunt import Uittredepunt
+    from geoprob_pipe.input_data.vak import Vak
+    from geoprob_pipe.input_data.overschrijdingsfrequentielijn import Overschrijdingsfrequentielijn
 T = TypeVar("T")
 
 
@@ -106,7 +106,7 @@ class BaseCollection(Generic[T]):
     def items(self) -> list[tuple[str, T]]:
         return list(self._items.items())
 
-def _pretty_repr(self: Vak | Uittredepunt | OndergrondScenario | Overschrijdingsfrequentielijn) -> str:
+def pretty_repr(self: Vak | Uittredepunt | OndergrondScenario | Overschrijdingsfrequentielijn) -> str:
     def format_value(v, indent=2):
         spacer = '    ' * indent
 

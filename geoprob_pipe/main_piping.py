@@ -2,7 +2,7 @@
 Project-object directly outside the repository. """
 
 
-from geoprob_pipe import Project
+from geoprob_pipe import GeoProbPipe
 from geoprob_pipe.helper_functions.utils import repository_root_path
 from geoprob_pipe.utils.loggers import initiate_app_logger
 from dotenv import load_dotenv
@@ -19,7 +19,7 @@ load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
 initiate_app_logger(repo_root=repo_root)
 
 # Initiate GeoProb-Pipe project object
-project = Project(os.getenv("PATH_WORKSPACE"))
+project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
 
 project.export_results()
 

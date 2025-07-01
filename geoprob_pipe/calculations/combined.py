@@ -1,8 +1,8 @@
 import pandas as pd
 from probabilistic_library import CombineProject, CombinerMethod, CombineType
-from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenario
+from geoprob_pipe.input_data.ondergrond_scenario import OndergrondScenario
 from geoprob_pipe.classes.reliability_calculation import CombinedReliabilityCalculation
-from geoprob_pipe.classes.uittredepunt import Uittredepunt
+from geoprob_pipe.input_data.uittredepunt import Uittredepunt
 import logging
 from geoprob_pipe.calculations.utils import _result_dict
 

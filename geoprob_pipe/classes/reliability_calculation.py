@@ -7,8 +7,8 @@ from geoprob_pipe.globals import ALLOWED_DISPERSION_TYPES
 from probabilistic_library import CombineProject, FragilityValue, ReliabilityProject
 from probabilistic_library.reliability import Settings
 from probabilistic_library.utils import FrozenList
-from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenario
-from geoprob_pipe.classes.uittredepunt import Uittredepunt
+from geoprob_pipe.input_data.ondergrond_scenario import OndergrondScenario
+from geoprob_pipe.input_data.uittredepunt import Uittredepunt
 from geoprob_pipe.helper_functions.data_validation import enforce_lower_upper_bounds
 from geoprob_pipe.helper_functions.parameter_functions import generate_parameter_dict_for_constant
 import time

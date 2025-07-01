@@ -11,16 +11,12 @@ except ModuleNotFoundError:
         "Please request the wheel-file through the developer and install it manually. Due to copyright reasons, do \n"
         "not commit the wheel-file into the repository.")
 import logging
-from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenarioCollection
-from geoprob_pipe.classes.overschrijdingsfrequentielijn import OverschrijdingsfrequentielijnCollection
-from geoprob_pipe.classes.uittredepunt import UittredepuntCollection
-from geoprob_pipe.classes.vak import VakCollection
 from geoprob_pipe.classes.workspace import Workspace
 from geoprob_pipe.calculations.combined import build_and_run_combined_calculation
 from geoprob_pipe.calculations.limit_states import build_and_run_unique_model_calculations
-from geoprob_pipe.helper_functions.data_validation import checks_input_parameters, checks_overview_parameters
 from geoprob_pipe.helper_functions.statistics_utils import convert_failure_probability_to_beta
 from geoprob_pipe.helper_functions.z_functions import calc_Z_h, calc_Z_p, calc_Z_u
+from geoprob_pipe.input_data import InputData
 import time
 
 
@@ -42,11 +38,10 @@ def provide_explanation_to_user():
     You can now use the interactive console to explore and/or export the results. Some examples:
         print(project.results.unique_models)
         print(project.results.combined)
-        project.results.combined.to_excel(project.workspace.output.folderpath / "fragility_curve_data_combined.xlsx")
+        project.results.combined.to_excel(project.workspace.path_output_folder.folderpath / "fragility_curve_data_combined.xlsx")
     """)
 
-
-class Project:
+class GeoProbPipe:
     """ Project class """
     def __init__(
             self,
@@ -59,37 +54,12 @@ class Project:
         # Initialize Workspace object (also checks if input/output folders contain all necessary files)
         self.workspace = Workspace(path_to_workspace)
 
-        # Read overview data of parameters from input Excel file (includes e.g. upper and lower bounds, type of
-        # distribution, etc.) and carry out checks
-        self.df_overview_parameters = pd.read_excel(self.workspace.excel_path, sheet_name="Overzicht_parameters",
-                                                    index_col=0, header=0).rename(columns=lambda x: x.strip())
-        checks_overview_parameters(self.df_overview_parameters)
-
-        # Read input data of vakken, uittredepunten and ondergrondscenarios data from input Excel file and carry out
-        # checks. Note that the df's are not set on self (Project) but are added below to VakCollection/
-        # UittredepuntCollection/OndergrondScenarioCollection. Strip trailing whitespace in column names. Also, unused
-        # ondergrond scenario's (ondergrondscenario_kans=Nan or ondergrondscenario_kans=0) are removed since these are
-        # not relevant
-        df_vakken = pd.read_excel(self.workspace.excel_path, sheet_name="Vakken").rename(columns=lambda x: x.strip())
-        # TODO Later Must Groot: Volledige object georiënteerde/gebruiksvriendelijke validatie voor de invoer bestanden.
-        df_uittredepunten = pd.read_excel(self.workspace.excel_path, sheet_name="Uittredepunten").rename(
-            columns=lambda x: x.strip())
-        df_ondergrond_scenarios = pd.read_excel(self.workspace.excel_path, sheet_name="Ondergrondscenarios").rename(
-            columns=lambda x: x.strip()).dropna(subset=['ondergrondscenario_kans']).loc[
-            lambda x: x['ondergrondscenario_kans'] != 0]
-        checks_input_parameters(self.df_overview_parameters, df_vakken, df_uittredepunten, df_ondergrond_scenarios)
-        logger.info(f"Parameter data successfully loaded from `{self.workspace.excel_path.name}`")
+        # Gather input data
+        self.input_data = InputData(self.workspace)
 
         # Initialize collections. Note that UittredepuntCollection and OndergrondscenarioCollection link the
         # instances of Uittredepunt and OndergrondScenario to the corresponding Vak instance
-        self.vak_collection = VakCollection(df_vakken, self.df_overview_parameters)
-        self.uittredepunt_collection = UittredepuntCollection(
-            df_uittredepunten, self.vak_collection, self.df_overview_parameters)
-        self.ondergrond_scenario_collection = OndergrondScenarioCollection(
-            df_ondergrond_scenarios, self.vak_collection, self.df_overview_parameters)
-        self.overschrijdingsfrequentielijn_collection = OverschrijdingsfrequentielijnCollection(
-            self.workspace.hrd_path, self.uittredepunt_collection)
-        logger.info(f"HRD .sqlite file successfully loaded from `{self.workspace.hrd_path.name}`")
+
 
         # Read calculation settings
         self._read_calculation_settings()
@@ -124,8 +94,8 @@ class Project:
 
     def _read_calculation_settings(self):
         """ Read calculation settings from Excel file. """
-        self.df_settings = pd.read_excel(self.workspace.excel_path, sheet_name="Settings", index_col=0, header=0)
-        logger.info(f"Settings successfully loaded from `{self.workspace.excel_path.name}`.")
+        self.df_settings = pd.read_excel(self.workspace.path_input_excel, sheet_name="Settings", index_col=0, header=0)
+        logger.info(f"Settings successfully loaded from `{self.workspace.path_input_excel.name}`.")
         time.sleep(1)  # Some time to make sure the print below, is printed after the logger print.
 
         print(f"""
@@ -148,22 +118,22 @@ class Project:
         logger.info(f"[Uplift] Building and running calculations.")
         df_uplift = build_and_run_unique_model_calculations(
             model=calc_Z_u,
-            vak_collection=self.vak_collection,
-            df_overview_parameters=self.df_overview_parameters,
+            vak_collection=self.input_data.vakken,
+            df_overview_parameters=self.input_data.df_overview_parameters,
             df_settings=self.df_settings)
 
         logger.info(f"[Heave] Building and running calculations.")
         df_heave = build_and_run_unique_model_calculations(
             model=calc_Z_h,
-            vak_collection=self.vak_collection,
-            df_overview_parameters=self.df_overview_parameters,
+            vak_collection=self.input_data.vakken,
+            df_overview_parameters=self.input_data.df_overview_parameters,
             df_settings=self.df_settings)
 
         logger.info(f"[Piping] Building and running 'piping' calculations.")
         df_piping = build_and_run_unique_model_calculations(
             model=calc_Z_p,
-            vak_collection=self.vak_collection,
-            df_overview_parameters=self.df_overview_parameters,
+            vak_collection=self.input_data.vakken,
+            df_overview_parameters=self.input_data.df_overview_parameters,
             df_settings=self.df_settings)
 
         self._calculations_unique = {
@@ -188,8 +158,8 @@ class Project:
         self._calculations_combined_models = df_grouped.apply(
             lambda df_group: build_and_run_combined_calculation(
                 df_group,
-                self.uittredepunt_collection[str(df_group.name[0])],
-                self.ondergrond_scenario_collection[str(df_group.name[1])])).reset_index(drop=True)
+                self.input_data.uittredepunten[str(df_group.name[0])],
+                self.input_data.ondergrondscenarios[str(df_group.name[1])])).reset_index(drop=True)
         # TODO Nu Should Middel: Implement Thread Executor for this.
 
         # Reporting finished
@@ -216,7 +186,7 @@ class Project:
         # TODO Later Should Middel: Alpha en/of influence_factors exporteren in een aparte Excel.
         #  Daarbij eveneens afronden.
         # TODO Later Should Klein: Bespreken wat we met resultaten doen die niet 'converged' zijn.
-        df.to_excel(excel_writer=self.workspace.output.folderpath / "df_limit_states.xlsx")
+        df.to_excel(excel_writer=self.workspace.path_output_folder.folderpath / "df_limit_states.xlsx")
         # TODO Nu Must Middel: Visualiseer de limit state resultaten.
         #  Indien dat niet al bestaat, dan visualiseren in een eenvoudige maar overzichtelijke grafiek. Geen map nodig
         #  (voor nu).
@@ -225,7 +195,7 @@ class Project:
         df = self.results.df_combined
         df = df[["uittredepunt_id", "ondergrondscenario_id", "converged", "beta", "failure_probability"]]
         df.loc[:, 'beta'] = df['beta'].round(2)
-        df.to_excel(excel_writer=self.workspace.output.folderpath / "df_combined.xlsx")
+        df.to_excel(excel_writer=self.workspace.path_output_folder.folderpath / "df_combined.xlsx")
         # TODO Nu Must Middel: Visualiseer de combined resultaten.
         #  Indien dat niet al bestaat, dan visualiseren in een eenvoudige maar overzichtelijke grafiek. Geen map nodig
         #  (voor nu).

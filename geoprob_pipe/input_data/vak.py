@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 import pandas as pd
-from geoprob_pipe.classes.base_collection import BaseCollection, _pretty_repr
+from geoprob_pipe.classes.base_collection import BaseCollection, pretty_repr
+from geoprob_pipe.classes.workspace import Workspace
 from geoprob_pipe.helper_functions.data_validation import (check_attribute_already_exists, check_attribute_in_overview)
 from geoprob_pipe.helper_functions.parameter_functions import (
     generate_parameter_dict_for_variable,
@@ -59,13 +60,14 @@ class Vak:
         # OndergrondScenarios in this Vak
 
     def __repr__(self) -> str:
-        return _pretty_repr(self)
+        return pretty_repr(self)
         
         
 class VakCollection(BaseCollection[Vak]):
-    def __init__(self, df_vakken: pd.DataFrame, df_overview_parameters: pd.DataFrame) -> None:
+
+    def __init__(self, workspace: Workspace, df_overview_parameters: pd.DataFrame) -> None:
         super().__init__()
-        self.df = df_vakken
+        self.df = pd.read_excel(workspace.path_input_excel, sheet_name="Vakken").rename(columns=lambda x: x.strip())
 
         # Get unique column names from the df (without suffix)
         input_parameter_names_without_suffix = strip_suffix_from_list_parameter_names(self.df.columns)

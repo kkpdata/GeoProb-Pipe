@@ -20,8 +20,8 @@ class Workspace:
                 working files will be stored
         """
         self.folderpath = FileSystem.validate_path(path_workspace)
-        self.output = _prepare_output_folder(self.folderpath)
-        self.input, self.excel_path, self.hrd_path = _prepare_input_folder(self.folderpath)
+        self.path_output_folder = _prepare_output_folder(self.folderpath)
+        self.input, self.path_input_excel, self.path_hrd = _prepare_input_folder(self.folderpath)
         # TODO Later Could Groot: Add functionality to read existing results (without running prob. calculations again)
         logger.info("Workspace (I/O folders) successfully processed")
 
@@ -29,7 +29,7 @@ class Workspace:
         """
         Update the output subfolder FileSystem instance (to include new calculation results)
         """
-        self.output = _prepare_output_folder(self.folderpath)
+        self.path_output_folder = _prepare_output_folder(self.folderpath)
 
 
 def _prepare_output_folder(path_workspace: Path) -> FileSystem:

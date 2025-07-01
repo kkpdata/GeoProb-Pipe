@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Callable
 import pandas as pd
 from geoprob_pipe.classes.reliability_calculation import ReliabilityCalculation
-from geoprob_pipe.classes.vak import VakCollection
+from geoprob_pipe.input_data.vak import VakCollection
 import logging
 import threading
 

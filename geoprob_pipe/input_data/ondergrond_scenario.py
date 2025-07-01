@@ -1,7 +1,8 @@
 from types import SimpleNamespace
 import pandas as pd
-from geoprob_pipe.classes.base_collection import BaseCollection, _pretty_repr
-from geoprob_pipe.classes.vak import Vak, VakCollection
+from geoprob_pipe.classes.base_collection import BaseCollection, pretty_repr
+from geoprob_pipe.input_data.vak import Vak, VakCollection
+from geoprob_pipe.classes.workspace import Workspace
 from geoprob_pipe.helper_functions.data_validation import (check_attribute_already_exists, check_attribute_in_overview)
 from geoprob_pipe.helper_functions.parameter_functions import (
     generate_parameter_dict_for_variable, strip_suffix_from_list_parameter_names)
@@ -58,14 +59,16 @@ class OndergrondScenario:
     
 
     def __repr__(self) -> str:
-        return _pretty_repr(self)
+        return pretty_repr(self)
     
     
 class OndergrondScenarioCollection(BaseCollection[OndergrondScenario]):
-    def __init__(self, df_ondergrond_scenarios: pd.DataFrame, vak_collection: VakCollection,
+    def __init__(self, workspace: Workspace, vak_collection: VakCollection,
                  df_overview_parameters: pd.DataFrame) -> None:
         super().__init__()  # Initialize the base collection
-        self.df = df_ondergrond_scenarios
+        self.df = pd.read_excel(workspace.path_input_excel, sheet_name="Ondergrondscenarios").rename(
+            columns=lambda x: x.strip()).dropna(subset=['ondergrondscenario_kans']).loc[
+            lambda x: x['ondergrondscenario_kans'] != 0]
 
         # Get unique column names from the df (without suffix)
         input_parameter_names_without_suffix = strip_suffix_from_list_parameter_names(self.df.columns)

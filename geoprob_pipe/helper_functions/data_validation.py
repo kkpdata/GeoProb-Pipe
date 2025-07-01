@@ -2,9 +2,9 @@ from __future__ import annotations  # makes all annotations lazy (no quotes need
 from typing import TYPE_CHECKING
 import pandas as pd
 if TYPE_CHECKING:
-    from geoprob_pipe.classes.vak import Vak
-    from geoprob_pipe.classes.uittredepunt import Uittredepunt
-    from geoprob_pipe.classes.ondergrond_scenario import OndergrondScenario
+    from geoprob_pipe.input_data.vak import Vak
+    from geoprob_pipe.input_data.uittredepunt import Uittredepunt
+    from geoprob_pipe.input_data.ondergrond_scenario import OndergrondScenario
 from typing import Any
 from geoprob_pipe.helper_functions.parameter_functions import strip_suffix_from_list_parameter_names
 
