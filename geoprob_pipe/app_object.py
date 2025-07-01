@@ -17,7 +17,9 @@ from geoprob_pipe.calculations.limit_states import build_and_run_unique_model_ca
 from geoprob_pipe.helper_functions.statistics_utils import convert_failure_probability_to_beta
 from geoprob_pipe.helper_functions.z_functions import calc_Z_h, calc_Z_p, calc_Z_u
 from geoprob_pipe.input_data import InputData
+from geoprob_pipe.graphs import Graphs
 import time
+import os
 
 
 logger = logging.getLogger("geoprob_pipe_logger")
@@ -91,6 +93,9 @@ class GeoProbPipe:
         time_diff = self.time_end - self.time_start
         logger.info(f"Calculations were performed successfully in {int(time_diff.total_seconds())} seconds.")
         provide_explanation_to_user()
+
+        # Append logic classes
+        self.graphs = Graphs(self)
 
     def _read_calculation_settings(self):
         """ Read calculation settings from Excel file. """
@@ -202,6 +207,14 @@ class GeoProbPipe:
         # TODO Nu Must Middel: Visualiseer een vergelijking tussen de combined en de limit state resultaten.
         #  Indien dat niet al bestaat, dan visualiseren in een eenvoudige maar overzichtelijke grafiek. Geen map nodig
         #  (voor nu).
+
+        # Export graphs
+        fig = self.graphs.combined.betrouwbaarheidsindex()
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        export_dir = r"C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV2\exports"
+        os.makedirs(export_dir, exist_ok=True)
+        export_path = os.path.join(export_dir, f"{timestamp}_B_STPH_sc.png")
+        fig.savefig(export_path, dpi=300)
 
     @property
     def _df_calculation_results_limit_states(self) -> pd.DataFrame:

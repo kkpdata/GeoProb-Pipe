@@ -22,6 +22,7 @@ initiate_app_logger(repo_root=repo_root)
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
 
 project.export_results()
+# fig = project.graphs.combined.betrouwbaarheidsindex()
 
 # project._calculations_unique['piping']['reliability_calculation'].iloc[0].run_duration
 
