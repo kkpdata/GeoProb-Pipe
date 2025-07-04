@@ -17,6 +17,7 @@ develop-eggs/
 dist/
 downloads/
 eggs/
+workspaces/example_new_calculations/output/
 .eggs/
 lib/
 lib64/
