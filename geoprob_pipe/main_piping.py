@@ -3,7 +3,7 @@ Project-object directly outside the repository. """
 
 
 from geoprob_pipe import GeoProbPipe
-from geoprob_pipe.helper_functions.utils import repository_root_path
+from geoprob_pipe.utils.other import repository_root_path
 from geoprob_pipe.utils.loggers import initiate_app_logger
 from dotenv import load_dotenv
 import os

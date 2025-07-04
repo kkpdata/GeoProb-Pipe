@@ -4,3 +4,4 @@ pydra-core
 gitpython
 openpyxl
 colorlog
+plotly
