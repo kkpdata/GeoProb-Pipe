@@ -113,6 +113,8 @@ class ReliabilityCalculation(ResultsTemplate):
         for attr_name, row in df_settings.iterrows():
             if attr_name in Settings().__dir__():
                 setattr(self.reliability_project.settings, str(attr_name), row['value'])
+                # TODO Later Should Middel: Gebruiksvriendelijkheid vergroten voor andere reliability_methods.
+                #  Je kunt nu de settings specificeren in de Excel. Maar er is geen documentatie of validatie.
             else:
                 raise ValueError(f"Attribute '{attr_name}' not found in SensitivitySettings class. Available attributes:\n{Settings().__dir__()}")
 

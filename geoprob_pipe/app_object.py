@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 from pandas.api.types import CategoricalDtype
 from datetime import datetime
+from geoprob_pipe.graphs.overview.generate_flow_chart_v2 import generate_overview_flow_chart_with_betas
 try:
     import probabilistic_library
 except ModuleNotFoundError:
@@ -215,6 +216,18 @@ class GeoProbPipe:
         os.makedirs(export_dir, exist_ok=True)
         export_path = os.path.join(export_dir, f"{timestamp}_B_STPH_sc.png")
         fig.savefig(export_path, dpi=300)
+
+        # Export result overview flowchart
+        df = self.results.df_combined
+        lowest_beta_row: pd.DataFrame  = df.loc[df['beta'].idxmin()]
+        print(f"{lowest_beta_row=}")
+        print(f"{lowest_beta_row['ondergrondscenario_id']=}")
+        generate_overview_flow_chart_with_betas(
+            app_obj=self,
+            export_dir=export_dir,
+            ondergrondscenario_id=lowest_beta_row['ondergrondscenario_id'],
+            uittredepunt_id=lowest_beta_row['uittredepunt_id']
+        )
 
     @property
     def _df_calculation_results_limit_states(self) -> pd.DataFrame:
