@@ -35,6 +35,13 @@ def build_and_run_combined_calculation(
     combined_project.design_points.append(models["piping"].design_point)
     combined_project.settings.combine_type = CombineType.parallel
     combined_project.settings.combiner_method = CombinerMethod.importance_sampling
+    # from probabilistic_library.reliability import DesignPoint
+    # from probabilistic_library.statistic import Stochast
+    # for index in range(3):
+    #     dp: DesignPoint = combined_project.design_points[index]
+    #     for item in dp.get_variables():
+    #         item: Stochast
+    #         combined_project.correlation_matrix[item.name] = 0.0
     combined_project.run()
     # TODO Nu Should Middel: Implementeer ThreadPoolExecutor voor 'run combined'.
 
