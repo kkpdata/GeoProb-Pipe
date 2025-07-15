@@ -28,9 +28,6 @@ jobs:
       - name: Run tests with coverage
         run: |
           coverage run --source=app -m pytest --ignore=tests
-          coverage report -m
-          if [ -f readme_images/coverage.svg ]; then rm readme_images/coverage.svg; fi
-          coverage-badge -o readme_images/coverage.svg
 
       - name: Commit changes
         run: |

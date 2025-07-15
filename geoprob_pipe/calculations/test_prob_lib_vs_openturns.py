@@ -1,6 +1,8 @@
+#           coverage report -m
+#           if [ -f readme_images/coverage.svg ]; then rm readme_images/coverage.svg; fi
+#           coverage-badge -o readme_images/coverage.svg
 
-
-class SimpleBetaCalculation:
+class SimpleDummyReliabilityCalculation:
 
     @staticmethod
     def prob_lib_beta():
@@ -118,5 +120,5 @@ class SimpleBetaCalculation:
 
 def test_simple_dummy_reliability_calculation():
     expected_result = 2.77
-    assert round(SimpleBetaCalculation.prob_lib_beta(), 2) == expected_result
-    assert round(SimpleBetaCalculation.openturns_beta(), 2) == expected_result
+    assert round(SimpleDummyReliabilityCalculation.prob_lib_beta(), 2) == expected_result
+    assert round(SimpleDummyReliabilityCalculation.openturns_beta(), 2) == expected_result
