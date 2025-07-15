@@ -29,6 +29,8 @@ jobs:
         run: |
           coverage run --source=geoprob_pipe -m pytest --ignore=tests
           coverage report -m
+          if [ -f readme_images/coverage.svg ]; then rm readme_images/coverage.svg; fi
+          coverage-badge -o readme_images/coverage.svg
 
       - name: Commit changes
         run: |
