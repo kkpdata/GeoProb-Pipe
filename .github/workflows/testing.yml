@@ -27,7 +27,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          coverage run --source=app -m pytest --ignore=tests
+          coverage run --source=geoprob_pipe -m pytest --ignore=tests
           coverage report -m
 
       - name: Commit changes
