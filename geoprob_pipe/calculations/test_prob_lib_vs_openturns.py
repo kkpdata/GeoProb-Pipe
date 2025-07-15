@@ -70,6 +70,7 @@ def test_dummy_reliability_calculation():
     expected_result = 2.77
     assert round(DummyReliabilityCalculation.prob_lib_beta(), 2) == expected_result
     assert round(DummyReliabilityCalculation.openturns_beta(), 2) == expected_result
+    assert 1 == 2
 
 
 # class DummySystemReliabilityCalculation:
