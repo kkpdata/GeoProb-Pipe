@@ -5,7 +5,8 @@ class DummyReliabilityCalculation:
     @staticmethod
     def prob_lib_beta() -> float:
         from probabilistic_library import ReliabilityProject, ReliabilityMethod, DistributionType
-        from geoprob_pipe.calculations.limit_state_functions import limit_state_example_1
+        from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
+            limit_state_example_1)
 
         project = ReliabilityProject()
         project.settings.reliability_method = ReliabilityMethod.form
@@ -28,7 +29,8 @@ class DummyReliabilityCalculation:
     @staticmethod
     def openturns_beta() -> float:
         import openturns as ot
-        from geoprob_pipe.calculations.limit_state_functions import limit_state_example_1
+        from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
+            limit_state_example_1)
 
         a = ot.Uniform(-1.0, 1.0)
         b = ot.Uniform(-1.0, 1.0)
@@ -78,7 +80,8 @@ class DummySystemReliabilityCalculation:
     def prob_lib_system_beta_combined_project():
         from probabilistic_library import (
             ReliabilityProject, ReliabilityMethod, DistributionType, CombineProject, CombinerMethod, CombineType)
-        from geoprob_pipe.calculations.limit_state_functions import limit_state_example_1, limit_state_example_2
+        from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
+            limit_state_example_1, limit_state_example_2)
 
         project = ReliabilityProject()
         project.settings.reliability_method = ReliabilityMethod.form
@@ -135,30 +138,32 @@ class DummySystemReliabilityCalculation:
 
     @staticmethod
     def prob_lib_system_beta_single_function():
-        from probabilistic_library import ReliabilityProject, ReliabilityMethod, DistributionType
-        from geoprob_pipe.calculations.limit_state_functions import limit_state_example_1_and_2
-
-        project = ReliabilityProject()
-        project.settings.reliability_method = ReliabilityMethod.form
-        project.settings.variation_coefficient = 0.02
-        project.settings.maximum_iterations = 50
-
-        project.model = limit_state_example_1_and_2
-
-        project.variables["a"].distribution = DistributionType.uniform
-        project.variables["a"].minimum = -1
-        project.variables["a"].maximum = 1
-
-        project.variables["b"].distribution = DistributionType.uniform
-        project.variables["b"].minimum = -1
-        project.variables["b"].maximum = 1
-
-        project.variables["c"].distribution = DistributionType.normal
-        project.variables["c"].mean = 0.1
-        project.variables["c"].deviation = 0.8
-
-        project.run()
-        return project.design_point.reliability_index
+        # from probabilistic_library import ReliabilityProject, ReliabilityMethod, DistributionType
+        # from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
+        #     limit_state_example_1_and_2)
+        #
+        # project = ReliabilityProject()
+        # project.settings.reliability_method = ReliabilityMethod.form
+        # project.settings.variation_coefficient = 0.02
+        # project.settings.maximum_iterations = 50
+        #
+        # project.model = limit_state_example_1_and_2
+        #
+        # project.variables["a"].distribution = DistributionType.uniform
+        # project.variables["a"].minimum = -1
+        # project.variables["a"].maximum = 1
+        #
+        # project.variables["b"].distribution = DistributionType.uniform
+        # project.variables["b"].minimum = -1
+        # project.variables["b"].maximum = 1
+        #
+        # project.variables["c"].distribution = DistributionType.normal
+        # project.variables["c"].mean = 0.1
+        # project.variables["c"].deviation = 0.8
+        #
+        # project.run()
+        # return project.design_point.reliability_index
+        pass  # TODO
 
 
 def test_dummy_system_reliability_calculation():

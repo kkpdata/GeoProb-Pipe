@@ -1,7 +1,6 @@
 from probabilistic_library import (
-    ReliabilityProject, ReliabilityMethod, DistributionType, DesignPoint, CombineProject, CombinerMethod, CombineType,
-    Alpha)
-from geoprob_pipe.calculations.limit_state_functions import (
+    ReliabilityProject, ReliabilityMethod, DistributionType, DesignPoint, CombineProject, CombinerMethod, CombineType)
+from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
     limit_state_example_1, limit_state_example_2, system_variable_setup)
 from typing import Optional
 from collections import Counter
@@ -80,12 +79,6 @@ class MultipleProjectCalculation:
         self.project_and_design_point_z1()
         self.project_and_design_point_z2()
         self.generate_design_point_system()
-
-    def setup_project(self):
-        self.project = ReliabilityProject()
-        self.project.settings.reliability_method = ReliabilityMethod.form
-        self.project.settings.variation_coefficient = 0.02
-        self.project.settings.maximum_iterations = 50
 
     def project_and_design_point_z1(self):
         self.project_z1 = ReliabilityProject()
