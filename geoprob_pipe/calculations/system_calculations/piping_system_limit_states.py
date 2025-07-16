@@ -12,5 +12,5 @@ def heave(a: float, b: float):
 def uplift(b: float, c: float):
     return 1.85 - (1.5 * b + 0.5 * c)  # TODO Nu
 
-def piping(a: float, b: float, c: float):
+def piping(b: float, c: float):
     return 1.85 - (1.5 * b + 0.5 * c)  # TODO Nu
