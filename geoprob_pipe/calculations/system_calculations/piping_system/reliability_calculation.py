@@ -7,6 +7,9 @@ from typing import List, Dict
 
 
 class PipingSystemReliabilityCalculation(ParallelSystemReliabilityCalculation):
+    # TODO Nu Should Klein: Onderstaande class is momenteel het Python Notebook voorbeeld van Deltares. Omzetten.
+    #  Omzetten naar een ExampleParallelSystemReliabilityCalculation-object, en dit PipingSystemReliabilityCalculation
+    #  aanpassen naar de daadwerkelijke Piping System.
     """ Pre-defined system reliability calculation for Piping.
 
     Usage by calling the object, inserting the variable distributions and after that calling the run-method. The

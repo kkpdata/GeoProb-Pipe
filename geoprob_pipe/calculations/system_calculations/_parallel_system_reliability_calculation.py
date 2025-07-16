@@ -1,7 +1,7 @@
 from probabilistic_library import (
     ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod, CombinerMethod, CombineType, DistributionType)
 from typing import Optional, Callable, List, Dict
-from geoprob_pipe.calculations.limit_state_functions import (
+from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
     system_variable_setup, limit_state_example_1, limit_state_example_2)
 
 
