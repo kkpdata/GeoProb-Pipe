@@ -1,6 +1,7 @@
 
 
 class BaseSystemReliabilityCalculation:
+    """ Base system reliability calculation.
+
+    For now an empty placeholder. """
     pass
-    # TODO Later Should Middel: Voor andere faalmechanismen dan piping, parent class voor systemen.
-    #  Voor nu nog leeg, maar al wel vast toegewezen aan PipingSystem.

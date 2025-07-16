@@ -6,7 +6,32 @@ from geoprob_pipe.calculations.limit_state_functions import (
 
 
 class ParallelSystemReliabilityCalculation:
-    pass
+    """ Pre-defined system reliability calculation for parallel systems. In the example below for a parallel system for
+    Piping. Note however that for Piping there is already a predefined system in
+    `geoprob_pipe.calculations.system_calculations.piping_system`.
+
+    Usage by
+    - Calling the object;
+    - inserting the system setup variable that initatiates all variable names;
+    - inserting the variable distributions;
+    - inserting the system models, i.e. the parallel limit states;
+    - and after that calling the run-method.
+
+    >>> obj = ParallelSystemReliabilityCalculation(
+    ...     system_variables_setup_function=system_variable_setup,
+    ...     system_variable_distributions=[
+    ...         {
+    ...             "name": "a",
+    ...             "distribution_type": DistributionType.uniform,
+    ...             "minimum": -1,
+    ...             "maximum": 1,
+    ...         },
+    ...         ...,
+    ...     ],
+    ...     system_models=[limit_state_example_1, limit_state_example_2]
+    ... )
+    >>> obj.run()
+    """
 
     def __init__(
             self,
@@ -33,13 +58,15 @@ class ParallelSystemReliabilityCalculation:
         self.combine_project: Optional[CombineProject] = None
         self.system_design_point: Optional[DesignPoint] = None
 
-        # Logic
+    def run(self):
+        """ Performs all logic of the system reliability calculation. """
         self.setup_project()
         self.assign_variables()
         self.generate_model_design_points()
         self.generate_system_design_point()
 
     def setup_project(self):
+        """ Sets up the ReliabilityProject-object. This will be used for all model design points. """
         self.project = ReliabilityProject()
         self.project.settings.reliability_method = ReliabilityMethod.form
         self.project.settings.variation_coefficient = 0.02
@@ -81,29 +108,3 @@ class ParallelSystemReliabilityCalculation:
         self.combine_project.run()
         self.system_design_point = self.combine_project.design_point
         print(f"Finished generating system design point")
-
-
-obj = PipingSystem(
-    system_variables_setup_function=system_variable_setup,
-    system_variable_distributions=[
-        {
-            "name": "a",
-            "distribution_type": DistributionType.uniform,
-            "minimum": -1,
-            "maximum": 1,
-        },
-        {
-            "name": "b",
-            "distribution_type": DistributionType.uniform,
-            "minimum": -1,
-            "maximum": 1,
-        },
-        {
-            "name": "c",
-            "distribution_type": DistributionType.normal,
-            "mean": 0.1,
-            "deviation": 0.8,
-        },
-    ],
-    system_models=[limit_state_example_1, limit_state_example_2]
-)
