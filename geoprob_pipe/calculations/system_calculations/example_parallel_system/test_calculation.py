@@ -2,7 +2,7 @@
 
 def test_calculation():
     ##
-    from probabilistic_library import DistributionType
+    from probabilistic_library import DistributionType, Alpha
     from geoprob_pipe.calculations.system_calculations.example_parallel_system.reliability_calculation import (
         ExampleParallelSystemReliabilityCalculation)
     obj = ExampleParallelSystemReliabilityCalculation(
@@ -28,6 +28,32 @@ def test_calculation():
         ]
     )
     obj.run()
+
+    # Model resultaten
+    print(f"\nModellen:")
+    for design_point in obj.model_design_points:
+        print(f"{design_point.identifier=}")
+        print(f"  {design_point.is_converged=}")
+        print(f"  {design_point.reliability_index=}")
+        for alpha in design_point.alphas:
+            alpha: Alpha
+            print(f"  {alpha.variable.name=}, {alpha.x=}, {alpha.x*alpha.x=}")
+        alphas_values = [alpha.x for alpha in design_point.alphas]
+        invloedsfactoren = [value * value for value in alphas_values]
+        sum_invloedsfactoren = round(sum(invloedsfactoren), 2)
+        assert sum_invloedsfactoren == 1.00, \
+            f"De som van de invloedsfactoren ({sum_invloedsfactoren=}) is niet gelijk aan aan 1.00."
+
+    # Systeem resultaten
+    print(f"\nSysteem:")
     beta = obj.system_design_point.reliability_index
-    print(f"{beta=}")
+    print(f"  {beta=}")
+    for alpha in obj.system_design_point.alphas:
+        alpha: Alpha
+        print(f"  {alpha.variable.name=}, {alpha.x=}, {alpha.x*alpha.x=}")
+    alphas_values = [alpha.x for alpha in obj.system_design_point.alphas]
+    invloedsfactoren = [value * value for value in alphas_values]
+    sum_invloedsfactoren = round(sum(invloedsfactoren), 2)
+    assert sum_invloedsfactoren == 1.00, \
+        f"De som van de invloedsfactoren ({sum_invloedsfactoren=}) is niet gelijk aan aan 1.00."
     ##

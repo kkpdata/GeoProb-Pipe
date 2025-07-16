@@ -96,7 +96,9 @@ class ParallelSystemReliabilityCalculation:
         for model_callable in self.system_models:
             self.project.model = model_callable
             self.project.run()
-            self.model_design_points.append(self.project.design_point)
+            design_point = self.project.design_point
+            design_point.identifier = model_callable.__name__
+            self.model_design_points.append(design_point)
         print(f"Finished generating model design points")
 
     def generate_system_design_point(self):
