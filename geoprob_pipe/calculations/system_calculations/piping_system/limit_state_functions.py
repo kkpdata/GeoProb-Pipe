@@ -57,6 +57,7 @@ def calc_Z_h(
         modelfactor_h: float,
         i_c_h: float,
         D_wvp: float,
+        # **_,
 ) -> float:
     r"""Berekening van de grenstoestandfunctie voor heave
 
@@ -128,6 +129,7 @@ def calc_Z_u(
         gamma_water: float,
         gamma_sat_deklaag: float,
         D_wvp: float,
+        # **_,
 ) -> float:
     r"""Grenstoestandfunctie voor opbarsten (uplift).
 
@@ -204,6 +206,7 @@ def calc_Z_p(
         d70_m: float,
         gamma_korrel: float,
         r_c_deklaag: float,
+        # **_,
 ) -> float:
     r"""Grenstoestandfunctie voor het mechanisme piping
 
@@ -213,23 +216,19 @@ def calc_Z_p(
 
     L_voorland = piping_functions.calc_L_voorland(
         L_intrede=L_intrede,
-        L_but=L_but,
-    )
+        L_but=L_but)
 
     lambda_voorland = piping_functions.calc_lambda_voorland(
         kD_wvp=kD_wvp,
-        c_voorland=c_voorland
-    )
+        c_voorland=c_voorland)
 
     W_voorland = piping_functions.calc_W_voorland(
         lambda_voorland=lambda_voorland,
-        L_voorland=L_voorland
-    )
+        L_voorland=L_voorland)
 
     L_kwelweg = piping_functions.calc_L_kwelweg(
         L_but=L_but,
-        W_voorland=W_voorland
-    )
+        W_voorland=W_voorland)
 
     dh_c = piping_functions.calc_dh_c(
         d70=d70,
@@ -242,36 +241,32 @@ def calc_Z_p(
         theta=theta,
         eta=eta,
         d70_m=d70_m,
-        gamma_korrel=gamma_korrel
-    )
+        gamma_korrel=gamma_korrel)
 
     h_exit = piping_functions.calc_h_exit(
         polderpeil=polderpeil,
-        mv_exit=mv_exit
-    )
+        mv_exit=mv_exit)
 
     d_deklaag = piping_functions.calc_d_deklaag(
         mv_exit=mv_exit,
-        top_zand=top_zand
-    )
+        top_zand=top_zand)
 
     dh_red = piping_functions.calc_dh_red(
         buitenwaterstand=buitenwaterstand,
         h_exit=h_exit,
         r_c_deklaag=r_c_deklaag,
-        d_deklaag=d_deklaag
-    )
+        d_deklaag=d_deklaag)
+
     z_p = piping_functions.calc_z_p(
         dh_c=dh_c,
         dh_red=dh_red,
-        modelfactor_p=modelfactor_p
-    )
+        modelfactor_p=modelfactor_p)
 
     return z_p
 
 
 MODEL_NAMES = {
-    "calc_Z_h": "Heave",
-    "calc_Z_u": "Uplift",
-    "calc_Z_p": "Piping",
+    calc_Z_h.__name__: "Heave",
+    calc_Z_u.__name__: "Uplift",
+    calc_Z_p.__name__: "Piping",
 }

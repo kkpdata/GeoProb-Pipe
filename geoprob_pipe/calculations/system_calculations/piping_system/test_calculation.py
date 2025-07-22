@@ -6,6 +6,7 @@ def test_calculation():
     from probabilistic_library import DistributionType, Alpha
     from geoprob_pipe.calculations.system_calculations.piping_system.reliability_calculation import  (
         PipingSystemReliabilityCalculation)
+    from geoprob_pipe.deterministic.system import DeterministicSystemCalculation
 
     obj = PipingSystemReliabilityCalculation(
         system_variable_distributions=[
@@ -59,7 +60,7 @@ def test_calculation():
             {
                 "name": "top_zand",
                 "distribution_type": DistributionType.normal,
-                "mean": 3.0,
+                "mean": -3.0,
                 "deviation": 0.5
             },
             {
@@ -102,7 +103,7 @@ def test_calculation():
                 "distribution_type": DistributionType.log_normal,
                 "mean": 13.9,
                 "variation": 0.05
-            },  # TODO Nu Must Klein: In het OpenTurns voorbeeld heeft deze een derde parameter met waarde 10. Waarvoor?
+            },  # TODO Nu Must Klein: In het Openturns voorbeeld heeft deze een derde parameter met waarde 10. Waarvoor?
             {
                 "name": "modelfactor_p",
                 "distribution_type": DistributionType.log_normal,
@@ -128,7 +129,7 @@ def test_calculation():
             {
                 "name": "theta",
                 "distribution_type": DistributionType.deterministic,
-                "mean": math.tan(37.0 * math.pi / 180.0),
+                "mean": 37.0,  # Provide in degrees
             },
             {
                 "name": "eta",
@@ -152,6 +153,12 @@ def test_calculation():
             },
         ]
     )
+
+    # Semi prob with mean:
+    det_obj = DeterministicSystemCalculation(input_object=obj)
+    print(det_obj.limit_state_results)
+
+    # Run prob system
     obj.run()
 
     # Model resultaten
