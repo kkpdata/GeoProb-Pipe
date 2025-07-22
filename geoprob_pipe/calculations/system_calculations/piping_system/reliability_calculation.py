@@ -1,6 +1,6 @@
 from probabilistic_library import DistributionType
-from geoprob_pipe.calculations.limit_state_functions import (
-    system_variable_setup, limit_state_example_1, limit_state_example_2)
+from geoprob_pipe.calculations.system_calculations.piping_system.limit_state_functions import (
+    system_variable_setup, calc_Z_h, calc_Z_p, calc_Z_u)
 from geoprob_pipe.calculations.system_calculations._parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
 from typing import List, Dict
@@ -32,4 +32,4 @@ class PipingSystemReliabilityCalculation(ParallelSystemReliabilityCalculation):
     def __init__(self, system_variable_distributions: List[Dict]):
         super().__init__(system_variable_distributions)
         self.system_variables_setup_function = system_variable_setup
-        self.system_models = [limit_state_example_1, limit_state_example_2]
+        self.system_models = [calc_Z_u, calc_Z_h, calc_Z_p]

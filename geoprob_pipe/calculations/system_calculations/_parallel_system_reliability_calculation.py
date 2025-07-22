@@ -1,11 +1,14 @@
 from probabilistic_library import (
-    ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod, CombinerMethod, CombineType, DistributionType)
+    ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod, CombinerMethod, CombineType, DistributionType,
+    Stochast)
 from typing import Optional, Callable, List, Dict
 from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
     system_variable_setup, limit_state_example_1, limit_state_example_2)
+from geoprob_pipe.calculations.system_calculations._base_system_reliability_calculation import (
+    BaseSystemReliabilityCalculation)
 
 
-class ParallelSystemReliabilityCalculation:
+class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
     """ Pre-defined system reliability calculation for parallel systems. In the example below for a parallel system for
     Piping. Note however that for Piping there is already a predefined system in
     `geoprob_pipe.calculations.system_calculations.piping_system`.
@@ -75,21 +78,43 @@ class ParallelSystemReliabilityCalculation:
 
     def assign_variables(self):
         self.project.model = self.system_variables_setup_function
+
+        # Validate all system variables have a distribution provided
+        system_variable_keys = _system_variable_keys(self)
+        for var_item in self.project.variables:
+            var_item: Stochast
+            if var_item.name not in system_variable_keys:
+                raise KeyError(
+                    f"The system variable '{var_item.name}' has no distribution provided in "
+                    f"system_variable_distributions-list. Please do so before running the system.")
+
         for item in self.system_variable_distributions:
             name = item['name']
+
+            # Check if variable exists
+            if self.project.variables[name] is None:
+                raise KeyError(
+                    f"The variable '{name}' is unknown in the ReliabilityProject. Make sure it exists in the "
+                    f"system_variables_setup-function. ")
+
             self.project.variables[name].distribution = item['distribution_type']
 
-            # uniform
+            # Key-worded arguments for uniform
             if 'minimum' in item.keys():
                 self.project.variables[name].minimum = item['minimum']
             if 'maximum' in item.keys():
                 self.project.variables[name].maximum = item['maximum']
 
-            # normal
+            # Key-worded arguments for deterministic, normal and/or log_normal
             if 'mean' in item.keys():
                 self.project.variables[name].mean = item['mean']
             if 'deviation' in item.keys():
                 self.project.variables[name].deviation = item['deviation']
+            if 'variation' in item.keys():
+                self.project.variables[name].variation = item['variation']
+            # TODO Nu Must Middel: Valideer of alle benodigde keys zijn gegeven.
+
+
         print(f"Finished assigning variables")
 
     def generate_model_design_points(self):
@@ -110,3 +135,8 @@ class ParallelSystemReliabilityCalculation:
         self.combine_project.run()
         self.system_design_point = self.combine_project.design_point
         print(f"Finished generating system design point")
+
+
+def _system_variable_keys(self: ParallelSystemReliabilityCalculation) -> List[str]:
+    return [item['name'] for item in self.system_variable_distributions]
+

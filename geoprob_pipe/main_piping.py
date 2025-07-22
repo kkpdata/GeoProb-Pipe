@@ -25,8 +25,6 @@ project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
 project.export_results()
 
 obj: CombinedReliabilityCalculation = project.results.df_combined['reliability_calculation'].iloc[0]
-obj.influence_factors
-obj.design_point
 # fig = project.graphs.combined.betrouwbaarheidsindex()
 
 # project._calculations_unique['piping']['reliability_calculation'].iloc[0].run_duration
