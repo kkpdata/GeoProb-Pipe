@@ -71,3 +71,9 @@ Benodigdheden:
 
 # Disclaimer
 Het gebruik van deze tool gebeurt volledig op eigen risico. Door deze tool te gebruiken, accepteert de gebruiker volledige verantwoordelijkheid. De ontwikkelaars kunnen geen garanties geven over de werking, nauwkeurigheid of volledigheid van de tool, en kunnen op geen enkele manier verantwoordelijk worden gehouden voor eventuele fouten, schade, of verliezen die voortvloeien uit het gebruik van deze software.
+
+
+# TODO's
+
+<!-- START_TODO_TABLE --> 
+<!-- END_TODO_TABLE --> 
