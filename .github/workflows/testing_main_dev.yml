@@ -3,8 +3,7 @@ name: Automated testing and coverage
 
 on:
   push:
-    branches:
-      - 'cp_miscellaneous'
+    branches: [ "main", "dev" ]
   workflow_dispatch:
 
 
@@ -13,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -23,12 +22,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements_testing.txt ]; then pip install -r requirements_testing.txt; fi
           pip install pytest coverage coverage-badge
 
       - name: Run tests with coverage
         run: |
-          coverage run --source=app -m pytest --ignore=tests
+          coverage run --source=geoprob_pipe -m pytest --ignore=tests
           coverage report -m
           if [ -f readme_images/coverage.svg ]; then rm readme_images/coverage.svg; fi
           coverage-badge -o readme_images/coverage.svg

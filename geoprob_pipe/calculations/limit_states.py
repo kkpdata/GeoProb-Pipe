@@ -6,8 +6,7 @@ from geoprob_pipe.classes.reliability_calculation import ReliabilityCalculation
 from geoprob_pipe.input_data.vak import VakCollection
 import logging
 import threading
-
-from geoprob_pipe.helper_functions.z_functions import MODEL_NAMES
+from geoprob_pipe.calculations.system_calculations.piping_system.limit_state_functions import MODEL_NAMES
 from geoprob_pipe.calculations.utils import _result_dict
 
 

@@ -271,19 +271,19 @@ def calc_phi_exit(
 
 # noinspection PyPep8Naming
 def calc_dh_c(
-    d70: float,
-    D_wvp: float,
-    kD_wvp: float,
-    L_kwelweg: float,
-    gamma_water: float,
-    g: float,
-    v: float,
-    theta: float,
-    eta: float,
-    d70_m: float,
-    gamma_korrel: float,
-    ) -> float:  
-    r"""Berekening kritiek verval methode Sellmeijer inclusief berekeningsinstellingen 
+        d70: float,
+        D_wvp: float,
+        kD_wvp: float,
+        L_kwelweg: float,
+        gamma_water: float,
+        g: float,
+        v: float,
+        theta: float,
+        eta: float,
+        d70_m: float,
+        gamma_korrel: float,
+) -> float:
+    r"""Berekening kritiek verval methode Sellmeijer inclusief berekeningsinstellingen
 
     Args:
         d70 (float): 70% percentiel van de korrelgrootteverdeling [m]
@@ -308,6 +308,7 @@ def calc_dh_c(
     k_wvp_calc_sec = k_wvp_calc / (24 * 3600)
     # Intrinsieke doorlatendheid
     k_intr = (v / g) * k_wvp_calc_sec
+
     # Berekening Fres
     # noinspection PyPep8Naming
     Fres = (
@@ -315,9 +316,11 @@ def calc_dh_c(
         * ((gamma_korrel - gamma_water) / gamma_water)
         * math.tan(theta * math.pi / 180.00)
     )
+
     # Berekening Fscale
     # noinspection PyPep8Naming
     Fscale = pow(d70 / d70_m, 0.4) * d70_m / pow(k_intr * L_kwelweg, (1.0 / 3.0))
+
     # Berekening F_geometry
     if D_wvp == L_kwelweg:
         # noinspection PyPep8Naming
@@ -327,6 +330,7 @@ def calc_dh_c(
     totdemacht = 0.04 + (0.28 / (pow(D_wvp / L_kwelweg, 2.8) - 1.0))
     # noinspection PyPep8Naming
     Fgeom = 0.91 * pow(D_wvp / L_kwelweg, totdemacht)
+
     return Fres * Fscale * Fgeom * L_kwelweg
 
 

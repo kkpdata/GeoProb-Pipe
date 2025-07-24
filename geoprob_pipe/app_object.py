@@ -16,7 +16,8 @@ from geoprob_pipe.classes.workspace import Workspace
 from geoprob_pipe.calculations.combined import build_and_run_combined_calculation
 from geoprob_pipe.calculations.limit_states import build_and_run_unique_model_calculations
 from geoprob_pipe.helper_functions.statistics_utils import convert_failure_probability_to_beta
-from geoprob_pipe.helper_functions.z_functions import calc_Z_h, calc_Z_p, calc_Z_u
+from geoprob_pipe.calculations.system_calculations.piping_system.limit_state_functions import (
+    calc_Z_h, calc_Z_p, calc_Z_u)
 from geoprob_pipe.input_data import InputData
 from geoprob_pipe.graphs import Graphs
 import time
@@ -222,8 +223,8 @@ class GeoProbPipe:
         # Export result overview flowchart
         df = self.results.df_combined
         lowest_beta_row: pd.DataFrame  = df.loc[df['beta'].idxmin()]
-        print(f"{lowest_beta_row=}")
-        print(f"{lowest_beta_row['ondergrondscenario_id']=}")
+        # print(f"{lowest_beta_row=}")
+        # print(f"{lowest_beta_row['ondergrondscenario_id']=}")
         generate_overview_flow_chart_with_betas(
             app_obj=self,
             export_dir=export_dir,
