@@ -1,7 +1,7 @@
 from probabilistic_library import DistributionType
 from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
     system_variable_setup, limit_state_example_1, limit_state_example_2)
-from geoprob_pipe.calculations.system_calculations.parallel_system_reliability_calculation import (
+from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
 from typing import List, Dict
 

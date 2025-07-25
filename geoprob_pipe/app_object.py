@@ -3,6 +3,9 @@ from pathlib import Path
 import pandas as pd
 from pandas.api.types import CategoricalDtype
 from datetime import datetime
+
+from geoprob_pipe.calculations.system_calculations.piping_system.reliability_calculation import \
+    PipingSystemReliabilityCalculation
 from geoprob_pipe.graphs.overview.generate_flow_chart_v2 import generate_overview_flow_chart_with_betas
 try:
     import probabilistic_library
@@ -22,7 +25,8 @@ from geoprob_pipe.input_data import InputData
 from geoprob_pipe.graphs import Graphs
 import time
 import os
-
+from geoprob_pipe.calculations.system_calculations.piping_system.system_builder import PipingSystemBuilder
+from typing import List
 
 logger = logging.getLogger("geoprob_pipe_logger")
 
@@ -69,6 +73,15 @@ class GeoProbPipe:
 
         # Read calculation settings
         self._read_calculation_settings()
+
+        # Build parallel system calculations
+        system_builder = PipingSystemBuilder()
+        df = self.input_data.df_overview_parameters
+        df_constants = df[df["parameter_type"] == "constant"]
+        self.parallel_system_calculations: List[PipingSystemReliabilityCalculation] = system_builder.build_instances(
+            vak_collection=self.input_data.vakken,
+            df_settings=self.df_settings,
+            df_constants=df_constants)
 
         # Build and run calculations per limit state
         self._build_and_run_calculations_per_limit_state()

@@ -1,10 +1,10 @@
 from probabilistic_library import (
     ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod, CombinerMethod, CombineType, DistributionType,
-    Stochast)
-from typing import Optional, Callable, List, Dict
+    Stochast, Settings)
+from typing import Optional, Callable, List, Dict, Union
 from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
     system_variable_setup, limit_state_example_1, limit_state_example_2)
-from geoprob_pipe.calculations.system_calculations._base_system_reliability_calculation import (
+from geoprob_pipe.calculations.system_calculations.system_base_objects._base_system_reliability_calculation import (
     BaseSystemReliabilityCalculation)
 
 
@@ -41,18 +41,25 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
             system_variable_distributions: List[Dict],
             system_models: Optional[List[Callable]] = None,  # For assigning in children
             system_variables_setup_function: Optional[Callable] = None,  # For assigning in children
+            project_settings: Dict[str, Union[str, float, int]] = None
     ):
         """
 
         :param system_variables_setup_function: Dummy functie waarmee variabele namen worden geïnitieerd.
         :param system_variable_distributions:
         :param system_models:
+        :param project_settings: ReliabilityProject settings for the limit state design points.
         """
 
+        # Mutable arguments
+        if project_settings is None:
+            project_settings = {}
+
         # Input arguments
-        self.system_variables_setup_function: Callable = system_variables_setup_function
-        self.system_models: List[Callable] = system_models
-        self.system_variable_distributions: List[Dict] = system_variable_distributions
+        self.given_project_settings: Dict[str, Union[str, float, int]] = project_settings
+        self.given_system_variables_setup_function: Callable = system_variables_setup_function
+        self.given_system_models: List[Callable] = system_models
+        self.given_system_variable_distributions: List[Dict] = system_variable_distributions
         # TODO Nu Should Klein: I.p.v. dict maak gebruik van Distributie-objecten. Minder fout gevoelig.
 
         # Placeholders
@@ -63,21 +70,43 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
 
     def run(self):
         """ Performs all logic of the system reliability calculation. """
-        self.setup_project()
-        self.assign_variables()
-        self.generate_model_design_points()
-        self.generate_system_design_point()
+        self._setup_project()
+        self._apply_settings()
+        self.project.settings.reliability_method = 'form'
+        self.project.settings.maximum_iterations = 100
+        self.project.settings.relaxation_factor = 0.75
+        self._assign_variables()
+        self._generate_model_design_points()
+        self._generate_system_design_point()
 
-    def setup_project(self):
+    def _setup_project(self):
         """ Sets up the ReliabilityProject-object. This will be used for all model design points. """
         self.project = ReliabilityProject()
         self.project.settings.reliability_method = ReliabilityMethod.form
+
+        # Some base settings, may be overwritten through self._apply_settings
         self.project.settings.variation_coefficient = 0.02
         self.project.settings.maximum_iterations = 50
         print(f"Finished setting up project")
 
-    def assign_variables(self):
-        self.project.model = self.system_variables_setup_function
+    def _apply_settings(self):
+        """
+        Set up the settings of the ReliabilityProject
+
+        Note: all supported settings can be found in probabilistic_library.reliability.Settings.__dir__
+        """
+        for attr_name, value in self.given_project_settings.items():
+
+            if attr_name not in Settings().__dir__():
+                raise ValueError(
+                    f"Attribute '{attr_name}' not found in the ReliabilityCalculation.Settings-class. "
+                    f"Available attributes are:\n"
+                    f"{Settings().__dir__()}")
+
+            setattr(self.project.settings, str(attr_name), value)
+
+    def _assign_variables(self):
+        self.project.model = self.given_system_variables_setup_function
 
         # Validate all system variables have a distribution provided
         system_variable_keys = _system_variable_keys(self)
@@ -88,7 +117,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
                     f"The system variable '{var_item.name}' has no distribution provided in "
                     f"system_variable_distributions-list. Please do so before running the system.")
 
-        for item in self.system_variable_distributions:
+        for item in self.given_system_variable_distributions:
             name = item['name']
 
             # Check if variable exists
@@ -112,13 +141,15 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
                 self.project.variables[name].deviation = item['deviation']
             if 'variation' in item.keys():
                 self.project.variables[name].variation = item['variation']
-            # TODO Nu Must Middel: Valideer of alle benodigde keys zijn gegeven.
 
+            # Key-worded arguments for cdf-curve
+            if 'fragility_values' in item.keys():
+                self.project.variables[name].fragility_values = item['fragility_values']
 
         print(f"Finished assigning variables")
 
-    def generate_model_design_points(self):
-        for model_callable in self.system_models:
+    def _generate_model_design_points(self):
+        for model_callable in self.given_system_models:
             self.project.model = model_callable
             self.project.run()
             design_point = self.project.design_point
@@ -126,7 +157,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
             self.model_design_points.append(design_point)
         print(f"Finished generating model design points")
 
-    def generate_system_design_point(self):
+    def _generate_system_design_point(self):
         self.combine_project = CombineProject()
         for design_point in self.model_design_points:
             self.combine_project.design_points.append(design_point)
@@ -138,5 +169,5 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
 
 
 def _system_variable_keys(self: ParallelSystemReliabilityCalculation) -> List[str]:
-    return [item['name'] for item in self.system_variable_distributions]
+    return [item['name'] for item in self.given_system_variable_distributions]
 
