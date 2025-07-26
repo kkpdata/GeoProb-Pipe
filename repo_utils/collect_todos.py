@@ -1,7 +1,5 @@
-import os
 from typing import Tuple
 from pandas import DataFrame
-from typing import Optional
 import os
 from git import Repo, InvalidGitRepositoryError
 from typing import Optional
@@ -86,11 +84,11 @@ def collect_all_todos():
 
 
 def df_to_markdown(df: DataFrame):
-    markdown = "| Wanneer | Belang | Formaat | Beschrijving | Bestand | Regel |\n"
+    markdown = "| Belang | Formaat | Beschrijving | Bestand | Regel |\n"
     markdown += "| -- | -- | -- | -- | -- | -- |\n"
     for _, row in df.iterrows():
-        markdown += (f"| {row['wanneer']} | {row['belang']} "
-                     f"| {row['formaat']} | {str(row['description']).strip()} | {row['bestand']} | {row['regel']} | \n")
+        markdown += (f"| {row['belang']} {row['formaat']} | {str(row['description']).strip()} "
+                     f"| {row['bestand']} | {row['regel']} | \n")
     return markdown
 
 
