@@ -95,8 +95,6 @@ def update_readme_with_table(wanneer: str = "nu"):
     with open(readme_path, 'w', encoding='utf-8') as f:
         f.write(new_content)
 
-# collection = collect_all_todos()
-# df_to_markdown(collection)
 
 update_readme_with_table(wanneer='nu')
 update_readme_with_table(wanneer='later')

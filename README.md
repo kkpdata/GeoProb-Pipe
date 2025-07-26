@@ -81,7 +81,6 @@ waar de code aangescherpt of uitgebreid kan worden.
 
 ### Nu van belang
 
- <div style="max-height: 600px; overflow-y: auto;;">
 <!-- START_TODO_TABLE_NU -->
 | Wanneer | Belang | Formaat | Beschrijving | Bestand | Regel |
 | -- | -- | -- | -- | -- | -- |
@@ -105,7 +104,7 @@ waar de code aangescherpt of uitgebreid kan worden.
 | nu | should | middel | Implementeer ThreadPoolExecutor voor 'run combined'. | \calculations\combined.py | 46 | 
 
 <!-- END_TODO_TABLE_NU --> 
-</div>
+
 
 
 
