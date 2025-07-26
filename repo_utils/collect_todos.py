@@ -87,7 +87,7 @@ def df_to_markdown(df: DataFrame):
     markdown = "| Belang | Formaat | Beschrijving | Bestand | Regel |\n"
     markdown += "| -- | -- | -- | -- | -- |\n"
     for _, row in df.iterrows():
-        markdown += (f"| {row['belang']} {row['formaat']} | {str(row['description']).strip()} "
+        markdown += (f"| {row['belang']} | {row['formaat']} | {str(row['description']).strip()} "
                      f"| {row['bestand']} | {row['regel']} | \n")
     return markdown
 
