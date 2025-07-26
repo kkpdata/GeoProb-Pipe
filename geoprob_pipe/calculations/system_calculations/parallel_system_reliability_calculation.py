@@ -68,6 +68,8 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self.generate_model_design_points()
         self.generate_system_design_point()
 
+        # TODO Later Should Middel: Validation message wanneer de hoogste limit state beta significant lager is dan het systeem
+
     def setup_project(self):
         """ Sets up the ReliabilityProject-object. This will be used for all model design points. """
         self.project = ReliabilityProject()

@@ -2,7 +2,6 @@
 
 def test_calculation():
     ##
-    import math
     from probabilistic_library import DistributionType, Alpha
     from geoprob_pipe.calculations.system_calculations.piping_system.reliability_calculation import  (
         PipingSystemReliabilityCalculation)
