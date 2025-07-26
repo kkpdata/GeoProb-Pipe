@@ -84,7 +84,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 
 <!-- START_TODO_TABLE_NU -->
 | Belang | Formaat | Beschrijving | Bestand | Regel |
-| -- | -- | -- | -- | -- | -- |
+| -- | -- | -- | -- | -- |
 | must klein | Exporteer df met resultaten per limit state. | \app_object.py | 90 | 
 | must klein | Exporteer df met resultaten per combinatie. | \app_object.py | 96 | 
 | must klein | Unit test uitbreiden/toevoegen met buitenwaterstand als distributie. | \calculations\system_calculations\piping_system\test_calculation.py | 56 | 
@@ -112,6 +112,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 
 
 
+
 ### Op een later moment van belang
 <details>
   <summary>Bekijk de tabel</summary>
@@ -120,7 +121,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 
 <!-- START_TODO_TABLE_LATER -->
 | Belang | Formaat | Beschrijving | Bestand | Regel |
-| -- | -- | -- | -- | -- | -- |
+| -- | -- | -- | -- | -- |
 | could groot | Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze. | \app_object.py | 57 | 
 | could groot | Add functionality to read existing results (without running prob. calculations again) | \classes\workspace.py | 25 | 
 | could middel | De bovenstaande assertion triggert. Maar dat is fout. | \calculations\test_prob_lib_vs_openturns.py | 131 | 
@@ -134,6 +135,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should middel | Gebruiksvriendelijkheid vergroten voor andere reliability_methods. | \classes\reliability_calculation.py | 116 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
 
 
 
