@@ -21,6 +21,8 @@ from geoprob_pipe.calculations.limit_states import build_and_run_unique_model_ca
 from geoprob_pipe.helper_functions.statistics_utils import convert_failure_probability_to_beta
 from geoprob_pipe.calculations.system_calculations.piping_system.limit_state_functions import (
     calc_Z_h, calc_Z_p, calc_Z_u)
+from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
+    ParallelSystemReliabilityCalculation)
 from geoprob_pipe.input_data import InputData
 from geoprob_pipe.graphs import Graphs
 import time
@@ -49,6 +51,7 @@ def provide_explanation_to_user():
         project.results.combined.to_excel(project.workspace.path_output_folder.folderpath / "fragility_curve_data_combined.xlsx")
     """)
 
+
 class GeoProbPipe:
     """ Project class """
     # TODO Later Could Groot: Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze.
@@ -75,17 +78,18 @@ class GeoProbPipe:
         self._read_calculation_settings()
 
         # Build parallel system calculations
-        system_builder = PipingSystemBuilder()
-        df = self.input_data.df_overview_parameters
-        df_constants = df[df["parameter_type"] == "constant"]
-        self.parallel_system_calculations: List[PipingSystemReliabilityCalculation] = system_builder.build_instances(
-            vak_collection=self.input_data.vakken,
-            df_settings=self.df_settings,
-            df_constants=df_constants)
+        self.system_calculations: List[ParallelSystemReliabilityCalculation] = _build_system_calculations(self)
+        for calc in self.system_calculations:
+            calc.run()
+            # TODO Nu Should Middel: Uitvoeren van system calculations ombouwen naar Threads
+        self.df_results_system_calculations = _create_results_df(self)
+
 
         # Build and run calculations per limit state
         self._build_and_run_calculations_per_limit_state()
         # TODO Nu Must Klein: Exporteer df met resultaten per limit state.
+
+        return
 
         # Build and run combined limit state calculations
         self._build_and_run_combined_limit_state_calculations()
@@ -270,3 +274,37 @@ class GeoProbPipe:
             col for col in df_unique_model_results.columns if col not in known]]
         
         return df_unique_model_results
+
+
+def _build_system_calculations(self: GeoProbPipe) -> List[PipingSystemReliabilityCalculation]:
+    system_builder = PipingSystemBuilder()
+    df = self.input_data.df_overview_parameters
+    df_constants = df[df["parameter_type"] == "constant"]
+    return system_builder.build_instances(
+        vak_collection=self.input_data.vakken,
+        df_settings=self.df_settings,
+        df_constants=df_constants)
+
+
+def _create_results_df(self: GeoProbPipe):
+
+    def create_row(calc):
+        return {
+            "uittredepunt_id": calc.metadata["uittredepunt_id"],
+            "ondergrondscenario_id": calc.metadata["ondergrondscenario_id"],
+            "vak_id": calc.metadata["vak_id"],
+            "system_calculation": calc,
+            "converged": calc.system_design_point.is_converged,
+            "beta": round(calc.system_design_point.reliability_index, 2),
+            "failure_probability": calc.system_design_point.probability_failure,
+            "model_betas": ", ".join([
+                str(round(dp.reliability_index, 2)) for dp in calc.model_design_points
+            ])
+        }
+
+    df = pd.DataFrame([
+        create_row(calc)
+        for calc in self.system_calculations]
+    ).sort_values(
+        by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+    return df

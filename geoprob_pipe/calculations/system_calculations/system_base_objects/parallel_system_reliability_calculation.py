@@ -6,6 +6,11 @@ from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit
     system_variable_setup, limit_state_example_1, limit_state_example_2)
 from geoprob_pipe.calculations.system_calculations.system_base_objects._base_system_reliability_calculation import (
     BaseSystemReliabilityCalculation)
+import logging
+from geoprob_pipe.utils.validation_messages import ValidationMessages
+
+
+logger = logging.getLogger("geoprob_pipe_logger")
 
 
 class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
@@ -55,6 +60,9 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         if project_settings is None:
             project_settings = {}
 
+        self.validation_messages = ValidationMessages()
+        self.metadata = {}
+
         # Input arguments
         self.given_project_settings: Dict[str, Union[str, float, int]] = project_settings
         self.given_system_variables_setup_function: Callable = system_variables_setup_function
@@ -87,7 +95,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         # Some base settings, may be overwritten through self._apply_settings
         self.project.settings.variation_coefficient = 0.02
         self.project.settings.maximum_iterations = 50
-        print(f"Finished setting up project")
+        # print(f"Finished setting up project")
 
     def _apply_settings(self):
         """
@@ -122,9 +130,13 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
 
             # Check if variable exists
             if self.project.variables[name] is None:
-                raise KeyError(
-                    f"The variable '{name}' is unknown in the ReliabilityProject. Make sure it exists in the "
-                    f"system_variables_setup-function. ")
+                self.validation_messages.add_warning(
+                    msg=f"The variable '{name}' is unknown in the ReliabilityProject, i.e. in the given "
+                        f"'system_variables_setup'-function. For now this application skips unnecessary variables. If "
+                        f"the variable is necessary, revisit your 'system_variables_setup'-function and the limit state "
+                        f"functions.")
+                # TODO Nu Should Klein: Feedback aan gebruiker dat er validation messages zijn.
+                continue
 
             self.project.variables[name].distribution = item['distribution_type']
 
@@ -144,9 +156,9 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
 
             # Key-worded arguments for cdf-curve
             if 'fragility_values' in item.keys():
-                self.project.variables[name].fragility_values = item['fragility_values']
+                self.project.variables[name].fragility_values.extend(item['fragility_values'])
 
-        print(f"Finished assigning variables")
+        # print(f"Finished assigning variables")
 
     def _generate_model_design_points(self):
         for model_callable in self.given_system_models:
@@ -155,7 +167,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
             design_point = self.project.design_point
             design_point.identifier = model_callable.__name__
             self.model_design_points.append(design_point)
-        print(f"Finished generating model design points")
+        # print(f"Finished generating model design points")
 
     def _generate_system_design_point(self):
         self.combine_project = CombineProject()
@@ -165,7 +177,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self.combine_project.settings.combine_type = CombineType.parallel
         self.combine_project.run()
         self.system_design_point = self.combine_project.design_point
-        print(f"Finished generating system design point")
+        # print(f"Finished generating system design point")
 
 
 def _system_variable_keys(self: ParallelSystemReliabilityCalculation) -> List[str]:

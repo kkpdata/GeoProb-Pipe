@@ -5,7 +5,7 @@ Project-object directly outside the repository. """
 from geoprob_pipe import GeoProbPipe
 from geoprob_pipe.utils.other import repository_root_path
 from geoprob_pipe.utils.loggers import initiate_app_logger
-from geoprob_pipe.classes.reliability_calculation import CombinedReliabilityCalculation
+# from geoprob_pipe.classes.reliability_calculation import CombinedReliabilityCalculation
 from dotenv import load_dotenv
 import os
 import warnings
@@ -21,10 +21,18 @@ initiate_app_logger(repo_root=repo_root)
 
 # Initiate GeoProb-Pipe project object
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
+project.df_results_system_calculations.to_excel(
+    r"C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV2\GeoProb-Pipe\workspaces\example_new_calculations\output\2025-07-25_1700\system_calculations.xlsx"
+)
+# TODO
 
 project.export_results()
 
-obj: CombinedReliabilityCalculation = project.results.df_combined['reliability_calculation'].iloc[0]
+# project.system_calculations[0].run()
+
+# obj: CombinedReliabilityCalculation = project.results.df_combined['reliability_calculation'].iloc[0]
+
+
 # fig = project.graphs.combined.betrouwbaarheidsindex()
 
 # project._calculations_unique['piping']['reliability_calculation'].iloc[0].run_duration

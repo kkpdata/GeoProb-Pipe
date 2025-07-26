@@ -32,17 +32,19 @@ class PipingSystemBuilder(BaseSystemBuilder):
         for vak in vak_collection.values():
             for uittredepunt in vak.uittredepunten:
                 for ondergrond_scenario in vak.ondergrond_scenarios:
-                    list_calculations.append(
-                        PipingSystemReliabilityCalculation(
-                            system_variable_distributions=self.construct_system_variable_distributions(
-                                vak=vak,
-                                uittredepunt=uittredepunt,
-                                ondergrond_scenario=ondergrond_scenario,
-                                df_constants=df_constants,
-                            ),
-                            project_settings=project_settings
-                        )
+                    calc = PipingSystemReliabilityCalculation(
+                        system_variable_distributions=self.construct_system_variable_distributions(
+                            vak=vak,
+                            uittredepunt=uittredepunt,
+                            ondergrond_scenario=ondergrond_scenario,
+                            df_constants=df_constants,
+                        ),
+                        project_settings=project_settings
                     )
+                    calc.metadata["uittredepunt_id"] = uittredepunt.id
+                    calc.metadata["ondergrondscenario_id"] = ondergrond_scenario.id
+                    calc.metadata["vak_id"] = vak.id
+                    list_calculations.append(calc)
         return list_calculations
 
     @staticmethod

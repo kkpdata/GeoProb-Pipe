@@ -39,5 +39,5 @@ class PipingSystemReliabilityCalculation(ParallelSystemReliabilityCalculation):
             project_settings = {}
 
         super().__init__(system_variable_distributions=system_variable_distributions, project_settings=project_settings)
-        self.system_variables_setup_function = system_variable_setup
-        self.system_models = [calc_Z_u, calc_Z_h, calc_Z_p]
+        self.given_system_variables_setup_function = system_variable_setup
+        self.given_system_models = [calc_Z_u, calc_Z_h, calc_Z_p]

@@ -1,9 +1,6 @@
-
 from collections.abc import Iterable
 from typing import Optional
-
 import pandas as pd
-
 from geoprob_pipe.globals import ALLOWED_SUFFIXES
 
 
@@ -57,7 +54,7 @@ def _generate_parameter_dict(attr_name_without_suffix: str, df_overview_row: pd.
     else:
         parameter_dict["mean"] = _get_value("_mean", "parameter_default_value_mean")
         parameter_dict["dispersion_type"] = df_overview_row["parameter_spreidingstype"]
-        parameter_dict["dispersion_value"] = _get_value(parameter_dict["dispersion_type"],
-                                                        "parameter_default_value_spreiding")
+        parameter_dict["dispersion_value"] = _get_value(
+            suffix=parameter_dict["dispersion_type"], default_col="parameter_default_value_spreiding")
 
     return parameter_dict
