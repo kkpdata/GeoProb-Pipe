@@ -68,14 +68,15 @@ def df_to_markdown(df: DataFrame):
     return markdown
 
 
-def update_readme_with_table():
-    start_marker = "<!-- START_TODO_TABLE -->"
-    end_marker = "<!-- END_TODO_TABLE --> "
+def update_readme_with_table(wanneer: str = "nu"):
+    start_marker = f"<!-- START_TODO_TABLE_{wanneer.upper()} -->"
+    end_marker = f"<!-- END_TODO_TABLE_{wanneer.upper()} --> "
 
     readme_path = os.path.join(repository_root_path(), "README.md")
 
     # Construct Markdown table
     df_todos = collect_all_todos()
+    df_todos = df_todos[df_todos['wanneer'] == wanneer]
     markdown = df_to_markdown(df_todos)
 
     with open(readme_path, 'r', encoding='utf-8') as f:
@@ -97,5 +98,6 @@ def update_readme_with_table():
 # collection = collect_all_todos()
 # df_to_markdown(collection)
 
-update_readme_with_table()
+update_readme_with_table(wanneer='nu')
+update_readme_with_table(wanneer='later')
 print(f"Finished updating README.")

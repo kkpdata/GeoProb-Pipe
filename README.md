@@ -79,13 +79,8 @@ TODO. Ze zijn gesorteerd op welke nu van belang zijn en welke een must of should
 waar de code aangescherpt of uitgebreid kan worden. 
 
 
-
-<details>
-  <summary>Bekijk de tabel</summary>
-
-  <br>
-
-<!-- START_TODO_TABLE -->
+### Nu van belang
+<!-- START_TODO_TABLE_NU -->
 | Wanneer | Belang | Formaat | Beschrijving | Bestand | Regel |
 | -- | -- | -- | -- | -- | -- |
 | nu | must | klein | Exporteer df met resultaten per limit state. | \app_object.py | 75 | 
@@ -106,6 +101,20 @@ waar de code aangescherpt of uitgebreid kan worden.
 | nu | should | klein | Onderstaande class is momenteel het Python Notebook voorbeeld van Deltares. Omzetten. | \calculations\system_calculations\piping_system\reliability_calculation.py | 10 | 
 | nu | should | middel | Implement Thread Executor for this. | \app_object.py | 172 | 
 | nu | should | middel | Implementeer ThreadPoolExecutor voor 'run combined'. | \calculations\combined.py | 46 | 
+
+<!-- END_TODO_TABLE_NU --> 
+
+
+
+### Op een later moment van belang
+<details>
+  <summary>Bekijk de tabel</summary>
+
+  <br>
+
+<!-- START_TODO_TABLE_LATER -->
+| Wanneer | Belang | Formaat | Beschrijving | Bestand | Regel |
+| -- | -- | -- | -- | -- | -- |
 | later | could | groot | Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze. | \app_object.py | 50 | 
 | later | could | groot | Add functionality to read existing results (without running prob. calculations again) | \classes\workspace.py | 25 | 
 | later | could | middel | De bovenstaande assertion triggert. Maar dat is fout. | \calculations\test_prob_lib_vs_openturns.py | 131 | 
@@ -118,7 +127,8 @@ waar de code aangescherpt of uitgebreid kan worden.
 | later | should | middel | Validation message wanneer de hoogste limit state beta significant lager is dan het systeem | \calculations\system_calculations\parallel_system_reliability_calculation.py | 71 | 
 | later | should | middel | Gebruiksvriendelijkheid vergroten voor andere reliability_methods. | \classes\reliability_calculation.py | 116 | 
 
-<!-- END_TODO_TABLE --> 
+<!-- END_TODO_TABLE_LATER --> 
+
 
 </details>
 
