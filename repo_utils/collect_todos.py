@@ -60,11 +60,11 @@ def collect_all_todos():
 
 
 def df_to_markdown(df: DataFrame):
-    markdown = "| Bestand | Regel | Wanneer | Belang | Formaat | Beschrijving |\n"
+    markdown = "| Wanneer | Belang | Formaat | Beschrijving | Bestand | Regel |\n"
     markdown += "| -- | -- | -- | -- | -- | -- |\n"
     for _, row in df.iterrows():
-        markdown += (f"| {row['bestand']} | {row['regel']} | {row['wanneer']} | {row['belang']} "
-                     f"| {row['formaat']} | {str(row['description']).strip()} |\n")
+        markdown += (f"| {row['wanneer']} | {row['belang']} "
+                     f"| {row['formaat']} | {str(row['description']).strip()} | {row['bestand']} | {row['regel']} | \n")
     return markdown
 
 
