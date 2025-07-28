@@ -1,7 +1,5 @@
-from dataclasses import dataclass
 from pathlib import Path
 import pandas as pd
-from pandas.api.types import CategoricalDtype
 from datetime import datetime
 try:
     import probabilistic_library
@@ -12,10 +10,6 @@ except ModuleNotFoundError:
         "not commit the wheel-file into the repository.")
 import logging
 from geoprob_pipe.classes.workspace import Workspace
-from geoprob_pipe.calculations.combined import build_and_run_combined_calculation
-from geoprob_pipe.calculations.limit_states import build_and_run_unique_model_calculations
-from geoprob_pipe.calculations.system_calculations.piping_system.limit_state_functions import (
-    calc_Z_h, calc_Z_p, calc_Z_u)
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
 from geoprob_pipe.results.main_object import Results
@@ -28,15 +22,6 @@ from geoprob_pipe.calculations.system_calculations.piping_system.build_and_run i
 
 
 logger = logging.getLogger("geoprob_pipe_logger")
-
-
-@dataclass
-class _DataClassResults:
-    """Used for dot-accessing the calculation results
-    """
-    df_limit_states: pd.DataFrame
-    df_combined: pd.DataFrame
-    df_uittredepunt: pd.DataFrame
 
 
 def provide_explanation_to_user():
@@ -96,101 +81,3 @@ class GeoProbPipe:
         print(Settings().__dir__())
     This unfortunately lacks in further documentation, but the parameter names are relatively descriptive. 
         """)
-
-    def _build_and_run_calculations_per_limit_state(self):
-        """ Build and run ReliabilityCalculations objects per limit state.
-
-        These objects are combinations of uittredepunten and ondergrondscenarios for each model (uplift/heave/piping).
-
-        Note: due to limitations in the probabilistic_library, it is not possible to set up all calculations first and
-        then run them. After setting up a calculations for each model (uplift/heave/piping), we need to run them
-        immediately before setting up the next model.
-        """
-
-        logger.info(f"[Uplift] Building and running calculations.")
-        df_uplift = build_and_run_unique_model_calculations(
-            model=calc_Z_u,
-            vak_collection=self.input_data.vakken,
-            df_overview_parameters=self.input_data.df_overview_parameters,
-            df_settings=self.df_settings)
-
-        logger.info(f"[Heave] Building and running calculations.")
-        df_heave = build_and_run_unique_model_calculations(
-            model=calc_Z_h,
-            vak_collection=self.input_data.vakken,
-            df_overview_parameters=self.input_data.df_overview_parameters,
-            df_settings=self.df_settings)
-
-        logger.info(f"[Piping] Building and running 'piping' calculations.")
-        df_piping = build_and_run_unique_model_calculations(
-            model=calc_Z_p,
-            vak_collection=self.input_data.vakken,
-            df_overview_parameters=self.input_data.df_overview_parameters,
-            df_settings=self.df_settings)
-
-        self._calculations_unique = {
-            "uplift": df_uplift,
-            "heave": df_heave,
-            "piping": df_piping,
-        }
-
-    def _build_and_run_combined_limit_state_calculations(self):
-        """ Use the probabilistic_library to combine the calculations of the separate models (uplift/heave/piping) into
-        one beta/failure probability for each uittredepunt and ondergrondscenario combination.
-
-        :return:
-        """
-
-        logger.info(f"[Combined] Building and running calculations.")
-        df_grouped = self._df_calculation_results_limit_states.groupby(["uittredepunt_id", "ondergrondscenario_id"])
-        total = df_grouped.__len__()
-        time_start = time.time()
-
-        # Build and run calculations
-        self._calculations_combined_models = df_grouped.apply(
-            lambda df_group: build_and_run_combined_calculation(
-                df_group,
-                self.input_data.uittredepunten[str(df_group.name[0])],
-                self.input_data.ondergrondscenarios[str(df_group.name[1])])).reset_index(drop=True)
-        # TODO Nu Should Middel: Implement Thread Executor for this.
-
-        # Reporting finished
-        duration = int(time.time() - time_start)
-        logger.info(f"[Combined] Finished all {total} calculations in under {duration} seconds. "
-                    f"That is on average under {round(duration / total, 3)} seconds per calculation.")
-
-    # @property
-    # def results(self) -> _DataClassResults:
-    #     """ Returns a dataclass with dot-access to the results of the unique model calculations (uplift/heave/piping)
-    #     and of the combined calculations. """
-    #     return _DataClassResults(
-    #         df_limit_states=self._df_calculation_results_limit_states,
-    #         df_combined=self._calculations_combined_models,
-    #         df_uittredepunt=self._calculations_uittredepunt
-    #     )
-
-    @property
-    def _df_calculation_results_limit_states(self) -> pd.DataFrame:
-        """ Merge the DataFrames of the unique limit state calculations (uplift/heave/piping) into a single DataFrame
-        for convenient access. The dataframe is sorted by uittredepunt, ondergrondscenario and limit state type. """
-        
-        # Store the model type in a new column
-        df_unique_model_results = pd.concat(
-            [df.assign(model=key) for key, df in self._calculations_unique.items()],
-            ignore_index=True
-        )  
-
-        # Sort DataFrame of all ReliabilityCalculations by model using custom order uplift, heave and piping
-        df_unique_model_results["model"] = df_unique_model_results["model"].astype(CategoricalDtype(
-            categories=["uplift", "heave", "piping"], ordered=True))
-        df_unique_model_results = df_unique_model_results.sort_values(
-            by=["uittredepunt_id", "ondergrondscenario_id", "model"]
-        ).reset_index(drop=True)
-        
-        # Make sure that the columns are in a specific order for easier access
-        known = ["uittredepunt_id", "uittredepunt", "ondergrondscenario_id", "ondergrondscenario", "model",
-                 "reliability_calculation"]
-        df_unique_model_results = df_unique_model_results[known + [
-            col for col in df_unique_model_results.columns if col not in known]]
-        
-        return df_unique_model_results

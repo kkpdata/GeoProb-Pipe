@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 
 
 class Combined:
+    # TODO Nu Should Klein: Combined als object naam is niet meer juist. ScenarioGraphs van maken?
 
     def __init__(self, app_obj: GeoProbPipe):
         self.app_obj: GeoProbPipe = app_obj
