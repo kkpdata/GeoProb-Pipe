@@ -1,5 +1,5 @@
 from __future__ import annotations
-from geoprob_pipe.graphs.combined.betrouwbaarheidsindex import betrouwbaarheidsindex
+from geoprob_pipe.visualizations.graphs.combined.betrouwbaarheidsindex import betrouwbaarheidsindex
 from typing import TYPE_CHECKING
 from matplotlib.pyplot import Figure as MatplotLibFigure
 if TYPE_CHECKING:

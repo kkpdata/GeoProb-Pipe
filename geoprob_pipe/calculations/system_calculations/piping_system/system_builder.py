@@ -43,6 +43,7 @@ class PipingSystemBuilder(BaseSystemBuilder):
                     )
                     calc.metadata["uittredepunt_id"] = uittredepunt.id
                     calc.metadata["ondergrondscenario_id"] = ondergrond_scenario.id
+                    calc.metadata["ondergrondscenario"] = ondergrond_scenario
                     calc.metadata["vak_id"] = vak.id
                     list_calculations.append(calc)
         return list_calculations

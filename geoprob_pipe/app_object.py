@@ -3,10 +3,6 @@ from pathlib import Path
 import pandas as pd
 from pandas.api.types import CategoricalDtype
 from datetime import datetime
-
-from geoprob_pipe.calculations.system_calculations.piping_system.reliability_calculation import \
-    PipingSystemReliabilityCalculation
-from geoprob_pipe.graphs.overview.generate_flow_chart_v2 import generate_overview_flow_chart_with_betas
 try:
     import probabilistic_library
 except ModuleNotFoundError:
@@ -18,17 +14,18 @@ import logging
 from geoprob_pipe.classes.workspace import Workspace
 from geoprob_pipe.calculations.combined import build_and_run_combined_calculation
 from geoprob_pipe.calculations.limit_states import build_and_run_unique_model_calculations
-from geoprob_pipe.helper_functions.statistics_utils import convert_failure_probability_to_beta
 from geoprob_pipe.calculations.system_calculations.piping_system.limit_state_functions import (
     calc_Z_h, calc_Z_p, calc_Z_u)
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
+from geoprob_pipe.results.main_object import Results
 from geoprob_pipe.input_data import InputData
-from geoprob_pipe.graphs import Graphs
+from geoprob_pipe.visualizations import Visualizations
 import time
-import os
-from geoprob_pipe.calculations.system_calculations.piping_system.system_builder import PipingSystemBuilder
 from typing import List
+from geoprob_pipe.calculations.system_calculations.piping_system.build_and_run import (
+    build_and_run_piping_system_calculations)
+
 
 logger = logging.getLogger("geoprob_pipe_logger")
 
@@ -64,50 +61,19 @@ class GeoProbPipe:
         logger.info("Initiating project.")
         self.time_start = datetime.now()
 
-        # Initialize Workspace object (also checks if input/output folders contain all necessary files)
         self.workspace = Workspace(path_to_workspace)
-
-        # Gather input data
         self.input_data = InputData(self.workspace)
-
-        # Initialize collections. Note that UittredepuntCollection and OndergrondscenarioCollection link the
-        # instances of Uittredepunt and OndergrondScenario to the corresponding Vak instance
-
 
         # Read calculation settings
         self._read_calculation_settings()
+        # TODO: Unsure if the single statement belongs here. Wouldn't it be part of input data?
 
-        # Build parallel system calculations
-        self.system_calculations: List[ParallelSystemReliabilityCalculation] = _build_system_calculations(self)
-        for calc in self.system_calculations:
-            calc.run()
-            # TODO Nu Should Middel: Uitvoeren van system calculations ombouwen naar Threads
-        self.df_results_system_calculations = _create_results_df(self)
-
-
-        # Build and run calculations per limit state
-        self._build_and_run_calculations_per_limit_state()
-        # TODO Nu Must Klein: Exporteer df met resultaten per limit state.
-
-        return
-
-        # Build and run combined limit state calculations
-        self._build_and_run_combined_limit_state_calculations()
-        # TODO Nu Must Klein: Exporteer df met resultaten per combinatie.
-
-        # Use the chances of the underlying scenarios to calculate the combined failure probability for each
-        # uittredepunt
-        self._calculations_uittredepunt = self._calculations_combined_models.assign(
-            combined_failure_probability=self._calculations_combined_models.apply(
-                lambda row: row['failure_probability'] *
-                            row['reliability_calculation'].ondergrond_scenario.variables.ondergrondscenario_kans[
-                                "value"], axis=1)).groupby('uittredepunt_id', as_index=False)[
-            'combined_failure_probability'].sum()
-        self._calculations_uittredepunt["beta"] = self._calculations_uittredepunt["combined_failure_probability"].apply(
-            lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
-
-        # TODO Later Must Middel: Exporteer df met resultaten per uittredepunt.
-        # TODO Later Must Middel: Exporteer df met resultaten per vak.
+        self.calculations: List[ParallelSystemReliabilityCalculation] = build_and_run_piping_system_calculations(self)
+        self.results = Results(self)
+        # self.df_beta_limit_states = _collect_df_beta_per_limit_state(self)
+        # self.df_beta_scenarios = _collect_df_beta_per_scenario(self)
+        # self.df_beta_uittredepunten = self._calculate_df_beta_per_uittredepunt()
+        # self.df_beta_vakken = self._calculated_df_beta_per_limit_state()
 
         # Log finish
         self.time_end = datetime.now()
@@ -116,7 +82,7 @@ class GeoProbPipe:
         provide_explanation_to_user()
 
         # Append logic classes
-        self.graphs = Graphs(self)
+        self.visualizations = Visualizations(self)
 
     def _read_calculation_settings(self):
         """ Read calculation settings from Excel file. """
@@ -193,61 +159,15 @@ class GeoProbPipe:
         logger.info(f"[Combined] Finished all {total} calculations in under {duration} seconds. "
                     f"That is on average under {round(duration / total, 3)} seconds per calculation.")
 
-    @property
-    def results(self) -> _DataClassResults:
-        """ Returns a dataclass with dot-access to the results of the unique model calculations (uplift/heave/piping)
-        and of the combined calculations. """
-        return _DataClassResults(
-            df_limit_states=self._df_calculation_results_limit_states,
-            df_combined=self._calculations_combined_models,
-            df_uittredepunt=self._calculations_uittredepunt
-        )
-
-    def export_results(self):
-
-        # Results of limit state calculations
-        df = self.results.df_limit_states
-        df = df[["uittredepunt_id", "ondergrondscenario_id", "model", "converged", "beta", "failure_probability"]]
-        df.loc[:, 'beta'] = df['beta'].round(2)
-        # TODO Later Should Middel: Alpha en/of influence_factors exporteren in een aparte Excel.
-        #  Daarbij eveneens afronden.
-        # TODO Later Should Klein: Bespreken wat we met resultaten doen die niet 'converged' zijn.
-        df.to_excel(excel_writer=self.workspace.path_output_folder.folderpath / "df_limit_states.xlsx")
-        # TODO Nu Must Middel: Visualiseer de limit state resultaten.
-        #  Indien dat niet al bestaat, dan visualiseren in een eenvoudige maar overzichtelijke grafiek. Geen map nodig
-        #  (voor nu).
-
-        # Results of combined calculations
-        df = self.results.df_combined
-        df = df[["uittredepunt_id", "ondergrondscenario_id", "converged", "beta", "failure_probability"]]
-        df.loc[:, 'beta'] = df['beta'].round(2)
-        df.to_excel(excel_writer=self.workspace.path_output_folder.folderpath / "df_combined.xlsx")
-        # TODO Nu Must Middel: Visualiseer de combined resultaten.
-        #  Indien dat niet al bestaat, dan visualiseren in een eenvoudige maar overzichtelijke grafiek. Geen map nodig
-        #  (voor nu).
-        # TODO Nu Must Middel: Visualiseer een vergelijking tussen de combined en de limit state resultaten.
-        #  Indien dat niet al bestaat, dan visualiseren in een eenvoudige maar overzichtelijke grafiek. Geen map nodig
-        #  (voor nu).
-
-        # Export graphs
-        fig = self.graphs.combined.betrouwbaarheidsindex()
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        export_dir = r"C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV2\exports"
-        os.makedirs(export_dir, exist_ok=True)
-        export_path = os.path.join(export_dir, f"{timestamp}_B_STPH_sc.png")
-        fig.savefig(export_path, dpi=300)
-
-        # Export result overview flowchart
-        df = self.results.df_combined
-        lowest_beta_row: pd.DataFrame  = df.loc[df['beta'].idxmin()]
-        # print(f"{lowest_beta_row=}")
-        # print(f"{lowest_beta_row['ondergrondscenario_id']=}")
-        generate_overview_flow_chart_with_betas(
-            app_obj=self,
-            export_dir=export_dir,
-            ondergrondscenario_id=lowest_beta_row['ondergrondscenario_id'],
-            uittredepunt_id=lowest_beta_row['uittredepunt_id']
-        )
+    # @property
+    # def results(self) -> _DataClassResults:
+    #     """ Returns a dataclass with dot-access to the results of the unique model calculations (uplift/heave/piping)
+    #     and of the combined calculations. """
+    #     return _DataClassResults(
+    #         df_limit_states=self._df_calculation_results_limit_states,
+    #         df_combined=self._calculations_combined_models,
+    #         df_uittredepunt=self._calculations_uittredepunt
+    #     )
 
     @property
     def _df_calculation_results_limit_states(self) -> pd.DataFrame:
@@ -274,37 +194,3 @@ class GeoProbPipe:
             col for col in df_unique_model_results.columns if col not in known]]
         
         return df_unique_model_results
-
-
-def _build_system_calculations(self: GeoProbPipe) -> List[PipingSystemReliabilityCalculation]:
-    system_builder = PipingSystemBuilder()
-    df = self.input_data.df_overview_parameters
-    df_constants = df[df["parameter_type"] == "constant"]
-    return system_builder.build_instances(
-        vak_collection=self.input_data.vakken,
-        df_settings=self.df_settings,
-        df_constants=df_constants)
-
-
-def _create_results_df(self: GeoProbPipe):
-
-    def create_row(calc):
-        return {
-            "uittredepunt_id": calc.metadata["uittredepunt_id"],
-            "ondergrondscenario_id": calc.metadata["ondergrondscenario_id"],
-            "vak_id": calc.metadata["vak_id"],
-            "system_calculation": calc,
-            "converged": calc.system_design_point.is_converged,
-            "beta": round(calc.system_design_point.reliability_index, 2),
-            "failure_probability": calc.system_design_point.probability_failure,
-            "model_betas": ", ".join([
-                str(round(dp.reliability_index, 2)) for dp in calc.model_design_points
-            ])
-        }
-
-    df = pd.DataFrame([
-        create_row(calc)
-        for calc in self.system_calculations]
-    ).sort_values(
-        by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
-    return df

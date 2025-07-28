@@ -9,13 +9,13 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
-def betrouwbaarheidsindex(app_obj: GeoProbPipe) -> Figure:
+def betrouwbaarheidsindex(geoprob_pipe: GeoProbPipe) -> Figure:
     """ Grafiek van de betrouwbaarheidsindex per uittredepunt over de gecombineerde uitvoer (uplift/heave/piping). Over
     de x-as uitgezet tegen de dijkpaal nummering. Op de achtergrond zijn de categoriegrenzen weergegeven. """
 
     # Collect data
-    df_uittredepunten = app_obj.input_data.uittredepunten.df
-    df_results_combined = app_obj.results.df_combined
+    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
+    df_results_combined = geoprob_pipe.results.df_beta_scenarios
     df_for_graph = merge(
         left=df_results_combined[["uittredepunt_id", "beta"]],
         right=df_uittredepunten[["uittredepunt_id", "M_value"]],
@@ -30,7 +30,8 @@ def betrouwbaarheidsindex(app_obj: GeoProbPipe) -> Figure:
     ax.yaxis.set_major_locator(plt.MultipleLocator(0.5))
 
     # Plot data
-    ax.plot(df_for_graph['M_value'], df_for_graph["beta"],'o', color='black', markersize=3, label='Prob. ontwerpp.')
+    ax.plot(df_for_graph['M_value'], df_for_graph["beta"],'o',
+            color='black', markersize=3, label='Prob. ontwerpp.')
 
     # Formatting
     ax.grid(linewidth=0.5,color='black',alpha=0.5,linestyle='-.')

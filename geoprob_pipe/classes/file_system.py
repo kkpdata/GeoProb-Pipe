@@ -6,6 +6,7 @@ import pandas as pd
 
 class FileSystem:
     """FileSystem class which creates a convenient overview of a given folder and the files within it"""
+    # TODO Later Should Klein: Is het echt nodig om een 'FileSystem'-object te maken? Deze functies bestaan al toch?
 
     def __init__(self, path_folder: str | Path, extension: Optional[str] = None) -> None:
         """Initialize FileSystem instance which creates a convenient overview of a given folder and the files within it

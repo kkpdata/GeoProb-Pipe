@@ -27,7 +27,6 @@ def repository_root_path() -> Optional[str]:
     return None
 
 
-
 def get_todo_contents(line: str) -> Tuple[bool, str, str, str, str]:
     line = line[line.find("# TODO")+7:]
     items = line.split(sep=':')
@@ -80,7 +79,6 @@ def collect_all_todos():
     df_todos = df_todos.sort_values(by=['wanneer', 'belang', 'formaat'], ascending=[False, True, True])
 
     return df_todos
-
 
 
 def df_to_markdown(df: DataFrame):
