@@ -1,16 +1,14 @@
 """ The below code displays an example of how GeoProb-Pipe is run. This example works inside the repository. Use the
 Project-object directly outside the repository. """
 
-
 from geoprob_pipe import GeoProbPipe
 from geoprob_pipe.utils.other import repository_root_path
 from geoprob_pipe.utils.loggers import initiate_app_logger
-from geoprob_pipe.classes.reliability_calculation import CombinedReliabilityCalculation
+# from geoprob_pipe.classes.reliability_calculation import CombinedReliabilityCalculation
 from dotenv import load_dotenv
 import os
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)  # Preferably address FutureWarnings: part of pydra-core
-
 
 # Import environment variables
 repo_root = repository_root_path()
@@ -21,13 +19,10 @@ initiate_app_logger(repo_root=repo_root)
 
 # Initiate GeoProb-Pipe project object
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
+project.results.export_results()
+project.visualizations.export_visualizations()
+# TODO Nu Should Klein: Exporteer ook validation messages van project.
 
-project.export_results()
-
-obj: CombinedReliabilityCalculation = project.results.df_combined['reliability_calculation'].iloc[0]
-# fig = project.graphs.combined.betrouwbaarheidsindex()
-
-# project._calculations_unique['piping']['reliability_calculation'].iloc[0].run_duration
 
 ##
 #

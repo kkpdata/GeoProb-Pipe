@@ -3,32 +3,37 @@ import geoprob_pipe.helper_functions.piping_functions as piping_functions
 
 # noinspection PyPep8Naming
 def system_variable_setup(
-        L_achterland: float,
-        c_voorland: float,
-        c_achterland: float,
-        L_intrede: float,
-        L_but: float,
-        L_bit: float,
-        polderpeil: float,
         buitenwaterstand: float,
-        mv_exit: float,
-        top_zand: float,
-        kD_wvp: float,
-        modelfactor_h: float,
-        i_c_h: float,
-        D_wvp: float,  # TODO Later Should Klein: D zit ook in kD_wvp. Dat is dubbelop.
-        modelfactor_u: float,
-        gamma_water: float,
-        gamma_sat_deklaag: float,
-        modelfactor_p: float,
+        c_achterland: float,
+        c_voorland: float,
         d70: float,
-        g: float,
-        v: float,
-        theta: float,
-        eta: float,
         d70_m: float,
+        D_wvp: float,  # TODO Later Should Klein: D zit ook in kD_wvp. Dat is dubbelop.
+        eta: float,
+        g: float,
         gamma_korrel: float,
+        gamma_sat_deklaag: float,
+        gamma_water: float,
+        # gws_m_mv missing TODO: Waarom in input Excel? Maar is het erg?
+        i_c_h: float,
+        # k_v_boven_gws missing TODO: Waarom in input Excel? Maar is het erg?
+        # k_v_onder_gws missing TODO: Waarom in input Excel? Maar is het erg?
+        kD_wvp: float,
+        L_achterland: float,
+        L_bit: float,
+        L_but: float,
+        L_intrede: float,
+        modelfactor_h: float,
+        modelfactor_u: float,
+        modelfactor_p: float,
+        # mv_achterland_vak
+        mv_exit: float,
+        # ondergrondscenario_kans missing TODO: Waarom in input Excel? Maar is het erg?
+        polderpeil: float,
         r_c_deklaag: float,
+        theta: float,
+        top_zand: float,
+        v: float,
 ):
     """ Dummy functie waarmee variabele namen worden geïnitieerd.
 

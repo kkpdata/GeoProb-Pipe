@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pydra_core as pydra
 
-from geoprob_pipe.classes.base_collection import BaseCollection, pretty_repr
+from geoprob_pipe.input_data.base_collection import BaseCollection, pretty_repr
 from geoprob_pipe.input_data.uittredepunt import UittredepuntCollection
 
 

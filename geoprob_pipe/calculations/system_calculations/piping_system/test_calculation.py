@@ -1,6 +1,9 @@
 
 
 def test_calculation():
+    # TODO Later Should Klein: Nadenken hoe we binnen een half uur een quick scan piping kunnen uitvoeren met het object.
+    #  Is het daarvoor te complex?
+
     ##
     from probabilistic_library import DistributionType, Alpha
     from geoprob_pipe.calculations.system_calculations.piping_system.reliability_calculation import  (

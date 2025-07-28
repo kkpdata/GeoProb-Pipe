@@ -1,0 +1,22 @@
+from __future__ import annotations
+from geoprob_pipe.calculations.system_calculations.piping_system.reliability_calculation import \
+    PipingSystemReliabilityCalculation
+from geoprob_pipe.calculations.system_calculations.piping_system.system_builder import PipingSystemBuilder
+from typing import List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from geoprob_pipe import GeoProbPipe
+
+
+def build_and_run_piping_system_calculations(self: GeoProbPipe) -> List[PipingSystemReliabilityCalculation]:
+    system_builder = PipingSystemBuilder()
+    df = self.input_data.df_overview_parameters
+    df_constants = df[df["parameter_type"] == "constant"]
+    calculations =  system_builder.build_instances(
+        vak_collection=self.input_data.vakken,
+        df_settings=self.df_settings,
+        df_constants=df_constants)
+    for calc in calculations:
+        calc.run()
+    # TODO Nu Could Middel: Uitvoeren van system calculations ombouwen naar Threads.
+    #  Niet directe prio omdat het eigenlijk allemaal al snel doorgerekend wordt.
+    return calculations
