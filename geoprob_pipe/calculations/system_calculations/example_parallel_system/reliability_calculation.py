@@ -28,5 +28,5 @@ class ExampleParallelSystemReliabilityCalculation(ParallelSystemReliabilityCalcu
 
     def __init__(self, system_variable_distributions: List[Dict]):
         super().__init__(system_variable_distributions)
-        self.system_variables_setup_function = system_variable_setup
-        self.system_models = [limit_state_example_1, limit_state_example_2]
+        self.given_system_variables_setup_function = system_variable_setup
+        self.given_system_models = [limit_state_example_1, limit_state_example_2]
