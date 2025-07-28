@@ -85,27 +85,29 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 <!-- START_TODO_TABLE_NU -->
 | Belang | Formaat | Beschrijving | Bestand | Regel |
 | -- | -- | -- | -- | -- |
-| must | klein | Exporteer df met resultaten per limit state. | \app_object.py | 90 | 
-| must | klein | Exporteer df met resultaten per combinatie. | \app_object.py | 96 | 
-| must | klein | Unit test uitbreiden/toevoegen met buitenwaterstand als distributie. | \calculations\system_calculations\piping_system\test_calculation.py | 56 | 
-| must | klein | In het Openturns voorbeeld heeft deze een derde parameter met waarde 10. Waarvoor? | \calculations\system_calculations\piping_system\test_calculation.py | 108 | 
-| must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | \graphs\combined\betrouwbaarheidsindex.py | 48 | 
-| must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | \graphs\combined\betrouwbaarheidsindex.py | 71 | 
-| must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | \graphs\combined\betrouwbaarheidsindex.py | 72 | 
-| must | klein | naam toevoegen van afkorting | \misc\traject_normering.py | 11 | 
-| must | middel | Visualiseer de limit state resultaten. | \app_object.py | 216 | 
-| must | middel | Visualiseer de combined resultaten. | \app_object.py | 225 | 
-| must | middel | Visualiseer een vergelijking tussen de combined en de limit state resultaten. | \app_object.py | 228 | 
-| must | middel | Optie toevoegen dat ParallelSystemReliabilityCalculation ook deterministisch word uitgerekend | \calculations\system_calculations\piping_system\test_calculation.py | 194 | 
-| must | middel | Assert toevoegen die piping resultaat unit test | \calculations\system_calculations\piping_system\test_calculation.py | 196 | 
-| should | klein | Onderstaande class is momenteel het Python Notebook voorbeeld van Deltares. Omzetten. | \calculations\system_calculations\piping_system\reliability_calculation.py | 10 | 
-| should | klein | I.p.v. dict maak gebruik van Distributie-objecten. Minder fout gevoelig. | \calculations\system_calculations\system_base_objects\parallel_system_reliability_calculation.py | 71 | 
-| should | klein | Feedback aan gebruiker dat er validation messages zijn. | \calculations\system_calculations\system_base_objects\parallel_system_reliability_calculation.py | 138 | 
-| should | middel | Uitvoeren van system calculations ombouwen naar Threads | \app_object.py | 84 | 
-| should | middel | Implement Thread Executor for this. | \app_object.py | 189 | 
-| should | middel | Implementeer ThreadPoolExecutor voor 'run combined'. | \calculations\combined.py | 46 | 
+| could | middel | Uitvoeren van system calculations ombouwen naar Threads. | /calculations/system_calculations/piping_system/build_and_run.py | 20 | 
+| must | klein | Voor export df_beta_limit_states, kolommen filteren? | /results/main_object.py | 35 | 
+| must | klein | Voor export df_beta_uittredepunten, kolommen filteren? | /results/main_object.py | 49 | 
+| must | klein | naam toevoegen van afkorting | /misc/traject_normering.py | 11 | 
+| must | klein | Unit test uitbreiden/toevoegen met buitenwaterstand als distributie. | /calculations/system_calculations/piping_system/test_calculation.py | 56 | 
+| must | klein | In het Openturns voorbeeld heeft deze een derde parameter met waarde 10. Waarvoor? | /calculations/system_calculations/piping_system/test_calculation.py | 108 | 
+| must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/combined/betrouwbaarheidsindex.py | 49 | 
+| must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | /visualizations/graphs/combined/betrouwbaarheidsindex.py | 72 | 
+| must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | /visualizations/graphs/combined/betrouwbaarheidsindex.py | 73 | 
+| must | middel | Optie toevoegen dat ParallelSystemReliabilityCalculation ook deterministisch word uitgerekend | /calculations/system_calculations/piping_system/test_calculation.py | 194 | 
+| must | middel | Assert toevoegen die piping resultaat unit test | /calculations/system_calculations/piping_system/test_calculation.py | 196 | 
+| should | groot | Zou goed zijn om in GeoProb-Pipe voorbeelden op te nemen die tonen dat de applicatie klopt. | /calculations/test_prob_lib_vs_openturns.py | 1 | 
+| should | klein | Exporteer ook validation messages van project. | /main_piping.py | 24 | 
+| should | klein | Sommige resultaten zijn niet converged. Wat doen we daarmee? | /results/main_object.py | 38 | 
+| should | klein | Onderstaande toont aan dat je single project moet gebruiken. Zou goed zijn om te verwijzen naar dit. | /calculations/voorbeeld_verschil_tussen_single_en_multi.py | 1 | 
+| should | klein | I.p.v. dict maak gebruik van Distributie-objecten. Minder fout gevoelig. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 71 | 
+| should | klein | Feedback aan gebruiker dat er validation messages zijn. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 138 | 
+| should | klein | Onderstaande class is momenteel het Python Notebook voorbeeld van Deltares. Omzetten. | /calculations/system_calculations/piping_system/reliability_calculation.py | 10 | 
+| should | klein | Combined als object naam is niet meer juist. ScenarioGraphs van maken? | /visualizations/graphs/combined/__init__.py | 10 | 
+| should | middel | Implementeer ThreadPoolExecutor voor 'run combined'. | /calculations/_deprecated/combined.py | 46 | 
 
 <!-- END_TODO_TABLE_NU --> 
+
 
 
 
@@ -123,19 +125,18 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 <!-- START_TODO_TABLE_LATER -->
 | Belang | Formaat | Beschrijving | Bestand | Regel |
 | -- | -- | -- | -- | -- |
-| could | groot | Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze. | \app_object.py | 57 | 
-| could | groot | Add functionality to read existing results (without running prob. calculations again) | \classes\workspace.py | 25 | 
-| could | middel | De bovenstaande assertion triggert. Maar dat is fout. | \calculations\test_prob_lib_vs_openturns.py | 131 | 
-| must | middel | Exporteer df met resultaten per uittredepunt. | \app_object.py | 109 | 
-| must | middel | Exporteer df met resultaten per vak. | \app_object.py | 110 | 
-| should | klein | Bespreken wat we met resultaten doen die niet 'converged' zijn. | \app_object.py | 214 | 
-| should | klein | D zit ook in kD_wvp. Dat is dubbelop. | \calculations\system_calculations\piping_system\limit_state_functions.py | 11 | 
-| should | klein | Nadenken hoe we binnen een half uur een quick scan piping kunnen uitvoeren met het object. | \calculations\system_calculations\piping_system\test_calculation.py | 4 | 
-| should | middel | Alpha en/of influence_factors exporteren in een aparte Excel. | \app_object.py | 212 | 
-| should | middel | Het zou goed zijn om voor dit simpele systeem ook betas te kunnen reproduceren. | \calculations\test_prob_lib_vs_openturns.py | 174 | 
-| should | middel | Gebruiksvriendelijkheid vergroten voor andere reliability_methods. | \classes\reliability_calculation.py | 116 | 
+| could | groot | Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze. | /app_object.py | 39 | 
+| could | groot | Add functionality to read existing results (without running prob. calculations again) | /classes/workspace.py | 25 | 
+| could | klein | Elk sub-object heeft een export_dir-method. Kan dit handiger? | /results/main_object.py | 22 | 
+| could | middel | De bovenstaande assertion triggert. Maar dat is fout. | /calculations/test_prob_lib_vs_openturns.py | 132 | 
+| should | klein | Is het echt nodig om een 'FileSystem'-object te maken? Deze functies bestaan al toch? | /classes/file_system.py | 9 | 
+| should | klein | D zit ook in kD_wvp. Dat is dubbelop. | /calculations/system_calculations/piping_system/limit_state_functions.py | 11 | 
+| should | klein | Nadenken hoe we binnen een half uur een quick scan piping kunnen uitvoeren met het object. | /calculations/system_calculations/piping_system/test_calculation.py | 4 | 
+| should | middel | Gebruiksvriendelijkheid vergroten voor andere reliability_methods. | /classes/_deprecated/reliability_calculation.py | 116 | 
+| should | middel | Het zou goed zijn om voor dit simpele systeem ook betas te kunnen reproduceren. | /calculations/test_prob_lib_vs_openturns.py | 175 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
 
 
 
