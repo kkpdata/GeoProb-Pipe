@@ -22,7 +22,7 @@ project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
 project.results.export_results()
 project.visualizations.export_visualizations()
 # TODO Nu Should Klein: Exporteer ook validation messages van project.
-
+# TODO Nu Should Middel: Exporteer ook resultaten naar shape files.
 
 ##
 #

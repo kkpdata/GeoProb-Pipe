@@ -9,7 +9,7 @@ except ModuleNotFoundError:
         "Please request the wheel-file through the developer and install it manually. Due to copyright reasons, do \n"
         "not commit the wheel-file into the repository.")
 import logging
-from geoprob_pipe.classes.workspace import Workspace
+from geoprob_pipe.utils.workspace import Workspace
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
 from geoprob_pipe.results.main_object import Results

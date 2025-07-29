@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Tuple
 import pandas as pd
-from geoprob_pipe.classes.file_system import FileSystem
+from geoprob_pipe.utils.file_system import FileSystem
 import logging
 from datetime import datetime
 
