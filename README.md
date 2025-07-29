@@ -104,9 +104,11 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should | klein | Feedback aan gebruiker dat er validation messages zijn. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 138 | 
 | should | klein | Onderstaande class is momenteel het Python Notebook voorbeeld van Deltares. Omzetten. | /calculations/system_calculations/piping_system/reliability_calculation.py | 10 | 
 | should | klein | Combined als object naam is niet meer juist. ScenarioGraphs van maken? | /visualizations/graphs/combined/__init__.py | 10 | 
+| should | middel | Exporteer ook resultaten naar shape files. | /main_piping.py | 25 | 
 | should | middel | Implementeer ThreadPoolExecutor voor 'run combined'. | /calculations/_deprecated/combined.py | 46 | 
 
 <!-- END_TODO_TABLE_NU --> 
+
 
 
 
@@ -126,16 +128,17 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | Belang | Formaat | Beschrijving | Bestand | Regel |
 | -- | -- | -- | -- | -- |
 | could | groot | Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze. | /app_object.py | 39 | 
-| could | groot | Add functionality to read existing results (without running prob. calculations again) | /classes/workspace.py | 25 | 
+| could | groot | Add functionality to read existing results (without running prob. calculations again) | /utils/workspace.py | 25 | 
 | could | klein | Elk sub-object heeft een export_dir-method. Kan dit handiger? | /results/main_object.py | 22 | 
 | could | middel | De bovenstaande assertion triggert. Maar dat is fout. | /calculations/test_prob_lib_vs_openturns.py | 132 | 
-| should | klein | Is het echt nodig om een 'FileSystem'-object te maken? Deze functies bestaan al toch? | /classes/file_system.py | 9 | 
+| should | klein | Is het echt nodig om een 'FileSystem'-object te maken? Deze functies bestaan al toch? | /utils/file_system.py | 9 | 
 | should | klein | D zit ook in kD_wvp. Dat is dubbelop. | /calculations/system_calculations/piping_system/limit_state_functions.py | 11 | 
 | should | klein | Nadenken hoe we binnen een half uur een quick scan piping kunnen uitvoeren met het object. | /calculations/system_calculations/piping_system/test_calculation.py | 4 | 
-| should | middel | Gebruiksvriendelijkheid vergroten voor andere reliability_methods. | /classes/_deprecated/reliability_calculation.py | 116 | 
+| should | middel | Gebruiksvriendelijkheid vergroten voor andere reliability_methods. | /_deprecated/classes/_deprecated/reliability_calculation.py | 116 | 
 | should | middel | Het zou goed zijn om voor dit simpele systeem ook betas te kunnen reproduceren. | /calculations/test_prob_lib_vs_openturns.py | 175 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
 
 
 
