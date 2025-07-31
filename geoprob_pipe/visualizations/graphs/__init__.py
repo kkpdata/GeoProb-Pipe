@@ -19,9 +19,11 @@ class Graphs:
         os.makedirs(path, exist_ok=True)
         return path
 
-    def export_graphs(self):
+    def hfreq(self) -> List[Figure]:
+        return hfreq_graphs(self.geoprob_pipe, export=False)
 
-        export_hfreq_graphs(self.geoprob_pipe)
+    def export_graphs(self):
+        hfreq_graphs(self.geoprob_pipe, export=True)
         export_beta_scenarios_graph(self.geoprob_pipe)
 
 

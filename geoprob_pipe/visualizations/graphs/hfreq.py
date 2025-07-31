@@ -1,15 +1,12 @@
 from __future__ import annotations
 import os
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import Figure
-from pandas import merge
-from matplotlib.ticker import ScalarFormatter
-from geoprob_pipe.misc.traject_normering import TrajectNormering
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
-def export_hfreq_graphs(geoprob_pipe: GeoProbPipe) -> Figure:
+
+def export_hfreq_graphs(geoprob_pipe: GeoProbPipe):
     """Grafiek van de overschrijdingsfrequentielijn van de waterstand per HydraNL uitvoerpunt"""
     gevonden_locaties = []
 
