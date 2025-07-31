@@ -24,6 +24,9 @@ project.visualizations.export_visualizations()
 # TODO Nu Should Klein: Exporteer ook validation messages van project.
 # TODO Nu Should Middel: Exporteer ook resultaten naar shape files.
 
+hydraid = project.input_data.overschrijdingsfrequentielijnen
+print(hydraid)
+
 ##
 #
 # import threading
