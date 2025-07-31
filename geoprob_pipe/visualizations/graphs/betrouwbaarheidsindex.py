@@ -2,6 +2,7 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import Figure
 from pandas import merge
+import os
 from matplotlib.ticker import ScalarFormatter
 from geoprob_pipe.misc.traject_normering import TrajectNormering
 from typing import TYPE_CHECKING
@@ -98,7 +99,7 @@ def export_beta_scenarios_graph(geoprob_pipe: GeoProbPipe) -> Figure:
     ax.text(
         m_max + m_spacing, cg["V"][0], '$β_{eis;ond * 30}$',
         fontsize=15, verticalalignment='center', horizontalalignment='left')
-    export_path = os.path.join(self.export_dir, f"beta_scenarios.png")
+    export_path = os.path.join(geoprob_pipe.visualizations.graphs.export_dir, f"beta_scenarios.png")
     fig.savefig(export_path, dpi=300)
     return fig
 

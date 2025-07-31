@@ -22,6 +22,7 @@ def export_hfreq_graphs(geoprob_pipe: GeoProbPipe) -> Figure:
         levels = hfreq.overschrijdingsfrequentielijn.level
         freq =  hfreq.overschrijdingsfrequentielijn.exceedance_frequency
         uittredepunten = list(df_uitredepunten[df_uitredepunten['hydra_locatie_id'] == hydra_nl_name]['uittredepunt_id'])
+        plt.ioff()
         plt.figure(figsize=(8, 5))
         plt.plot(levels, freq, marker='o', linestyle='-', color='blue',markersize=1)
         plt.xscale('linear')  # belasting vaak lineair

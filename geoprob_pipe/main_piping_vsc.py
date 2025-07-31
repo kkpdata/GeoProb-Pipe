@@ -1,15 +1,20 @@
 """ The below code displays an example of how GeoProb-Pipe is run. This example works inside the repository. Use the
 Project-object directly outside the repository. """
-from geoprob_pipe.utils.other import repository_root_path
+import sys 
+import os 
+#add the "scr" directory to the system path 
+repo_root = r"C:\Github\Project_GeoProb_Pipe\GeoProb-Pipe"
+sys.path.append(repo_root) 
+
 from geoprob_pipe import GeoProbPipe
 from geoprob_pipe.utils.loggers import initiate_app_logger
 from dotenv import load_dotenv
 import os
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)  # Preferably address FutureWarnings: part of pydra-core
-
 # Import environment variables
-repo_root = repository_root_path()
+# repo_root = repository_root_path()
+# print(repo_root)
 load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
 
 # Initiate logger
