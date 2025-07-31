@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
-def hfreq(geoprob_pipe: GeoProbPipe) -> Figure:
+def export_hfreq_graphs(geoprob_pipe: GeoProbPipe) -> Figure:
     """Grafiek van de overschrijdingsfrequentielijn van de waterstand per HydraNL uitvoerpunt"""
     gevonden_locaties = []
 
@@ -26,9 +26,9 @@ def hfreq(geoprob_pipe: GeoProbPipe) -> Figure:
         plt.plot(levels, freq, marker='o', linestyle='-', color='blue',markersize=1)
         plt.xscale('linear')  # belasting vaak lineair
         plt.yscale('log')     # faalkans logaritmisch
-        plt.xlabel("Belasting (x)")
-        plt.ylabel("Kans op falen (log-schaal)")
-        plt.title("Fragility Curve (CDF) - " + hydra_nl_name)
+        plt.xlabel("Waterstand (m+NAP)")
+        plt.ylabel("Overschrijdingsfrequentie (log-schaal)")
+        plt.title("HydraNL locatie: " + hydra_nl_name + "\nbehorend bij uittredepunten: " + ", ".join([str(u) for u in uittredepunten]))
         plt.grid(True, which="both", linestyle='--', linewidth=0.5)
         plt.tight_layout()
         export_path = os.path.join(export_dir, f"{hydra_nl_name}_hfreq.png")
