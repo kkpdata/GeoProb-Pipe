@@ -1,6 +1,6 @@
 from __future__ import annotations
-from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex import export_beta_scenarios_graph
-from geoprob_pipe.visualizations.graphs.hfreq import export_hfreq_graphs
+from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex import beta_scenarios_graph
+from geoprob_pipe.visualizations.graphs.hfreq import hfreq_graphs
 from typing import TYPE_CHECKING
 import os
 
@@ -22,8 +22,9 @@ class Graphs:
     def hfreq(self) -> List[Figure]:
         return hfreq_graphs(self.geoprob_pipe, export=False)
 
+    def beta_scenarios(self) -> List[Figure]:
+        return beta_scenarios_graph(self.geoprob_pipe, export=False)
+
     def export_graphs(self):
         hfreq_graphs(self.geoprob_pipe, export=True)
-        export_beta_scenarios_graph(self.geoprob_pipe)
-
-
+        beta_scenarios_graph(self.geoprob_pipe, export=True)

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
-def export_beta_scenarios_graph(geoprob_pipe: GeoProbPipe) -> Figure:
+def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figure:
     """ Grafiek van de betrouwbaarheidsindex per uittredepunt over de gecombineerde uitvoer (uplift/heave/piping). Over
     de x-as uitgezet tegen de dijkpaal nummering. Op de achtergrond zijn de categoriegrenzen weergegeven. """
 
@@ -100,7 +100,10 @@ def export_beta_scenarios_graph(geoprob_pipe: GeoProbPipe) -> Figure:
         m_max + m_spacing, cg["V"][0], '$β_{eis;ond * 30}$',
         fontsize=15, verticalalignment='center', horizontalalignment='left')
     export_path = os.path.join(geoprob_pipe.visualizations.graphs.export_dir, f"beta_scenarios.png")
-    fig.savefig(export_path, dpi=300)
+
+    if export:
+        fig.savefig(export_path, dpi=300)
+    
     return fig
 
     # # Export figure
