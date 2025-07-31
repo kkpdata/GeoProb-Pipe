@@ -1,5 +1,10 @@
 """ The below code displays an example of how GeoProb-Pipe is run. This example works inside the repository. Use the
 Project-object directly outside the repository. """
+import sys 
+import os 
+#add the "scr" directory to the system path 
+repo_root = r"C:\Github\Project_GeoProb_Pipe\GeoProb-Pipe"
+sys.path.append(repo_root) 
 
 from geoprob_pipe import GeoProbPipe
 from geoprob_pipe.utils.other import repository_root_path
@@ -9,9 +14,10 @@ from dotenv import load_dotenv
 import os
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)  # Preferably address FutureWarnings: part of pydra-core
-
+from geoprob_pipe.visualizations.graphs.combined.hfreq import overschreidingsfrequentielijn 
 # Import environment variables
-repo_root = repository_root_path()
+# repo_root = repository_root_path()
+# print(repo_root)
 load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
 
 # Initiate logger
@@ -21,11 +27,11 @@ initiate_app_logger(repo_root=repo_root)
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
 project.results.export_results()
 project.visualizations.export_visualizations()
+# overschreidingsfrequentielijn(project)
+
 # TODO Nu Should Klein: Exporteer ook validation messages van project.
 # TODO Nu Should Middel: Exporteer ook resultaten naar shape files.
 
-hydraid = project.input_data.overschrijdingsfrequentielijnen
-print(hydraid)
 
 ##
 #
