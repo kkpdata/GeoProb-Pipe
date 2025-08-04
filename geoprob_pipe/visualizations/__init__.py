@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from geoprob_pipe.visualizations.graphs import Graphs
+from geoprob_pipe.visualizations.other import Other
 import os
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -8,9 +9,10 @@ if TYPE_CHECKING:
 
 class Visualizations:
 
-    def __init__(self, app_obj: GeoProbPipe):
-        self.geoprob_pipe = app_obj
-        self.graphs = Graphs(app_obj)
+    def __init__(self, geoprob_pipe: GeoProbPipe):
+        self.geoprob_pipe = geoprob_pipe
+        self.graphs = Graphs(geoprob_pipe)
+        self.other = Other(geoprob_pipe)
 
     @property
     def export_dir(self) -> str:
@@ -20,3 +22,4 @@ class Visualizations:
 
     def export_visualizations(self):
         self.graphs.export_graphs()
+        self.other.export_other_visualizations()

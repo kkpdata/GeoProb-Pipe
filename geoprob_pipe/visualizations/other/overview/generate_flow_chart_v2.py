@@ -163,11 +163,17 @@ def populate_visualize_dict(uittredepunt_id: int, ondergrondscenario_id: int, ap
     return visualize_dict
 
 
-def generate_overview_flow_chart_with_betas(
-        uittredepunt_id: int, ondergrondscenario_id: int, app_obj: GeoProbPipe, export_dir: str
+def export_flowchart_overview_beta_results(
+        geoprob_pipe: GeoProbPipe,
+        export: bool = True
 ):
     """ Generates a flow chart that provides an overview what the beta values are per step in the calculation process.
     It displays it from the given scenario and uittredepunt, until vak- and traject-level. """
+
+    # df = self.geoprob_pipe.results.df_beta_scenarios
+    # lowest_beta_row: DataFrame = df.loc[df['beta'].idxmin()]
+    # ondergrondscenario_id = lowest_beta_row['ondergrondscenario_id'],
+    # uittredepunt_id = lowest_beta_row['uittredepunt_id'],
 
     dict_to_use = populate_visualize_dict(
         uittredepunt_id=uittredepunt_id, ondergrondscenario_id=ondergrondscenario_id, app_obj=app_obj)
@@ -189,5 +195,9 @@ def generate_overview_flow_chart_with_betas(
         svg_text = svg_text.replace(info.svg_tag_incl_brackets(option="visibility"), info.svg_visibility)
 
     # Save new svg
-    with open(os.path.join(export_dir, "results_overview_flow_chart.svg"), "w", encoding="utf-8") as f:
-        f.write(svg_text)
+    if export:
+        export_dir = geoprob_pipe.visualizations.other.export_dir
+        with open(os.path.join(export_dir, "results_overview_flow_chart.svg"), "w", encoding="utf-8") as f:
+            f.write(svg_text)
+
+    return
