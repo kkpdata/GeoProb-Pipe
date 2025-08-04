@@ -7,7 +7,11 @@ if TYPE_CHECKING:
 
 
 def hfreq_graphs(geoprob_pipe: GeoProbPipe, export: bool = True) -> List[plt.Figure]:
-    """Grafiek van de overschrijdingsfrequentielijn van de waterstand per HydraNL uitvoerpunt"""
+    """ Grafiek van de overschrijdingsfrequentielijn van de waterstand per HydraNL uitvoerpunt. """
+
+    # TODO Later Should Middel: Visualiseer WBN waterstand in hfreq-plot ter bewustzijn.
+    # TODO Later Nice Middel: Visualiseer physical design point value in hfreq-plot ter bewustzijn.
+
     export_dir = os.path.join(geoprob_pipe.visualizations.graphs.export_dir, "grafiek_hfreq")
     os.makedirs(export_dir, exist_ok=True)
     figures = []
