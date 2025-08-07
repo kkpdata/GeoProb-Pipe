@@ -107,7 +107,7 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
     return fig
 
 
-def beta_uittredenpunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figure:
+def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figure:
     """ Grafiek van de betrouwbaarheidsindex per uittredepunt over de gecombineerde uitvoer (uplift/heave/piping). Over
     de x-as uitgezet tegen de dijkpaal nummering. Op de achtergrond zijn de categoriegrenzen weergegeven. """
 
