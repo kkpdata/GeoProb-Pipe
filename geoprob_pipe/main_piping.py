@@ -17,12 +17,83 @@ initiate_app_logger(repo_root=repo_root)
 
 # Initiate GeoProb-Pipe project object
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
-project.results.export_results()
-project.visualizations.export_visualizations()
+# project.results.export_results()
+# project.visualizations.export_visualizations()
 
 # TODO Nu Should Klein: Exporteer ook validation messages van project.
 # TODO Nu Should Middel: Exporteer ook resultaten naar shape files.
 
+##
+
+import plotly.graph_objects as go
+from datetime import datetime
+
+export_dir = os.path.join(project.visualizations.graphs.export_dir, "grafiek_hfreq")
+os.makedirs(export_dir, exist_ok=True)
+figures = []
+df_uittredepunten = project.input_data.uittredepunten.df
+fig = go.Figure()
+for index, hydra_nl_name in enumerate(project.input_data.overschrijdingsfrequentielijnen.keys()):
+    # Collect data for the graph
+    hfreq = project.input_data.overschrijdingsfrequentielijnen[hydra_nl_name]
+    levels = hfreq.overschrijdingsfrequentielijn.level
+    freq = hfreq.overschrijdingsfrequentielijn.exceedance_frequency
+    uittredepunten = list(df_uittredepunten[df_uittredepunten['hydra_locatie_id'] == hydra_nl_name]['uittredepunt_id'])
+
+    visible='legendonly'
+    if index == 0:
+        visible = True
+
+    # Create the graph
+    fig.add_trace(go.Scatter(
+        x=levels,
+        y=freq,
+        mode='lines+markers',
+        name=f"{hydra_nl_name}<br>"
+             f"uittredepunten: {', '.join([str(u) for u in uittredepunten])}",
+        visible=visible,
+        line=dict(dash='dash', color='blue', width=1),
+        marker=dict(symbol='circle', size=1, color='blue'),
+        showlegend=True,
+    ))
+
+
+fig.update_layout(
+    title=f"Overschrijdingsfrequentielijnen voor alle HydraNL locaties in dit traject",
+    xaxis=dict(title=f"Waterstand (m+NAP)",
+               type='linear',
+               showgrid=True,
+               gridwidth=0.5,
+               gridcolor="gray"
+               ),
+    yaxis=dict(title=f"Overschrijdingsfrequentie (log-schaal)",
+               type='log',
+               showgrid=True,
+               tickformat=".0e",
+                gridwidth=0.5,
+               gridcolor="gray",
+               minor=dict(
+                   showgrid=True,
+                   dtick=1
+               )
+               )
+)
+
+# Export or not?
+timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
+fig.write_html(os.path.join(export_dir, f"{timestamp}_hfreq.html"))
+fig.write_image(os.path.join(export_dir, f"{timestamp}_hfreq.png"), format="png")
+
+
+
+
+##
+
+# figures[0].write_html(os.path.join(export_dir, f"{hydra_nl_name}_hfreq.html"))
+
+##
+
+figures[0].show()
 
 ##
 #
