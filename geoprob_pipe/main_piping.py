@@ -4,7 +4,7 @@ Project-object directly outside the repository. """
 from geoprob_pipe import GeoProbPipe
 from geoprob_pipe.utils.other import repository_root_path
 from geoprob_pipe.utils.loggers import initiate_app_logger
-# from geoprob_pipe.classes.reliability_calculation import CombinedReliabilityCalculation
+from geoprob_pipe.visualizations.other.flowchart_overview_beta_results.logic import flowchart_overview_beta_results
 from dotenv import load_dotenv
 import os
 import warnings
@@ -19,10 +19,13 @@ initiate_app_logger(repo_root=repo_root)
 
 # Initiate GeoProb-Pipe project object
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
-project.results.export_results()
-project.visualizations.export_visualizations()
+project.export_archive()
 # TODO Nu Should Klein: Exporteer ook validation messages van project.
 # TODO Nu Should Middel: Exporteer ook resultaten naar shape files.
+
+
+_ = flowchart_overview_beta_results(geoprob_pipe=project)
+
 
 ##
 #

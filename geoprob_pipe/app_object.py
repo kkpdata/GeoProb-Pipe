@@ -81,3 +81,8 @@ class GeoProbPipe:
         print(Settings().__dir__())
     This unfortunately lacks in further documentation, but the parameter names are relatively descriptive. 
         """)
+
+    def export_archive(self):
+        """ Exports everything related to this project. """
+        self.results.export_results()
+        self.visualizations.export_visualizations()

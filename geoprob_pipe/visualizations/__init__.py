@@ -22,4 +22,4 @@ class Visualizations:
 
     def export_visualizations(self):
         self.graphs.export_graphs()
-        self.other.export_other_visualizations()
+        self.other.export_all_other_visualizations()

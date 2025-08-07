@@ -4,7 +4,7 @@ from typing import Union, Literal
 from pandas import DataFrame, Series
 from copy import deepcopy
 from geoprob_pipe.utils.other import repository_root_path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple, Optional
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
@@ -45,6 +45,13 @@ class VisualizeInfo:
 
     def svg_tag_incl_brackets(self, option: Literal["beta", "color", "visibility"]) -> str:
         return f"{{{{ {self.svg_tag(option=option)} }}}}"
+
+
+MODEL_TO_MECHANISM_TRANSLATOR = {
+    "calc_Z_u": "uplift",
+    "calc_Z_h": "uplift",
+    "calc_Z_p": "uplift",
+}
 
 
 DICT_VISUALIZE_INFO = {
@@ -120,12 +127,12 @@ DICT_VISUALIZE_INFO = {
 }
 
 
-def populate_visualize_dict(uittredepunt_id: int, ondergrondscenario_id: int, app_obj: GeoProbPipe):
+def populate_visualize_dict(uittredepunt_id: int, ondergrondscenario_id: int, geoprob_pipe: GeoProbPipe):
 
     visualize_dict = deepcopy(DICT_VISUALIZE_INFO)
 
     # Populate uplift, heave and piping for focus scenario
-    df_filter_limit_states = app_obj.results.df_limit_states.copy(deep=True)
+    df_filter_limit_states = geoprob_pipe.results.df_beta_limit_states.copy(deep=True)
     df_filter_limit_states: DataFrame = df_filter_limit_states[
         (df_filter_limit_states["uittredepunt_id"] == uittredepunt_id) &
         (df_filter_limit_states["ondergrondscenario_id"] == ondergrondscenario_id)
@@ -133,10 +140,10 @@ def populate_visualize_dict(uittredepunt_id: int, ondergrondscenario_id: int, ap
     assert df_filter_limit_states.__len__() == 3
     for row in df_filter_limit_states.itertuples(index=False):
         row: Series
-        visualize_dict[row.model].beta = row.beta
+        visualize_dict[MODEL_TO_MECHANISM_TRANSLATOR[row.limit_state]].beta = row.beta
 
     # Populate scenarios results: other scenarios
-    df_filter_combined = app_obj.results.df_combined.copy(deep=True)
+    df_filter_combined = geoprob_pipe.results.df_beta_scenarios.copy(deep=True)
     df_filter_combined: DataFrame = df_filter_combined[
         (df_filter_combined["uittredepunt_id"] == uittredepunt_id) &
         (df_filter_combined["ondergrondscenario_id"] != ondergrondscenario_id)
@@ -147,7 +154,7 @@ def populate_visualize_dict(uittredepunt_id: int, ondergrondscenario_id: int, ap
         visualize_dict[f"scenario.{index+2}"].visible = True
 
     # Populate scenarios results: focus scenarios
-    df_filter_combined = app_obj.results.df_combined.copy(deep=True)
+    df_filter_combined = geoprob_pipe.results.df_beta_scenarios.copy(deep=True)
     df_filter_combined: DataFrame = df_filter_combined[
         (df_filter_combined["uittredepunt_id"] == uittredepunt_id) &
         (df_filter_combined["ondergrondscenario_id"] == ondergrondscenario_id)
@@ -163,26 +170,50 @@ def populate_visualize_dict(uittredepunt_id: int, ondergrondscenario_id: int, ap
     return visualize_dict
 
 
-def export_flowchart_overview_beta_results(
+def _get_normative_uittredepunt_and_scenario(geoprob_pipe: GeoProbPipe) -> Tuple[int, int]:
+    df = geoprob_pipe.results.df_beta_scenarios
+    lowest_beta_row: DataFrame = df.loc[df['beta'].idxmin()]
+    return lowest_beta_row['uittredepunt_id'], lowest_beta_row['ondergrondscenario_id']
+
+
+def flowchart_overview_beta_results(
         geoprob_pipe: GeoProbPipe,
-        export: bool = True
-):
-    """ Generates a flow chart that provides an overview what the beta values are per step in the calculation process.
-    It displays it from the given scenario and uittredepunt, until vak- and traject-level. """
+        export: bool = True,
+        uittredepunt_id: Optional[int] = None,
+        ondergrondscenario_id: Optional[int] = None,
+) -> str:
+    """ Generates a flowchart that provides an overview of what the beta values are per step in the calculation process.
+    It displays it from the given scenario and uittredepunt, until vak- and traject-level. If no uittredepunt and
+    scenario are given, it will use the normative ones.
 
-    # df = self.geoprob_pipe.results.df_beta_scenarios
-    # lowest_beta_row: DataFrame = df.loc[df['beta'].idxmin()]
-    # ondergrondscenario_id = lowest_beta_row['ondergrondscenario_id'],
-    # uittredepunt_id = lowest_beta_row['uittredepunt_id'],
+    :param geoprob_pipe:
+    :param export:
+    :param uittredepunt_id:
+    :param ondergrondscenario_id:
+    :return: Returns svg text of svg-file.
+    """
+    # TODO Nu Should Middel: Hernoem enkele wolkjes in overview beta flowchart. Zie beschrijving hieronder:
+    #  Gecombineerd scenario                -> Scenario
+    #  Gecombineerd andere scenario's       -> Andere scenario's
+    #  Gecombineerd uittredepunt            -> Uittredepunt
+    #  Gecombineerd andere uittredepunten   -> Andere uittredepunten
+    #  Gecombineerd vak                     -> Vak
+    #  Gecombineerd andere vakken           -> Andere vakken
+    #  Gecombineerd traject                 -> Traject
 
+    if uittredepunt_id is None or ondergrondscenario_id is None:
+        uittredepunt_id, ondergrondscenario_id = _get_normative_uittredepunt_and_scenario(geoprob_pipe=geoprob_pipe)
+
+    # Collect data to use
     dict_to_use = populate_visualize_dict(
-        uittredepunt_id=uittredepunt_id, ondergrondscenario_id=ondergrondscenario_id, app_obj=app_obj)
+        uittredepunt_id=uittredepunt_id, ondergrondscenario_id=ondergrondscenario_id, geoprob_pipe=geoprob_pipe)
 
     # Read template
     svg_text = None
     repo_root = repository_root_path()
     path_to_svg = os.path.join(
-        repo_root, "geoprob_pipe", "graphs", "overview", "Hierarchie_berekeningen_incl_result_tags_v2.svg")
+        repo_root, "geoprob_pipe", "visualizations", "other",
+        "flowchart_overview_beta_results", "Hierarchie_berekeningen_incl_result_tags_v2.svg")
     with open(path_to_svg, "r", encoding="utf-8") as f:
         svg_text = f.read()
     if svg_text is None:
@@ -200,4 +231,4 @@ def export_flowchart_overview_beta_results(
         with open(os.path.join(export_dir, "results_overview_flow_chart.svg"), "w", encoding="utf-8") as f:
             f.write(svg_text)
 
-    return
+    return svg_text
