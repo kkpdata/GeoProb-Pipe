@@ -122,6 +122,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 
 
 
+
 ### Op een later moment van belang
 <details>
   <summary>Bekijk de tabel</summary>
@@ -143,6 +144,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should | middel | Visualiseer WBN waterstand in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 12 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
 
 
 
