@@ -36,6 +36,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions"
+          git pull
           git add .
           if ! git diff --cached --quiet; then
             git commit -m "Testing and coverage"
