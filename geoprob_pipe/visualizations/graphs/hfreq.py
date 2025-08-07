@@ -1,6 +1,7 @@
 from __future__ import annotations
 import os
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -25,23 +26,36 @@ def hfreq_graphs(geoprob_pipe: GeoProbPipe, export: bool = True) -> List[plt.Fig
         uittredepunten = list(df_uittredepunten[df_uittredepunten['hydra_locatie_id'] == hydra_nl_name]['uittredepunt_id'])
 
         # Create the graph
-        plt.ioff()
-        fig = plt.figure(figsize=(8, 5))
-        ax= fig.add_subplot(111)
-        ax.plot(levels, freq, marker='o', linestyle='-', color='blue',markersize=1)
-        ax.set_xscale("linear")  # belasting vaak lineair
-        ax.set_yscale("log")     # faalkans logaritmisch
-        ax.set_xlabel("Waterstand (m+NAP)")
-        ax.set_ylabel("Overschrijdingsfrequentie (log-schaal)")
-        ax.set_title("HydraNL locatie: " + hydra_nl_name + "\nbehorend bij uittredepunten: " + ", ".join([str(u) for u in uittredepunten]))
-        ax.grid(True, which="both", linestyle='--', linewidth=0.5)
-        fig.tight_layout()
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=levels,
+            y=freq,
+            mode='lines+markers',
+            name='Overschrijdingsfrequentie',
+            line= dict(dash='dash', color='blue', width=1),
+            marker=dict(symbol='circle', size=1, color='blue')
+        ))
+        fig.update_layout(
+            title=f"HydraNL locatie: {hydra_nl_name}<br>behorend bij uittredepunten: {', '.join([str(u) for u in uittredepunten])}",
+            xaxis=dict(title=f"Waterstand (m+NAP)", 
+            type='linear',
+            showgrid=True, 
+            gridwidth=0.5, 
+            gridcolor="gray"
+            ),
+            yaxis=dict(title=f"Overschrijdingsfrequentie (log-schaal)", 
+            type='log', 
+            showgrid=True, 
+            gridwidth=0.5, 
+            gridcolor="gray",
+            minor=dict(showgrid=true)
+            )
+            )
         figures.append(fig)
 
         # Export or not?
-        export_path = os.path.join(export_dir, f"{hydra_nl_name}_hfreq.png")
         if export:
-            plt.savefig(export_path)
-            plt.close(fig)
+            fig.write_html(os.path.join(export_dir, f"{hydra_nl_name}_hfreq.html"))
+            fig.write_image(os.path.join(export_dir, f"{hydra_nl_name}_hfreq.png"), format="png")
 
     return figures
