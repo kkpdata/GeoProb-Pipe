@@ -1,12 +1,12 @@
-from datetime import datetime
-from geoprob_pipe import Project
-from geoprob_pipe.helper_functions.utils import repository_root_path
+""" The below code displays an example of how GeoProb-Pipe is run. This example works inside the repository. Use the
+Project-object directly outside the repository. """
+from geoprob_pipe.utils.other import repository_root_path
+from geoprob_pipe import GeoProbPipe
 from geoprob_pipe.utils.loggers import initiate_app_logger
 from dotenv import load_dotenv
 import os
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)  # Preferably address FutureWarnings: part of pydra-core
-
 
 # Import environment variables
 repo_root = repository_root_path()
@@ -16,116 +16,67 @@ load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
 initiate_app_logger(repo_root=repo_root)
 
 # Initiate GeoProb-Pipe project object
-project = Project(os.getenv("PATH_WORKSPACE"))
+project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
+project.results.export_results()
+project.visualizations.export_visualizations()
 
-##
-
-time_start = datetime.now()
-print(f"Start time: {time_start.strftime('%d %b %Y %H:%M:%S')}")
-
-# Setup project and automatically start calculations
-project = Project(
-    PATH_WORKSPACE,
-)
-
-# Print hints how to interacts with the results
-print \
-    ("\nHINTS:\n \t- Show the different result DataFrames using `project.results.unique_models` or `project.results.combined`")
-results_unique_models = project.results.unique_models
-results_combined = project.results.combined
-
-# Save DataFrame of combined results to csv
-# # FIXME improve output data
-results_combined.to_excel(project.workspace.output.folderpath / "fragility_curve_data_combined.xlsx")
-
-# # Print info
-# print(f"\nResults are saved to: {fc.workspace.output.folderpath}")
-
-time_end = datetime.now()
-time_diff = time_end - time_start
-print(f"\nFinished succesfully, end time: {time_end.strftime('%d %b %Y %H:%M:%S')}")
-print(
-    f"Total runtime (h:m:s): {int(time_diff.total_seconds() // 3600):02}:{int((time_diff.total_seconds() % 3600) // 60):02}:{int(time_diff.total_seconds() % 60):02}"
-)
-
+# TODO Nu Should Klein: Exporteer ook validation messages van project.
+# TODO Nu Should Middel: Exporteer ook resultaten naar shape files.
 
 
 ##
+#
+# import threading
+# import time
+# from concurrent.futures import ThreadPoolExecutor, as_completed
+# from uuid import uuid4
+#
+#
+# class Calculation:
+#
+#     def __init__(self, sect, pnt):
+#         self.id = uuid4().__str__()
+#         self.section = sect
+#         self.point = pnt
+#         self.result: int = 0
+#
+#     def run(self):
+#         self.result += 1
+#
+#
+# def start_calculations(list_of_calculations: list[Calculation]):
+#     total = len(list_of_calculations)
+#     completed = 0
+#     lock = threading.Lock()
+#
+#     def run_calculation(calculation: Calculation):
+#         nonlocal completed
+#         try:
+#             calculation.run()
+#         except Exception as e:
+#             print(f"ERROR: Could not run calculation {calculation.id}: {e}")
+#         finally:
+#             with lock:
+#                 completed += 1
+#
+#     def progress_reporter():
+#         while True:
+#             with lock:
+#                 print(f" -> {completed}/{total} of calculations completed.")
+#                 if completed >= total:
+#                     break
+#             time.sleep(15)
+#
+#     # Start the progress reporter in a background thread
+#     reporter_thread = threading.Thread(target=progress_reporter)
+#     reporter_thread.start()
+#
+#     # Run calculations in parallel
+#     with ThreadPoolExecutor() as executor:
+#         futures = [executor.submit(run_calculation, calc) for calc in list_of_calculations]
+#         for _ in as_completed(futures):
+#             pass  # Just to ensure all tasks complete
+#
+#     reporter_thread.join()
 
-
-import sys
-from datetime import datetime
-from pathlib import Path
-
-sys.path.append(str(Path(__file__).parents[1]))  # Add repo to sys.path to make sure all imports are correctly found
-
-from app.classes.project import Project
-
-# ====================================
-# User Input Section
-# ====================================
-
-# Define path to workspace (either absolute or relative)
-PATH_WORKSPACE: str | Path = r"..\\workspaces\example_new_calculations"
-
-#FIXME implement feature to re-use existing results
-# # Whether existing calculation results should be used
-# # If True, the .tkx files that are found the "PATH_WORKSPACE/output" folder are used
-# USE_EXISTING_TKX_RESULTS: bool = False
-
-# Whether to clean up the working directory in the workspace (True) or not (False).
-# FIXME not implemented, perhaps not necessary
-CLEANUP_WORK_DIR: bool = True
-
-
-# ====================================
-# End of User Input Section
-# ====================================
-
-
-def start_tool(
-    PATH_WORKSPACE: str | Path,
-) -> Project:
-    """Start PTK tool
-    Args:
-        PATH_WORKSPACE: path to the folder that contains all required input and where all output and working files will be stored
-
-    Returns:
-        Project: project instance
-    """
-    time_start = datetime.now()
-    print(f"Start time: {time_start.strftime('%d %b %Y %H:%M:%S')}")
-
-    # Setup project and automatically start calculations
-    project = Project(
-        PATH_WORKSPACE,
-    )
-
-    # Print hints how to interacts with the results
-    print("\nHINTS:\n \t- Show the different result DataFrames using `project.results.unique_models` or `project.results.combined`")
-    results_unique_models = project.results.unique_models
-    results_combined = project.results.combined
-
-    # Save DataFrame of combined results to csv
-    # # FIXME improve output data
-    results_combined.to_excel(project.workspace.output.folderpath / "fragility_curve_data_combined.xlsx")
-
-    # # Print info
-    # print(f"\nResults are saved to: {fc.workspace.output.folderpath}")
-
-    time_end = datetime.now()
-    time_diff = time_end - time_start
-    print(f"\nFinished succesfully, end time: {time_end.strftime('%d %b %Y %H:%M:%S')}")
-    print(
-        f"Total runtime (h:m:s): {int(time_diff.total_seconds() // 3600):02}:{int((time_diff.total_seconds() % 3600) // 60):02}:{int(time_diff.total_seconds() % 60):02}"
-    )
-
-    return project
-
-
-if __name__ == "__main__":
-
-    # Run tool
-    project = start_tool(
-        PATH_WORKSPACE
-    )
+# %%

@@ -1,0 +1,30 @@
+name: Automated testing and coverage
+
+
+on:
+  pull_request:
+    branches: [ "dev" ]
+  workflow_dispatch:
+
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements_testing.txt ]; then pip install -r requirements_testing.txt; fi
+          pip install pytest coverage coverage-badge
+
+      - name: Run tests with coverage
+        run: |
+          coverage run --source=geoprob_pipe -m pytest --ignore=tests

@@ -2,6 +2,7 @@ import math
 import scipy.stats as stats #importeer de scipy.stats module
 import numpy as np
 
+# noinspection PyPep8Naming
 #lognormale verdeling
 def calc_kar_waarde_met_Vc (Verwachtingswaarde: float, Vc: float, Percentiel: float, Shift = 0.0) -> float:
     r"""Berekening van de percentiel waarde van een lognormale verdeling 
@@ -23,8 +24,9 @@ def calc_kar_waarde_met_Vc (Verwachtingswaarde: float, Vc: float, Percentiel: fl
     return float(stats.lognorm.ppf(Percentiel, s = log_sd, loc = 0.0, scale = math.exp(log_mu))) + Shift
 
 
+# noinspection PyPep8Naming
 def calc_kar_waarde_met_sd(Verwachtingswaarde: float, sd: float, Percentiel: float, Shift = 0.0)-> float:
-    r"""Berekening van de percentiel waarde van een lognormale verdeling 
+    r"""Berekening van de percentiel waarde van een lognormale verdeling
     met standaarddeviatie en verschuiving.
     
     Args:
@@ -41,6 +43,7 @@ def calc_kar_waarde_met_sd(Verwachtingswaarde: float, sd: float, Percentiel: flo
     log_mu = math.log(Verwachtingswaarde - Shift) - 0.5 * math.pow(log_sd, 2.0)
     return float(stats.lognorm.ppf(Percentiel, s = log_sd, loc = 0.0, scale = math.exp(log_mu))) + Shift
 
+# noinspection PyPep8Naming
 #normale verdeling
 def calc_kar_waarde_normaal(Verwachtingswaarde: float, std: float, Percentiel: float) -> float:
     """Berekening van de percentiel waarde van een normale verdeling
@@ -60,21 +63,22 @@ def calc_kar_waarde_normaal(Verwachtingswaarde: float, std: float, Percentiel: f
 # a     = Gumbel location parameter
 # b     = Gumbel dispersion parameter
 
-#WBN = 15.12              # waterstand bij norm
-#dec = 0.46               # decimeringshoogte 
-#norm = 1/10000.0         # overschrijdingkans WBN
+#WBN = 15.12 # waterstand bij norm
+#dec = 0.46 # decimeringshoogte
+#norm = 1/10000.0 # overschrijdingskans WBN
 
 # Analytical solution a and b
 #a = WBN + dec * np.log(-(np.log(1-norm))) / (np.log(-np.log(1-norm))-np.log(-np.log(1-norm/10)));
 #b = dec /(np.log(-np.log(1-norm))-np.log(-np.log(1-norm/10)));
 
+# noinspection PyPep8Naming
 def calc_Gumbel_parameters(WBN: float, dec: float, norm: float, parameter = 'a') -> float:
     r"""Berekening van de parameters van de Gumbel verdeling op basis van WBN, decimeringshoogte 
     en overschrijdingskans van WBN
 
     Args:
         WBN (float): Waterstand Bij Norm in m+NAP
-        dec (float): decimeringshoogte in m
+        dec (float): decimeringshoogte in meters
         norm (float): overschrijdingskans WBN
         parameter (str, optional): a = Gumbel location(shift) parameter, 
         b = Gumbel dispersion(scale) parameter. Defaults to 'a'.
@@ -91,6 +95,7 @@ def calc_Gumbel_parameters(WBN: float, dec: float, norm: float, parameter = 'a')
 
 #a = shift, b = scale
 
+# noinspection PyPep8Naming
 def calc_Gumbel_parameters_fromShiftScale(a: float, b: float, parameter = 'sd') -> float:
     """Berekening van de standaarddeviatie of de verwachtingswaarde van de Gumbel verdeling op 
     basis van de shift en scale parameters
@@ -113,7 +118,8 @@ def calc_Gumbel_parameters_fromShiftScale(a: float, b: float, parameter = 'sd') 
 
 #todo: add tests
 #todo: add type hints
-#todo: van een karakteristieke waarde en een gemiddelde waarde de standaarddeviatie berekenen voor een lognormale verdeling
+#todo: van een karakteristieke waarde en een gemiddelde waarde de standaarddeviatie berekenen voor een lognormale
+# verdeling
 
 
 def calc_std_and_cv(percentile: float, mean: float, percentile_value: float) -> tuple:

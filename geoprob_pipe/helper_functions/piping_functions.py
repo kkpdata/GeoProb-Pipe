@@ -2,9 +2,9 @@ import math
 
 from .model4a import Model4a
 
-###################################################################################
+# ##################################################################################
 # Functies hieronder direct volgend uit variabelen van input.xlsx
-###################################################################################
+# ##################################################################################
 
 def calc_d_deklaag(
     mv_exit: float, 
@@ -16,7 +16,7 @@ def calc_d_deklaag(
 
     Args:
         mv_exit (float): Bodemhoogte ter plaatse van Uittredepunten [m+NAP]
-        top_zand (float): Geschematiseerde top van het zak in het vak [m+NAP]
+        top_zand (float): Geschematiseerde top van het vak [m+NAP]
 
     Returns:
         float: deklaagdikte [m]
@@ -29,7 +29,7 @@ def calc_h_exit(
     mv_exit: float
     ) -> float:
     r"""Berekening van het niveau van het uittredepunt op basis van polderpeil of maaiveldniveau.
-    functie geeft de maximale waarde van polderpeil en mv_exit terug.
+    Functie geeft de maximale waarde van polderpeil en mv_exit terug.
 
     Args:
         polderpeil (float): polderpeil [m+NAP]
@@ -40,6 +40,7 @@ def calc_h_exit(
     """
     return max(polderpeil, mv_exit)
 
+# noinspection PyPep8Naming
 def calc_L_voorland(
     L_intrede: float, 
     L_but:float
@@ -56,18 +57,19 @@ def calc_L_voorland(
     return abs(L_intrede - L_but)
 
 
+# noinspection PyPep8Naming
 def calc_lambda_achterland(
     kD_wvp: float, 
     c_achterland: float
     ) -> float:
     r"""Berekent de spreidingslengte van het achterland in m
 
-    .. math::
+    math::
 
         \lambda = \sqrt{kDc}
 
     Args:
-        kD (float): Transmissiviteit van het watervoerende pakket [m2/dag]
+        kD_wvp (float): Transmissiviteit van het watervoerende pakket [m²/dag]
         c_achterland (float): Weerstand van de deklaag in het achterland [dag]
 
     Returns:
@@ -76,18 +78,19 @@ def calc_lambda_achterland(
     return (kD_wvp * c_achterland)**(1/2)
 
 
+# noinspection PyPep8Naming
 def calc_lambda_voorland(
     kD_wvp: float, 
     c_voorland: float
     ) -> float:
     r"""Berekent de spreidingslengte van het achterland in m
 
-    .. math::
+    math::
 
         \lambda = \sqrt{kDc}
 
     Args:
-        kD (float): Transmissiviteit van het watervoerende pakket [m2/dag]
+        kD_wvp (float): Transmissiviteit van het watervoerende pakket [m²/dag]
         c_voorland (float): Weerstand van de deklaag in het voorland [dag]
 
     Returns:
@@ -95,9 +98,9 @@ def calc_lambda_voorland(
     """
     return (kD_wvp * c_voorland)**(1/2)
 
-###################################################################################
-# Functies hieronder bevatten uitkomsten uit bovenliggnde functies als input
-###################################################################################
+# ##################################################################################
+# Functies hieronder bevatten uitkomsten uit bovenliggende functies als input
+# ##################################################################################
 
 def calc_dh_red(
     buitenwaterstand: float, 
@@ -109,8 +112,8 @@ def calc_dh_red(
 
     Args:
         buitenwaterstand (float): buitenwaterstand [m+NAP]
-        h_exit (float): Benedestroomse randvoorwaarde verval [m+NAP]
-        r_c_deklaag (float): Reductieconstante van het verval over de deklaag [-]
+        h_exit (float): Benedenstroomse randvoorwaarde verval [m+NAP]
+        r_c_deklaag (float): Reductie constante van het verval over de deklaag [-]
         d_deklaag (float): deklaagdikte in m
 
     Returns:
@@ -119,13 +122,14 @@ def calc_dh_red(
     return buitenwaterstand - h_exit - r_c_deklaag * d_deklaag
 
 
+# noinspection PyPep8Naming
 def calc_W_achterland(
     lambda_achterland: float, 
     L_achterland: float
     ) -> float:
     r"""Berekent de geohydrologische weerstand van het achterland in m
 
-    .. math::
+    math::
 
         W = \lambda tanh(\frac{L}{\lambda})
 
@@ -139,13 +143,14 @@ def calc_W_achterland(
     return lambda_achterland * math.tanh(L_achterland / lambda_achterland)
 
 
+# noinspection PyPep8Naming
 def calc_W_voorland(
     lambda_voorland: float, 
     L_voorland: float
     ) -> float:
     r"""Berekent de geohydrologische weerstand van het voorland in m
 
-    .. math::
+    math::
 
         W = \lambda tanh(\frac{L}{\lambda})
 
@@ -159,11 +164,12 @@ def calc_W_voorland(
     return lambda_voorland * math.tanh(L_voorland / lambda_voorland)
 
 
+# noinspection PyPep8Naming
 def calc_L_kwelweg(
     L_but: float,
     W_voorland: float
     ) -> float:
-    r"""Berekent de kwelweglengte in m
+    r"""Berekent de kwelweglengte in meters
     Args:
         L_but (float): afstand van uittredepunten tot buitenteenlijn [m]
         W_voorland (float): geohydrologische weerstand van het voorland [m]
@@ -184,8 +190,8 @@ def calc_dphi_c_u(
 
     Args:
         d_deklaag (float): Dikte van de cohesieve deklaag [m]
-        gamma_sat_deklaag (float): verzadigd volumegewicht van de deklaag [kN/m3]
-        gamma_water (float): volumegewicht van water [kN/m3]
+        gamma_sat_deklaag (float): verzadigd volumegewicht van de deklaag [kN/m³]
+        gamma_water (float): volumegewicht van water [kN/m³]
 
     Returns:
         float: grenspotentiaal ten opzichte van maaiveldniveau [m]
@@ -198,7 +204,8 @@ def calc_i_exit(
     h_exit: float, 
     d_deklaag: float
     ) -> float:  
-    r"""Berekening van de optredende heave gradient. De heave gradient is het stijghoogteverschil over de deklaag gedeeld door de deklaagdikte.
+    r"""Berekening van de optredende heave gradient. De heave gradient is het stijghoogteverschil over de deklaag
+    gedeeld door de deklaagdikte.
 
     Args:
         phi_exit (float): stijghoogte in het watervoerende zandpakket ter plaatse van uittredepunt in m+NAP
@@ -211,12 +218,12 @@ def calc_i_exit(
     return (phi_exit - h_exit) / d_deklaag
 
 # functie om r_exit te berekenen met behulp van model4a module
+# noinspection PyPep8Naming
 def calc_r_exit_model4a(
      kD_wvp: float,
      D_wvp: float,
      c_voorland: float,
      c_achterland: float,
-     L_intrede: float,
      L_but: float,
      L_bit: float,
      L_achterland: float,
@@ -226,7 +233,7 @@ def calc_r_exit_model4a(
     #L_voorland = calc_L_voorland(L_intrede, L_but)
     # Maak een Model4a object aan met uitgangspunt x_bit = 0.0. Dit betekent
     # dat de lokale x waarde gelijk is aan L_bit.
-    # uittredepunten moeten altijd binnendijks van de binnenteenlijn liggen, 
+    # Uittredepunten moeten altijd binnendijks van de binnenteenlijn liggen,
     # # dus x_but moet negatief zijn.
     model4a = Model4a(
         kD=kD_wvp,
@@ -248,12 +255,12 @@ def calc_phi_exit(
     ) -> float:  # Van respons naar potentiaal
     r"""Berekent de theoretische stijghoogte bij uittredepunten in m+NAP
 
-    .. math::
+    math::
 
         \phi_exit(x) = polderpeil + r(x) (buitenwaterstand - polderpeil)
 
     Args:
-        polderpeil (float): Benedestroomse randvoorwaarde verval  [m+NAP]
+        polderpeil (float): Benedenstroomse randvoorwaarde verval [m+NAP]
         r_exit (float): Dempingsfactor bij uittredepunten [-]
         buitenwaterstand (float): buitenwaterstand [m+NAP]
 
@@ -262,33 +269,34 @@ def calc_phi_exit(
     """
     return polderpeil + r_exit * (buitenwaterstand - polderpeil)
 
+# noinspection PyPep8Naming
 def calc_dh_c(
-    d70: float,
-    D_wvp: float,
-    kD_wvp: float,
-    L_kwelweg: float,
-    gamma_water: float,
-    g: float,
-    v: float,
-    theta: float,
-    eta: float,
-    d70_m: float,
-    gamma_korrel: float,
-    ) -> float:  
-    r"""Berekening kritiek verval methode Sellmeijer inclusief berekeningsinstellingen 
+        d70: float,
+        D_wvp: float,
+        kD_wvp: float,
+        L_kwelweg: float,
+        gamma_water: float,
+        g: float,
+        v: float,
+        theta: float,
+        eta: float,
+        d70_m: float,
+        gamma_korrel: float,
+) -> float:
+    r"""Berekening kritiek verval methode Sellmeijer inclusief berekeningsinstellingen
 
     Args:
         d70 (float): 70% percentiel van de korrelgrootteverdeling [m]
         D_wvp (float): dikte van het watervoerende pakket [m]
-        kD_wvp (float): transmissiviteit van het watervoerende pakket [m2/dag]
-        L_kwelweg (float): kwelweglengte in m
-        gamma_water (float): volumegewicht van water [kN/m3]
+        kD_wvp (float): transmissiviteit van het watervoerende pakket [m²/dag]
+        L_kwelweg (float): kwelweglengte in meters
+        gamma_water (float): volumegewicht van water [kN/m³]
         g (float): Zwaartekrachtversnelling [m/s2]
-        v (float): kinematische viscositeit [m2/s]
+        v (float): kinematische viscositeit [m²/s]
         theta (float): rolweerstandshoek [graden] 
         eta (float): coefficiënt van White [-]
         d70_m (float): gemiddelde d70 in kleine schaalproeven [m]
-        gamma_korrel (float): (schijnbaar) volumegewicht van de zandkorrels onder water [kN/m3]
+        gamma_korrel (float): (schijnbaar) volumegewicht van de zandkorrels onder water [kN/m³]
 
     Returns:
         float: kritiek verval [m]
@@ -300,21 +308,29 @@ def calc_dh_c(
     k_wvp_calc_sec = k_wvp_calc / (24 * 3600)
     # Intrinsieke doorlatendheid
     k_intr = (v / g) * k_wvp_calc_sec
+
     # Berekening Fres
+    # noinspection PyPep8Naming
     Fres = (
         eta
         * ((gamma_korrel - gamma_water) / gamma_water)
         * math.tan(theta * math.pi / 180.00)
     )
+
     # Berekening Fscale
+    # noinspection PyPep8Naming
     Fscale = pow(d70 / d70_m, 0.4) * d70_m / pow(k_intr * L_kwelweg, (1.0 / 3.0))
-    # Berekening Fgeometry
+
+    # Berekening F_geometry
     if D_wvp == L_kwelweg:
+        # noinspection PyPep8Naming
         D_wvp = D_wvp - 0.001
     else:
         pass
     totdemacht = 0.04 + (0.28 / (pow(D_wvp / L_kwelweg, 2.8) - 1.0))
+    # noinspection PyPep8Naming
     Fgeom = 0.91 * pow(D_wvp / L_kwelweg, totdemacht)
+
     return Fres * Fscale * Fgeom * L_kwelweg
 
 

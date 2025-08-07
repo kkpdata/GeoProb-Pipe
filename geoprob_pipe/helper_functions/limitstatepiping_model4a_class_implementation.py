@@ -32,7 +32,7 @@ from geoprob_pipe.helper_functions import geohydro_functions, model4a, piping_fu
 class LimitStatePipingModel4a:
     r"""
     Class voor het berekenen van de gecombineerde grenstoestandfunctie voor uplift, heave en piping.
-    Gebruikt de model4a potentiaalberekening
+    Gebruikt model 4a potentiaal berekening
     """
 
     dist_L_geom: float
@@ -56,8 +56,9 @@ class LimitStatePipingModel4a:
     rc: float
     h: float
 
+    # noinspection PyPep8Naming
     @property
-    def Dcover(self) -> float:
+    def D_cover(self) -> float:
         return piping_functions_old.calc_Dcover(self.mv, self.top_zand)
 
     @property
@@ -65,13 +66,13 @@ class LimitStatePipingModel4a:
         return piping_functions_old.calc_h_exit(self.pp, self.mv)
 
     @property
-    def dhred(self) -> float:
-        return piping_functions_old.calc_dH_red(self.h, self.h_exit, self.rc, self.Dcover)
+    def dh_red(self) -> float:
+        return piping_functions_old.calc_dH_red(self.h, self.h_exit, self.rc, self.D_cover)
 
     @property
     def d_pot_c_u(self) -> float:
         return piping_functions_old.calc_d_pot_c_u(
-            self.Dcover, self.gamma_sat_cover, self.gamma_w
+            self.D_cover, self.gamma_sat_cover, self.gamma_w
         )
 
     @property
@@ -81,7 +82,7 @@ class LimitStatePipingModel4a:
     @property
     def r_exit(self) -> float:
         pot_model = model4a.Model4a(
-            k=self.k,
+            kD=self.k * self.D,
             D=self.D,
             c1=self.c_1,
             c3=self.c_3,
@@ -92,17 +93,18 @@ class LimitStatePipingModel4a:
         )
         r_exit, r_but, r_bit = pot_model.respons(
             self.dist_BIT
-        )  # dist_BIT is gebruikt omdat Model4a rekent met een absolute waarde voor de x-coordinaat
+        )  # dist_BIT is gebruikt omdat Model4a rekent met een absolute waarde voor de x-coordinate
         return r_exit
 
     @property
     def pot_exit(self) -> float:
         return geohydro_functions.calc_respons2pot(self.pp, self.r_exit, self.h)
 
+    # noinspection PyPep8Naming
     @property
     def L_kwelweg(self) -> float:
         pot_model = model4a.Model4a(
-            k=self.k,
+            kD=self.k * self.D,
             D=self.D,
             c1=self.c_1,
             c3=self.c_3,
@@ -116,34 +118,39 @@ class LimitStatePipingModel4a:
     @property
     def i_optredend(self) -> float:
         return piping_functions_old.calc_i_optredend(
-            self.pot_exit, self.h_exit, self.Dcover
+            self.pot_exit, self.h_exit, self.D_cover
         )
 
     @property
-    def dhc(self) -> float:
+    def dh_c(self) -> float:
         return piping_functions_old.calc_dH_sellmeijer(
             self.d70, self.k, self.D, self.L_kwelweg, self.gamma_w
         )
 
+    # noinspection PyPep8Naming
     @property
     def Z_u(self) -> float:
         return piping_functions_old.calc_Z_u(
             self.d_pot_c_u, self.pot_exit, self.h_exit, self.mu
         )
 
+    # noinspection PyPep8Naming
     @property
     def Z_h(self) -> float:
         return piping_functions_old.calc_Z_h(self.i_c_h, self.i_optredend, self.mh)
 
+    # noinspection PyPep8Naming
     @property
     def Z_p(self) -> float:
-        return piping_functions_old.calc_Z_p(self.dhc, self.dhred, self.mp)
+        return piping_functions_old.calc_Z_p(self.dh_c, self.dh_red, self.mp)
 
+    # noinspection PyPep8Naming
     @property
     def Z_combin(self) -> float:
         return max(self.Z_u, self.Z_h, self.Z_p)
 
 
+# noinspection PyPep8Naming
 def Z_u(
     dist_L_geom: float,
     dist_BUT: float,
@@ -167,7 +174,7 @@ def Z_u(
     h: float,
 ) -> float:
     """
-    Calculate the Z_u value for the given parameters, using the LimitStatePipingModel4a class."
+    Calculate the Z_u value for the given parameters, using the LimitStatePipingModel4a class.
     """
     limit_state = LimitStatePipingModel4a(
         dist_L_geom=dist_L_geom,
@@ -194,6 +201,7 @@ def Z_u(
     return limit_state.Z_u
 
 
+# noinspection PyPep8Naming
 def Z_h(
     dist_L_geom: float,
     dist_BUT: float,
@@ -217,7 +225,7 @@ def Z_h(
     h: float,
 ) -> float:
     """
-    Calculate the Z_h value for the given parameters, using the LimitStatePipingModel4a class."
+    Calculate the Z_h value for the given parameters, using the LimitStatePipingModel4a class.
     """
     limit_state = LimitStatePipingModel4a(
         dist_L_geom=dist_L_geom,
@@ -244,6 +252,7 @@ def Z_h(
     return limit_state.Z_h
 
 
+# noinspection PyPep8Naming
 def Z_p(
     dist_L_geom: float,
     dist_BUT: float,
@@ -267,7 +276,7 @@ def Z_p(
     h: float,
 ) -> float:
     """
-    Calculate the Z_p value for the given parameters, using the LimitStatePipingModel4a class."
+    Calculate the Z_p value for the given parameters, using the LimitStatePipingModel4a class.
     """
     limit_state = LimitStatePipingModel4a(
         dist_L_geom=dist_L_geom,

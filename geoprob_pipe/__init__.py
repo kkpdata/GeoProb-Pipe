@@ -1,1 +1,1 @@
-from geoprob_pipe.app.project import Project
+from geoprob_pipe.app_object import GeoProbPipe
