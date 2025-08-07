@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 def hfreq_graphs(geoprob_pipe: GeoProbPipe, export: bool = True) -> List[plt.Figure]:
     """ Grafiek van de overschrijdingsfrequentielijn van de waterstand per HydraNL uitvoerpunt. """
 
-    # TODO Later Should Middel: Visualiseer WBN waterstand in hfreq-plot ter bewustzijn.
+    # TODO Later Should Middel: Visualiseer WBN waterstand in hfreq-plot ter bewustzijn. 
     # TODO Later Nice Middel: Visualiseer physical design point value in hfreq-plot ter bewustzijn.
 
     export_dir = os.path.join(geoprob_pipe.visualizations.graphs.export_dir, "grafiek_hfreq")
@@ -27,13 +27,14 @@ def hfreq_graphs(geoprob_pipe: GeoProbPipe, export: bool = True) -> List[plt.Fig
         # Create the graph
         plt.ioff()
         fig = plt.figure(figsize=(8, 5))
-        fig.plot(levels, freq, marker='o', linestyle='-', color='blue',markersize=1)
-        fig.xscale('linear')  # belasting vaak lineair
-        fig.yscale('log')     # faalkans logaritmisch
-        fig.xlabel("Waterstand (m+NAP)")
-        fig.ylabel("Overschrijdingsfrequentie (log-schaal)")
-        fig.title("HydraNL locatie: " + hydra_nl_name + "\nbehorend bij uittredepunten: " + ", ".join([str(u) for u in uittredepunten]))
-        fig.grid(True, which="both", linestyle='--', linewidth=0.5)
+        ax= fig.add_subplot(111)
+        ax.plot(levels, freq, marker='o', linestyle='-', color='blue',markersize=1)
+        ax.set_xscale("linear")  # belasting vaak lineair
+        ax.set_yscale("log")     # faalkans logaritmisch
+        ax.set_xlabel("Waterstand (m+NAP)")
+        ax.set_ylabel("Overschrijdingsfrequentie (log-schaal)")
+        ax.set_title("HydraNL locatie: " + hydra_nl_name + "\nbehorend bij uittredepunten: " + ", ".join([str(u) for u in uittredepunten]))
+        ax.grid(True, which="both", linestyle='--', linewidth=0.5)
         fig.tight_layout()
         figures.append(fig)
 
@@ -41,5 +42,6 @@ def hfreq_graphs(geoprob_pipe: GeoProbPipe, export: bool = True) -> List[plt.Fig
         export_path = os.path.join(export_dir, f"{hydra_nl_name}_hfreq.png")
         if export:
             plt.savefig(export_path)
+            plt.close(fig)
 
     return figures
