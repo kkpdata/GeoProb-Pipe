@@ -3,7 +3,7 @@ name: Collect TODO items
 
 on:
   push:
-    branches: ["dev", "codeherziening/basis"]
+    branches: ["dev"]
   workflow_dispatch:
 
 

@@ -3,7 +3,7 @@ name: Automated testing and coverage
 
 on:
   pull_request:
-    branches: [ "codeherziening/basis" ]
+    branches: [ "dev" ]
   workflow_dispatch:
 
 
