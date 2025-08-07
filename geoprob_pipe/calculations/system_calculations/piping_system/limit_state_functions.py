@@ -62,7 +62,6 @@ def calc_Z_h(
         modelfactor_h: float,
         i_c_h: float,
         D_wvp: float,
-        # **_,
 ) -> float:
     r"""Berekening van de grenstoestandfunctie voor heave
 
@@ -134,7 +133,6 @@ def calc_Z_u(
         gamma_water: float,
         gamma_sat_deklaag: float,
         D_wvp: float,
-        # **_,
 ) -> float:
     r"""Grenstoestandfunctie voor opbarsten (uplift).
 
@@ -211,12 +209,31 @@ def calc_Z_p(
         d70_m: float,
         gamma_korrel: float,
         r_c_deklaag: float,
-        # **_,
+        sterkte_factor_fijne_fractie: float,
 ) -> float:
-    r"""Grenstoestandfunctie voor het mechanisme piping
+    """ Grenstoestandfunctie voor het mechanisme piping
 
-    Returns:
-        float: Z waarde van de grenstoestandfunctie voor piping
+    :param c_voorland:
+    :param buitenwaterstand:
+    :param polderpeil:
+    :param mv_exit:
+    :param L_but:
+    :param L_intrede:
+    :param modelfactor_p:
+    :param d70:
+    :param D_wvp:
+    :param kD_wvp:
+    :param top_zand:
+    :param gamma_water:
+    :param g:
+    :param v:
+    :param theta:
+    :param eta:
+    :param d70_m:
+    :param gamma_korrel:
+    :param r_c_deklaag:
+    :return: Z waarde van de grenstoestandfunctie voor piping
+    :param sterkte_factor_fijne_fractie: Omdat
     """
 
     L_voorland = piping_functions.calc_L_voorland(
