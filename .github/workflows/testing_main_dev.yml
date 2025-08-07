@@ -1,4 +1,4 @@
-name: Automated testing and coverage
+name: Automated testing and coverage (in protected branches)
 
 
 on:

@@ -1,4 +1,4 @@
-name: Automated testing and coverage
+name: Automated testing and coverage (during pull request)
 
 
 on:
