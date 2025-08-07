@@ -27,47 +27,47 @@ project.visualizations.export_visualizations()
 # TODO Nu Should Klein: Exporteer ook validation messages van project.
 # TODO Nu Should Middel: Exporteer ook resultaten naar shape files.
 
-#%%
-import plotly.graph_objects as go
-export_dir = os.path.join(project.visualizations.graphs.export_dir, "grafiek_hfreq")
-os.makedirs(export_dir, exist_ok=True)
-figures = []
-df_uittredepunten = project.input_data.uittredepunten.df
-for hydra_nl_name in project.input_data.overschrijdingsfrequentielijnen.keys():
+# #%%
+# import plotly.graph_objects as go
+# export_dir = os.path.join(project.visualizations.graphs.export_dir, "grafiek_hfreq")
+# os.makedirs(export_dir, exist_ok=True)
+# figures = []
+# df_uittredepunten = project.input_data.uittredepunten.df
+# for hydra_nl_name in project.input_data.overschrijdingsfrequentielijnen.keys():
     
-    # Collect data for the graph
-    hfreq = project.input_data.overschrijdingsfrequentielijnen[hydra_nl_name]
-    levels = hfreq.overschrijdingsfrequentielijn.level
-    freq =  hfreq.overschrijdingsfrequentielijn.exceedance_frequency
-    uittredepunten = list(df_uittredepunten[df_uittredepunten['hydra_locatie_id'] == hydra_nl_name]['uittredepunt_id'])
+#     # Collect data for the graph
+#     hfreq = project.input_data.overschrijdingsfrequentielijnen[hydra_nl_name]
+#     levels = hfreq.overschrijdingsfrequentielijn.level
+#     freq =  hfreq.overschrijdingsfrequentielijn.exceedance_frequency
+#     uittredepunten = list(df_uittredepunten[df_uittredepunten['hydra_locatie_id'] == hydra_nl_name]['uittredepunt_id'])
 
-    # Create the graph
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=levels,
-        y=freq,
-        mode='lines+markers',
-        name='Overschrijdingsfrequentie',
-        line= dict(dash='dash', color='blue', width=1),
-        marker=dict(symbol='circle', size=1, color='blue')
-    ))
-    fig.update_layout(
-        title=f"HydraNL locatie: {hydra_nl_name}<br>behorend bij uittredepunten: {', '.join([str(u) for u in uittredepunten])}",
-        xaxis=dict(title=f"Waterstand (m+NAP)", 
-        type='linear',
-        showgrid=True, 
-        gridwidth=0.5, 
-        gridcolor="gray"
-        ),
-        yaxis=dict(title=f"Overschrijdingsfrequentie (log-schaal)", 
-        type='log', 
-        showgrid=True, 
-        gridwidth=0.5, 
-        gridcolor="gray",
-        minor=dict(showgrid=True)
-        )
-        )
-    figures.append(fig)
+#     # Create the graph
+#     fig = go.Figure()
+#     fig.add_trace(go.Scatter(
+#         x=levels,
+#         y=freq,
+#         mode='lines+markers',
+#         name='Overschrijdingsfrequentie',
+#         line= dict(dash='dash', color='blue', width=1),
+#         marker=dict(symbol='circle', size=1, color='blue')
+#     ))
+#     fig.update_layout(
+#         title=f"HydraNL locatie: {hydra_nl_name}<br>behorend bij uittredepunten: {', '.join([str(u) for u in uittredepunten])}",
+#         xaxis=dict(title=f"Waterstand (m+NAP)", 
+#         type='linear',
+#         showgrid=True, 
+#         gridwidth=0.5, 
+#         gridcolor="gray"
+#         ),
+#         yaxis=dict(title=f"Overschrijdingsfrequentie (log-schaal)", 
+#         type='log', 
+#         showgrid=True, 
+#         gridwidth=0.5, 
+#         gridcolor="gray",
+#         minor=dict(ticks="inside", ticklen=6, showgrid=True)
+#         )
+#         )
+#     figures.append(fig)
 
     # Export or not?
 #     if export:
