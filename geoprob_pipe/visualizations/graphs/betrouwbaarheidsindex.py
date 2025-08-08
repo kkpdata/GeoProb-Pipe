@@ -50,7 +50,7 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
         fill='toself',
         fillcolor='rgba(0, 255, 0, 0.5)'
         ))
-        
+
     fig.update_layout(
         title=f"Betrouwbaarheidsindex STPH scenarioberekeningen",
         xaxis=dict(title=f"Metrering",

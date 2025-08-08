@@ -1,9 +1,9 @@
-name: Automated testing and coverage
+name: Automated testing and coverage (during pull request)
 
 
 on:
   pull_request:
-    branches: [ "codeherziening/basis" ]
+    branches: [ "dev" ]
   workflow_dispatch:
 
 

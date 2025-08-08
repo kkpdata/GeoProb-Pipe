@@ -14,6 +14,7 @@ def hfreq_graphs_per_location(geoprob_pipe: GeoProbPipe, export: bool = True) ->
 
     # TODO Later Should Middel: Visualiseer WBN waterstand in hfreq-plot ter bewustzijn. 
     # TODO Later Nice Middel: Visualiseer physical design point value in hfreq-plot ter bewustzijn.
+
     export_dir = os.path.join(geoprob_pipe.visualizations.graphs.export_dir, "grafiek_hfreq")
     os.makedirs(export_dir, exist_ok=True)
     figures = []
