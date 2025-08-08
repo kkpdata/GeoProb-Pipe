@@ -1,7 +1,7 @@
 from __future__ import annotations
 from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex import beta_scenarios_graph
 from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex import beta_uittredepunten_graph
-from geoprob_pipe.visualizations.graphs.hfreq import hfreq_graph_in_single_interactive, hfreq_graphs_per_location
+from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive, hfreq_graphs_per_location
 from typing import TYPE_CHECKING, List
 from matplotlib.pyplot import Figure
 import os
@@ -21,8 +21,9 @@ class Graphs:
         os.makedirs(path, exist_ok=True)
         return path
 
-    def hfreq_graph_in_single_interactive(self) -> List[Figure]:
-        return hfreq_graph_in_single_interactive(self.geoprob_pipe, export=False)
+    def hfreq_graph_in_single_interactive(self, export: bool = False) -> Figure:
+        graph = GraphHFreqSingleInteractive(self.geoprob_pipe, export=export)
+        return graph.fig
 
     def hfreq_graphs_per_location(self) -> List[Figure]:
         return hfreq_graphs_per_location(self.geoprob_pipe, export=False)
@@ -34,7 +35,7 @@ class Graphs:
         return beta_uittredepunten_graph(self.geoprob_pipe, export=False)
 
     def export_graphs(self):
-        hfreq_graph_in_single_interactive(self.geoprob_pipe, export=True)
+        GraphHFreqSingleInteractive(self.geoprob_pipe, export=True)
         hfreq_graphs_per_location(self.geoprob_pipe, export=True)
         beta_scenarios_graph(self.geoprob_pipe, export=True)
         beta_uittredepunten_graph(self.geoprob_pipe, export=True)
