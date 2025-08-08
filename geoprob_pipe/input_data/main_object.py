@@ -6,6 +6,8 @@ from geoprob_pipe.input_data.overschrijdingsfrequentielijn import Overschrijding
 from geoprob_pipe.utils.workspace import Workspace
 from geoprob_pipe.helper_functions.data_validation import checks_input_parameters, checks_overview_parameters
 import logging
+from typing import Optional
+from geoprob_pipe.misc.traject_normering import TrajectNormering
 
 
 logger = logging.getLogger("geoprob_pipe_logger")
@@ -16,6 +18,8 @@ class InputData:
     Excel-file. """
 
     def __init__(self, workspace: Workspace):
+
+        self.workspace: Workspace = workspace
 
         # Read overview data of parameters from input Excel file (includes e.g. upper and lower bounds, type of
         # distribution, etc.) and carry out checks
@@ -34,7 +38,16 @@ class InputData:
             self.df_overview_parameters, self.vakken.df, self.uittredepunten.df, self.ondergrondscenarios.df)
         logger.info(f"Parameter data successfully loaded from `{workspace.path_input_excel.name}`")
 
+        # Traject-data
+        self._traject_normering: Optional[TrajectNormering] = None
+
         # HRD-data
         self.overschrijdingsfrequentielijnen = OverschrijdingsfrequentielijnCollection(
             path_hrd=workspace.path_hrd, uittredepunt_collection=self.uittredepunten)
         logger.info(f"HRD .sqlite file successfully loaded from `{workspace.path_hrd.name}`")
+
+    @property
+    def traject_normering(self):
+        if self._traject_normering is None:
+            self._traject_normering = TrajectNormering(hrd_path=self.workspace.path_hrd.__str__())
+        return self._traject_normering
