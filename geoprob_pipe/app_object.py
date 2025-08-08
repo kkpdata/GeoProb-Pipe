@@ -28,9 +28,10 @@ def provide_explanation_to_user():
     time.sleep(1)  # Timer to make sure the logger is finished first.
     print("""
     You can now use the interactive console to explore and/or export the results. Some examples:
-        print(project.results.unique_models)
-        print(project.results.combined)
-        project.results.combined.to_excel(project.workspace.path_output_folder.folderpath / "fragility_curve_data_combined.xlsx")
+        project.export_archive())
+        project.results.export_results()
+        print(project.results.df_beta_uittredepunten)
+        print(project.input_data.vakken)
     """)
 
 
@@ -81,3 +82,8 @@ class GeoProbPipe:
         print(Settings().__dir__())
     This unfortunately lacks in further documentation, but the parameter names are relatively descriptive. 
         """)
+
+    def export_archive(self):
+        """ Exports everything related to this project. """
+        self.results.export_results()
+        self.visualizations.export_visualizations()

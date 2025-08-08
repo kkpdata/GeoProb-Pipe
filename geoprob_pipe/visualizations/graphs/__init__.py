@@ -1,6 +1,5 @@
 from __future__ import annotations
-from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex import beta_scenarios_graph
-from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex import beta_uittredepunten_graph
+from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex_oud import beta_uittredepunten_graph, beta_scenarios_graph
 from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive, hfreq_graphs_per_location
 from typing import TYPE_CHECKING, List
 from matplotlib.pyplot import Figure
@@ -37,5 +36,5 @@ class Graphs:
     def export_graphs(self):
         GraphHFreqSingleInteractive(self.geoprob_pipe, export=True)
         hfreq_graphs_per_location(self.geoprob_pipe, export=True)
-        beta_scenarios_graph(self.geoprob_pipe, export=True)
-        beta_uittredepunten_graph(self.geoprob_pipe, export=True)
+        beta_scenarios_graph(self.geoprob_pipe, export=True)  # TODO Tijdelijk uitgezet: in progress
+        beta_uittredepunten_graph(self.geoprob_pipe, export=True)  # TODO Tijdelijk uitgezet: in progress

@@ -17,9 +17,8 @@ initiate_app_logger(repo_root=repo_root)
 
 # Initiate GeoProb-Pipe project object
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
-# project.results.export_results()
-# project.visualizations.export_visualizations()
-# project.visualizations.graphs.hfreq_graph_in_single_interactive(export=True)
+project.export_archive()
+
 
 # TODO Nu Should Klein: Exporteer ook validation messages van project.
 # TODO Nu Should Middel: Exporteer ook resultaten naar shape files.
