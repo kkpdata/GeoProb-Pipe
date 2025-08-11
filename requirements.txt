@@ -2,7 +2,6 @@ dotenv
 pandas
 pydra-core
 # TODO Later Should Middel: Er bestaat ook een Python-wrapper voor Hydra-Ring. Pydra-core vervangen?
-gitpython
 openpyxl
 colorlog
 plotly

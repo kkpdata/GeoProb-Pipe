@@ -1,10 +1,10 @@
 import os.path
-from geopandas import GeoDataFrame, read_file
 import scipy.stats as sct
 import sqlite3
 from typing import Tuple, Optional
-from geoprob_pipe.utils.other import repository_root_path
 from shapely import LineString
+import importlib.resources
+from geopandas import read_file, GeoDataFrame
 
 
 def _get_traject_id(hrd_path: str, hlcd_path: str) -> Tuple[int, str]:
@@ -32,9 +32,8 @@ def _query_dijktrajecten(traject_id: str):
 
     [1] https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/fa4cc54e-26b3-4f25-b643-59458622901c
     """
-    repo_root = repository_root_path()
-    shp_file_path = os.path.join(repo_root, "geoprob_pipe", "misc", "dijktrajecten", "dijktrajecten.shp")
-    gdf: GeoDataFrame = read_file(shp_file_path)
+    with importlib.resources.path('geoprob_pipe.misc.dijktrajecten', 'dijktrajecten.shp') as shp_path:
+        gdf: GeoDataFrame = read_file(shp_path)
     gdf = gdf[gdf['TRAJECT_ID'] == traject_id]
     assert gdf.__len__() == 1, f"Only one traject id should have been found. Address this issue."
     geom: LineString = gdf.iloc[0].geometry
