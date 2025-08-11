@@ -19,20 +19,10 @@ import time
 from typing import List
 from geoprob_pipe.calculations.system_calculations.piping_system.build_and_run import (
     build_and_run_piping_system_calculations)
+from geoprob_pipe.utils.loggers import initiate_app_logger
 
 
 logger = logging.getLogger("geoprob_pipe_logger")
-
-
-def provide_explanation_to_user():
-    time.sleep(1)  # Timer to make sure the logger is finished first.
-    print("""
-    You can now use the interactive console to explore and/or export the results. Some examples:
-        project.export_archive())
-        project.results.export_results()
-        print(project.results.df_beta_uittredepunten)
-        print(project.input_data.vakken)
-    """)
 
 
 class GeoProbPipe:
@@ -44,6 +34,12 @@ class GeoProbPipe:
             path_to_workspace: str|Path
     ) -> None:
 
+        # Miscellaneous
+        import warnings
+        warnings.simplefilter(
+            action='ignore',
+            category=FutureWarning)  # Preferably address FutureWarnings: part of pydra-core
+        initiate_app_logger()
         logger.info("Initiating project.")
         self.time_start = datetime.now()
 
@@ -65,7 +61,6 @@ class GeoProbPipe:
         self.time_end = datetime.now()
         time_diff = self.time_end - self.time_start
         logger.info(f"Calculations were performed successfully in {int(time_diff.total_seconds())} seconds.")
-        provide_explanation_to_user()
 
         # Append logic classes
         self.visualizations = Visualizations(self)
@@ -75,13 +70,6 @@ class GeoProbPipe:
         self.df_settings = pd.read_excel(self.workspace.path_input_excel, sheet_name="Settings", index_col=0, header=0)
         logger.info(f"Settings successfully loaded from `{self.workspace.path_input_excel.name}`.")
         time.sleep(1)  # Some time to make sure the print below, is printed after the logger print.
-
-        print(f"""
-    For your information, display a full list of settings by printing:
-        from probabilistic_library.reliability import Settings
-        print(Settings().__dir__())
-    This unfortunately lacks in further documentation, but the parameter names are relatively descriptive. 
-        """)
 
     def export_archive(self):
         """ Exports everything related to this project. """

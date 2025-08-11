@@ -3,7 +3,7 @@ import os
 from typing import Union, Literal
 from pandas import DataFrame, Series
 from copy import deepcopy
-from geoprob_pipe.utils.other import repository_root_path
+# from geoprob_pipe.utils.other import repository_root_path
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -174,9 +174,10 @@ def generate_overview_flow_chart_with_betas(
 
     # Read template
     svg_text = None
-    repo_root = repository_root_path()
+    # repo_root = repository_root_path()
     path_to_svg = os.path.join(
         repo_root, "geoprob_pipe", "graphs", "overview", "Hierarchie_berekeningen_incl_result_tags_v2.svg")
+    # TODO: Use 'import importlib.resources' for this
     with open(path_to_svg, "r", encoding="utf-8") as f:
         svg_text = f.read()
     if svg_text is None:

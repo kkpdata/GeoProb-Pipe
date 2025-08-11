@@ -195,5 +195,4 @@ def test_calculation():
     #  Dit doen door gemiddelde waarden te gebruiken.
     # TODO Nu Must Middel: Assert toevoegen die piping resultaat unit test
 
-
     ##
