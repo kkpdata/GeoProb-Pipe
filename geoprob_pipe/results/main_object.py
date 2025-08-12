@@ -1,10 +1,13 @@
 from __future__ import annotations
 from pandas import DataFrame
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
-from typing import TYPE_CHECKING
+from probabilistic_library import DesignPoint, Alpha
+from typing import TYPE_CHECKING, Dict, List, Union
 import os
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
+    from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
+        ParallelSystemReliabilityCalculation)
 
 
 class Results:
@@ -17,6 +20,12 @@ class Results:
         self.df_beta_uittredepunten = _calculate_df_beta_per_uittredepunt(self)
         # self.df_beta_vakken = self._calculated_df_beta_per_limit_state(geoprob_pipe)
 
+    def df_alphas_influence_factors_and_physical_values(
+            self, system_only: bool = True, filter_deterministic: bool = True
+    ) -> DataFrame:
+        return _collect_df_alphas_influence_factors_and_physical_values(
+            self.geoprob_pipe, system_only=system_only, filter_deterministic=filter_deterministic)
+
     @property
     def export_dir(self) -> str:
         # TODO Later Could Klein: Elk sub-object heeft een export_dir-method. Kan dit handiger?
@@ -25,8 +34,12 @@ class Results:
         return path
 
     def export_results(
-            self, bool_beta_limit_states: bool = True, bool_beta_scenarios: bool = True,
-            bool_beta_uittredepunten: bool = True):
+            self,
+            bool_beta_limit_states: bool = True,
+            bool_beta_scenarios: bool = True,
+            bool_alphas_influence_factors_and_physical_values: bool = True,
+            bool_beta_uittredepunten: bool = True,
+    ):
 
         # Results of limit state calculations
         if bool_beta_limit_states:
@@ -42,6 +55,11 @@ class Results:
             df = self.df_beta_scenarios.drop(columns=['ondergrondscenario', 'system_calculation'])
             df.to_excel(
                 excel_writer=os.path.join(self.export_dir, "df_beta_scenarios.xlsx"))
+
+        if bool_alphas_influence_factors_and_physical_values:
+            df = self.df_alphas_influence_factors_and_physical_values()
+            df.to_excel(
+                excel_writer=os.path.join(self.export_dir, "df_alphas_influence_factors_and_physical_values.xlsx"))
 
         if bool_beta_uittredepunten:
             df = self.df_beta_uittredepunten
@@ -106,4 +124,49 @@ def _calculate_df_beta_per_uittredepunt(self: Results) -> DataFrame:
                             "value"], axis=1)).groupby('uittredepunt_id', as_index=False)[
         'failure_probability'].sum()
     df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
+    return df
+
+
+def _collect_df_alphas_influence_factors_and_physical_values(
+        geoprob_pipe: GeoProbPipe,
+        system_only: bool = True,
+        filter_deterministic: bool = True,
+):
+
+    # Create
+    def create_df_rows_for_design_point(
+            dp: DesignPoint, calc: ParallelSystemReliabilityCalculation
+    ) -> List[Dict[str, Union[str, float]]]:
+        rows_from_dp = []
+        for alpha in dp.alphas:
+            alpha: Alpha
+            rows_from_dp.append({
+                "uittredepunt_id": calc.metadata['uittredepunt_id'],
+                "scenario_id": calc.metadata['uittredepunt_id'],
+                "vak_id": calc.metadata['uittredepunt_id'],
+                "design_point": dp.identifier,
+                "variable": alpha.identifier,
+                "distribution_type": alpha.variable.distribution.value,
+                "alpha": alpha.alpha,
+                "influence_factor": alpha.alpha * alpha.alpha,
+                "physical_value": alpha.x
+            })
+        return rows_from_dp
+
+    # Gather data
+    rows = []
+    for calculation in geoprob_pipe.calculations:
+        for design_point in calculation.model_design_points:
+            rows.extend(create_df_rows_for_design_point(dp=design_point, calc=calculation))
+        rows.extend(create_df_rows_for_design_point(dp=calculation.system_design_point, calc=calculation))
+
+    # Generate df from rows
+    df = DataFrame(rows)
+
+    # Filters
+    if filter_deterministic:
+        df = df[df['distribution_type'] != "deterministic"]
+    if system_only:
+        df = df[df['design_point'] == "system"]
+
     return df

@@ -4,7 +4,7 @@ from repo_utils.utils import repository_root_path
 from geoprob_pipe import GeoProbPipe
 from dotenv import load_dotenv
 import os
-# from probabilistic_library import Alpha
+
 
 # Import environment variables
 repo_root = repository_root_path()
@@ -14,10 +14,9 @@ load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
 project.export_archive()
 
-##
-
-
-# TODO Nu Should Klein: Exporteer ook validation messages van project.
+# from probabilistic_library import Alpha
+# alpha: Alpha = project.calculations[0].system_design_point.alphas['buitenwaterstand']
+# alpha.variable.distribution
 
 
 
