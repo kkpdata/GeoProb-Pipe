@@ -2,7 +2,7 @@ from __future__ import annotations
 from pandas import DataFrame
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
 from probabilistic_library import DesignPoint, Alpha
-from typing import TYPE_CHECKING, Dict, List, Union
+from typing import TYPE_CHECKING, Dict, List, Union, Optional
 import os
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -17,14 +17,30 @@ class Results:
         self.geoprob_pipe = geoprob_pipe
         self.df_beta_limit_states = _collect_df_beta_per_limit_state(geoprob_pipe)
         self.df_beta_scenarios = _collect_df_beta_per_scenario(geoprob_pipe)
+        self._df_alphas_influence_factors_and_physical_values: Optional[DataFrame] = None
         self.df_beta_uittredepunten = _calculate_df_beta_per_uittredepunt(self)
         # self.df_beta_vakken = self._calculated_df_beta_per_limit_state(geoprob_pipe)
 
     def df_alphas_influence_factors_and_physical_values(
-            self, system_only: bool = True, filter_deterministic: bool = True
+            self,
+            system_only: bool = True,
+            filter_deterministic: bool = True
     ) -> DataFrame:
-        return _collect_df_alphas_influence_factors_and_physical_values(
-            self.geoprob_pipe, system_only=system_only, filter_deterministic=filter_deterministic)
+
+        # Generate if not generated yet
+        if self._df_alphas_influence_factors_and_physical_values is None:
+            self._df_alphas_influence_factors_and_physical_values = (
+                _collect_df_alphas_influence_factors_and_physical_values(
+                    self.geoprob_pipe))
+
+        # Filters
+        df = self._df_alphas_influence_factors_and_physical_values
+        if filter_deterministic:
+            df = df[df['distribution_type'] != "deterministic"]
+        if system_only:
+            df = df[df['design_point'] == "system"]
+
+        return df
 
     @property
     def export_dir(self) -> str:
@@ -129,8 +145,6 @@ def _calculate_df_beta_per_uittredepunt(self: Results) -> DataFrame:
 
 def _collect_df_alphas_influence_factors_and_physical_values(
         geoprob_pipe: GeoProbPipe,
-        system_only: bool = True,
-        filter_deterministic: bool = True,
 ):
 
     # Create
@@ -142,8 +156,8 @@ def _collect_df_alphas_influence_factors_and_physical_values(
             alpha: Alpha
             rows_from_dp.append({
                 "uittredepunt_id": calc.metadata['uittredepunt_id'],
-                "scenario_id": calc.metadata['uittredepunt_id'],
-                "vak_id": calc.metadata['uittredepunt_id'],
+                "scenario_id": calc.metadata['ondergrondscenario_id'],
+                "vak_id": calc.metadata['vak_id'],
                 "design_point": dp.identifier,
                 "variable": alpha.identifier,
                 "distribution_type": alpha.variable.distribution.value,
@@ -162,11 +176,5 @@ def _collect_df_alphas_influence_factors_and_physical_values(
 
     # Generate df from rows
     df = DataFrame(rows)
-
-    # Filters
-    if filter_deterministic:
-        df = df[df['distribution_type'] != "deterministic"]
-    if system_only:
-        df = df[df['design_point'] == "system"]
 
     return df
