@@ -15,7 +15,7 @@ class ValidationMessages:
     def _to_list(msg: Union[str, List[str]]):
         assert isinstance(msg, (str, List))
         if isinstance(msg, str):
-            msg = [str]
+            msg = [msg]
         return msg
 
     @property
