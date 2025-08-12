@@ -13,7 +13,7 @@ from geoprob_pipe.utils.workspace import Workspace
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
 from geoprob_pipe.results.main_object import Results
-from geoprob_pipe.geopackage import GeoPackage
+from geoprob_pipe.spatial import Spatial
 from geoprob_pipe.input_data import InputData
 from geoprob_pipe.visualizations import Visualizations
 import time
@@ -61,7 +61,7 @@ class GeoProbPipe:
 
         # Append logic classes
         self.visualizations = Visualizations(self)
-        self.geopackage = GeoPackage(self)
+        self.spatial = Spatial(self)
 
     def _read_calculation_settings(self):
         """ Read calculation settings from Excel file. """
@@ -73,4 +73,4 @@ class GeoProbPipe:
         """ Exports everything related to this project. """
         self.results.export_results()
         self.visualizations.export_visualizations()
-        self.geopackage.export_gdb()
+        self.spatial.export_geopackage()

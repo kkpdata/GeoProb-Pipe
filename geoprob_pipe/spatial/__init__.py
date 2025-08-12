@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from geoprob_pipe.geopackage.gdf_beta_limit_states import (
+from geoprob_pipe.spatial.gdf_beta_limit_states import (
     get_gdf_beta_limit_states, get_gdf_beta_scenarios, get_gdf_beta_uittredepunten)
 from geopandas import GeoDataFrame
 import os
@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
-class GeoPackage:
+class Spatial:
 
     def __init__(self, geoprob_pipe: GeoProbPipe):
         self.geoprob_pipe = geoprob_pipe
@@ -27,10 +27,10 @@ class GeoPackage:
         return self.geoprob_pipe.workspace.path_output_folder.folderpath
 
     @property
-    def export_path(self):
+    def export_path_geopackage(self):
         return os.path.join(self.export_dir, "spatial_data.gpkg")
 
-    def export_gdb(self):
+    def export_geopackage(self):
         self.get_gdf_beta_limit_states(export=True)
         self.get_gdf_beta_scenarios(export=True)
         self.get_gdf_beta_uittredepunten(export=True)
