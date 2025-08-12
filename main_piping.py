@@ -4,6 +4,7 @@ from repo_utils.utils import repository_root_path
 from geoprob_pipe import GeoProbPipe
 from dotenv import load_dotenv
 import os
+from probabilistic_library import Alpha
 
 # Import environment variables
 repo_root = repository_root_path()
@@ -13,10 +14,27 @@ load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
 project.export_archive()
 
+##
+
 
 # TODO Nu Should Klein: Exporteer ook validation messages van project.
 # TODO Nu Should Middel: Exporteer ook resultaten naar shape files.
+##
 
+from geopandas import GeoDataFrame, points_from_xy
+
+df_uittredepunten = project.input_data.uittredepunten.df
+df_coords = df_uittredepunten[["uittredepunt_id", "uittredepunt_x_coord", "uittredepunt_y_coord"]]
+
+df_beta_limit_states = project.results.df_beta_limit_states
+df = df_beta_limit_states.merge(df_coords, left_on="uittredepunt_id", right_on="uittredepunt_id")
+
+gdf = GeoDataFrame(
+    df,
+    geometry=points_from_xy(df['uittredepunt_x_coord'], df['uittredepunt_y_coord']),
+    crs='EPSG:28992'
+)
+gdf = gdf.drop(columns=['uittredepunt_x_coord', 'uittredepunt_y_coord'])
 
 ##
 #

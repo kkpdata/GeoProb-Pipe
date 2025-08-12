@@ -13,6 +13,7 @@ from geoprob_pipe.utils.workspace import Workspace
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
 from geoprob_pipe.results.main_object import Results
+from geoprob_pipe.geopackage import GeoPackage
 from geoprob_pipe.input_data import InputData
 from geoprob_pipe.visualizations import Visualizations
 import time
@@ -52,10 +53,6 @@ class GeoProbPipe:
 
         self.calculations: List[ParallelSystemReliabilityCalculation] = build_and_run_piping_system_calculations(self)
         self.results = Results(self)
-        # self.df_beta_limit_states = _collect_df_beta_per_limit_state(self)
-        # self.df_beta_scenarios = _collect_df_beta_per_scenario(self)
-        # self.df_beta_uittredepunten = self._calculate_df_beta_per_uittredepunt()
-        # self.df_beta_vakken = self._calculated_df_beta_per_limit_state()
 
         # Log finish
         self.time_end = datetime.now()
@@ -64,6 +61,7 @@ class GeoProbPipe:
 
         # Append logic classes
         self.visualizations = Visualizations(self)
+        self.geopackage = GeoPackage(self)
 
     def _read_calculation_settings(self):
         """ Read calculation settings from Excel file. """
@@ -75,3 +73,4 @@ class GeoProbPipe:
         """ Exports everything related to this project. """
         self.results.export_results()
         self.visualizations.export_visualizations()
+        self.geopackage.export_gdb()
