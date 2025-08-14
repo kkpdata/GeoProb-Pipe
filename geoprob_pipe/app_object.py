@@ -9,7 +9,8 @@ except ModuleNotFoundError:
         "No module named 'probabilistic_library'. This package is not publicly available or part of the repository. \n"
         "Please request the wheel-file through the developer and install it manually. Due to copyright reasons, do \n"
         "not commit the wheel-file into the repository.")
-import logging
+# noinspection PyPep8Naming
+from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 from geoprob_pipe.utils.workspace import Workspace
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
@@ -21,10 +22,6 @@ import time
 from typing import List, Optional
 from geoprob_pipe.calculations.system_calculations.piping_system.build_and_run import (
     build_and_run_piping_system_calculations)
-from geoprob_pipe.utils.loggers import initiate_app_logger
-
-
-logger = logging.getLogger("geoprob_pipe_logger")
 
 
 class GeoProbPipe:
@@ -41,7 +38,7 @@ class GeoProbPipe:
         warnings.simplefilter(
             action='ignore',
             category=FutureWarning)  # Preferably address FutureWarnings: part of pydra-core
-        initiate_app_logger()
+
         logger.info("Initiating project.")
         self.time_start = datetime.now()
 

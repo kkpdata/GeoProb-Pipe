@@ -190,7 +190,6 @@ class GraphHFreqSingleInteractive:
         length_range_xaxis = self.max_level - self.min_level
         xaxis_add = length_range_xaxis * 0.05
         y_ticks, y_ticks_text = self._yticks()
-        print(f"{self.max_p=}. {self.min_p=}")
         self.fig.update_layout(
             title=f"<b>Overschrijdingsfrequentielijnen voor alle HydraNL locaties</b><br>"
                   f"<sup>Traject {self.geoprob_pipe.input_data.traject_normering.traject_id}</sup>",
@@ -230,5 +229,5 @@ class GraphHFreqSingleInteractive:
         if add_timestamp:
             timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
             timestamp_str = f"{timestamp}_"
-        self.fig.write_html(os.path.join(export_dir, f"{timestamp_str}hfreq.html"))
+        self.fig.write_html(os.path.join(export_dir, f"{timestamp_str}hfreq.html"), include_plotlyjs='cdn')
         self.fig.write_image(os.path.join(export_dir, f"{timestamp_str}hfreq.png"), format="png")
