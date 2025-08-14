@@ -95,7 +95,6 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         # Some base settings, may be overwritten through self._apply_settings
         self.project.settings.variation_coefficient = 0.02
         self.project.settings.maximum_iterations = 50
-        # print(f"Finished setting up project")
 
     def _apply_settings(self):
         """
@@ -158,8 +157,6 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
             if 'fragility_values' in item.keys():
                 self.project.variables[name].fragility_values.extend(item['fragility_values'])
 
-        # print(f"Finished assigning variables")
-
     def _generate_model_design_points(self):
         for model_callable in self.given_system_models:
             self.project.model = model_callable
@@ -167,7 +164,6 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
             design_point = self.project.design_point
             design_point.identifier = model_callable.__name__
             self.model_design_points.append(design_point)
-        # print(f"Finished generating model design points")
 
     def _generate_system_design_point(self):
         self.combine_project = CombineProject()
@@ -176,8 +172,8 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self.combine_project.settings.combiner_method = CombinerMethod.importance_sampling
         self.combine_project.settings.combine_type = CombineType.parallel
         self.combine_project.run()
+        self.combine_project.design_point.identifier = "system"
         self.system_design_point = self.combine_project.design_point
-        # print(f"Finished generating system design point")
 
 
 def _system_variable_keys(self: ParallelSystemReliabilityCalculation) -> List[str]:

@@ -5,6 +5,7 @@ from geoprob_pipe import GeoProbPipe
 from dotenv import load_dotenv
 import os
 
+
 # Import environment variables
 repo_root = repository_root_path()
 load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
@@ -13,9 +14,6 @@ load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
 project.export_archive()
 
-
-# TODO Nu Should Klein: Exporteer ook validation messages van project.
-# TODO Nu Should Middel: Exporteer ook resultaten naar shape files.
 
 
 ##

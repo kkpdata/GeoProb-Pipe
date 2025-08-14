@@ -1,4 +1,4 @@
-from pandas import DataFrame
+from pandas import DataFrame, concat
 from typing import Optional, Dict, Union, List
 
 
@@ -10,12 +10,13 @@ class ValidationMessages:
     def _append_new_rows(self, new_rows: Dict):
         if self.df is None:
             self.df = DataFrame(new_rows)
+        self.df = concat([self.df, DataFrame(new_rows)])
 
     @staticmethod
     def _to_list(msg: Union[str, List[str]]):
         assert isinstance(msg, (str, List))
         if isinstance(msg, str):
-            msg = [str]
+            msg = [msg]
         return msg
 
     @property
