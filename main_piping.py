@@ -14,6 +14,25 @@ load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
 project.export_archive()
 
+
+##
+
+df_uittredepunten = project.input_data.uittredepunten.df
+uittredepunten = list(
+                df_uittredepunten[df_uittredepunten['hydra_locatie_id'] == "MA_1_41-4_dk_00017"]['uittredepunt_id'])
+df = project.results.df_alphas_influence_factors_and_physical_values(filter_deterministic=False)
+df = df[df['variable'] == 'buitenwaterstand']
+df = df[df['uittredepunt_id'].isin(uittredepunten)]
+
+##
+
+from pydra_core.core.datamodels.frequency_line import FrequencyLine
+
+freq_line: FrequencyLine = (
+    project.input_data.overschrijdingsfrequentielijnen['MA_1_41-4_dk_00006'].overschrijdingsfrequentielijn)
+
+freq_line.interpolate_level()
+
 # from probabilistic_library import Alpha
 # alpha: Alpha = project.calculations[0].system_design_point.alphas['buitenwaterstand']
 # alpha.variable.distribution

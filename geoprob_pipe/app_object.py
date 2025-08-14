@@ -13,7 +13,7 @@ import logging
 from geoprob_pipe.utils.workspace import Workspace
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
-from geoprob_pipe.results.main_object import Results
+from geoprob_pipe.results import Results
 from geoprob_pipe.spatial import Spatial
 from geoprob_pipe.input_data import InputData
 from geoprob_pipe.visualizations import Visualizations
