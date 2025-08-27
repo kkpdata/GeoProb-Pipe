@@ -1,12 +1,15 @@
 ![Coverage](./readme_images/coverage.svg)
 
 # GeoProb-Pipe
-Tool voor het parallel uitvoeren van probabilistische pipingberekeningen. De tool maakt gebruik van de probabilistische bibliotheek van Deltares.
+Applicatie voor het uitvoeren van probabilistische piping berekeningen. De tool maakt gebruik van de probabilistische 
+bibliotheek van Deltares. Deze bibliotheek stuurt onder de motorkap de PTK-tool aan. 
+
 
 # Contactpersonen
 - Sander Kapinga, S.Kapinga@wsrl.nl
 - Laura van der Doef, L.vanderDoef@wshd.nl
 - Chris Pitzalis, C.Pitzalis@wsrl.nl
+
 
 # Installatie
 Op termijn wordt GeoProb-Pipe beschikbaar gesteld middels de Python Package Index (https://pypi.org) voor een eenvoudige 
@@ -28,7 +31,7 @@ Benodigdheden:
   - De hydraulische database bestanden (.sqlite-bestanden).
 
 
-# Ontwikkeling
+# Mee ontwikkelen
 Wil je bijdragen aan de ontwikkeling van GeoProb-Pipe? Dat kan! 
 
 Maak een nieuwe branch aan vanuit `dev`, ga coden en wanneer je klaar bent, maak een pull en review request aan. Zorg 
@@ -44,7 +47,10 @@ voeg de documentatie toe aan je favorieten van de browser.
 
 
 # Disclaimer
-Het gebruik van deze tool gebeurt volledig op eigen risico. Door deze tool te gebruiken, accepteert de gebruiker volledige verantwoordelijkheid. De ontwikkelaars kunnen geen garanties geven over de werking, nauwkeurigheid of volledigheid van de tool, en kunnen op geen enkele manier verantwoordelijk worden gehouden voor eventuele fouten, schade, of verliezen die voortvloeien uit het gebruik van deze software.
+Het gebruik van deze tool gebeurt volledig op eigen risico. Door deze tool te gebruiken, accepteert de gebruiker 
+volledige verantwoordelijkheid. De ontwikkelaars kunnen geen garanties geven over de werking, nauwkeurigheid of 
+volledigheid van de tool, en kunnen op geen enkele manier verantwoordelijk worden gehouden voor eventuele fouten, 
+schade, of verliezen die voortvloeien uit het gebruik van deze software.
 
 
 # TODO's
@@ -90,21 +96,6 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### Op een later moment van belang
 <details>
   <summary>Bekijk de tabel</summary>
@@ -126,22 +117,6 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should | middel | Het zou goed zijn om voor dit simpele systeem ook betas te kunnen reproduceren. | /calculations/test_prob_lib_vs_openturns.py | 175 | 
 
 <!-- END_TODO_TABLE_LATER --> 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 </details>
 
