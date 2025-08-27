@@ -19,6 +19,7 @@ downloads/
 eggs/
 .eggs/
 workspaces/example_new_calculations/output/
+**/output/
 lib/
 lib64/
 parts/
