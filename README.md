@@ -96,6 +96,22 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### Op een later moment van belang
 <details>
   <summary>Bekijk de tabel</summary>
@@ -117,6 +133,23 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should | middel | Het zou goed zijn om voor dit simpele systeem ook betas te kunnen reproduceren. | /calculations/test_prob_lib_vs_openturns.py | 175 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </details>
 
