@@ -3,61 +3,33 @@
 # GeoProb-Pipe
 Tool voor het parallel uitvoeren van probabilistische pipingberekeningen. De tool maakt gebruik van de probabilistische bibliotheek van Deltares.
 
-# Ontwikkeling
-Deze repository is in ontwikkeling. In `dev_kernel_structure` worden de functionaliteiten ontwikkeld om de structuur van de database en de rekenkernel inclusief testen op te nemen. In `main` staan de functionaliteiten voor data invoer/uitvoer, de koppeling met de probabilitistische bibliotheek en het uitvoeren van de probabilistische som.
-
 # Contactpersonen
 - Sander Kapinga, S.Kapinga@wsrl.nl
 - Laura van der Doef, L.vanderDoef@wshd.nl
-- Martijn Kriebel, mkriebel@avecodebondt.nl
+- Chris Pitzalis, C.Pitzalis@wsrl.nl
 
 # Installatie
-Deze tool in ontwikkeld met Python versie 3.12.5.
-Installatie van de dependencies:
-- Conda (aanbevolen, environment incl. correcte Python versie wordt automatisch aangemaakt):
-  - Methode 1: via Anaconda Navigator. Ga naar "environments" en importeer het .yml bestand.
-  - Methode 2: via  Anaconda Prompt
-    ```console
-    # Install dependencies
-    conda env create -f environment.yml
+Op termijn wordt GeoProb-Pipe beschikbaar gesteld middels de Python Package Index (https://pypi.org) voor een eenvoudige 
+installatie via `pip install geoprob-pipe`. Voor nu is de installatie als volgt:
 
-    # Activate env
-    conda activate GeoProb-Pipe
-    ```
-- Pip (gebruiker moet zelf de environment aanmaken met juiste Python versie):
-  ```console
-  # Create environnment (note: use aforementioned supported Python version)
-  python -m venv GeoProb-Pipe
+ - Kloon de repository middels `git clone repo_weblink`.
+ - Maak een virtuele Python environment aan. Deze tool is ontwikkeld met Python versie 3.12. 
+ - Installeer alle dependencies middels `pip install -r requirements.txt`. 
 
-  # Activate env
-  GeoProb-Pipe/bin/activate
-
-  # Install dependencies
-  pip install -r requirements.txt
-  ```
 
 # Ontwikkeling
+Wil je bijdragen aan de ontwikkeling van GeoProb-Pipe? Dat kan! 
 
-- Pip (gebruiker moet zelf de environment aanmaken met juiste Python versie):
-  ```console
-  # Create environnment (note: use aforementioned supported Python version)
-  python -m venv GeoProb-Pipe
+Maak een nieuwe branch aan vanuit `dev`, ga coden en wanneer je klaar bent, maak een pull en review request aan. Zorg 
+er voor dat de unit tests werken en dat je PEP8 als code stijl hanteert. Bij vragen, neem contact op met één van de 
+ontwikkelaars. Voor PEP8, de IDE PyCharm heeft deze out of the box ingesteld. PyCharm is daarom de geadviseerde IDE.  
 
-  # Activate env
-  GeoProb-Pipe/bin/activate
-
-  # Install dependencies
-  pip install -r requirements.txt
-  pip install -r dev-requirements.txt
-  ```
 
 # Documentatie
-De beschrijving van de rekenkernel is opgenomen in de documentatie. De documentatie kan worden gegeneerd door:
+De documentatie kan worden gegeneerd middels het commando `sphinx-build -M html docs\ docs\_build`. Je vindt de 
+documentatie daarna terug in de map `GeoProb-Pipe\docs\_build\html\index.html`. Dit bestand opent in de browser. Tip: 
+voeg de documentatie toe aan je favorieten van de browser. 
 
-windows:
-```console
-sphinx-build -M html docs\ docs\_build
-```
 
 # Quickstart
 Tool wordt gestart door `main_piping.py` te runnen.
