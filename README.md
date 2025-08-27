@@ -17,6 +17,17 @@ installatie via `pip install geoprob-pipe`. Voor nu is de installatie als volgt:
  - Installeer alle dependencies middels `pip install -r requirements.txt`. 
 
 
+# Quickstart
+Tool wordt gestart door `main_piping.py` te runnen.
+
+Benodigdheden:
+- Een projectmap in "workspaces" (bijv. .../workspaces/my_project).
+- In de projectmap een submap "input" (.../workspaces/my_project/input).
+- De input-map de volgende bestanden:
+  - input.xlsx (gebruik hiervoor het meegeleverde template input.xlsx).
+  - De hydraulische database bestanden (.sqlite-bestanden).
+
+
 # Ontwikkeling
 Wil je bijdragen aan de ontwikkeling van GeoProb-Pipe? Dat kan! 
 
@@ -30,15 +41,6 @@ De documentatie kan worden gegeneerd middels het commando `sphinx-build -M html 
 documentatie daarna terug in de map `GeoProb-Pipe\docs\_build\html\index.html`. Dit bestand opent in de browser. Tip: 
 voeg de documentatie toe aan je favorieten van de browser. 
 
-
-# Quickstart
-Tool wordt gestart door `main_piping.py` te runnen.
-
-Benodigdheden:
-- Een projectmap in "workspaces" (bijv. .../workspaces/my_project) met daarin een submap "input" (.../workspaces/my_project/input)
-- De input-map bevat:
-  - input.xlsx (gebruik hiervoor het meegeleverde template input.xlsx)
-  - Unzipped HRD .sqlite (hydraulische database). Deze mag zowel in de input-map als in een submap staan.
 
 
 # Disclaimer
