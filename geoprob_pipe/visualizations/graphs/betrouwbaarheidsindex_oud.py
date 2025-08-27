@@ -31,7 +31,7 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
 
     # Plot data
     ax.plot(df_for_graph['M_value'], df_for_graph["beta"], 'o',
-            color='black', markersize=3, label='Prob. ontwerpp.')
+            color='black', markersize=3, label='Betrouwbaarheidsindex')
 
     # Formatting
     ax.grid(linewidth=0.5, color='black', alpha=0.5, linestyle='-.')
@@ -134,7 +134,7 @@ def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) ->
 
     # Plot data
     ax.plot(df_for_graph['M_value'], df_for_graph["beta"], 'o',
-            color='black', markersize=3, label='Prob. ontwerpp.')
+            color='black', markersize=3, label='Betrouwbaarheidsindex')
 
     # Formatting
     ax.grid(linewidth=0.5, color='black', alpha=0.5, linestyle='-.')
@@ -240,7 +240,7 @@ def beta_vakken_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figure:
     for index, row in df_for_graph.iterrows():
         label = None
         if plot_legend:
-            label = "Prob. ontwerpp."
+            label = "Betrouwbaarheidsindex"
             plot_legend = False
         ax.plot([row['M_van'], row['M_tot']], [row['beta'], row['beta']], linestyle='-',
                 color='black', linewidth = '4', label=label)
