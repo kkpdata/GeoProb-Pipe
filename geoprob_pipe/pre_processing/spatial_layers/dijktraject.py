@@ -44,6 +44,8 @@ def request_trajectory_filepath(app_settings: ApplicationSettings):
 
     if filepath.endswith(".gdb"):
         specify_geodatabase_layer(app_settings, filepath)
+    elif filepath.endswith(".gpkg"):
+        specify_geopackage_layer(app_settings, filepath)
     else:
         raise NotImplementedError(f"File with extension {filepath.split(sep='.')[-1]} is not yet supported. "
                                   f"Please make a request.")
@@ -68,6 +70,33 @@ def specify_geodatabase_layer(app_settings: ApplicationSettings, filepath: str):
                                   f"de geodatabase: {layers_str}", BColors.ENDC)
             continue
         # TODO Later Must Klein: Check dat een LineString-laag wordt opgegeven.
+
+        layer_name_is_valid = True
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
+        gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
+    specify_column_with_trajectory_name(app_settings, gdf)
+
+
+def specify_geopackage_layer(app_settings: ApplicationSettings, filepath: str):
+    layer_name: Optional[str] = None
+    layer_name_is_valid = False
+    while layer_name_is_valid is False:
+        layer_name: str = inquirer.text(
+            message="Specificeer de layer waarin met de referentielijn van het dijktraject. Type 'listlayers' om "
+                    "een overzicht te krijgen van de geopackage-layers. ",
+        ).execute()
+
+        layer_names = fiona.listlayers(filepath)
+        layers_str = ", ".join(layer_names)
+        if layer_name == "listlayers":
+            print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geopackage: {layers_str}", BColors.ENDC)
+            continue
+        elif layer_name not in layer_names:
+            print(BColors.OKBLUE, f"De layer name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
+                                  f"de geopackage: {layers_str}", BColors.ENDC)
+            continue
 
         layer_name_is_valid = True
 
