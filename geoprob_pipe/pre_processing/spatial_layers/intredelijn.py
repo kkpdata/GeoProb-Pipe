@@ -105,7 +105,7 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
     layer_name_is_valid = False
     while layer_name_is_valid is False:
         layer_name: str = inquirer.text(
-            message="Specificeer de layer waarin de intredelijn staat. Type 'listlayers' om "
+            message="Specificeer de laag met de intrede lijnen. Type 'listlayers' om "
                     "een overzicht te krijgen van de geopackage-layers. ",
         ).execute()
 

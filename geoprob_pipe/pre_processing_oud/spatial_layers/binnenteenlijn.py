@@ -1,5 +1,5 @@
 """
-TODO Later Should Klein: Controleer of de buitenteenlijn ook echt aan de buitenzijde is.
+TODO Later Should Klein: Controleer of de binnenteenlijn ook echt aan de binnenzijde is.
 
 """
 
@@ -16,18 +16,18 @@ if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
 
-def added_buitenteenlijn(app_settings: ApplicationSettings) -> bool:
+def added_binnenteenlijn(app_settings: ApplicationSettings) -> bool:
     layers = fiona.listlayers(app_settings.geopackage_filepath)
 
-    if "buitenteenlijn" in layers:
-        print(BColors.OKBLUE, f"✔  Buitenteenlijn al toegevoegd.", BColors.ENDC)
+    if "binnenteenlijn" in layers:
+        print(BColors.OKBLUE, f"✔  Binnenteenlijn al toegevoegd.", BColors.ENDC)
         return True
 
-    request_buitenteenlijn_filepath(app_settings=app_settings)
+    request_binnenteenlijn_filepath(app_settings=app_settings)
     return True
 
 
-def request_buitenteenlijn_filepath(app_settings: ApplicationSettings):
+def request_binnenteenlijn_filepath(app_settings: ApplicationSettings):
 
     # Request filepath
     filepath: Optional[str] = None
@@ -35,7 +35,7 @@ def request_buitenteenlijn_filepath(app_settings: ApplicationSettings):
     while filepath_is_valid is False:
         filepath: str = inquirer.text(
             message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
-                    "buitenteen lijnen zitten.",
+                    "binnenteen lijnen zitten.",
         ).execute()
 
         filepath = filepath.replace('"', '')
@@ -67,12 +67,12 @@ def request_buitenteenlijn_filepath(app_settings: ApplicationSettings):
     if not all_geometries_are_points:
         print(BColors.WARNING, f"Het geïmporteerde bestand bestaat niet (volledig) uit lijnen, maar ook uit "
                                f"andere typen geometrie. Enkel lijnen zijn toegestaan.", BColors.ENDC)
-        request_buitenteenlijn_filepath(app_settings=app_settings)
+        request_binnenteenlijn_filepath(app_settings=app_settings)
 
-    # Add buitenteenlijn
+    # Add binnenteenlijn
     gdf_to_add = gdf[["geometry"]]
-    gdf_to_add.to_file(app_settings.geopackage_filepath, layer="buitenteenlijn", driver="GPKG")
-    print(BColors.OKBLUE, f"✅  Buitenteenlijn toegevoegd.", BColors.ENDC)
+    gdf_to_add.to_file(app_settings.geopackage_filepath, layer="binnenteenlijn", driver="GPKG")
+    print(BColors.OKBLUE, f"✅  Binnenteenlijn toegevoegd.", BColors.ENDC)
 
 
 def import_from_geodatabase(filepath: str) -> GeoDataFrame:
@@ -80,7 +80,7 @@ def import_from_geodatabase(filepath: str) -> GeoDataFrame:
     layer_name_is_valid = False
     while layer_name_is_valid is False:
         layer_name: str = inquirer.text(
-            message="Specificeer de layer waarin de buitenteenlijn staat. Type 'listlayers' om "
+            message="Specificeer de layer waarin de binnenteenlijn staat. Type 'listlayers' om "
                     "een overzicht te krijgen van de geodatabase-layers. ",
         ).execute()
 
@@ -105,7 +105,7 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
     layer_name_is_valid = False
     while layer_name_is_valid is False:
         layer_name: str = inquirer.text(
-            message="Specificeer de laag met de buitenteen lijnen. Type 'listlayers' om "
+            message="Specificeer de layer waarin de binnenteenlijn staat. Type 'listlayers' om "
                     "een overzicht te krijgen van de geopackage-layers. ",
         ).execute()
 

@@ -98,7 +98,7 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
     layer_name_is_valid = False
     while layer_name_is_valid is False:
         layer_name: str = inquirer.text(
-            message="Specificeer de layer waarin met het polderpeil. Type 'listlayers' om "
+            message="Specificeer de laag met de polderpeilen. Type 'listlayers' om "
                     "een overzicht te krijgen van de geopackage-layers. ",
         ).execute()
 
@@ -109,7 +109,7 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
             continue
         elif layer_name not in layer_names:
             print(BColors.OKBLUE, f"De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
-                                  f"de geopacakge: {layers_str}", BColors.ENDC)
+                                  f"de geopackage: {layers_str}", BColors.ENDC)
             continue
 
         layer_name_is_valid = True

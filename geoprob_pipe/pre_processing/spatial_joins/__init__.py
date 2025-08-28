@@ -1,1 +1,6 @@
 from geoprob_pipe.pre_processing.spatial_joins.coupled_hrd import coupled_hrd_to_uittredepunten
+from geoprob_pipe.pre_processing.spatial_joins.coupled_distance_to_exit_points import (
+    coupled_distances_to_uittredepunten)
+from geoprob_pipe.pre_processing.spatial_joins.coupled_polderpeil import coupled_polderpeil_to_uittredepunten
+from geoprob_pipe.pre_processing.spatial_joins.coupled_exit_points_to_refline import coupled_uittredepunten_to_refline
+from geoprob_pipe.pre_processing.spatial_joins.coupled_exit_points_to_vakken import coupled_uittredepunten_to_vakken
