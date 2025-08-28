@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING
 from geopandas import GeoDataFrame
 from shapely import Point
 import os
-from geoprob_pipe.utils.other import BColors
+from geoprob_pipe.utils.validation_messages import BColors
 import fiona
 
 if TYPE_CHECKING:
-    from geoprob_pipe.cmd import ApplicationSettings
+    from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
 
 def folder_contains_hrd_db(app_settings: ApplicationSettings) -> bool:

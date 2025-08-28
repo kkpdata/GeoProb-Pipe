@@ -10,9 +10,9 @@ from typing import TYPE_CHECKING, Optional
 from pandas import DataFrame
 from geopandas import GeoDataFrame
 import fiona
-from geoprob_pipe.utils.other import BColors
+from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
-    from geoprob_pipe.cmd import ApplicationSettings
+    from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
 
 def added_vakindeling(app_settings: ApplicationSettings) -> bool:

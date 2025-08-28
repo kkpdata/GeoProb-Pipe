@@ -3,14 +3,11 @@ from InquirerPy import inquirer
 import warnings
 from typing import Optional, TYPE_CHECKING
 import os
-# from pandas import DataFrame
-# from datetime import datetime
-# from pathlib import Path
 from geopandas import GeoDataFrame, read_file
 import fiona
-from geoprob_pipe.utils.other import BColors
+from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
-    from geoprob_pipe.cmd import ApplicationSettings
+    from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
 
 def added_dijktraject(app_settings: ApplicationSettings) -> bool:

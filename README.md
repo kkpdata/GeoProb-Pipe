@@ -24,6 +24,7 @@ installatie via `pip install geoprob-pipe`. Voor nu is de installatie als volgt:
 Tool wordt gestart door `main_piping.py` te runnen.
 
 Benodigdheden:
+- Het `geoprob_pipe.ini` in de root-map. Vul hierin het pad naar de workspace in.
 - Een projectmap in "workspaces" (bijv. .../workspaces/my_project).
 - In de projectmap een submap "input" (.../workspaces/my_project/input).
 - De input-map de volgende bestanden:
