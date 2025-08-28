@@ -97,6 +97,7 @@ class GeoProbPipe:
 
     def export_archive(self):
         """ Exports everything related to this project. """
+        logger.info("Now exporting archive...")
         self.results.export_results()
         self.visualizations.export_visualizations()
         self.spatial.export_geopackage()

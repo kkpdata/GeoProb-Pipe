@@ -69,6 +69,7 @@ class GraphHFreqSingleInteractive:
         self.fig = go.Figure()
         self._add_ondergrens()
         self._add_signaleringswaarde()
+        self._add_dummy_physical_value_legend_marker()
         self._add_overschrijdingsfrequentielijnen()
         self._add_physical_values()
         self._update_layout()
@@ -95,6 +96,12 @@ class GraphHFreqSingleInteractive:
             line=dict(dash='dash', color='black', width=3),
             showlegend=True,
         ))
+
+    def _add_dummy_physical_value_legend_marker(self):
+        # Dummy legend marker
+        self.fig.add_trace(go.Scatter(
+            x=[-99], y=[1], mode='markers', name='Physical values', showlegend=True,
+            marker=dict(color='LightSkyBlue', size=10, line=dict(color='black', width=1))))
 
     def _add_overschrijdingsfrequentielijnen(self):
         hydra_nl_names = list(self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen.keys())
@@ -132,7 +139,9 @@ class GraphHFreqSingleInteractive:
                 showlegend=True))
 
     def _add_physical_values(self):
-        for index, hydra_nl_name in enumerate(self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen.keys()):
+        hydra_nl_names = list(self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen.keys())
+        hydra_nl_names.sort()
+        for index, hydra_nl_name in enumerate(hydra_nl_names):
 
             # Collect data for the graph
             df_uittredepunten = self.geoprob_pipe.input_data.uittredepunten.df
@@ -169,15 +178,6 @@ class GraphHFreqSingleInteractive:
                 marker=dict(color='LightSkyBlue', size=10, line=dict(color='black', width=1)),
                 showlegend=False,
                 legendgroup=legend_name))
-            # Dummy legend marker
-            self.fig.add_trace(go.Scatter(
-                x=[-99],
-                y=[1],
-                mode='markers',
-                name='Physical values',
-                visible=visible,
-                marker=dict(color='LightSkyBlue', size=10, line=dict(color='black', width=1)),
-                showlegend=True))
 
     def _yticks(self):
         min_range = int(f"{self.min_p:.0e}".split("e")[1])
