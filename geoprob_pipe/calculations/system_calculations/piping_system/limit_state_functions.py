@@ -1,4 +1,5 @@
 import geoprob_pipe.helper_functions.piping_functions as piping_functions
+from geoprob_pipe.calculations.limit_states.heave_icw_model4a import z_heave
 
 
 # noinspection PyPep8Naming
@@ -62,59 +63,17 @@ def calc_Z_h(
         modelfactor_h: float,
         i_c_h: float,
         D_wvp: float,
-        # **_,
 ) -> float:
-    r"""Berekening van de grenstoestandfunctie voor heave
+    r""" Wrapper over de grenstoestandfunctie voor heave zodat deze bruikbaar is voor de Probabilistic Library.
 
     Returns:
         float: Z waarde van de grenstoestandfunctie voor heave
     """
-
-    L_voorland = piping_functions.calc_L_voorland(
-        L_intrede=L_intrede,
-        L_but=L_but,
-    )
-
-    r_exit = piping_functions.calc_r_exit_model4a(
-        kD_wvp=kD_wvp,
-        D_wvp=D_wvp,
-        c_voorland=c_voorland,
-        c_achterland=c_achterland,
-        L_but=L_but,
-        L_bit=L_bit,
-        L_achterland=L_achterland,
-        L_voorland=L_voorland
-    )
-
-    phi_exit = piping_functions.calc_phi_exit(
-        polderpeil=polderpeil,
-        r_exit=r_exit,
-        buitenwaterstand=buitenwaterstand
-    )
-
-    h_exit = piping_functions.calc_h_exit(
-        polderpeil=polderpeil,
-        mv_exit=mv_exit
-    )
-
-    d_deklaag = piping_functions.calc_d_deklaag(
-        mv_exit=mv_exit,
-        top_zand=top_zand
-    )
-
-    i_exit = piping_functions.calc_i_exit(
-        phi_exit=phi_exit,
-        h_exit=h_exit,
-        d_deklaag=d_deklaag
-    )
-
-    z_h = piping_functions.calc_z_h(
-        i_c_h=i_c_h,
-        i_exit=i_exit,
-        modelfactor_h=modelfactor_h
-    )
-
-    return z_h
+    return z_heave(
+        L_achterland=L_achterland, c_voorland=c_voorland, c_achterland=c_achterland, L_intrede=L_intrede,
+        L_but=L_but, L_bit=L_bit, polderpeil=polderpeil, buitenwaterstand=buitenwaterstand, mv_exit=mv_exit,
+        top_zand=top_zand, kD_wvp=kD_wvp, modelfactor_h=modelfactor_h, i_c_h=i_c_h, D_wvp=D_wvp
+    )[0]
 
 
 # noinspection PyPep8Naming
