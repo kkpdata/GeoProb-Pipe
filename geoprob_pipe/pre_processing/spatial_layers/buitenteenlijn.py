@@ -54,7 +54,7 @@ def request_buitenteenlijn_filepath(app_settings: ApplicationSettings):
     if filepath.endswith(".shp"):
         sys.exit("Applicatie vroegtijdig afgesloten: shp wordt nog niet ondersteund.")
     elif filepath.endswith(".gpkg"):
-        sys.exit("Applicatie vroegtijdig afgesloten: gpkg wordt nog niet ondersteund.")
+        gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
     elif filepath.endswith(".gdb"):
         gdf: GeoDataFrame = import_from_geodatabase(filepath=filepath)
     else:
@@ -92,6 +92,31 @@ def import_from_geodatabase(filepath: str) -> GeoDataFrame:
         elif layer_name not in layer_names:
             print(BColors.OKBLUE, f"De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
                                   f"de geodatabase: {layers_str}", BColors.ENDC)
+            continue
+
+        layer_name_is_valid = True
+
+    gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
+    return gdf
+
+
+def import_from_geopackage(filepath: str) -> GeoDataFrame:
+    layer_name: Optional[str] = None
+    layer_name_is_valid = False
+    while layer_name_is_valid is False:
+        layer_name: str = inquirer.text(
+            message="Specificeer de layer waarin de buitenteenlijn staat. Type 'listlayers' om "
+                    "een overzicht te krijgen van de geopackage-layers. ",
+        ).execute()
+
+        layer_names = fiona.listlayers(filepath)
+        layers_str = ", ".join(layer_names)
+        if layer_name == "listlayers":
+            print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geopackage: {layers_str}", BColors.ENDC)
+            continue
+        elif layer_name not in layer_names:
+            print(BColors.OKBLUE, f"De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
+                                  f"de geopackage: {layers_str}", BColors.ENDC)
             continue
 
         layer_name_is_valid = True
