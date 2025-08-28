@@ -10,65 +10,7 @@ import os
 repo_root = repository_root_path()
 load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
 
+
 # Initiate GeoProb-Pipe project object
 project = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
 project.export_archive()
-
-
-
-##
-#
-# import threading
-# import time
-# from concurrent.futures import ThreadPoolExecutor, as_completed
-# from uuid import uuid4
-#
-#
-# class Calculation:
-#
-#     def __init__(self, sect, pnt):
-#         self.id = uuid4().__str__()
-#         self.section = sect
-#         self.point = pnt
-#         self.result: int = 0
-#
-#     def run(self):
-#         self.result += 1
-#
-#
-# def start_calculations(list_of_calculations: list[Calculation]):
-#     total = len(list_of_calculations)
-#     completed = 0
-#     lock = threading.Lock()
-#
-#     def run_calculation(calculation: Calculation):
-#         nonlocal completed
-#         try:
-#             calculation.run()
-#         except Exception as e:
-#             print(f"ERROR: Could not run calculation {calculation.id}: {e}")
-#         finally:
-#             with lock:
-#                 completed += 1
-#
-#     def progress_reporter():
-#         while True:
-#             with lock:
-#                 print(f" -> {completed}/{total} of calculations completed.")
-#                 if completed >= total:
-#                     break
-#             time.sleep(15)
-#
-#     # Start the progress reporter in a background thread
-#     reporter_thread = threading.Thread(target=progress_reporter)
-#     reporter_thread.start()
-#
-#     # Run calculations in parallel
-#     with ThreadPoolExecutor() as executor:
-#         futures = [executor.submit(run_calculation, calc) for calc in list_of_calculations]
-#         for _ in as_completed(futures):
-#             pass  # Just to ensure all tasks complete
-#
-#     reporter_thread.join()
-
-# %%

@@ -1,137 +1,110 @@
-import matplotlib.pyplot as plt
-from datetime import datetime
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import os
-import plotly.graph_objects as go
-from geoprob_pipe import GeoProbPipe
-from pandas import merge, Series
-
-project = GeoProbPipe(...)
-
-# Determine lowest scoring result per vak
-df = project.results.df_limit_states
-df = df[df['model'] == "piping"]
-df_uittredepunten = project.input_data.uittredepunten.df[["uittredepunt_id", "vak_id"]]
-df = merge(df, df_uittredepunten, how="left", on="uittredepunt_id")
-df = df[["uittredepunt_id", "beta", "vak_id"]]
-
-# Collect data in usable table
-df_limit_states = project.results.df_limit_states
-df_alphas = df_limit_states[df_limit_states["model"] == "piping"][["uittredepunt_id", "alphas"]]
-df_uittredepunten = project.input_data.uittredepunten.df[["uittredepunt_id", "vak_id"]]
-df_vakken = project.input_data.vakken.df[["vak_id", "vak_naam"]]
-df_merged = merge(df_alphas, df_uittredepunten, how="left", on="uittredepunt_id")
-df_merged = merge(df_merged, df_vakken, how="left", on="vak_id")
-
-# Create column per alpha
-stochast_names = [
-    'c_voorland', 'buitenwaterstand', 'polderpeil', 'mv_exit', 'L_but', 'L_intrede', 'modelfactor_p', 'd70', 'D_wvp',
-    'kD_wvp', 'top_zand', 'gamma_water', 'g', 'v', 'theta', 'eta', 'd70_m', 'gamma_korrel', 'r_c_deklaag'
-]
-df_merged[stochast_names] = df_merged['alphas'].apply(Series)
-df_merged = df_merged.drop(columns='alphas')
-
-# Create column per invloedsfactor
-df_invloedsfactoren = df_merged.copy(deep=True)
-df_invloedsfactoren[stochast_names] = df_invloedsfactoren[stochast_names] ** 2
-df_invloedsfactoren['sum'] = df_invloedsfactoren[stochast_names].sum(axis=1)
-
-fig = go.Figure()
-for stochast_name in stochast_names:
-    fig.add_trace(go.Bar(
-        x=df_invloedsfactoren['vak_naam'],
-        y=df_invloedsfactoren[stochast_name],
-    ))
-fig.update_layout(barmode="stack")
+from pandas import DataFrame, merge
+from geoprob_pipe.globals import DISTINCTIVE_COLORS
+from plotly.graph_objects import Figure, Bar
+if TYPE_CHECKING:
+    from geoprob_pipe import GeoProbPipe
 
 
-AlphasPerVak = data.groupby(by=['VakID'], as_index=False, axis=0).agg({
-    'Vaknaam' : 'first',
-    'D.infl': 'mean',
-    'd70.infl': 'mean',
-    'd_deklaag.infl': 'mean',
-    'ic.infl': 'mean',
-     'k.infl': 'mean',
-     'r.infl': 'mean',
-     'WS.infl': 'mean',
-     'mp.infl': 'mean',
-     'mu.infl': 'mean',
-     'y_satdek.infl': 'mean',
-     'λ1.infl': 'mean'
-})
-AlphasPerVak[AlphasPerVak['VakID'] != '0'].style.background_gradient(cmap='RdYlGn_r',axis=None,subset=['D.infl','d70.infl','d_deklaag.infl', 'ic.infl','k.infl','WS.infl','r.infl','mp.infl','mu.infl','y_satdek.infl','λ1.infl'])
+def get_plot_order(geoprob_pipe: GeoProbPipe) -> DataFrame:
 
-plt.figure(figsize=(20,10))
-plt.bar(
-    AlphasPerVak['Vaknaam'],
-    AlphasPerVak['r.infl'],
-    color='green',label='r')
-plt.bar(
-    AlphasPerVak['Vaknaam'],
-    AlphasPerVak['λ1.infl'],
-    bottom=AlphasPerVak['r.infl'],color='blue',label='λ1')
-plt.bar(
-    AlphasPerVak['Vaknaam'],
-    AlphasPerVak['D.infl'],
-    bottom=AlphasPerVak['r.infl']+AlphasPerVak['λ1.infl'],
-    color='pink',label='D')
-plt.bar(
-    AlphasPerVak['Vaknaam'],
-    AlphasPerVak['d_deklaag.infl'],
-    bottom=AlphasPerVak['r.infl']+AlphasPerVak['λ1.infl']+AlphasPerVak['D.infl'],
-    color='yellow',label='d')
-plt.bar(
-    AlphasPerVak['Vaknaam'],
-    AlphasPerVak['ic.infl'],
-    bottom=AlphasPerVak['r.infl']+AlphasPerVak['λ1.infl']+AlphasPerVak['D.infl']+AlphasPerVak['d_deklaag.infl'],
-    color='brown',label='ic')
-plt.bar(AlphasPerVak['Vaknaam'],AlphasPerVak['k.infl'],bottom=AlphasPerVak['r.infl']+AlphasPerVak['λ1.infl']+AlphasPerVak['D.infl']+AlphasPerVak['d_deklaag.infl']+AlphasPerVak['ic.infl'],color='orange',label='k')
-plt.bar(AlphasPerVak['Vaknaam'],AlphasPerVak['WS.infl'],bottom=AlphasPerVak['r.infl']+AlphasPerVak['λ1.infl']+AlphasPerVak['D.infl']+AlphasPerVak['d_deklaag.infl']+AlphasPerVak['ic.infl']+AlphasPerVak['k.infl'],color='grey',label='WS')
-plt.bar(AlphasPerVak['Vaknaam'],AlphasPerVak['mp.infl'],bottom=AlphasPerVak['r.infl']+AlphasPerVak['λ1.infl']+AlphasPerVak['D.infl']+AlphasPerVak['d_deklaag.infl']+AlphasPerVak['ic.infl']+AlphasPerVak['k.infl']+AlphasPerVak['WS.infl'],color='lightgreen',label='mp')
-plt.bar(AlphasPerVak['Vaknaam'],AlphasPerVak['mu.infl'],bottom=AlphasPerVak['r.infl']+AlphasPerVak['λ1.infl']+AlphasPerVak['D.infl']+AlphasPerVak['d_deklaag.infl']+AlphasPerVak['ic.infl']+AlphasPerVak['k.infl']+AlphasPerVak['WS.infl']+AlphasPerVak['mp.infl'],color='gold',label='mu')
-plt.bar(AlphasPerVak['Vaknaam'],AlphasPerVak['y_satdek.infl'],bottom=AlphasPerVak['r.infl']+AlphasPerVak['λ1.infl']+AlphasPerVak['D.infl']+AlphasPerVak['d_deklaag.infl']+AlphasPerVak['ic.infl']+AlphasPerVak['k.infl']+AlphasPerVak['WS.infl']+AlphasPerVak['mp.infl']+AlphasPerVak['mu.infl'],color='purple',label='y')
-plt.bar(AlphasPerVak['Vaknaam'],AlphasPerVak['d70.infl'],bottom=AlphasPerVak['r.infl']+AlphasPerVak['λ1.infl']+AlphasPerVak['D.infl']+AlphasPerVak['d_deklaag.infl']+AlphasPerVak['ic.infl']+AlphasPerVak['k.infl']+AlphasPerVak['WS.infl']+AlphasPerVak['mp.infl']+AlphasPerVak['mu.infl']+AlphasPerVak['y_satdek.infl'],color='olive',label='d70')
-plt.ylim(0,1)
-plt.xticks(rotation=90)
-plt.xlabel('Dijkvak', fontsize=18,labelpad=15)
-plt.ylabel('Invloedsfactor', fontsize=18,labelpad=15)
-plt.grid(which='both')
-plt.legend(bbox_to_anchor=(1,1))
-plt.xlim(-1,len(AlphasPerVak['Vaknaam']))
+    # Define plot order
+    df: DataFrame = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values()
+    df = df[["variable", "influence_factor"]]
+    df = df.groupby(['variable']).mean()
+    df = df.sort_values(by=["influence_factor"], ascending=False)
+    df = df.reset_index(drop=False)
+    df['plot_order'] = df.index
 
-# Export figure
-timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-export_dir = r"C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV2\exports"
-os.makedirs(export_dir, exist_ok=True)
-export_path = os.path.join(export_dir, f"{timestamp}_Invloed_per_vak.png")
-plt.savefig(export_path, dpi=300)
+    # Add colors to plot order
+    df_colors = DataFrame({"color": DISTINCTIVE_COLORS})
+    df_colors['plot_order'] = df_colors.index
+    df = merge(df, df_colors, how="left", on="plot_order")
+
+    return df
 
 
-##
-
-my_dict = {
-    'L_achterland': 0.0,
-    'c_voorland': -0.029510212061422684,
-    'c_achterland': -0.19476482077085178,
-    'polderpeil': 0.0,
-    'buitenwaterstand': -0.49648488303997307,
-    'L_intrede': 0.0,
-    'L_but': 0.0,
-    'L_bit': 0.0,
-    'mv_exit': 0.0,
-    'top_zand': -0.07745224086978751,
-    'kD_wvp': -0.24614591095363988,
-    'modelfactor_u': 0.03345252679206898,
-    'gamma_water': 0.0, 'gamma_sat_deklaag': 0.004458598920536149, 'D_wvp': -0.0015952965537779876,
-    'modelfactor_h': 0.0009274972710317258, 'i_c_h': 0.022369580723921333, 'modelfactor_p': 0.314464822679038,
-    'd70': 0.12270172228581716, 'g': 0.0, 'v': 0.0, 'theta': 0.0, 'eta': 0.0, 'd70_m': 0.0, 'gamma_korrel': 0.0,
-    'r_c_deklaag': 0.0}
-
-# my_dict = {'L_achterland': 0.0, 'c_voorland': 0.002967427954935977, 'c_achterland': -0.3882076609011184, 'polderpeil': 0.0, 'buitenwaterstand': -0.7607415330246432, 'L_intrede': 0.0, 'L_but': 0.0, 'L_bit': 0.0, 'mv_exit': 0.0, 'top_zand': 0.0, 'kD_wvp': -0.5197633239558418, 'modelfactor_u': 0.013641371669388247, 'gamma_water': 0.0, 'gamma_sat_deklaag': 0.014775871198764258, 'D_wvp': 0.0}
+def get_influence_factors_for_vak(geoprob_pipe: GeoProbPipe, df_invloedsfactoren: DataFrame, vak_id: int) -> DataFrame:
+    """ Returns the influence factors for the worst result of a scenario within the vak. In the past weigh it for the
+    uittredepunt, or average is among all uittredepunten, as was done in the past. The choice was made to keep the
+    actual resulting influence factors because they sum up to 100%. There is also no physical reason to average them,
+    and the worst case scenario is normative for the final result anyway. """
+    df_result = geoprob_pipe.results.df_beta_scenarios
+    df_result = df_result[df_result["vak_id"] == vak_id]
+    df_result = df_result.sort_values(by=["beta"], ascending=True)
+    worst_uittredepunt_id = df_result.iloc[0]['uittredepunt_id']
+    worst_scenario_id = df_result.iloc[0]['ondergrondscenario_id']
+    df = df_invloedsfactoren[
+        (df_invloedsfactoren["uittredepunt_id"] == worst_uittredepunt_id) &
+        (df_invloedsfactoren["scenario_id"] == worst_scenario_id)
+    ]
+    return df.sort_values(by=["plot_order"])
 
 
-invloedsfactoren = []
-for key, value in my_dict.items():
-    invloedsfactoren.append(value * value)
-print(sum(invloedsfactoren))
+def invloedsfactoren(geoprob_pipe: GeoProbPipe, export: bool = False) -> Figure:
 
-##
+    # Get data
+    df_invloedsfactoren = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values()
+
+    # Add plot order
+    df_plot_order = get_plot_order(geoprob_pipe=geoprob_pipe)
+    df_invloedsfactoren = merge(
+        df_invloedsfactoren, df_plot_order[["variable", "plot_order", "color"]], how="left", on="variable")
+
+    # Plot data
+    fig = Figure()
+    vakken = {row['vak_id']: row['vak_naam'] for index, row in geoprob_pipe.input_data.vakken.df.iterrows()}
+    picked_colors = {}
+    added_to_legend = []
+    for vak_id, vak_naam in vakken.items():
+
+        # Get invloedsfactoren data
+        df_factoren = get_influence_factors_for_vak(geoprob_pipe, df_invloedsfactoren, vak_id)
+
+        # Plot data
+        stochasten = df_factoren['variable'].unique().tolist()
+        for stochast in stochasten:
+            if stochast not in picked_colors.keys():
+                color = f"rgb{DISTINCTIVE_COLORS[picked_colors.__len__()]}"
+                picked_colors[stochast] = color
+            else:
+                color = picked_colors[stochast]
+            show_legend = False
+            if stochast not in added_to_legend:
+                added_to_legend.append(stochast)
+                show_legend = True
+            fig.add_trace(Bar(
+                x=[vak_naam],
+                y=[df_factoren[df_factoren['variable'] == stochast].iloc[0]['influence_factor'] * 100],
+                name=stochast,
+                marker_color=color,
+                showlegend=show_legend,
+                legendgroup=stochast,
+            ))
+
+    # Layout styling
+    fig.update_layout(
+        barmode='stack',
+        bargap=0,       # Geen ruimte tussen groepen
+        bargroupgap=0,  # Geen ruimte tussen individuele bars binnen een groep
+        title='Invloedsfactoren<br>'
+              '<sup>Invloedsfactoren zijn van het worstcase ondergrondscenario en uittredepunt.</sup>',
+        xaxis_title='Vak',
+        yaxis=dict(
+            # range=[0, 100],
+            title="Percentage",
+        ),  # Pas dit aan naar jouw gewenste bereik
+    )
+
+    # Export
+    if export:
+        export_dir = geoprob_pipe.visualizations.graphs.export_dir
+        os.makedirs(export_dir, exist_ok=True)
+        fig.write_html(os.path.join(export_dir, f"invloedsfactoren.html"), include_plotlyjs='cdn')
+        fig.write_image(os.path.join(export_dir, f"invloedsfactoren.png"), format="png")
+
+
+    # for stochast in
+    return fig

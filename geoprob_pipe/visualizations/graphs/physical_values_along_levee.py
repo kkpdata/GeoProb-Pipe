@@ -53,7 +53,9 @@ def physical_values_buitenwaterstand_and_top_zand(geoprob_pipe: GeoProbPipe, exp
     if export:
         export_dir = geoprob_pipe.visualizations.graphs.export_dir
         os.makedirs(export_dir, exist_ok=True)
-        fig.write_html(os.path.join(export_dir, f"physical_values_buitenwaterstand_and_top_zand.html"))
+        fig.write_html(
+            os.path.join(export_dir, f"physical_values_buitenwaterstand_and_top_zand.html"),
+            include_plotlyjs='cdn')
         fig.write_image(
             os.path.join(export_dir, f"physical_values_buitenwaterstand_and_top_zand.png"), format="png")
 

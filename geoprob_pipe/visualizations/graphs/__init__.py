@@ -3,6 +3,7 @@ from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex_oud import (
     beta_uittredepunten_graph, beta_scenarios_graph, beta_vakken_graph)
 from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive, hfreq_graphs_per_location
 from geoprob_pipe.visualizations.graphs.physical_values_along_levee import physical_values_buitenwaterstand_and_top_zand
+from geoprob_pipe.visualizations.graphs.invloedsfactoren import invloedsfactoren
 from typing import TYPE_CHECKING, List
 from matplotlib.pyplot import Figure as MatplotLibFigure
 from plotly.graph_objects import Figure as PlotlyFigure
@@ -27,6 +28,9 @@ class Graphs:
         graph = GraphHFreqSingleInteractive(self.geoprob_pipe, export=export)
         return graph.fig
 
+    def invloedsfactoren(self, export: bool = False) -> PlotlyFigure:
+        return invloedsfactoren(self.geoprob_pipe, export=export)
+
     def physical_values_buitenwaterstand_and_top_zand(self, export: bool = False) -> PlotlyFigure:
         return physical_values_buitenwaterstand_and_top_zand(self.geoprob_pipe, export=export)
 
@@ -49,3 +53,4 @@ class Graphs:
         beta_uittredepunten_graph(self.geoprob_pipe, export=True)  # TODO Tijdelijk uitgezet: in progress
         beta_vakken_graph(self.geoprob_pipe, export=True)
         self.physical_values_buitenwaterstand_and_top_zand(export=True)
+        self.invloedsfactoren(export=True)
