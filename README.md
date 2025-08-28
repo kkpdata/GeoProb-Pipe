@@ -68,6 +68,8 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | could | middel | Uitvoeren van system calculations ombouwen naar Threads. | /calculations/system_calculations/piping_system/build_and_run.py | 23 | 
 | must | klein | Voor export df_beta_limit_states, kolommen filteren? | /results/__init__.py | 64 | 
 | must | klein | Eigenlijk hoofdletter N_dsn. Maar ipv afkorting naam gebruiken? | /misc/traject_normering.py | 76 | 
+| must | klein | Unit test uitbreiden/toevoegen met buitenwaterstand als distributie. | /calculations/system_calculations/piping_system/test_calculation.py | 56 | 
+| must | klein | In het Openturns voorbeeld heeft deze een derde parameter met waarde 10. Waarvoor? | /calculations/system_calculations/piping_system/test_calculation.py | 108 | 
 | must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/betrouwbaarheidsindex.py | 92 | 
 | must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | /visualizations/graphs/betrouwbaarheidsindex.py | 115 | 
 | must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | /visualizations/graphs/betrouwbaarheidsindex.py | 116 | 
@@ -77,11 +79,12 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 49 | 
 | must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 72 | 
 | must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 73 | 
-| must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 145 | 
-| must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 168 | 
-| must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 169 | 
-| must | klein | Unit test uitbreiden/toevoegen met buitenwaterstand als distributie. | /calculations/system_calculations/piping_system/test_calculation.py | 56 | 
-| must | klein | In het Openturns voorbeeld heeft deze een derde parameter met waarde 10. Waarvoor? | /calculations/system_calculations/piping_system/test_calculation.py | 108 | 
+| must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 152 | 
+| must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 175 | 
+| must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 176 | 
+| must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 261 | 
+| must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 283 | 
+| must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 284 | 
 | must | middel | Optie toevoegen dat ParallelSystemReliabilityCalculation ook deterministisch word uitgerekend | /calculations/system_calculations/piping_system/test_calculation.py | 194 | 
 | must | middel | Assert toevoegen die piping resultaat unit test | /calculations/system_calculations/piping_system/test_calculation.py | 196 | 
 | should | groot | Zou goed zijn om in GeoProb-Pipe voorbeelden op te nemen die tonen dat de applicatie klopt. | /calculations/test_prob_lib_vs_openturns.py | 1 | 
@@ -92,6 +95,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should | klein | Onderstaande class is momenteel het Python Notebook voorbeeld van Deltares. Omzetten. | /calculations/system_calculations/piping_system/reliability_calculation.py | 10 | 
 
 <!-- END_TODO_TABLE_NU --> 
+
 
 
 
@@ -127,12 +131,13 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | could | middel | De bovenstaande assertion triggert. Maar dat is fout. | /calculations/test_prob_lib_vs_openturns.py | 132 | 
 | nice | middel | Visualiseer physical design point value in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 20 | 
 | should | klein | Is het echt nodig om een 'FileSystem'-object te maken? Deze functies bestaan al toch? | /utils/file_system.py | 9 | 
-| should | klein | Nadenken hoe we binnen een half uur een quick scan piping kunnen uitvoeren met het object. | /calculations/system_calculations/piping_system/test_calculation.py | 4 | 
 | should | klein | D zit ook in kD_wvp. Dat is dubbelop. | /calculations/system_calculations/piping_system/limit_state_functions.py | 11 | 
-| should | middel | Visualiseer WBN waterstand in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 19 | 
+| should | klein | Nadenken hoe we binnen een half uur een quick scan piping kunnen uitvoeren met het object. | /calculations/system_calculations/piping_system/test_calculation.py | 4 | 
 | should | middel | Het zou goed zijn om voor dit simpele systeem ook betas te kunnen reproduceren. | /calculations/test_prob_lib_vs_openturns.py | 175 | 
+| should | middel | Visualiseer WBN waterstand in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 19 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
 
 
 
