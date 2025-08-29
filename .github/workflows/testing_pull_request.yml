@@ -30,5 +30,5 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          coverage run --source=geoprob_pipe -m pytest --ignore=tests
+          coverage run --source=geoprob_pipe -m pytest --ignore=_deprecated/tests
           coverage report -m
