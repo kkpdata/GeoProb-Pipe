@@ -141,12 +141,3 @@ class PipingSystemBuilder(BaseSystemBuilder):
 
     def construct_project_settings(self, df_settings: DataFrame, **kwargs) -> Dict[str, Union[str, float, int]]:
         return {str(attr_name): row['value'] for attr_name, row in df_settings.iterrows()}
-
-
-# project.input_data.uittredepunten[0].variables.__dict__.keys()
-# Out[10]: dict_keys(['L_intrede', 'L_but', 'L_bit', 'mv_exit', 'polderpeil'])
-# project.input_data.uittredepunten[0].vak.variables.__dict__.keys()
-# Out[11]: dict_keys(['mv_achterland_vak', 'L_achterland', 'c_voorland'])
-# project.input_data.uittredepunten[0].vak.ondergrond_scenarios[0].variables.__dict__.keys()
-# Out[17]: dict_keys(['ondergrondscenario_kans', 'top_zand', 'gamma_sat_deklaag', 'D_wvp', 'kD_wvp', 'd70', 'c_achterland'])
-
