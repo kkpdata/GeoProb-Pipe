@@ -10,3 +10,6 @@ geopandas
 wheels_outside_pypi/probabilistic_library-25.1.1-py3-none-any.whl
 sphinx
 sphinxcontrib-bibtex
+typer[all]
+InquirerPy
+gitpython
