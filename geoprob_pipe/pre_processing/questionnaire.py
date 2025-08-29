@@ -36,3 +36,8 @@ def start_pre_processing_questionnaire(app_settings: ApplicationSettings):
     if not coupled_polderpeil_to_uittredepunten(app_settings=app_settings): sys.exit(early_exit_message)
     if not coupled_uittredepunten_to_refline(app_settings=app_settings): sys.exit(early_exit_message)
     if not coupled_uittredepunten_to_vakken(app_settings=app_settings): sys.exit(early_exit_message)
+
+    # print(f"\nPARAMETER INVOER")
+    # if not added_input_parameter_data(app_settings=app_settings): sys.exit(early_exit_message)
+    # if not expanded_input_parameter_data(app_settings=app_settings): sys.exit(early_exit_message)
+    # if not input_parameter_data_covers_all(app_settings=app_settings): sys.exit(early_exit_message)

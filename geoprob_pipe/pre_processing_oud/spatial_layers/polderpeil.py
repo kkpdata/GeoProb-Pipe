@@ -109,7 +109,7 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
             continue
         elif layer_name not in layer_names:
             print(BColors.OKBLUE, f"De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
-                                  f"de geopacakge: {layers_str}", BColors.ENDC)
+                                  f"de geopackage: {layers_str}", BColors.ENDC)
             continue
 
         layer_name_is_valid = True

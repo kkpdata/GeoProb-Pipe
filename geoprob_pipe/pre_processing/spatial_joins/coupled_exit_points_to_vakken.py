@@ -1,6 +1,5 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from shapely import MultiLineString, LineString
 from geoprob_pipe.utils.validation_messages import BColors
 from geopandas import GeoDataFrame, read_file
 from pathlib import Path
