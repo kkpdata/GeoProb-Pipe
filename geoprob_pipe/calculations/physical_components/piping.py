@@ -76,7 +76,7 @@ def calc_lambda_achterland(
 
 
 # noinspection PyPep8Naming
-def calc_calc_lambda_voorland(
+def calc_lambda_voorland(
         kD_wvp: float,
         c_voorland: float
 ) -> float:
