@@ -88,12 +88,13 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | must | middel | Assert toevoegen die piping resultaat unit test | /calculations/system_calculations/piping_system/test_calculation.py | 55 | 
 | should | groot | Zou goed zijn om in GeoProb-Pipe voorbeelden op te nemen die tonen dat de applicatie klopt. | /calculations/test_prob_lib_vs_openturns.py | 1 | 
 | should | klein | Sommige resultaten zijn niet converged. Wat doen we daarmee? | /results/__init__.py | 70 | 
-| should | klein | Onderstaande toont aan dat je single project moet gebruiken. Zou goed zijn om te verwijzen naar dit. | /calculations/voorbeeld_verschil_tussen_single_en_multi.py | 1 | 
 | should | klein | I.p.v. dict maak gebruik van Distributie-objecten. Minder fout gevoelig. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 71 | 
 | should | klein | Feedback aan gebruiker dat er validation messages zijn. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 137 | 
 | should | klein | Onderstaande class is momenteel het Python Notebook voorbeeld van Deltares. Omzetten. | /calculations/system_calculations/piping_system/reliability_calculation.py | 10 | 
 
 <!-- END_TODO_TABLE_NU --> 
+
+
 
 
 
@@ -133,7 +134,6 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | could | klein | Bespreken of we de physical values willen afronden? Af wellicht afrondden in de export. | /results/df_alphas_influence_factors_and_physical_values.py | 108 | 
 | could | klein | Elk sub-object heeft een export_dir-method. Kan dit handiger? | /results/__init__.py | 49 | 
 | could | middel | De bovenstaande assertion triggert. Maar dat is fout. | /calculations/test_prob_lib_vs_openturns.py | 132 | 
-| must | klein | Check dat een LineString-laag wordt opgegeven. | /pre_processing_oud/spatial_layers/dijktraject.py | 72 | 
 | must | klein | Check dat een LineString-laag wordt opgegeven. | /pre_processing/spatial_layers/dijktraject.py | 74 | 
 | nice | middel | Visualiseer physical design point value in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 20 | 
 | should | klein | Is het echt nodig om een 'FileSystem'-object te maken? Deze functies bestaan al toch? | /utils/file_system.py | 9 | 
@@ -145,6 +145,8 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should | middel | Visualiseer WBN waterstand in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 19 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
+
 
 
 
