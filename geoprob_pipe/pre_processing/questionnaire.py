@@ -12,32 +12,36 @@ if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
 
+EARLY_EXIT_MESSAGE = f"Applicatie vroegtijdig afgesloten"
+
+
 def start_pre_processing_questionnaire(app_settings: ApplicationSettings):
-    early_exit_message = f"Applicatie vroegtijdig afgesloten"
+    if not created_project(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    pre_processing_questionnaire(app_settings=app_settings)
 
-    if not created_project(app_settings=app_settings): sys.exit(early_exit_message)
 
+def pre_processing_questionnaire(app_settings: ApplicationSettings):
     print(f"\nALGEMEEN")
-    if not created_model(app_settings=app_settings): sys.exit(early_exit_message)
+    if not created_model(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
 
     print(f"\nGIS LAGEN")
-    if not added_dijktraject(app_settings=app_settings): sys.exit(early_exit_message)
-    if not added_vakindeling(app_settings=app_settings): sys.exit(early_exit_message)
-    if not added_hrd(app_settings=app_settings): sys.exit(early_exit_message)
-    if not added_uittredepunten(app_settings=app_settings): sys.exit(early_exit_message)
-    if not added_polderpeil(app_settings=app_settings): sys.exit(early_exit_message)
-    if not added_binnenteenlijn(app_settings=app_settings): sys.exit(early_exit_message)
-    if not added_buitenteenlijn(app_settings=app_settings): sys.exit(early_exit_message)
-    if not added_intredelijn(app_settings=app_settings): sys.exit(early_exit_message)
+    if not added_dijktraject(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not added_vakindeling(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not added_hrd(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not added_uittredepunten(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not added_polderpeil(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not added_binnenteenlijn(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not added_buitenteenlijn(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not added_intredelijn(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
 
     print(f"\nGEOGRAFISCHE KOPPELINGEN")
-    if not coupled_hrd_to_uittredepunten(app_settings=app_settings): sys.exit(early_exit_message)
-    if not coupled_distances_to_uittredepunten(app_settings=app_settings): sys.exit(early_exit_message)
-    if not coupled_polderpeil_to_uittredepunten(app_settings=app_settings): sys.exit(early_exit_message)
-    if not coupled_uittredepunten_to_refline(app_settings=app_settings): sys.exit(early_exit_message)
-    if not coupled_uittredepunten_to_vakken(app_settings=app_settings): sys.exit(early_exit_message)
+    if not coupled_hrd_to_uittredepunten(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not coupled_distances_to_uittredepunten(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not coupled_polderpeil_to_uittredepunten(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not coupled_uittredepunten_to_refline(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not coupled_uittredepunten_to_vakken(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
 
     # print(f"\nPARAMETER INVOER")
-    # if not added_input_parameter_data(app_settings=app_settings): sys.exit(early_exit_message)
-    # if not expanded_input_parameter_data(app_settings=app_settings): sys.exit(early_exit_message)
-    # if not input_parameter_data_covers_all(app_settings=app_settings): sys.exit(early_exit_message)
+    # if not added_input_parameter_data(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    # if not expanded_input_parameter_data(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    # if not input_parameter_data_covers_all(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
