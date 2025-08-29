@@ -2,11 +2,18 @@ from __future__ import annotations
 import os
 import matplotlib.pyplot as plt
 from typing import TYPE_CHECKING, List
+import plotly.graph_objects as go
+from datetime import datetime
+from pydra_core.core.datamodels.frequency_line import FrequencyLine
+import numpy as np
+
+from geoprob_pipe.input_data.overschrijdingsfrequentielijn import Overschrijdingsfrequentielijn
+
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
-def hfreq_graphs(geoprob_pipe: GeoProbPipe, export: bool = True) -> List[plt.Figure]:
+def hfreq_graphs_per_location(geoprob_pipe: GeoProbPipe, export: bool = True) -> List[plt.Figure]:
     """ Grafiek van de overschrijdingsfrequentielijn van de waterstand per HydraNL uitvoerpunt. """
 
     # TODO Later Should Middel: Visualiseer WBN waterstand in hfreq-plot ter bewustzijn. 
@@ -45,3 +52,183 @@ def hfreq_graphs(geoprob_pipe: GeoProbPipe, export: bool = True) -> List[plt.Fig
             plt.close(fig)
 
     return figures
+
+
+class GraphHFreqSingleInteractive:
+
+    def __init__(self, geoprob_pipe: GeoProbPipe, export: bool = False):
+
+        # Helper parameters
+        self.max_level: float = -999
+        self.min_level: float = 999
+        self.max_p: float = 0.0
+        self.min_p: float = 1.0
+
+        # Logic
+        self.geoprob_pipe = geoprob_pipe
+        self.fig = go.Figure()
+        self._add_ondergrens()
+        self._add_signaleringswaarde()
+        self._add_dummy_physical_value_legend_marker()
+        self._add_overschrijdingsfrequentielijnen()
+        self._add_physical_values()
+        self._update_layout()
+        self._optionally_export(export=export)
+
+    def _add_ondergrens(self):
+        ondergrens = 1 / self.geoprob_pipe.input_data.traject_normering.ondergrens
+        self.fig.add_trace(go.Scatter(
+            x=[-100, 999],
+            y=[ondergrens, ondergrens],
+            mode='lines',
+            name=f"Ondergrens (1/{self.geoprob_pipe.input_data.traject_normering.ondergrens:,} jaren)",
+            line=dict(color='black', width=3),
+            showlegend=True,
+        ))
+
+    def _add_signaleringswaarde(self):
+        signaleringswaarde = 1 / self.geoprob_pipe.input_data.traject_normering.signaleringswaarde
+        self.fig.add_trace(go.Scatter(
+            x=[-100, 999],
+            y=[signaleringswaarde, signaleringswaarde],
+            mode='lines',
+            name=f"Signaleringswaarde (1/{self.geoprob_pipe.input_data.traject_normering.signaleringswaarde:,} jaren)",
+            line=dict(dash='dash', color='black', width=3),
+            showlegend=True,
+        ))
+
+    def _add_dummy_physical_value_legend_marker(self):
+        # Dummy legend marker
+        self.fig.add_trace(go.Scatter(
+            x=[-99], y=[1], mode='markers', name='Physical values', showlegend=True,
+            marker=dict(color='LightSkyBlue', size=10, line=dict(color='black', width=1))))
+
+    def _add_overschrijdingsfrequentielijnen(self):
+        hydra_nl_names = list(self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen.keys())
+        hydra_nl_names.sort()
+        for index, hydra_nl_name in enumerate(hydra_nl_names):
+
+            # Collect data for the graph
+            hfreq = self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen[hydra_nl_name]
+            levels: np.ndarray = hfreq.overschrijdingsfrequentielijn.level
+            self.max_level = max(self.max_level, levels.max())
+            self.min_level = min(self.min_level, levels.min())
+            freq = hfreq.overschrijdingsfrequentielijn.exceedance_frequency
+            self.max_p = max(self.max_p, freq.max())
+            self.min_p = min(self.min_p, freq.min())
+            df_uittredepunten = self.geoprob_pipe.input_data.uittredepunten.df
+            uittredepunten = list(
+                df_uittredepunten[df_uittredepunten['hydra_locatie_id'] == hydra_nl_name]['uittredepunt_id'])
+
+            # Only first overschrijdingsfrequentielijn should be visible at first
+            visible = 'legendonly'
+            if index == 0:
+                visible = True
+
+            # Add lines
+            legend_name = (f"{hydra_nl_name}<br>"
+                           f"uittredepunten: {', '.join([str(u) for u in uittredepunten])}")
+            self.fig.add_trace(go.Scatter(
+                x=levels,
+                y=freq,
+                mode='lines',
+                name=legend_name,
+                legendgroup=legend_name,
+                visible=visible,
+                line=dict(dash='dash', color='blue', width=1.5),
+                showlegend=True))
+
+    def _add_physical_values(self):
+        hydra_nl_names = list(self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen.keys())
+        hydra_nl_names.sort()
+        for index, hydra_nl_name in enumerate(hydra_nl_names):
+
+            # Collect data for the graph
+            df_uittredepunten = self.geoprob_pipe.input_data.uittredepunten.df
+            uittredepunten = list(
+                df_uittredepunten[df_uittredepunten['hydra_locatie_id'] == hydra_nl_name]['uittredepunt_id'])
+
+            # Only first overschrijdingsfrequentielijn should be visible at first
+            visible = 'legendonly'
+            if index == 0:
+                visible = True
+
+            # Get physical values
+            legend_name = (f"{hydra_nl_name}<br>"
+                           f"uittredepunten: {', '.join([str(u) for u in uittredepunten])}")
+            df = self.geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
+                filter_deterministic=False, filter_derived=True)
+            df = df[df['variable'] == 'buitenwaterstand']
+            df = df[df['uittredepunt_id'].isin(uittredepunten)]
+            levels = df['physical_value'].values
+            self.max_level = max(self.max_level, levels.max())
+            self.min_level = min(self.min_level, levels.min())
+            freq_line1: Overschrijdingsfrequentielijn = (
+                self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen[hydra_nl_name])
+            freq_line2: FrequencyLine = freq_line1.overschrijdingsfrequentielijn
+            frequencies = [freq_line2.interpolate_level(level) for level in levels]
+            self.max_p = max(self.max_p, max(frequencies))
+            self.min_p = min(self.min_p, min(frequencies))
+
+            # Add markers
+            self.fig.add_trace(go.Scatter(
+                x=levels,
+                y=frequencies,
+                mode='markers',
+                visible=visible,
+                marker=dict(color='LightSkyBlue', size=10, line=dict(color='black', width=1)),
+                showlegend=False,
+                legendgroup=legend_name))
+
+    def _yticks(self):
+        min_range = int(f"{self.min_p:.0e}".split("e")[1])
+        e_values = list(range(0, min_range - 15, -1))
+        y_ticks = [10 ** e_value for e_value in e_values]
+        y_ticks_text = [f"10<sup>{e_value}</sup>" for e_value in e_values]
+        return y_ticks, y_ticks_text
+
+    def _update_layout(self):
+        length_range_xaxis = self.max_level - self.min_level
+        xaxis_add = length_range_xaxis * 0.05
+        y_ticks, y_ticks_text = self._yticks()
+        self.fig.update_layout(
+            title=f"<b>Overschrijdingsfrequentielijnen voor alle HydraNL locaties</b><br>"
+                  f"<sup>Traject {self.geoprob_pipe.input_data.traject_normering.traject_id}</sup>",
+            xaxis=dict(
+                title=f"Waterstand (m+NAP)",
+                type='linear',
+                showgrid=True,
+                gridwidth=0.5,
+                gridcolor="gray",
+                range=[self.min_level - xaxis_add, self.max_level + xaxis_add],
+            ),
+            yaxis=dict(
+                title=f"Overschrijdingsfrequentie (log-schaal)",
+                type='log',
+                showgrid=True,
+                tickformat=".0e",
+                gridwidth=1.0,
+                tickvals=y_ticks,
+                ticktext=y_ticks_text,
+                tickmode='array',
+                gridcolor="gray",
+                minor=dict(
+                    showgrid=True,
+                    dtick="D1",
+                    gridwidth=0.5,
+                    gridcolor='rgb(199, 197, 193)',
+                ),
+            )
+        )
+
+    def _optionally_export(self, export: bool = False, add_timestamp: bool = False):
+        if not export:
+            return
+        export_dir = os.path.join(self.geoprob_pipe.visualizations.graphs.export_dir, "grafiek_hfreq")
+        os.makedirs(export_dir, exist_ok=True)
+        timestamp_str = ""
+        if add_timestamp:
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
+            timestamp_str = f"{timestamp}_"
+        self.fig.write_html(os.path.join(export_dir, f"{timestamp_str}hfreq.html"), include_plotlyjs='cdn')
+        self.fig.write_image(os.path.join(export_dir, f"{timestamp_str}hfreq.png"), format="png")

@@ -5,10 +5,10 @@ from geoprob_pipe.input_data.uittredepunt import UittredepuntCollection
 from geoprob_pipe.input_data.overschrijdingsfrequentielijn import OverschrijdingsfrequentielijnCollection
 from geoprob_pipe.utils.workspace import Workspace
 from geoprob_pipe.helper_functions.data_validation import checks_input_parameters, checks_overview_parameters
-import logging
-
-
-logger = logging.getLogger("geoprob_pipe_logger")
+# noinspection PyPep8Naming
+from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
+from typing import Optional
+from geoprob_pipe.misc.traject_normering import TrajectNormering
 
 
 class InputData:
@@ -16,6 +16,8 @@ class InputData:
     Excel-file. """
 
     def __init__(self, workspace: Workspace):
+
+        self.workspace: Workspace = workspace
 
         # Read overview data of parameters from input Excel file (includes e.g. upper and lower bounds, type of
         # distribution, etc.) and carry out checks
@@ -32,9 +34,18 @@ class InputData:
             workspace=workspace, vak_collection=self.vakken, df_overview_parameters=self.df_overview_parameters)
         checks_input_parameters(
             self.df_overview_parameters, self.vakken.df, self.uittredepunten.df, self.ondergrondscenarios.df)
-        logger.info(f"Parameter data successfully loaded from `{workspace.path_input_excel.name}`")
+        logger.info(f"Parameter data successfully loaded from `{workspace.path_input_excel.name}`.")
+
+        # Traject-data
+        self._traject_normering: Optional[TrajectNormering] = None
 
         # HRD-data
         self.overschrijdingsfrequentielijnen = OverschrijdingsfrequentielijnCollection(
             path_hrd=workspace.path_hrd, uittredepunt_collection=self.uittredepunten)
-        logger.info(f"HRD .sqlite file successfully loaded from `{workspace.path_hrd.name}`")
+        logger.info(f"HRD .sqlite file successfully loaded from `{workspace.path_hrd.name}`.")
+
+    @property
+    def traject_normering(self):
+        if self._traject_normering is None:
+            self._traject_normering = TrajectNormering(hrd_path=self.workspace.path_hrd.__str__())
+        return self._traject_normering

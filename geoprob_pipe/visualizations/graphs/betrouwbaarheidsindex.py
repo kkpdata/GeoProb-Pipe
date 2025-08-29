@@ -5,6 +5,7 @@ from pandas import merge
 import os
 from matplotlib.ticker import ScalarFormatter
 from geoprob_pipe.misc.traject_normering import TrajectNormering
+import plotly.graph_objects as go
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -13,6 +14,7 @@ if TYPE_CHECKING:
 def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figure:
     """ Grafiek van de betrouwbaarheidsindex per scenario over de gecombineerde uitvoer (uplift/heave/piping). Over
     de x-as uitgezet tegen de dijkpaal nummering. Op de achtergrond zijn de categoriegrenzen weergegeven. """
+    plt.ioff()
 
     # Collect data
     df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
@@ -24,29 +26,69 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
         how="left"
     )
     traject_normering = TrajectNormering()  # TODO: Gebruikt nu dummy data: traject Elden-Heteren
-
+    cg = traject_normering.beta_categorie_grenzen
     # Initial variables
-    naam = 'Betrouwbaarheidsindex'
-    fig, ax = plt.subplots(figsize=(20,10))
-    ax.yaxis.set_major_locator(plt.MultipleLocator(0.5))
+    # naam = 'Betrouwbaarheidsindex'
+    # fig, ax = plt.subplots(figsize=(20,10))
+    # ax.yaxis.set_major_locator(plt.MultipleLocator(0.5))
+    # plotly plot
+    fig=go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=df_for_graph['M_value'],
+            y=df_for_graph["beta"],
+            mode='markers',
+            marker=dict(symbol='circle', size=3, color='black'),
+            name='Beta Scenarios',
+            showlegend=True
+        )
+    )
 
+    fig.add_trace(go.Scatter(
+        x=[0, 100000, 100000, 0],
+        y=[cg["I"][0], cg["I"][0], cg["I"][1], cg["I"][1]],
+        fill='toself',
+        fillcolor='rgba(0, 255, 0, 0.5)'
+        ))
+
+    fig.update_layout(
+        title=f"Betrouwbaarheidsindex STPH scenarioberekeningen",
+        xaxis=dict(title=f"Metrering",
+                   type='linear',
+                   range=[df_for_graph['M_value'].min()-10, df_for_graph['M_value'].max()+10],
+                   showgrid=True,
+                   gridwidth=0.5,
+                   gridcolor="gray"
+                   ),
+        yaxis=dict(title=f"Betrouwbaarheidsindex β [-]",
+                   type='log',
+                   range=[2, 20],
+                   showgrid=True,
+                   gridwidth=0.5,
+                   gridcolor="gray",
+                   minor=dict(
+                       showgrid=True,
+                       dtick=1
+                   )
+                   )
+    )
     # Plot data
-    ax.plot(df_for_graph['M_value'], df_for_graph["beta"],'o',
-            color='black', markersize=3, label='Prob. ontwerpp.')
+    # ax.plot(df_for_graph['M_value'], df_for_graph["beta"],'o',
+    #         color='black', markersize=3, label='Prob. ontwerpp.')
 
     # Formatting
-    ax.grid(linewidth=0.5,color='black',alpha=0.5,linestyle='-.')
+    # ax.grid(linewidth=0.5,color='black',alpha=0.5,linestyle='-.')
 
-    ax.set_xlabel('Dijkpaal', fontsize=20, labelpad=15)    # TODO: Nu nog measure
-    ax.set_ylabel(f"{naam} [-]", fontsize=20, labelpad=15)
-    ax.legend(fontsize=15, loc=0)
-    ax.set_title('Betrouwbaarheidsindex STPH scenarioberekeningen', fontsize=20)
-    ax.set_ylim(2, 20)
-    ax.set_yscale("log")
+    # ax.set_xlabel('Dijkpaal', fontsize=20, labelpad=15)    # TODO: Nu nog measure
+    # ax.set_ylabel(f"{naam} [-]", fontsize=20, labelpad=15)
+    # ax.legend(fontsize=15, loc=0)
+    # ax.set_title('Betrouwbaarheidsindex STPH scenarioberekeningen', fontsize=20)
+    # ax.set_ylim(2, 20)
+    # ax.set_yscale("log")
     ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=False))
     ax.ticklabel_format(style='plain', axis='y')
     ax.set_yticks([2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20])
-    ax.set_xlim(df_for_graph['M_value'].min()-10, df_for_graph['M_value'].max()+10)
+    # ax.set_xlim(df_for_graph['M_value'].min()-10, df_for_graph['M_value'].max()+10)
     # TODO Nu Must Klein: Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure.
 
     # Categorie kleuren
@@ -110,6 +152,8 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
 def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figure:
     """ Grafiek van de betrouwbaarheidsindex per uittredepunt over de gecombineerde uitvoer (uplift/heave/piping). Over
     de x-as uitgezet tegen de dijkpaal nummering. Op de achtergrond zijn de categoriegrenzen weergegeven. """
+
+    plt.ioff()
 
     # Collect data
     df_uittredepunten_m = geoprob_pipe.input_data.uittredepunten.df
