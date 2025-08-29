@@ -179,3 +179,6 @@ _work_dir
 !workspaces/traject_224/input/hlcd.sqlite
 !workspaces/traject_224/input/WBI2017_Bovenrijn_224_v04.config.sqlite
 !workspaces/traject_224/input/WBI2017_Bovenrijn_224_v04.sqlite
+!geoprob_pipe/pre_processing/test_files/hrd_files/hlcd.sqlite
+!geoprob_pipe/pre_processing/test_files/hrd_files/WBI2017_Bovenrijn_224_v04.config.sqlite
+!geoprob_pipe/pre_processing/test_files/hrd_files/WBI2017_Bovenrijn_224_v04.sqlite
