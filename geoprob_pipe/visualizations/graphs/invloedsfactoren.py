@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 def get_plot_order(geoprob_pipe: GeoProbPipe) -> DataFrame:
 
     # Define plot order
-    df: DataFrame = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values()
+    df: DataFrame = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(filter_derived=True)
     df = df[["variable", "influence_factor"]]
     df = df.groupby(['variable']).mean()
     df = df.sort_values(by=["influence_factor"], ascending=False)
@@ -38,7 +38,7 @@ def get_influence_factors_for_vak(geoprob_pipe: GeoProbPipe, df_invloedsfactoren
     worst_scenario_id = df_result.iloc[0]['ondergrondscenario_id']
     df = df_invloedsfactoren[
         (df_invloedsfactoren["uittredepunt_id"] == worst_uittredepunt_id) &
-        (df_invloedsfactoren["scenario_id"] == worst_scenario_id)
+        (df_invloedsfactoren["ondergrondscenario_id"] == worst_scenario_id)
     ]
     return df.sort_values(by=["plot_order"])
 
@@ -46,7 +46,7 @@ def get_influence_factors_for_vak(geoprob_pipe: GeoProbPipe, df_invloedsfactoren
 def invloedsfactoren(geoprob_pipe: GeoProbPipe, export: bool = False) -> Figure:
 
     # Get data
-    df_invloedsfactoren = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values()
+    df_invloedsfactoren = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(filter_derived=True)
 
     # Add plot order
     df_plot_order = get_plot_order(geoprob_pipe=geoprob_pipe)

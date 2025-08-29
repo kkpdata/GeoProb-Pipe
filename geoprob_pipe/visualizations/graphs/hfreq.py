@@ -156,7 +156,8 @@ class GraphHFreqSingleInteractive:
             # Get physical values
             legend_name = (f"{hydra_nl_name}<br>"
                            f"uittredepunten: {', '.join([str(u) for u in uittredepunten])}")
-            df = self.geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(filter_deterministic=False)
+            df = self.geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
+                filter_deterministic=False, filter_derived=True)
             df = df[df['variable'] == 'buitenwaterstand']
             df = df[df['uittredepunt_id'].isin(uittredepunten)]
             levels = df['physical_value'].values
