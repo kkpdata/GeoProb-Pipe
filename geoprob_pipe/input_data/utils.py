@@ -1,32 +1,11 @@
-from collections.abc import Iterable
 from typing import Optional
 import pandas as pd
+from collections.abc import Iterable
 from geoprob_pipe.globals import ALLOWED_SUFFIXES
 
 
-def strip_suffix_from_parameter_name(var_name: str, list_suffixes: Optional[list[str]] = None) -> str:
-    suffixes = list_suffixes or ALLOWED_SUFFIXES
-    # Use list_suffixes if provided, otherwise use the default allowed list suffixes
-    return next((var_name[:-len(suf)] for suf in suffixes if var_name.endswith(suf)), var_name)
-
-
-def strip_suffix_from_list_parameter_names(
-        list_var_names: Iterable[str], list_suffixes: Optional[list[str]] = None) -> list[str]:
-    if isinstance(list_var_names, str):
-        raise TypeError("Input must be an iterable of strings (e.g. list/set/pd.Index), not a single string.")
-    return list(dict.fromkeys([strip_suffix_from_parameter_name(var_name, list_suffixes)
-                               for var_name in list_var_names]))
-    # Note: dict.fromkeys is used to remove duplicates while preserving order
-
-
-def generate_parameter_dict_for_variable(attr_name: str, df_overview_row: pd.Series, df_row: pd.Series) -> dict:
-    return _generate_parameter_dict(attr_name, df_overview_row, df_row=df_row)
-
-def generate_parameter_dict_for_constant(attr_name: str, df_overview_row: pd.Series) -> dict:
-    return _generate_parameter_dict(attr_name, df_overview_row, df_row=None)
-
-def _generate_parameter_dict(attr_name_without_suffix: str, df_overview_row: pd.Series,
-                             df_row: Optional[pd.Series] = None) -> dict:
+def generate_parameter_dict(attr_name_without_suffix: str, df_overview_row: pd.Series,
+                            df_row: Optional[pd.Series] = None) -> dict:
     def _get_value(suffix: str, default_col: str):
         col = attr_name_without_suffix + suffix
         if df_row is not None and col in df_row and not pd.isna(df_row[col]):
@@ -58,3 +37,22 @@ def _generate_parameter_dict(attr_name_without_suffix: str, df_overview_row: pd.
             suffix=parameter_dict["dispersion_type"], default_col="parameter_default_value_spreiding")
 
     return parameter_dict
+
+
+def generate_parameter_dict_for_variable(attr_name: str, df_overview_row: pd.Series, df_row: pd.Series) -> dict:
+    return generate_parameter_dict(attr_name, df_overview_row, df_row=df_row)
+
+
+def strip_suffix_from_parameter_name(var_name: str, list_suffixes: Optional[list[str]] = None) -> str:
+    suffixes = list_suffixes or ALLOWED_SUFFIXES
+    # Use list_suffixes if provided, otherwise use the default allowed list suffixes
+    return next((var_name[:-len(suf)] for suf in suffixes if var_name.endswith(suf)), var_name)
+
+
+def strip_suffix_from_list_parameter_names(
+        list_var_names: Iterable[str], list_suffixes: Optional[list[str]] = None) -> list[str]:
+    if isinstance(list_var_names, str):
+        raise TypeError("Input must be an iterable of strings (e.g. list/set/pd.Index), not a single string.")
+    return list(dict.fromkeys([strip_suffix_from_parameter_name(var_name, list_suffixes)
+                               for var_name in list_var_names]))
+    # Note: dict.fromkeys is used to remove duplicates while preserving order

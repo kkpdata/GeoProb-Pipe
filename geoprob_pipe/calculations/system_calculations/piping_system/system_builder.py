@@ -3,13 +3,52 @@ from geoprob_pipe.calculations.system_calculations.piping_system.reliability_cal
     PipingSystemReliabilityCalculation)
 from typing import List, Dict, Union, Any
 from geoprob_pipe.globals import ALLOWED_DISPERSION_TYPES
-from geoprob_pipe.helper_functions.data_validation import enforce_lower_upper_bounds
-from geoprob_pipe.helper_functions.parameter_functions import generate_parameter_dict_for_constant
+from geoprob_pipe.input_data.data_validation import is_number
 from geoprob_pipe.input_data.ondergrond_scenario import OndergrondScenario
 from geoprob_pipe.input_data.uittredepunt import Uittredepunt
+from geoprob_pipe.input_data.utils import generate_parameter_dict
 from geoprob_pipe.input_data.vak import VakCollection, Vak
-from pandas import DataFrame, notna
+from pandas import DataFrame, notna, Series
 from probabilistic_library import FragilityValue
+
+
+def generate_parameter_dict_for_constant(attr_name: str, df_overview_row: Series) -> dict:
+    return generate_parameter_dict(attr_name, df_overview_row, df_row=None)
+
+
+def enforce_lower_upper_bounds(parameter_dict: dict, id_print: str) -> None:
+    # Note: only applicable to input parameters (variables and constants)
+
+    # Value (mean) is accessed differently for deterministic and stochastic parameters
+    attr_value = parameter_dict["value"] if parameter_dict["distribution"] == "deterministic" else parameter_dict[
+        "mean"]
+
+    # Make sure the attribute value is a number (int/float) before checking bounds
+    if not is_number(attr_value):
+        raise ValueError(
+            f"Value of parameter '{parameter_dict["name"]}' ({id_print}) should be a number (int/float) since "
+            f"lower/upper bounds were specified, but it's {attr_value} of type {type(attr_value)}")
+
+    # Check if value lies within upper and lower bounds in parameter_dict (if specified)
+    if notna(parameter_dict["lower_bound_mean"]):
+        if not is_number(parameter_dict["lower_bound_mean"]):
+            raise ValueError(
+                f"Lower bound of parameter {parameter_dict["name"]} should be a number (int/float) but got "
+                f"{parameter_dict["lower_bound_mean"]} of type {type(parameter_dict["lower_bound_mean"])}")
+        if not (parameter_dict["lower_bound_mean"] <= attr_value):
+            raise ValueError(
+                f"Parameter '{parameter_dict["name"]}' ({id_print}) has a mean value that exceeds the lower bound "
+                f"(value: {attr_value} < lower bound: {parameter_dict["lower_bound_mean"]})")
+
+    if notna(parameter_dict["upper_bound_mean"]):
+        if not is_number(parameter_dict["upper_bound_mean"]):
+            raise ValueError(
+                f"Upper bound of parameter {parameter_dict["name"]} should be a number (int/float) but got "
+                f"{parameter_dict["upper_bound_mean"]} of type {type(parameter_dict["upper_bound_mean"])}")
+        if not (attr_value <= parameter_dict["upper_bound_mean"]):
+            raise ValueError(
+                f"Parameter '{parameter_dict["name"]}' ({id_print}) has a mean value that exceeds the upper bound "
+                f"(value: {attr_value} > upper bound: {parameter_dict["upper_bound_mean"]})")
 
 
 class PipingSystemBuilder(BaseSystemBuilder):

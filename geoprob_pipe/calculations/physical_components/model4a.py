@@ -1,7 +1,7 @@
 import math
 from dataclasses import dataclass
 from typing import Tuple
-from geoprob_pipe.helper_functions.geohydro_functions import calc_lambda, calc_r_BIT, calc_r_BUT, calc_W
+from geoprob_pipe.calculations.physical_components.geohydro_functions import calc_lambda, calc_r_BIT, calc_r_BUT, calc_W
 
 
 @dataclass
