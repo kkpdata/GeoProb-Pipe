@@ -3,8 +3,8 @@ import pandas as pd
 from geoprob_pipe.input_data.base_collection import BaseCollection, pretty_repr
 from geoprob_pipe.input_data.vak import Vak, VakCollection
 from geoprob_pipe.utils.workspace import Workspace
-from geoprob_pipe.helper_functions.data_validation import (check_attribute_already_exists, check_attribute_in_overview)
-from geoprob_pipe.helper_functions.parameter_functions import (
+from geoprob_pipe.input_data.data_validation import (check_attribute_already_exists, check_attribute_in_overview)
+from geoprob_pipe.input_data.utils import (
     generate_parameter_dict_for_variable, strip_suffix_from_list_parameter_names)
 
 

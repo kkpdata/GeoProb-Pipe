@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from geoprob_pipe.input_data.uittredepunt import Uittredepunt
     from geoprob_pipe.input_data.ondergrond_scenario import OndergrondScenario
 from typing import Any
-from geoprob_pipe.helper_functions.parameter_functions import strip_suffix_from_list_parameter_names
+from geoprob_pipe.input_data.utils import strip_suffix_from_list_parameter_names
 
 
 def check_attribute_already_exists(instance: Vak | Uittredepunt | OndergrondScenario, attr_name: str) -> None:
@@ -20,7 +20,7 @@ def checks_input_parameters(
         df_vak_collection: pd.DataFrame,
         df_uittredepunt_collection: pd.DataFrame,
         df_ondergrond_scenario_collection: pd.DataFrame
-) -> None:
+):
     
     # Parameter names given
     set_parameter_names_given = set(df_vak_collection.columns).union(
@@ -130,29 +130,3 @@ def check_attribute_in_overview(attr_name_without_suffix: str, df_overview_param
 
 def is_number(var_value: Any) -> float:
     return isinstance(var_value, (int, float)) and not pd.isna(var_value)
-
-
-def enforce_lower_upper_bounds(parameter_dict: dict, id_print: str) -> None:
-    # Note: only applicable to input parameters (variables and constants)
-
-    
-    # Value (mean) is accessed differently for deterministic and stochastic parameters
-    attr_value = parameter_dict["value"] if parameter_dict["distribution"] == "deterministic" else parameter_dict["mean"]
-    
-    # Make sure the attribute value is a number (int/float) before checking bounds
-    if not is_number(attr_value):
-        raise ValueError(f"Value of parameter '{parameter_dict["name"]}' ({id_print}) should be a number (int/float) since lower/upper bounds were specified, but it's {attr_value} of type {type(attr_value)}")
-    
-    # Check if value lies within upper and lower bounds in parameter_dict (if specified)
-    if pd.notna(parameter_dict["lower_bound_mean"]):
-        if not is_number(parameter_dict["lower_bound_mean"]):
-            raise ValueError(f"Lower bound of parameter {parameter_dict["name"]} should be a number (int/float) but got {parameter_dict["lower_bound_mean"]} of type {type(parameter_dict["lower_bound_mean"])}")
-        if not (parameter_dict["lower_bound_mean"] <= attr_value):
-            raise ValueError(f"Parameter '{parameter_dict["name"]}' ({id_print}) has a mean value that exceeds the lower bound (value: {attr_value} < lower bound: {parameter_dict["lower_bound_mean"]})")
-
-    if pd.notna(parameter_dict["upper_bound_mean"]):
-        if not is_number(parameter_dict["upper_bound_mean"]):
-            raise ValueError(f"Upper bound of parameter {parameter_dict["name"]} should be a number (int/float) but got {parameter_dict["upper_bound_mean"]} of type {type(parameter_dict["upper_bound_mean"])}")
-        if not (attr_value <= parameter_dict["upper_bound_mean"]):
-            raise ValueError(f"Parameter '{parameter_dict["name"]}' ({id_print}) has a mean value that exceeds the upper bound (value: {attr_value} > upper bound: {parameter_dict["upper_bound_mean"]})")
-

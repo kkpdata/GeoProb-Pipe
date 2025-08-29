@@ -4,7 +4,7 @@ from geoprob_pipe.input_data.ondergrond_scenario import OndergrondScenarioCollec
 from geoprob_pipe.input_data.uittredepunt import UittredepuntCollection
 from geoprob_pipe.input_data.overschrijdingsfrequentielijn import OverschrijdingsfrequentielijnCollection
 from geoprob_pipe.utils.workspace import Workspace
-from geoprob_pipe.helper_functions.data_validation import checks_input_parameters, checks_overview_parameters
+from geoprob_pipe.input_data.data_validation import checks_input_parameters, checks_overview_parameters
 # noinspection PyPep8Naming
 from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 from typing import Optional
