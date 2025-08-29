@@ -1,5 +1,17 @@
-from pandas import DataFrame
+from pandas import DataFrame, concat
 from typing import Optional, Dict, Union, List
+
+
+class BColors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 
 class ValidationMessages:
@@ -10,12 +22,13 @@ class ValidationMessages:
     def _append_new_rows(self, new_rows: Dict):
         if self.df is None:
             self.df = DataFrame(new_rows)
+        self.df = concat([self.df, DataFrame(new_rows)])
 
     @staticmethod
     def _to_list(msg: Union[str, List[str]]):
         assert isinstance(msg, (str, List))
         if isinstance(msg, str):
-            msg = [str]
+            msg = [msg]
         return msg
 
     @property

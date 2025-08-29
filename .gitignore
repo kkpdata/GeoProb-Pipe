@@ -19,6 +19,7 @@ downloads/
 eggs/
 .eggs/
 workspaces/example_new_calculations/output/
+**/output/
 lib/
 lib64/
 parts/
@@ -175,3 +176,6 @@ _work_dir
 #*.xlsx
 *.gdb
 *.sqlite
+!workspaces/traject_224/input/hlcd.sqlite
+!workspaces/traject_224/input/WBI2017_Bovenrijn_224_v04.config.sqlite
+!workspaces/traject_224/input/WBI2017_Bovenrijn_224_v04.sqlite
