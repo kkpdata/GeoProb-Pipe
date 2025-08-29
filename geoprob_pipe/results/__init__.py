@@ -2,8 +2,9 @@ from __future__ import annotations
 from pandas import DataFrame
 from typing import TYPE_CHECKING, Optional
 from geoprob_pipe.results.construct_dataframes import (
-    collect_df_alphas_influence_factors_and_physical_values, collect_df_beta_per_limit_state,
-    collect_df_beta_per_scenario, calculate_df_beta_per_uittredepunt, construct_df_beta_per_vak)
+    collect_df_beta_per_limit_state, collect_df_beta_per_scenario, calculate_df_beta_per_uittredepunt,
+    construct_df_beta_per_vak)
+from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import construct_df
 import os
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -23,14 +24,14 @@ class Results:
     def df_alphas_influence_factors_and_physical_values(
             self,
             system_only: bool = True,
-            filter_deterministic: bool = True
+            filter_deterministic: bool = True,
+            filter_derived: bool = False,
     ) -> DataFrame:
 
         # Generate if not generated yet
         if self._df_alphas_influence_factors_and_physical_values is None:
             self._df_alphas_influence_factors_and_physical_values = (
-                collect_df_alphas_influence_factors_and_physical_values(
-                    self.geoprob_pipe))
+                construct_df(self.geoprob_pipe))
 
         # Filters
         df = self._df_alphas_influence_factors_and_physical_values
@@ -38,6 +39,8 @@ class Results:
             df = df[df['distribution_type'] != "deterministic"]
         if system_only:
             df = df[df['design_point'] == "system"]
+        if filter_derived:
+            df = df[df['distribution_type'] != "derived"]
 
         return df
 
