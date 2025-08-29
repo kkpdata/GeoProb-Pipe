@@ -119,6 +119,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 
 
 
+
 ### Op een later moment van belang
 <details>
   <summary>Bekijk de tabel</summary>
@@ -133,7 +134,6 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | could | klein | Bespreken of we de physical values willen afronden? Af wellicht afrondden in de export. | /results/df_alphas_influence_factors_and_physical_values.py | 108 | 
 | could | klein | Elk sub-object heeft een export_dir-method. Kan dit handiger? | /results/__init__.py | 49 | 
 | could | middel | De bovenstaande assertion triggert. Maar dat is fout. | /calculations/test_prob_lib_vs_openturns.py | 132 | 
-| must | klein | Check dat een LineString-laag wordt opgegeven. | /pre_processing_oud/spatial_layers/dijktraject.py | 72 | 
 | must | klein | Check dat een LineString-laag wordt opgegeven. | /pre_processing/spatial_layers/dijktraject.py | 74 | 
 | nice | middel | Visualiseer physical design point value in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 20 | 
 | should | klein | Is het echt nodig om een 'FileSystem'-object te maken? Deze functies bestaan al toch? | /utils/file_system.py | 9 | 
@@ -145,6 +145,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should | middel | Visualiseer WBN waterstand in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 19 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
 
 
 
