@@ -102,8 +102,6 @@ from geoprob_pipe.calculations.physical_components.geohydro_functions import cal
 @dataclass
 class Model4a:
     r"""Class for groundwater model 4A Technisch Rapport Waterspanningen bij Dijken
-    
-    
     """
 
     kD: float

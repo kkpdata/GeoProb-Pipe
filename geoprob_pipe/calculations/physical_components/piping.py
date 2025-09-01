@@ -1,4 +1,4 @@
-r"""Module met functies voor het berekenen van fysische componenten van piping en uplift
+r"""Module met functies voor het berekenen van fysische componenten van piping en uplift. Dit betreft onder andere de dikte van de deklaag,het niveau bij het uittredepunt en de kwelweglengte.
 """
 
 import math
@@ -9,9 +9,7 @@ def calc_d_deklaag(
         mv_exit: float,
         top_zand: float
 ) -> float:
-    r"""
-
-    Berekening deklaagdikte, de minimale dikte van de deklaag is 0.1 m omdat negatieve deklaagdiktes niet mogelijk zijn.
+    r"""Berekening deklaagdikte ter plaatse van het uittredepunt, de minimale dikte van de deklaag is 0.1 m omdat negatieve deklaagdiktes niet mogelijk zijn. Dit uitgangspunt is gekozen omdat ook bij een zeer dunne deklaag nog enige reductie van het verval verwacht mag worden. 
 
     Args:
         mv_exit (float): Bodemhoogte ter plaatse van Uittredepunten [m+NAP]
@@ -28,7 +26,7 @@ def calc_h_exit(
         mv_exit: float
 ) -> float:
     r"""Berekening van het niveau van het uittredepunt op basis van polderpeil of maaiveldniveau.
-    Functie geeft de maximale waarde van polderpeil en mv_exit terug.
+    Functie geeft de maximale waarde van polderpeil en mv_exit terug. Dit is de benedenstroomse randvoorwaarde voor het verval in pipingberekeningen.
 
     Args:
         polderpeil (float): polderpeil [m+NAP]
@@ -45,10 +43,10 @@ def calc_lengte_voorland(
         L_intrede: float,
         L_but: float
 ) -> float:
-    r"""Berekent de geometrische voorlandlengte in m
+    r"""Berekent de geometrische voorlandlengte in [m] op basis van afstanden ten opzichte van een uittredepunt. In de pre-processing tool worden :math:`L_{intrede}` en :math:`L_{but}` als geografische lijnobjecten gedefinieerd. De kortste afstand tussen deze objecten is invoer voor deze functie.
 
     Args:
-        L_intrede (float): afstand van uittredepunten tot binnenteenlijn [m]
+        L_intrede (float): afstand van uittredepunten tot een (denkbeeldige) intredelijn [m]
         L_but (float): afstand van uittredepunten tot buitenteenlijn [m]
 
     Returns:
@@ -62,7 +60,7 @@ def calc_lambda_achterland(
         kD_wvp: float,
         c_achterland: float
 ) -> float:
-    r"""Berekent de spreidingslengte van het achterland in m
+    r"""Berekent de spreidingslengte van het achterland in [m].
 
     .. math::
 
@@ -79,11 +77,12 @@ def calc_lambda_achterland(
 
 
 # noinspection PyPep8Naming
+#TODO: functie samenvoegen met calc_lambda_achterland?
 def calc_lambda_voorland(
         kD_wvp: float,
         c_voorland: float
 ) -> float:
-    r"""Berekent de spreidingslengte van het achterland in m
+    r"""Berekent de spreidingslengte van het achterland in [m].
 
     .. math::
 
@@ -105,7 +104,11 @@ def calc_dh_red(
         r_c_deklaag: float,
         d_deklaag: float
 ) -> float:
-    r"""Berekening van het gereduceerde verval over de waterkering
+    r"""Berekening van het gereduceerde verval over de waterkering.
+
+    .. math::
+        
+        \Delta h_{red} = h_{buitenwaterstand} - h_{exit} - r_{c,deklaag} \cdot d_{deklaag}
 
     Args:
         buitenwaterstand (float): buitenwaterstand [m+NAP]
@@ -124,7 +127,7 @@ def calc_W_achterland(
         lambda_achterland: float,
         L_achterland: float
 ) -> float:
-    r"""Berekent de geohydrologische weerstand van het achterland in m
+    r"""Berekent de geohydrologische weerstand van het achterland in [m].
 
     .. math::
 
@@ -141,13 +144,14 @@ def calc_W_achterland(
 
 
 # noinspection PyPep8Naming
+#TODO: functie samenvoegen met calc_W_achterland?
 def calc_W_voorland(
         lambda_voorland: float,
         L_voorland: float
 ) -> float:
-    r"""Berekent de geohydrologische weerstand van het voorland in m
+    r"""Berekent de geohydrologische weerstand van het voorland in [m]. Dit wordt ook wel de effectieve voorlandlengte genoemd.
 
-    math::
+    .. math::
 
         W = \lambda tanh(\frac{L}{\lambda})
 
@@ -166,7 +170,9 @@ def calc_L_kwelweg(
         L_but: float,
         W_voorland: float
 ) -> float:
-    r"""Berekent de kwelweglengte in meters
+    r"""Berekent de kwelweglengte in [m].
+    De kwelweglengte is de som van de afstand van het uittredepunt tot de buitenteenlijn en de effectieve voorlandlengte van het voorland. De onzekerheid in de kwelweglengte zit in de effectieve voorlandlengte.
+
     Args:
         L_but (float): afstand van uittredepunten tot buitenteenlijn [m]
         W_voorland (float): geohydrologische weerstand van het voorland [m]
@@ -183,8 +189,12 @@ def calc_dphi_c_u(
         gamma_sat_deklaag: float,
         gamma_water: float
 ) -> float:
-    r"""Berekening grenspotentiaal ten opzichte van maaiveldniveau in m
+    r"""Berekening grenspotentiaal ten opzichte van maaiveldniveau in [m].
 
+    .. math::
+
+        \Delta \phi_{c,u} = \frac{d_{deklaag} \cdot (\gamma_{sat,deklaag} - \gamma_{w})}{\gamma_{w}}
+    
     Args:
         d_deklaag (float): Dikte van de cohesieve deklaag [m]
         gamma_sat_deklaag (float): verzadigd volumegewicht van de deklaag [kN/m³]
@@ -201,8 +211,11 @@ def calc_i_exit(
         h_exit: float,
         d_deklaag: float
 ) -> float:
-    r"""Berekening van de optredende heave gradient. De heave gradient is het stijghoogteverschil over de deklaag
-    gedeeld door de deklaagdikte.
+    r"""Berekening van de optredende heave gradient. De heave gradient is het stijghoogteverschil over de deklaag gedeeld door de deklaagdikte.
+
+    .. math::
+
+        i_{exit} = \frac{(\phi_{exit} - h_{exit})}{d_{deklaag}}
 
     Args:
         phi_exit (float): stijghoogte in het watervoerende zandpakket ter plaatse van uittredepunt in m+NAP
@@ -216,6 +229,7 @@ def calc_i_exit(
 
 
 # noinspection PyPep8Naming
+#TODO: deze wrapper functie wordt gebruikt in heave_icw_model4a en uplift_icw_model4a. Niet nodig om deze wrapper functie te gebruiken als de model4a klasse zelf gebruikt kan worden in heave_icw_model4a en uplift_icw_model4a. Dan kan deze functie verwijderd worden.
 def calc_r_exit_model4a(
         kD_wvp: float,
         D_wvp: float,
@@ -226,12 +240,10 @@ def calc_r_exit_model4a(
         L_achterland: float,
         L_voorland: float
 ) -> float:
-    # L_voorland uitrekenen met behulp van de functie L_voorland
-    # L_voorland = L_voorland(L_intrede, L_but)
-    # Maak een Model4a object aan met uitgangspunt x_bit = 0.0. Dit betekent
-    # dat de lokale x waarde gelijk is aan L_bit.
-    # Uittredepunten moeten altijd binnendijks van de binnenteenlijn liggen,
-    # # dus x_but moet negatief zijn.
+    r"""Wrapper functie voor het berekenen van de dempingsfactor bij uittredepunten met behulp van Model4a. De functie gaat uit dat x = 0.0 bij de binnenteen ligt.  Dit betekent dat x_bit = 0.0 en x_but negatief is.
+    Uittredepunten moeten altijd binnendijks van de binnenteenlijn liggen.
+
+    """
     model4a = Model4a(
         kD=kD_wvp,
         D=D_wvp,
@@ -251,9 +263,9 @@ def calc_phi_exit(
         r_exit: float,
         buitenwaterstand: float
 ) -> float:  # Van respons naar potentiaal
-    r"""Berekent de theoretische stijghoogte bij uittredepunten in m+NAP
+    r"""Berekent de theoretische stijghoogte bij uittredepunten in [m+NAP].
 
-    math::
+    .. math::
 
         \phi_exit(x) = polderpeil + r(x) (buitenwaterstand - polderpeil)
 
@@ -269,6 +281,7 @@ def calc_phi_exit(
 
 
 # noinspection PyPep8Naming
+# TODO: functies toevoegen in docstring
 def calc_dh_c(
         d70: float,
         D_wvp: float,
@@ -283,6 +296,11 @@ def calc_dh_c(
         gamma_korrel: float,
 ) -> float:
     r"""Berekening kritiek verval methode Sellmeijer inclusief berekeningsinstellingen
+
+    .. math::
+
+    \Delta H_{c} = F_{resistance} \cdot F_{scale} \cdot F_{geometry} \cdot L_{kwelweg}
+
 
     Args:
         d70 (float): 70% percentiel van de korrelgrootteverdeling [m]
@@ -332,48 +350,3 @@ def calc_dh_c(
 
     return Fres * Fscale * Fgeom * L_kwelweg
 
-
-###################################################################################
-# Z-functies
-###################################################################################
-
-
-def z_p(
-        modelfactor_p: float,
-        dh_c: float,
-        dh_red: float
-) -> float:
-    r"""Grenstoestandfunctie voor het mechanisme piping
-
-    Args:
-        modelfactor_p (float): modelfactor voor piping
-        dh_c (float): kritiek verval [m]
-        dh_red (float): gereduceerd verval [m]
-
-    Returns:
-        float: Z waarde van de grenstoestandfunctie voor piping
-    """
-
-    return (modelfactor_p * dh_c) - dh_red
-
-
-
-def z_u(
-        modelfactor_u: float,
-        dphi_c_u: float,
-        phi_exit: float,
-        h_exit: float
-) -> float:
-    r"""Grenstoestandfunctie voor het mechanisme opbarsten (uplift)
-
-    Args:
-        modelfactor_u (float): modelfactor voor uplift
-        dphi_c_u (float): kritiek verval [m]
-        phi_exit (float): stijghoogte in het watervoerende zandpakket ter plaatse van uittredepunt [m+NAP]
-        h_exit (float): niveau bij het uittredepunt [m+NAP]
-
-    Returns:
-        float: Z waarde van de grenstoestandfunctie voor uplift
-    """
-
-    return modelfactor_u * dphi_c_u - (phi_exit - h_exit)
