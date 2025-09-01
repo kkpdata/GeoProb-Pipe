@@ -6,12 +6,17 @@
 GeoProb-Pipe documentation
 ==========================
 
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
+Welkom bij de documentatie van GeoProb-Pipe, een probabilistische methode om pipingberekeningen met de uittredepuntenmethode uit te voeren. Deze documentatie biedt handreikingen voor het gebruik van GeoProb-Pipe, de achtergronden van de methode, API-referenties en voorbeelden.
+
+Opzet van de package
+---------------------
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   gebruik_GeoProb-Pipe
+   uittredepuntenmethode
+   references
 
