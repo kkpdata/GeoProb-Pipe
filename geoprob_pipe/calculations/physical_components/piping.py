@@ -64,7 +64,7 @@ def calc_lambda_achterland(
 ) -> float:
     r"""Berekent de spreidingslengte van het achterland in m
 
-    math::
+    .. math::
 
         \lambda = \sqrt{kDc}
 
@@ -85,7 +85,7 @@ def calc_lambda_voorland(
 ) -> float:
     r"""Berekent de spreidingslengte van het achterland in m
 
-    math::
+    .. math::
 
         \lambda = \sqrt{kDc}
 
@@ -126,7 +126,7 @@ def calc_W_achterland(
 ) -> float:
     r"""Berekent de geohydrologische weerstand van het achterland in m
 
-    math::
+    .. math::
 
         W = \lambda tanh(\frac{L}{\lambda})
 

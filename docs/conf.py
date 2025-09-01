@@ -26,10 +26,11 @@ extensions = [
     "sphinx_autodoc_typehints",
     "sphinx_mdinclude",
     "sphinxcontrib.jquery",
+    "sphinx.ext.napoleon",
     "sphinxcontrib.bibtex",
 ]
 
-bibtex_bibfiles = 'bibliography.bib'
+bibtex_bibfiles = ['bibliography.bib']
 
 source_suffix = [".rst", ".md"]
 
