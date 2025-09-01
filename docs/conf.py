@@ -32,6 +32,7 @@ source_suffix = [".rst", ".md"]
 
 templates_path = ['_templates']
 autosummary_generate = True
+add_module_names = False
 autoapi_type = "python"
 autodoc_typehints = "description"
 autoapi_dirs = ["../geoprob_pipe"]
@@ -55,3 +56,21 @@ html_theme_options = {
     "titles_only": True,
     "display_version": True,
 }
+
+
+# -- Hooks ---------------------------------------------------------------------
+
+# def shorten_titles(app, pagename, templatename, context, doctree):
+#     pass
+#
+# def setup(app):
+#     app.connect("html-page-context", shorten_titles)
+#     pass
+def setup(app):
+    def on_build_finished(app, exception):
+        if exception is None:
+            print("SUCCESSFULLY BUILD!")
+        else:
+            print("NOT SUCCESSFULLY BUILD!")
+
+    app.connect("build-finished", on_build_finished)
