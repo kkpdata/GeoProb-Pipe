@@ -17,3 +17,4 @@ sphinx-autoapi
 sphinx-mdinclude
 sphinxcontrib-jquery
 sphinx-rtd-theme
+sphinxcontrib-bibtex

@@ -1,3 +1,6 @@
+r"""Module met functies voor het berekenen van fysische componenten van piping en uplift
+"""
+
 import math
 from geoprob_pipe.calculations.physical_components.model4a import Model4a
 
