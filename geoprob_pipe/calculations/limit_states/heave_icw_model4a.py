@@ -8,7 +8,7 @@ def z_heave(
         polderpeil: float, buitenwaterstand: float, mv_exit: float, top_zand: float, kD_wvp: float,
         modelfactor_h: float, i_c_h: float, D_wvp: float, **_,
 ) -> Tuple[float, float, float, float, float, float, float]:
-    """Grenstoestandfunctie voor het mechanisme heave. """
+    """ Grenstoestandfunctie voor het mechanisme heave. """
 
     lengte_voorland = pc_piping.calc_lengte_voorland(L_intrede=L_intrede, L_but=L_but)
     r_exit = pc_piping.calc_r_exit_model4a(
