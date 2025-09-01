@@ -1,7 +1,5 @@
-"""This module consists of different geohydrological methods used in the safety assessment of levees.
-
-There are different functions and classes defined. Background information can be found in
-:cite:t:`trw_2004`.
+"""Deze module bevat verschillende geohydrologische methoden die worden gebruikt bij de veiligheidsbeoordeling van dijken.
+Achtergrondinformatie is te vinden in het 'Technisch Rapport Waterspanningen bij dijken' :cite:t:`trw_2004`.
 """
 
 import math
@@ -11,7 +9,7 @@ import math
 def calc_lambda(kd: float, c: float) -> float:
     r"""Calculates leakage length
 
-    math::
+    .. math::
 
         \lambda = \sqrt{kDc}
 
@@ -30,7 +28,7 @@ def calc_lambda(kd: float, c: float) -> float:
 def calc_W(lam: float, L: float) -> float:
     r"""Calculates effective leakage length by:
 
-    math::
+    .. math::
 
         W = \lambda tanh(\frac{L}{\lambda})
 
@@ -46,9 +44,9 @@ def calc_W(lam: float, L: float) -> float:
 
 # noinspection PyPep8Naming
 def calc_r_BIT(w1: float, l2: float, w3: float) -> float:
-    r"""Calculates response in stationary models at inner toe based on given weights.
+    r"""Calculates response in stationary models at inner toe based on given weights. See :cite:t:`trw_2004`.
 
-    math::
+    .. math::
 
         r_{BIT} = \frac{W_{3}}{W_{1} + L_{2} + W_{3}}
 
@@ -66,8 +64,9 @@ def calc_r_BIT(w1: float, l2: float, w3: float) -> float:
 # noinspection PyPep8Naming
 def calc_r_BUT(w1: float, l2: float, w3: float) -> float:
     r"""Calculates response in stationary models at outer toe based on given weights.
+    See :cite:t:`trw_2004`.
 
-    math::
+    .. math::
 
         r_{BUT} = \frac{L_{2} + W_{3}}{W_{1} + L_{2} + W_{3}}
 
@@ -85,9 +84,9 @@ def calc_r_BUT(w1: float, l2: float, w3: float) -> float:
 def calc_respons2pot(
     h_ref: float, r_exit: float, h_riv: float
 ) -> float:  # Van respons naar potentiaal
-    r"""Calculates potential from given response.
+    r"""Calculates potential from given response. See :cite:t:`trw_2004`.
 
-    math::
+    .. math::
 
         \phi(x) = h_{ref} + r(x) (h_{river} - h_{ref})
 
@@ -105,9 +104,9 @@ def calc_respons2pot(
 def calc_pot2response(
     phi: float, h_ref: float, h_riv: float
 ) -> float:  # Van potentiaal naar respons.
-    r"""Calculates response from given potential
+    r"""Calculates response from given potential. This is the reverse function of `calc_respons2pot`.
 
-    math::
+    .. math::
 
         r(x) = \frac{\phi(x)-h_{ref}}{h_{river} -h_{ref}}
 
@@ -124,9 +123,10 @@ def calc_pot2response(
 
 # noinspection PyPep8Naming
 def calc_ang_frequency(T: float) -> float:
-    r"""Calculates Angular frequency from period of a sinus wave.
+    r"""Calculates Angular frequency from period of a sinus wave. 
+    See :cite:t:`trw_2004` for background information.
 
-    math::
+    .. math::
 
         \omega = \frac{2 \pi}{T}
 
@@ -143,9 +143,9 @@ def calc_ang_frequency(T: float) -> float:
 
 # noinspection PyPep8Naming
 def calc_P_from_T(T: float) -> float:
-    r"""Calculates duration P from period T
+    r"""Calculates duration P from period T.
 
-    math::
+    .. math::
 
         P = \frac{T}{2}
 
@@ -163,9 +163,9 @@ def calc_P_from_T(T: float) -> float:
 
 # noinspection PyPep8Naming
 def calc_T_from_P(P: float) -> float:
-    r"""Calculates storm period from storm duration P
+    r"""Calculates storm period from storm duration P.
 
-    math::
+    .. math::
 
         T = P * 2.0
 
@@ -187,7 +187,7 @@ def calc_lambda_cycl_from_stationary(
 
     see :cite:t:`bauduin_barends_1988`
 
-    math::
+    .. math::
 
         t_{h} = \frac{d^{2}}{c_{v}^{'}}
 
@@ -210,9 +210,9 @@ def calc_lambda_cycl_from_stationary(
 
 # noinspection PyPep8Naming
 def calc_lambda_cycl(LambdaCycl_1: float, T2: float, T1: float) -> float:
-    r"""Calculates cyclic lambda from one period to another
+    r"""Calculates cyclic lambda from one period to another. See :cite:t:`trw_2004`.
 
-    math::
+    .. math::
 
         \lambda_{\omega, T_{2}}^{'} = \lambda_{\omega, T_{1}}^{'} \sqrt[4]{\frac{T_{2}}{T_{1}}}
 
@@ -261,7 +261,7 @@ def calc_theta(b: float, lambda_w_vl: float) -> float:
 
 def calc_f(b: float, lambda_w_vl: float) -> float:
     """Calculates f, see figure b4.13 from 'Technisch Rapport Waterspanningen bij dijken' :cite:t:`trw_2004`.
-    Approximation by exponential function
+    Approximation by exponential function.
 
     Args:
         b (float): with of river [m], 
@@ -272,8 +272,8 @@ def calc_f(b: float, lambda_w_vl: float) -> float:
 
     Returns:
         float: f from b4.13 :cite:t:`trw_2004`
-    b           : with of river in m
-    lambda_w_vl : cyclic lambda of foreland"""
+        b           : with of river in m
+        lambda_w_vl : cyclic lambda of foreland"""
 
     x = b / lambda_w_vl
     if x < 0.0:
@@ -287,9 +287,9 @@ def calc_mean_pot_gradient(
     W1: float, W3: float, x_tp: float, mean_wl: float, phi_onv: float
 ) -> float:
     r"""Approximation of hydraulic head under daily (mean) conditions.
-    Uses method from tipping point :cite:t:`trw_2004`
-
-    math::
+    Uses method from tipping point :cite:t:`trw_2004`.
+    
+    .. math::
 
        \phi(x) = h_{ref} + r(x) (h_{rivier} - h_{ref})
 
