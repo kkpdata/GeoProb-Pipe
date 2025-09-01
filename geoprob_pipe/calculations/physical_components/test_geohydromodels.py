@@ -1,6 +1,6 @@
 import math
 import pytest
-import geohydro_functions
+from . import geohydro_functions
 
 ## testcase model 4a
 # k = 40 #m/d
