@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html lang="nl" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Sellmeijer &#8212; GeoProb-Pipe 0.0.1 documentatie</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <script src="../_static/documentation_options.js?v=5627f97d"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/translations.js?v=e4d38c6a"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Zoeken" href="../search.html" />
+    <link rel="next" title="Grenstoestandfuncties" href="grenstoestandfuncties.html" />
+    <link rel="prev" title="Stationair model" href="stationair_model.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="sellmeijer">
+<h1>Sellmeijer<a class="headerlink" href="#sellmeijer" title="Link to this heading">¶</a></h1>
+<p>De formulering van Sellmeijer zoals die gedefinieerd is in het WBI2017 is:</p>
+<div class="math notranslate nohighlight">
+\[\Delta H = L F_{resistance} F_{scale} F_{geometry}\]</div>
+<p>waarbij:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}F_{resistance} = \eta \cdot (\frac{(26.0 - \gamma_{w})}{\gamma_{w}}) \tan(\theta)\\F_{scale} = \frac{d_{70.m}}{\sqrt[3]{\kappa L}} \frac{d_{70}}{d_{70.m}}^{0.4}\\F_{geometry} = 0.91 \frac{D}{L}^{\frac{0.28}{(\frac{D}{L})^{2.8} - 1} + 0.04}\\\kappa = \frac{\upsilon}{g} \cdot k = 1.35 \cdot 10^{-6} \cdot k\end{aligned}\end{align} \]</div>
+<p>waarbij:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\Delta H\)</span> = kritiek verval in m</p></li>
+<li><p><span class="math notranslate nohighlight">\(L\)</span> = Kwelwelengte in m</p></li>
+<li><p><span class="math notranslate nohighlight">\(\eta\)</span> = Coëfficiënt van White (sleepkrachtfactor) = 0.25</p></li>
+<li><p><span class="math notranslate nohighlight">\(\gamma_{w}\)</span> = soortelijk gewicht van het water in kN/m³</p></li>
+<li><p><span class="math notranslate nohighlight">\(\theta\)</span> = Rolweerstandshoek van zandkorrels in graden</p></li>
+<li><p><span class="math notranslate nohighlight">\(d_{70.m}\)</span> = referentiewaarde van de korrelgrootte in m</p></li>
+<li><p><span class="math notranslate nohighlight">\(\kappa\)</span> = intrinsieke doorlatendheid in m<sup>2</sup></p></li>
+<li><p><span class="math notranslate nohighlight">\(\upsilon\)</span> = kinematische viscositeit van grondwater van 10<sup>o</sup> Celsius  in m²/s</p></li>
+<li><p><span class="math notranslate nohighlight">\(g\)</span> = valversnelling van de zwaartekracht in m/s²</p></li>
+<li><p><span class="math notranslate nohighlight">\(k\)</span> = doorlatendheid in m/s</p></li>
+<li><p><span class="math notranslate nohighlight">\(d_{70}\)</span> = 70-percentiel waarde van de korrelverdeling van de piping gevoelige laag in m</p></li>
+<li><p><span class="math notranslate nohighlight">\(D\)</span> = dikte van de zandlaag in m</p></li>
+</ul>
+<p>In de schematiseringshandleiding van het WBI2017 <span id="id1">Rijkswaterstaat [<a class="reference internal" href="../references.html#id6" title="Water Verkeer en Leefomgeving Rijkswaterstaat. Schematiseringshandleiding piping - wbi2017. Technical Report, Rijkswaterstaat, Water Verkeer en Leefomgeving, 2021.">2</a>]</span> staat een formulering van de rekenregel van Sellmeijer die afwijkt van de implementatie in de WBI-software. De afwijking zit in de definitie van de weerstandsfactor <span class="math notranslate nohighlight">\(F_{resistance}\)</span>. In de schematiseringshandleiding is de weerstandsfactor gedefinieerd als:</p>
+<div class="math notranslate nohighlight">
+\[F_{resistance} = \eta \cdot (\frac{16.5}{\gamma_{w}}) \tan(\theta)\]</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">GeoProb-Pipe</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Zoek" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigatie</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="uittredepuntenmethode.html">Uittredepuntenmethode</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="uittredepuntenmethode.html">Uittredepuntenmethode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stationair_model.html">Stationair model</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sellmeijer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grenstoestandfuncties.html">Grenstoestandfuncties</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev/overview.html">Developer API</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">Referenties</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="stationair_model.html" title="vorig hoofdstuk">Stationair model</a></li>
+      <li>Next: <a href="grenstoestandfuncties.html" title="volgend hoofdstuk">Grenstoestandfuncties</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Martijn Kriebel, Sander Kapinga, Ard-jan Methorst, Oscar Ophof.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/background/piping.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
