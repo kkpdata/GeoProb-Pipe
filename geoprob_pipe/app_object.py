@@ -25,7 +25,7 @@ from geoprob_pipe.calculations.system_calculations.piping_system.build_and_run i
 
 
 class GeoProbPipe:
-    """ Project class """
+    """ GeoProb-Pipe application object. """
     # TODO Later Could Groot: Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze.
 
     def __init__(
