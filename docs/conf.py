@@ -10,6 +10,81 @@ import sys
 import os
 import datetime
 sys.path.insert(0, os.path.abspath(".."))
+import os
+import inflection
+from bs4 import BeautifulSoup
+from typing import Optional
+# from repo_utils.utils import repository_root_path
+
+
+class BColors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+def should_be_reformatted(value: Optional[str]) -> bool:
+    if value is None:
+        return False
+    if "geoprob_pipe" not in value:
+        return False
+    if value.split(sep='.').__len__() <= 1:
+        return False
+    return True
+
+
+def reformat(value: str):
+    return inflection.humanize(value.split(sep='.')[-1])
+
+
+def simplify_anchor_text_in_file(filepath):
+    with open(filepath, 'r', encoding='utf-8') as file:
+        soup = BeautifulSoup(file, 'html.parser')
+
+    changed = False
+
+    # Strings
+    for a in soup.find_all('a'):
+        if not should_be_reformatted(a.string):
+            continue
+        a.string = reformat(a.string)
+        changed = True
+
+    # For navigation items
+    for nav in soup.find_all('div', {'role': 'navigation'}):
+        for li in nav.find_all('li', class_='breadcrumb-item active'):
+            if not should_be_reformatted(li.string):
+                continue
+            li.string = reformat(li.string)
+            changed = True
+
+    # For h1
+    for h1 in soup.find_all('h1'):
+        if "geoprob_pipe." not in h1.contents[0]:
+            continue
+        # for element in h1.contents:
+        #     print(f"{element=}")
+    # TODO: h1-items are a bit more complex. They have a hyperlink in them.
+
+    if changed:
+        with open(filepath, 'w', encoding='utf-8') as file:
+            file.write(str(soup))
+
+
+def run_post_processing():
+    conf_dir = os.path.dirname(os.path.abspath(__file__))
+    html_dir = os.path.join(conf_dir, "_build", "html")
+    for root, _, files in os.walk(html_dir):
+        for filename in files:
+            if filename.endswith('.html'):
+                file_path = os.path.join(root, filename)
+                simplify_anchor_text_in_file(file_path)
 
 project = 'GeoProb-Pipe'
 copyright = f'{datetime.date.today().year}, WSRL & WSHD'
@@ -71,10 +146,16 @@ html_theme_options = {
 #     app.connect("html-page-context", shorten_titles)
 #     pass
 def setup(app):
-    def on_build_finished(app, exception):
-        if exception is None:
-            print("SUCCESSFULLY BUILD!")
-        else:
-            print("NOT SUCCESSFULLY BUILD!")
+
+    # noinspection PyUnusedLocal
+    def on_build_finished(app_obj, exception):
+        if exception is not None:
+            print(BColors.WARNING,
+                  "Documentation build was not successful. The following exception was given. \n",
+                  exception,
+                  BColors.ENDC)
+            return
+        print(f"GOT HERE!!!")
+        run_post_processing()
 
     app.connect("build-finished", on_build_finished)

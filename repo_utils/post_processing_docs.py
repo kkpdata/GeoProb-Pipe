@@ -2,6 +2,7 @@ import os
 import inflection
 from bs4 import BeautifulSoup
 from typing import Optional
+from repo_utils.utils import repository_root_path
 
 
 def should_be_reformatted(value: Optional[str]) -> bool:
@@ -43,8 +44,12 @@ def simplify_anchor_text_in_file(filepath):
             file.write(str(soup))
 
 
-for root, _, files in os.walk(r"C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV2\GeoProb-Pipe\docs\_build\html"):
-    for filename in files:
-        if filename.endswith('.html'):
-            file_path = os.path.join(root, filename)
-            simplify_anchor_text_in_file(file_path)
+def run_post_processing():
+    repo_root = repository_root_path()
+    root_path = os.path.join(repo_root, "docs", "_build", "html")
+    # r"C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV2\GeoProb-Pipe\docs\_build\html"
+    for root, _, files in os.walk(root_path):
+        for filename in files:
+            if filename.endswith('.html'):
+                file_path = os.path.join(root, filename)
+                simplify_anchor_text_in_file(file_path)
