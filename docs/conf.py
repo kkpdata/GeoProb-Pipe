@@ -14,7 +14,6 @@ import os
 import inflection
 from bs4 import BeautifulSoup
 from typing import Optional
-# from repo_utils.utils import repository_root_path
 
 
 class BColors:
@@ -49,7 +48,7 @@ def simplify_anchor_text_in_file(filepath):
 
     changed = False
 
-    # Strings
+    # Hyperlinks
     for a in soup.find_all('a'):
         if not should_be_reformatted(a.string):
             continue
@@ -168,7 +167,6 @@ def setup(app):
                   exception,
                   BColors.ENDC)
             return
-        print(f"GOT HERE!!!")
         run_post_processing()
 
     app.connect("build-finished", on_build_finished)
