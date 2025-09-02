@@ -66,11 +66,24 @@ def simplify_anchor_text_in_file(filepath):
 
     # For h1
     for h1 in soup.find_all('h1'):
+
+        # Check if h1 to format
         if "geoprob_pipe." not in h1.contents[0]:
             continue
-        # for element in h1.contents:
-        #     print(f"{element=}")
-    # TODO: h1-items are a bit more complex. They have a hyperlink in them.
+
+        # Reformat
+        new_elements = []
+        for element in h1.contents:
+            if "geoprob_pipe." in element:
+                new_elements.append(reformat(element.text))
+                continue
+            new_elements.append(element)
+
+        # Update
+        h1.clear()
+        for item in new_elements:
+            h1.append(item)
+        changed = True
 
     if changed:
         with open(filepath, 'w', encoding='utf-8') as file:

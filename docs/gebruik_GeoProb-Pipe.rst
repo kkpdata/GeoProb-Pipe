@@ -20,19 +20,19 @@ gebruik bestaat uit de volgende stappen.
 
 * Installatie
 
-`GeoProb-Pipe is in de basis een command line applicatie. Daardoor is de installatie simpel. Je start een nieuwe
-virtuele Python omgeving en installeert de `geoprob_pipe`-package. Zie paragraaf :ref:`installatie`.
+`GeoProb-Pipe` is in de basis een command line applicatie. Daardoor is de installatie simpel. Je start een nieuwe
+virtuele Python omgeving en installeert de ``geoprob_pipe``-package. Zie paragraaf :ref:`installatie`.
 
 * Pre-processing
 Tijdens het pre-processen zet je de invoer voor de berekeningen klaar. Dit doe doe je door de `GeoProb-Pipe`-applicatie
 op te starten. Deze neemt je vervolgens mee door alle stappen. In paragraaf :ref:`pre-processing` is hier verder op
-ingegaan. Het resultaat van dit bestand is een .geoprob_pipe.gpkp-bestand. Dit bestand is een GeoPackage, te openen in
+ingegaan. Het resultaat van deze stap is een ``.geoprob_pipe.gpkp``-bestand. Dit bestand is een GeoPackage, te openen in
 ArcGIS, met alle invoer.
 
 * Berekeningen
-Na het pre-processen vraagt `GeoProb-Pipe` je of je de berekeningen wilt uitvoeren. Deze keuze volgt na het
-pre-processing menu. Deze stap bestaat enkel uit rekentijd. De ruwe data van de rekenresultaten worden toegevoegd aan
-het .geoprob_pipe.gpkp-bestand.
+Na het pre-processen vraagt `GeoProb-Pipe` of je de probabilistische berekeningen wilt uitvoeren. Deze keuze volgt na
+het pre-processing menu. Deze stap bestaat enkel uit rekentijd. De ruwe data van de rekenresultaten worden toegevoegd
+aan het ``.geoprob_pipe.gpkp``-bestand.
 
 * Post-processing
 Tijdens het post-processen worden alle resultaten geëxporteerd. Dit is inclusief ondersteunde bestanden zoals figuren.
@@ -43,7 +43,7 @@ Installatie en basis gebruik
 ----------------
 
 Start een schone Python environment. `GeoProb-Pipe` is ontwikkelt op Python 3.12. Deze versie wordt aangeraden voor
-gebruik. Voer daarna de volgende commando's uit om eerst `GeoProb-Pipe` te installeren, en daarna de probabilistische
+gebruik. Voer daarna de volgende commando's uit om eerst `GeoProb-Pipe` te installeren en daarna de probabilistische
 bibliotheek (PTK-tool wrapper) te installeren.
 
 
@@ -52,9 +52,9 @@ bibliotheek (PTK-tool wrapper) te installeren.
     pip install geoprob_pipe
     pip install probabilistic_library
 
-Daarna start je de applicatie met het commando ``geoprob_pipe``. De applicatie helpt je daarna verder door het gebruik.
-Je kunt op elk moment de applicatie afsluiten, en weer opnieuw opstarten. Indien je geen `Afsluit`-knop ziet, dan kun je
-middels ``ctrl + c`` de applicatie stoppen.
+Daarna start je de applicatie met het commando ``geoprob_pipe``. De applicatie zal je door het gebruik van de applicatie
+leiden. Je kunt op elk moment de applicatie afsluiten, en weer opnieuw opstarten. Indien je geen `Afsluit`-knop/optie
+ziet, dan kun je middels ``ctrl + c`` de applicatie stoppen.
 
 In de volgende paragrafen is het gebruik van de applicatie verder toegelicht.
 
@@ -64,8 +64,8 @@ Pre Processing
 ----------------
 
 Tijdens het pre-processen zet je de invoer voor de berekeningen klaar. De `GeoProb-Pipe` applicatie neemt je mee door
-dit proces. Het bestaat uit de volgende stappen. Tijdens deze stappen wordt een .geoprob_pipe.gpkp-bestand aangemaakt.
-Dit is een GeoPackage waarin alle invoer, en later eveneens rekenresultaten, worden opgeslagen.
+dit proces. Het bestaat uit de volgende stappen. Tijdens deze stappen wordt een ``.geoprob_pipe.gpkp``-bestand
+aangemaakt. Dit is een GeoPackage waarin alle invoer, en later eveneens rekenresultaten, worden opgeslagen.
 
 Algemene instellingen / Model keuze
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
