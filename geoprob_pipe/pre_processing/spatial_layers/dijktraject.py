@@ -2,10 +2,8 @@ from __future__ import annotations
 from InquirerPy import inquirer
 import warnings
 from typing import Optional, TYPE_CHECKING
+import importlib.resources
 import os
-# from pandas import DataFrame
-# from datetime import datetime
-# from pathlib import Path
 from geopandas import GeoDataFrame, read_file
 import fiona
 from geoprob_pipe.utils.validation_messages import BColors
@@ -20,9 +18,27 @@ def added_dijktraject(app_settings: ApplicationSettings) -> bool:
         print(BColors.OKBLUE, f"✔  Dijktraject al toegevoegd.", BColors.ENDC)
         return True
     else:
-        request_trajectory_filepath(app_settings)
+        question_trajectory_source(app_settings)
         # TODO Later Should Middel: We vragen nu filepath, we kunnen daarnaast de optie geven voor normtrajecten direct.
         return True
+
+
+def question_trajectory_source(app_settings: ApplicationSettings):
+    choices_list = ["Waterveiligheidsportaal (primaire keringen)", "Lokaal GIS bestand (geopackage/shapefile/geodatabase)"]
+
+    choice = inquirer.select(
+        message="Van waaruit wil je de referentielijn van de dijk inladen?",
+        choices=choices_list,
+        default=choices_list[0],
+    ).execute()
+
+    if choice == choices_list[0]:
+        with importlib.resources.path('geoprob_pipe.misc.dijktrajecten', 'dijktrajecten.shp') as shp_path:
+            gdf: GeoDataFrame = read_file(shp_path)
+        specify_single_trajectory(app_settings, gdf=gdf, column_name="TRAJECT_ID")
+    elif choice == choices_list[1]:
+        request_trajectory_filepath(app_settings)
+    return False
 
 
 def request_trajectory_filepath(app_settings: ApplicationSettings):
@@ -126,11 +142,12 @@ def specify_single_trajectory(app_settings: ApplicationSettings, gdf: GeoDataFra
     trajectory_name_is_valid = False
     while trajectory_name_is_valid is False:
         trajectory_name: str = inquirer.text(
-            message=f"De laag heeft {gdf.__len__()} lijnen. Specificeer welke het juiste dijktraject is. Type "
-                    f"'listoptions' om een overzicht te krijgen van de opties. ",
+            message=f"Er zijn {gdf.__len__()} opties. Type hier welke de juiste referentielijn is. Type "
+                    f"'listoptions' om een overzicht te krijgen van de opties.",
         ).execute()
 
         trajectory_names = gdf[column_name].values.tolist()
+        trajectory_names.sort()
         trajectories_str = ", ".join(trajectory_names)
         if trajectory_name == "listoptions":
             print(BColors.OKBLUE,

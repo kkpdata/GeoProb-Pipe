@@ -49,12 +49,4 @@ def specify_model_to_use(app_settings: ApplicationSettings, update_record: bool 
     conn.commit()
     conn.close()
 
-    # Continue questionnaire based on choice
-    # if choice == LEGEL_MODEL_OPTIONS[0]:
-    #     raise NotImplementedError
-    # elif choice == LEGEL_MODEL_OPTIONS[1]:
-    #     raise NotImplementedError
-    # else:
-    #     raise ValueError
-
     print(BColors.OKBLUE, f"✅  Rekenmodel ingesteld.", BColors.ENDC)
