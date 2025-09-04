@@ -70,14 +70,9 @@ aangemaakt. Dit is een GeoPackage waarin alle invoer, en later eveneens rekenres
 Algemene instellingen / Model keuze
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Er zijn enkele algemene instellingen, dit is hoofdzakelijk de model keuze. Default is ``model4a``. De opties zijn,
-inclusief verwijzing naar hun documentatie.
-
-* Model 4a
-
-* Model 4a i.c.m. MORIA
-
-* Model 4a i.c.m. response factor
+Er zijn enkele algemene instellingen, dit is hoofdzakelijk de systeem keuze. Momenteel is enkel `Piping`` een keuze.
+Later wordt dit uitgewerkt naar onder andere de keuzes ``model4a`` en deze i.c.m. Moria en/of het toepassen van
+respons.
 
 
 Importeren GIS-data
