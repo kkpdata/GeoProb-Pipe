@@ -22,6 +22,7 @@ import time
 from typing import List, Optional
 from geoprob_pipe.calculations.system_calculations.piping_system.build_and_run import (
     build_and_run_piping_system_calculations)
+from geoprob_pipe.software_requirements import SoftwareRequirements
 
 
 class GeoProbPipe:
@@ -43,6 +44,8 @@ class GeoProbPipe:
         self.time_start = datetime.now()
 
         self.workspace = Workspace(path_to_workspace)
+        self.software_requirements = SoftwareRequirements(self)
+
         self.input_data = InputData(self.workspace)
 
         # Read calculation settings
@@ -68,27 +71,26 @@ class GeoProbPipe:
         time.sleep(1)  # Some time to make sure the print below, is printed after the logger print.
 
     def _export_validation_messages(self):
-        df: Optional[DataFrame] = None
+
+        # Gather validation messages from software requirements
+        df: Optional[DataFrame] = self.software_requirements.validation_messages.concat_with_df()
 
         # Gather validation messages from all calculations
         for calc in self.calculations:
+            df = calc.validation_messages.concat_with_df(df_to_append_to=df)
 
-            # Get df to append
-            df_to_append = calc.validation_messages.df
-            if df_to_append is None:
-                continue
-
-            # Describe about
-            selected_keys = ["uittredepunt_id", "ondergrondscenario_id", "vak_id"]
-            original_dict = calc.metadata
-            filtered_dict = {key: original_dict[key] for key in selected_keys if key in original_dict}
-            df_to_append["about"] = f"Calculation {filtered_dict}"
-            df_to_append = df_to_append[["type", "about", "msg"]]
-
-            # Append to all other validation messages
-            if df is None:
-                df = df_to_append
-            df = concat([df, df_to_append])
+            # # Get df to append
+            # df_to_append = calc.validation_messages.df
+            # if df_to_append is None:
+            #     continue
+            #
+            # # Describe about
+            # # df_to_append = df_to_append[["type", "about", "msg"]]
+            #
+            # # Append to all other validation messages
+            # if df is None:
+            #     df = df_to_append
+            # df = concat([df, df_to_append])
 
         # Export dataframe with validation messages
         if df is not None:

@@ -103,7 +103,8 @@ def invloedsfactoren(geoprob_pipe: GeoProbPipe, export: bool = False) -> Figure:
         export_dir = geoprob_pipe.visualizations.graphs.export_dir
         os.makedirs(export_dir, exist_ok=True)
         fig.write_html(os.path.join(export_dir, f"invloedsfactoren.html"), include_plotlyjs='cdn')
-        fig.write_image(os.path.join(export_dir, f"invloedsfactoren.png"), format="png")
+        if geoprob_pipe.software_requirements.chrome_is_installed:
+            fig.write_image(os.path.join(export_dir, f"invloedsfactoren.png"), format="png")
 
 
     # for stochast in
