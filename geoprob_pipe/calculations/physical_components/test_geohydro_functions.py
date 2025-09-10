@@ -47,7 +47,7 @@ def test_calc_respons2pot():
     assert geohydro_functions.calc_respons2pot(1.0, 0.5, 6.0) == (1.0 + 2.5)
 
 
-def test_calc_pot2repons():
+def test_calc_pot2reponse():
     assert geohydro_functions.calc_pot2response(3.5, 1.0, 6.0) == 0.5
 
 
@@ -55,10 +55,9 @@ def test_calc_ang_freq():
     assert geohydro_functions.calc_ang_frequency(math.pi) == 2.0
 
 
-def test_P_from_T():
+def test_P_from_T_and_vv():
     assert geohydro_functions.calc_P_from_T(100.0) == 50.0
     assert geohydro_functions.calc_T_from_P(200.0) == 400.0
-
 
 def test_lambda_cyclic_from_stationary():
     assert (
