@@ -67,16 +67,68 @@ def test_calc_W_voorland():
     assert piping.calc_W_voorland(piping.calc_lambda_achterland(50.0*40.0, 10.0), 150.0) == pytest.approx(111.14536276273107, 0.0001)
     assert piping.calc_W_voorland(piping.calc_lambda_achterland(50.0*40.0, 50.0), 3500.0) == pytest.approx(316.2277623787640000, 0.0001)
 
+def test_calc_L_kwelweg():
+    assert piping.calc_L_kwelweg(500.0, 200.0) == 700.0
+    assert piping.calc_L_kwelweg(0.0, 0.0) == 0.0
+    assert piping.calc_L_kwelweg(100.1, 0.4) == 100.5
 
+def test_calc_dphi_c_u():
+    assert piping.calc_dphi_c_u(6.0, 15.0, 9.81) == pytest.approx(
+        3.174, 0.0001
+    )
+    assert piping.calc_dphi_c_u(0.0, 15.0, 9.81) == 0.0
+    assert piping.calc_dphi_c_u(2.36690, 16.5, 9.81) == pytest.approx(
+        1.614, 0.0001
+    )
 
-# def test_calc_d_pot_c_u():
-#     assert piping.calc_d_pot_c_u(6.0, 15.0, 9.81) == pytest.approx(
-#         3.174, 0.0001
-#     )
-#     assert piping.calc_d_pot_c_u(0.0, 15.0, 9.81) == 0.0
-#     assert piping.calc_d_pot_c_u(2.36690, 16.5, 9.81) == pytest.approx(
-#         1.614, 0.0001
-#     )
+def test_calc_i_exit():
+    assert piping.calc_i_exit(0.1,0.1,0.1) == 0.0
+    assert piping.calc_i_exit(0.0,1.0,1.0) == -1.0
+    assert piping.calc_i_exit(2.0,1.0,1.0) == 1.0
+    with pytest.raises(ZeroDivisionError):
+        piping.calc_i_exit(2.0,1.0,0.0)
+
+def test_calc_phi_exit():
+    assert piping.calc_phi_exit(0.0,0.5,1.0) == 0.5
+    assert piping.calc_phi_exit(1.0,1.0,1.0) == 1.0
+    assert piping.calc_phi_exit(2.0,1.0,1.0) == 1.0
+    assert piping.calc_phi_exit(0.0,0.1,1.0) == 0.1
+
+## Get data for testing calc_dh_c function
+from pathlib import Path
+testset_path = Path(
+    Path(__file__).resolve(strict=True).parent,
+    "testset",
+    "testset_limitstate_piping.xlsx",
+)
+
+def get_data_calc_dh_c():
+    """Get data for testing calc_dh_c function"""
+    import pandas as pd
+    data = pd.read_excel(testset_path, sheet_name="Blad1", header=0)
+    return data
+
+# define input and output keys for calc_dh_c function
+input_keys_calc_dh_c = [
+    "D70",  # i1
+    "D_zand",  # i2
+    "kD_WVP",  # i3
+    "L_kwelweg" # i4
+    "gamma_w",  # i5
+    "g", # i6
+    "v", # i7
+    "theta", # i8
+    "d70m" # i9
+    "gamma_korrel"  # i10
+]
+
+output_key_calc_dh_c = ["dHc_piping"]  # expected output
+
+# global variables for calc_dh_c function
+g = 9.81  # m/s^2
+v = 1.33e-6  # m^2/s
+theta = 37.0  # grd
+gamma_korrel = 26.0  # kN/m^3
 
 
 # def test_calc_Z_u():

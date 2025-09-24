@@ -229,7 +229,9 @@ def calc_i_exit(
 
 
 # noinspection PyPep8Naming
-#TODO: deze wrapper functie wordt gebruikt in heave_icw_model4a en uplift_icw_model4a. Niet nodig om deze wrapper functie te gebruiken als de model4a klasse zelf gebruikt kan worden in heave_icw_model4a en uplift_icw_model4a. Dan kan deze functie verwijderd worden.
+#TODO: deze wrapper functie wordt gebruikt in heave_icw_model4a.py en uplift_icw_model4a.py 
+# check of deze limit_state functies ook daadwerkelijk gebruikt worden in de berekeningen.
+# zo niet, verwijder deze functies of roep de model4a klasse direct aan in de limit_state functies.
 def calc_r_exit_model4a(
         kD_wvp: float,
         D_wvp: float,
