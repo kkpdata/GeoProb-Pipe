@@ -16,5 +16,7 @@ achtergronden van de methode, API-referenties en voorbeelden.
 
    gebruik_GeoProb-Pipe
    uittredepuntenmethode
+   Methode_model4a_en_geohydrologisch_model
+   Relatie_beslisraamwerk_piping
    references
 

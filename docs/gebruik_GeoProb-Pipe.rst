@@ -40,7 +40,7 @@ Tijdens het post-processen worden alle resultaten geëxporteerd. Dit is inclusie
 
 .. _installatie:
 Installatie en basis gebruik
-----------------
+----------------------------
 
 Start een schone Python environment. `GeoProb-Pipe` is ontwikkelt op Python 3.12. Deze versie wordt aangeraden voor
 gebruik. Voer daarna de volgende commando's uit om eerst `GeoProb-Pipe` te installeren en daarna de probabilistische
