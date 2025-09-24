@@ -2,3 +2,5 @@
 
 openturns
 gitpython
+inflection
+bs4
