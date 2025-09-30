@@ -123,11 +123,8 @@ def generate_uittredepunten_suggestions(app_settings: ApplicationSettings):
     if LEGAL_MODEL_OPTIONS[0] in choices:
         algorithm_walking_circles(app_settings=app_settings)
     if LEGAL_MODEL_OPTIONS[1] in choices:
-        pass
-
-    print(f"{choices=}")
-
-    raise NotImplementedError("Applicatie vroegtijdig afgesloten: Dit is nog niet geïmplementeerd.")
+        raise NotImplementedError(
+            f"Applicatie vroegtijdig afgesloten: 'LEGAL_MODEL_OPTIONS[1]' is nog niet geïmplementeerd.")
 
 
 def request_uittredepunten_filepath(app_settings: ApplicationSettings):

@@ -2,6 +2,7 @@ from __future__ import annotations
 from geopandas import read_file
 from InquirerPy import inquirer
 import warnings
+from geoprob_pipe.pre_processing.utils.spatial import load_dijktraject_linestring
 import os
 from pathlib import Path
 from shapely import LineString, MultiLineString
@@ -137,16 +138,7 @@ def align_vak_shp_to_dijktraject(
 ):
 
     # Get dijktraject linestring
-    gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="dijktraject")
-    gdf_dijktraject_geom = gdf_dijktraject.iloc[0].geometry
-    if isinstance(gdf_dijktraject_geom, MultiLineString):
-        assert gdf_dijktraject_geom.geoms.__len__() == 1
-        ls_dijktraject: LineString = gdf_dijktraject_geom.geoms[0]
-    elif isinstance(gdf_dijktraject_geom, LineString):
-        ls_dijktraject = gdf_dijktraject_geom
-    else:
-        raise NotImplementedError(f"Type of '{type(gdf_dijktraject_geom)} is not yet supported. Please contact the "
-                                  f"developer.'")
+    ls_dijktraject = load_dijktraject_linestring(app_settings=app_settings)
 
     # Data verzamelen uit provided vak shp
     rows = []

@@ -16,7 +16,7 @@ def added_ahn(app_settings: ApplicationSettings, display_added_msg: bool = False
     if exists and display_added_msg:
         print(BColors.OKBLUE, f"✔  AHN-grid al toegevoegd.", BColors.ENDC)
         return True
-    if exists and display_added_msg:
+    if exists and not display_added_msg:
         return True
 
     return False
