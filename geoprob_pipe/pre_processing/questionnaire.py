@@ -2,7 +2,7 @@ from __future__ import annotations
 from geoprob_pipe.pre_processing.general import created_project, created_model
 from geoprob_pipe.pre_processing.spatial_layers import (
     added_dijktraject, added_vakindeling, added_uittredepunten, added_hrd, added_polderpeil, added_binnenteenlijn,
-    added_buitenteenlijn, added_intredelijn)
+    added_buitenteenlijn, added_intredelijn, added_ahn)
 from geoprob_pipe.pre_processing.spatial_joins import (
     coupled_hrd_to_uittredepunten, coupled_distances_to_uittredepunten, coupled_polderpeil_to_uittredepunten,
     coupled_uittredepunten_to_refline, coupled_uittredepunten_to_vakken)
@@ -33,6 +33,7 @@ def pre_processing_questionnaire(app_settings: ApplicationSettings):
     if not added_binnenteenlijn(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not added_buitenteenlijn(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not added_intredelijn(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    added_ahn(app_settings=app_settings, display_added_msg=True)  # AHN may be optional
 
     print(f"\nGEOGRAFISCHE KOPPELINGEN")
     if not coupled_hrd_to_uittredepunten(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
