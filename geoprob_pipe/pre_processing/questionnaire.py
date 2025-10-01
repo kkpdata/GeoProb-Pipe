@@ -6,6 +6,7 @@ from geoprob_pipe.pre_processing.spatial_layers import (
 from geoprob_pipe.pre_processing.spatial_joins import (
     coupled_hrd_to_uittredepunten, coupled_distances_to_uittredepunten, coupled_polderpeil_to_uittredepunten,
     coupled_uittredepunten_to_refline, coupled_uittredepunten_to_vakken)
+from geoprob_pipe.pre_processing.parameter_input import added_input_parameter_data
 from typing import TYPE_CHECKING
 import sys
 if TYPE_CHECKING:
@@ -42,7 +43,7 @@ def pre_processing_questionnaire(app_settings: ApplicationSettings):
     if not coupled_uittredepunten_to_refline(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_uittredepunten_to_vakken(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
 
-    # print(f"\nPARAMETER INVOER")
-    # if not added_input_parameter_data(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    print(f"\nPARAMETER INVOER")
+    if not added_input_parameter_data(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     # if not expanded_input_parameter_data(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     # if not input_parameter_data_covers_all(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
