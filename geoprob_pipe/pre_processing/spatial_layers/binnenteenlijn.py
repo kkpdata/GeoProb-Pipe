@@ -7,7 +7,6 @@ from __future__ import annotations
 from InquirerPy import inquirer
 from typing import TYPE_CHECKING, Optional
 import os
-import sys
 from shapely import LineString, MultiLineString
 from geopandas import GeoDataFrame, read_file
 import fiona
@@ -52,14 +51,14 @@ def request_binnenteenlijn_filepath(app_settings: ApplicationSettings):
 
     # Import data
     if filepath.endswith(".shp"):
-        sys.exit("Applicatie vroegtijdig afgesloten: shp wordt nog niet ondersteund.")
+        raise NotImplementedError("Applicatie vroegtijdig afgesloten: shp wordt nog niet ondersteund.")
     elif filepath.endswith(".gpkg"):
         gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
     elif filepath.endswith(".gdb"):
         gdf: GeoDataFrame = import_from_geodatabase(filepath=filepath)
     else:
-        sys.exit(f"Applicatie vroegtijdig afgesloten: Een {filepath.split(sep='.')[-1]}-bestand is niet "
-                 f"geïmplementeerd.")
+        raise NotImplementedError(
+            f"Applicatie vroegtijdig afgesloten: Een {filepath.split(sep='.')[-1]}-bestand is niet geïmplementeerd.")
 
     # Confirm all are points
     all_geometries_are_points = gdf.geometry.apply(

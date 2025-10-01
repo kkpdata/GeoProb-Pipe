@@ -79,19 +79,6 @@ class GeoProbPipe:
         for calc in self.calculations:
             df = calc.validation_messages.concat_with_df(df_to_append_to=df)
 
-            # # Get df to append
-            # df_to_append = calc.validation_messages.df
-            # if df_to_append is None:
-            #     continue
-            #
-            # # Describe about
-            # # df_to_append = df_to_append[["type", "about", "msg"]]
-            #
-            # # Append to all other validation messages
-            # if df is None:
-            #     df = df_to_append
-            # df = concat([df, df_to_append])
-
         # Export dataframe with validation messages
         if df is not None:
             export_path = os.path.join(self.workspace.path_output_folder.folderpath, "validation_messages.xlsx")

@@ -25,6 +25,10 @@ class ApplicationSettings:
         os.makedirs(path_to_hrd_dir, exist_ok=True)
         return path_to_hrd_dir
 
+    @property
+    def ahn_filepath(self) -> str:
+        return os.path.join(self.workspace_dir, "ahn", "ahn.tif")
+
 
 def clear_terminal():
     if platform.system() == "Windows":

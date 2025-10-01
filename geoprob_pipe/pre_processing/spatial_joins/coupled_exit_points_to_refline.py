@@ -23,8 +23,10 @@ def coupled_uittredepunten_to_refline(app_settings: ApplicationSettings) -> bool
     if isinstance(gdf_dijktraject_geom, MultiLineString):
         assert gdf_dijktraject_geom.geoms.__len__() == 1
         ls_dijktraject: LineString = gdf_dijktraject_geom.geoms[0]
+    elif isinstance(gdf_dijktraject_geom, LineString):
+        ls_dijktraject: LineString = gdf_dijktraject_geom
     else:
-        raise NotImplementedError
+        raise NotImplementedError(f"Type of {type(gdf_dijktraject_geom)} is not yet implemented.")
 
     # Spatial analyses
     gdf_exit_points['metrering'] = gdf_exit_points.geometry.apply(
