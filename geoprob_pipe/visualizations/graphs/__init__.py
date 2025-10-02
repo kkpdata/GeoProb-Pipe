@@ -1,5 +1,5 @@
 from __future__ import annotations
-from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex_oud import (
+from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex import (
     beta_uittredepunten_graph, beta_scenarios_graph, beta_vakken_graph)
 from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive, hfreq_graphs_per_location
 from geoprob_pipe.visualizations.graphs.physical_values_along_levee import physical_values_buitenwaterstand_and_top_zand
@@ -37,13 +37,13 @@ class Graphs:
     def hfreq_graphs_per_location(self) -> List[MatplotLibFigure]:
         return hfreq_graphs_per_location(self.geoprob_pipe, export=False)
 
-    def beta_scenarios(self) -> MatplotLibFigure:
+    def beta_scenarios(self) -> PlotlyFigure:
         return beta_scenarios_graph(self.geoprob_pipe, export=False)
 
-    def beta_uittredepunten(self) -> MatplotLibFigure:
+    def beta_uittredepunten(self) -> PlotlyFigure:
         return beta_uittredepunten_graph(self.geoprob_pipe, export=False)
 
-    def beta_vakken(self) -> MatplotLibFigure:
+    def beta_vakken(self) -> PlotlyFigure:
         return beta_vakken_graph(self.geoprob_pipe, export=False)
 
     def export_graphs(self):
