@@ -97,8 +97,8 @@ def test_calc_phi_exit():
 ## Get data for testing calc_dh_c function
 from pathlib import Path
 testset_path = Path(
-    Path(__file__).resolve(strict=True).parent,
-    "testset",
+    Path(__file__).resolve(strict=True).parents[3],
+    "tests/testset",
     "testset_limitstate_piping.xlsx",
 )
 
@@ -113,110 +113,40 @@ input_keys_calc_dh_c = [
     "D70",  # i1
     "D_zand",  # i2
     "kD_WVP",  # i3
-    "L_kwelweg" # i4
+    "L_kwelweg", # i4
     "gamma_w",  # i5
-    "g", # i6
-    "v", # i7
-    "theta", # i8
-    "d70m" # i9
-    "gamma_korrel"  # i10
 ]
 
 output_key_calc_dh_c = ["dHc_piping"]  # expected output
 
 # global variables for calc_dh_c function
-g = 9.81  # m/s^2
-v = 1.33e-6  # m^2/s
-theta = 37.0  # grd
-gamma_korrel = 26.0  # kN/m^3
+G = 9.81  # m/s^2
+V = 1.33e-6  # m^2/s
+ETA = 0.25  # [-]
+THETA = 37.0  # grd
+GAMMA_KORREL = 26.0  # kN/m^3
+D70_M = 2.08e-4  # m
 
+#setup test construct
+data_calc_dh_c = get_data_calc_dh_c()
+inputs_calc_dh_c = data_calc_dh_c[input_keys_calc_dh_c].to_dict(orient="records")
+expected_outputs_calc_dh_c = data_calc_dh_c[output_key_calc_dh_c].to_dict(orient="records")
 
-# def test_calc_Z_u():
-#     assert piping.calc_Z_u(1.614127, 3.18087, 2.466904, 1.0) == pytest.approx(
-#         0.900157, 0.0001
-#     )
-#     assert piping.calc_Z_u(3.1743, 7.04412, -0.5, 1.0) == pytest.approx(
-#         -4.3698, 0.0001
-#     )
+@pytest.mark.parametrize("inputs, expected", zip(inputs_calc_dh_c, expected_outputs_calc_dh_c))
+def test_calc_dh_c(inputs, expected):
+    """Test calc_dh_c function with multiple test cases from excel file"""
+    result = piping.calc_dh_c(
+        d70=inputs["D70"],
+        D_wvp=inputs["D_zand"],
+        kD_wvp=inputs["kD_WVP"],
+        L_kwelweg=inputs["L_kwelweg"],
+        gamma_water=inputs["gamma_w"],
+        g=G,
+        v=V,
+        theta=THETA,
+        eta=ETA,
+        d70_m=D70_M,
+        gamma_korrel=GAMMA_KORREL,
+    )
+    assert result == pytest.approx(expected["dHc_piping"], 0.01)
 
-
-# def test_calc_F_u():
-#     assert piping.calc_F_u(3.1743, 7.0441, -0.500) == pytest.approx(
-#         0.4208, 0.0001
-#     )
-#     assert piping.calc_F_u(1.6141, 1.5, 1.5) == 8.00
-#     assert piping.calc_F_u(2.0, 1.5, 1.48) == pytest.approx(100.000, 0.001)
-
-
-# def test_calc_F_u_macro():
-#     assert piping.calc_F_u_macro(2.0, 15.0, 9.81, 1.5, 1.0) == pytest.approx(
-#         1.2232415902140672, 0.0001
-#     )
-#     assert piping.calc_F_u_macro(2.0, 15.0, 9.81, 1.5, 1.5) == 8.00
-
-
-# def test_calc_i_optredend():
-#     assert piping.calc_i_optredend(4.0, 2.0, 1.0) == 2.0
-#     assert piping.calc_i_optredend(4.0, 2.0, 2.0) == 1.0
-#     assert piping.calc_i_optredend(4.0, 2.0, 0.1) == 20.0
-
-
-# def test_calc_Z_h():
-#     assert piping.calc_Z_h(0.5, 0.5, 1.0) == 0.0
-#     assert piping.calc_Z_h(0.5, 0.1, 1.0) == 0.4
-#     assert piping.calc_Z_h(0.5, 0.51, 1.0) == pytest.approx(-0.01, 0.0001)
-#     assert piping.calc_Z_h(0.5, 0.55, 1.1) == 0.0
-
-
-# def test_calc_F_h():
-#     assert piping.calc_F_h(0.5, 0.5) == 1.0
-#     assert piping.calc_F_h(0.5, 0.1) == 5.0
-#     assert piping.calc_F_h(0.5, 0.51) == pytest.approx((0.5 / 0.51), 0.0001)
-#     assert piping.calc_F_h(0.5, 1.0) == 0.5
-
-
-# def test_calc_dH_sellmeijer_inc_calc_settings():
-#     assert piping.calc_dH_sellmeijer_inc_calc_settings(
-#         2.530e-04,  # m
-#         19.24,  # m/d
-#         27.5,  # m
-#         108.157096,  # m
-#         9.81,  # m/s^2
-#         0.00000133,  # viscosity
-#         37.0,  # grd
-#         0.25,  # [-]
-#         2.08e-4,  # m
-#         26.0,
-#     ) == pytest.approx(6.50006e00, 0.0001)
-
-
-# def test_calc_dH_sellmeijer():
-#     assert piping.calc_dH_sellmeijer(
-#         3.50e-04,
-#         41.4,
-#         50.0,
-#         238.0892,
-#         9.81,  # m  # m/d  # m  # m  # m/s^2
-#     ) == pytest.approx(10.1276, 0.0001)
-#     assert piping.calc_dH_sellmeijer(
-#         2.530e-04,  # m
-#         19.24,  # m/d
-#         27.5,  # m
-#         108.157096,  # m
-#         9.81,  # m/s^2
-#     ) == pytest.approx(6.50006e00, 0.0001)
-
-
-# def test_Z_p():
-#     assert piping.calc_Z_p(5.0, 5.0, 1.0) == 0.0
-#     assert piping.calc_Z_p(6.5, 7.5, 1.0) == -1.0
-#     assert piping.calc_Z_p(6.5, 7.5, 1.2) == pytest.approx(0.3, 0.001)
-
-
-# def test_calc_F_p():
-#     assert piping.calc_F_p(5.0, 5.0) == 1.0
-#     assert piping.calc_F_p(6.5, 7.5) == pytest.approx(
-#         0.8666666666666667, 0.0001
-#     )
-#     assert piping.calc_F_p(1.0, 10.0) == pytest.approx(0.1, 0.0001)
-#     assert piping.calc_F_p(1.0, 0.0) == 100.0
