@@ -23,19 +23,11 @@ gebruik bestaat uit de volgende stappen.
 `GeoProb-Pipe` is in de basis een command line applicatie. Daardoor is de installatie simpel. Je start een nieuwe
 virtuele Python omgeving en installeert de ``geoprob_pipe``-package. Zie paragraaf :ref:`installatie`.
 
-* Pre-processing
-Tijdens het pre-processen zet je de invoer voor de berekeningen klaar. Dit doe doe je door de `GeoProb-Pipe`-applicatie
-op te starten. Deze neemt je vervolgens mee door alle stappen. In paragraaf :ref:`pre-processing` is hier verder op
-ingegaan. Het resultaat van deze stap is een ``.geoprob_pipe.gpkp``-bestand. Dit bestand is een GeoPackage, te openen in
-ArcGIS, met alle invoer.
-
-* Berekeningen
-Na het pre-processen vraagt `GeoProb-Pipe` of je de probabilistische berekeningen wilt uitvoeren. Deze keuze volgt na
-het pre-processing menu. Deze stap bestaat enkel uit rekentijd. De ruwe data van de rekenresultaten worden toegevoegd
+* Pre-processing: tijdens het pre-processen zet je de invoer voor de berekeningen klaar. Dit doe doe je door de `GeoProb-Pipe`-applicatie op te starten. Deze neemt je vervolgens mee door alle stappen. In paragraaf :ref:`pre-processing` is hier verder op
+ingegaan. Het resultaat van deze stap is een ``.geoprob_pipe.gpkp``-bestand. Dit bestand is een GeoPackage, te openen in ArcGIS, met alle invoer.
+* Berekeningen: na het pre-processen vraagt `GeoProb-Pipe` of je de probabilistische berekeningen wilt uitvoeren. Deze keuze volgt na het pre-processing menu. Deze stap bestaat enkel uit rekentijd. De ruwe data van de rekenresultaten worden toegevoegd
 aan het ``.geoprob_pipe.gpkp``-bestand.
-
-* Post-processing
-Tijdens het post-processen worden alle resultaten geëxporteerd. Dit is inclusief ondersteunde bestanden zoals figuren.
+* Post-processing: tijdens het post-processen worden alle resultaten geëxporteerd. Dit is inclusief ondersteunde bestanden zoals figuren.
 
 
 .. _installatie:
@@ -61,10 +53,10 @@ In de volgende paragrafen is het gebruik van de applicatie verder toegelicht.
 
 .. _pre-processing:
 Pre Processing
-----------------
+--------------
 
-Tijdens het pre-processen zet je de invoer voor de berekeningen klaar. De `GeoProb-Pipe` applicatie neemt je mee door
-dit proces. Het bestaat uit de volgende stappen. Tijdens deze stappen wordt een ``.geoprob_pipe.gpkp``-bestand
+Tijdens het pre-processen zet je de invoer voor de berekeningen klaar. De `GeoProb-Pipe` applicatie neemt je mee door dit proces. 
+Het bestaat uit de volgende stappen. Tijdens deze stappen wordt een ``.geoprob_pipe.gpkp``-bestand
 aangemaakt. Dit is een GeoPackage waarin alle invoer, en later eveneens rekenresultaten, worden opgeslagen.
 
 Algemene instellingen / Model keuze
@@ -164,21 +156,30 @@ Discussie uittredepunten tabel
 2. Optioneel kan het model worden uitgebreid met de verwachte top van het zand ter plaatse van het uittredepunt.
 
 
-### Bronbestanden voor de uittredepunten tabel
+Typen ondergrondscenario's
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Een ondergrondscenario is een unieke verzameling van variabelen die de eigenschappen van de ondergrond beschrijven. Ondergrondscenario's  worden per vak of per uittredepunt vastgelegd. Er zijn drie typen ondergrondscenario's:
+
+- Holoceen gefundeerd (HLF): Hierbij zit de deklaag boven een holocene zandlaag welke samen met de onderliggende pleistocene zandlaag het watervoerend pakket vormen.
+- Pleistoceen (PL): Hierbij ligt de deklaag direct boven op een pleistocene zandlaag.
+- Tussenzandlaag: Hierbij is er nog een tussenzandlaag aanwezig omsloten door de deklaag en een andere kleilaag. Deze is niet in direct contact met het pleistocene watervoerend pakket.
+
+Een kenmerk van ondergronscenario's is dat ze discreet zijn. Of het ene scenario komt voor binnen een vak of het andere. Afhankelijk van de beschikbare data kan je per uittredepunt de ondergrondscenario's vastleggen. We kiezen er in deze implementatie voor om per vak een ondergrondscenario vast te leggen. Dit betekent dat alle uittredepunten binnen een vak dezelfde (typen) ondergrondscenario's hebben.
+
+.. figure:: /_static/TypenOndergrondscenario.png
+   :width: 100%
+
+   Voorbeeld typen ondergrondscenario's
+
+
+Bronbestanden voor de uittredepunten tabel
 De locaties van mogelijke uittredepunten
-
 Uitvoer van een Hydra-NL berekening
-TODO: format vastleggen
-
-### Vastleggen Ondergrondschematisatie
-
-### Genereren scenarioberekeningen
-
-## Uitvoeren scenarioberekeningen
-
-### Semi-probabilistische berekeningen
-
-### Probabilistische berekeningen
-
-## Verwerken scenarioberekeningen
+Vakindeling
+Genereren scenarioberekeningen
+Uitvoeren scenarioberekeningen
+Probabilistische berekeningen
+Combineren deelfaalmechanismen
+Combineren scenarioberekeningen
+Post Processing
