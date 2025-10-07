@@ -11,8 +11,8 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
-def _background_graph(geoprob_pipe: GeoProbPipe, fig: go.Figure, df_for_graph: pd.DataFrame) -> go.Figure:
-    # Catogorie kleuren
+def background_graph(geoprob_pipe: GeoProbPipe, fig: go.Figure, df_for_graph: pd.DataFrame) -> go.Figure:
+    # Categorie kleuren
     cg = geoprob_pipe.input_data.traject_normering.beta_categorie_grenzen
     colors = ["rgba(0,128,0,0.4)", "rgba(144,238,144,0.4)", 
             "rgba(255,255,0,0.4)", "rgba(255,165,0,0.4)", 
@@ -86,11 +86,9 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> go.F
         on="uittredepunt_id",
         how="left"
     )
-    
 
     # Plot data
     fig = go.Figure()
-    
     fig.add_trace(
         go.Scatter(
             x=df_for_graph['M_value'],
@@ -162,7 +160,7 @@ def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) ->
             y=df_for_graph["beta"],
             mode='markers',
             marker=dict(symbol='circle', size=3, color='black'),
-            name='Beta Uitredepunten',
+            name='Beta Uittredepunten',
             showlegend=True
         )
     )
