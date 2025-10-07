@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
-def background_graph(geoprob_pipe: GeoProbPipe, fig: go.Figure, df_for_graph: pd.DataFrame) -> go.Figure:
+def _background_graph(geoprob_pipe: GeoProbPipe, fig: go.Figure, df_for_graph: pd.DataFrame) -> go.Figure:
     # Categorie kleuren
     cg = geoprob_pipe.input_data.traject_normering.beta_categorie_grenzen
     colors = ["rgba(0,128,0,0.4)", "rgba(144,238,144,0.4)", 
