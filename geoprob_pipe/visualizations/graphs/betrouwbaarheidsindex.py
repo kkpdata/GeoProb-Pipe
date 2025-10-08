@@ -4,7 +4,6 @@ from pandas import merge
 import numpy as np
 import os
 from datetime import datetime
-from geoprob_pipe.misc.traject_normering import TrajectNormering
 import plotly.graph_objects as go
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -94,8 +93,8 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> go.F
             x=df_for_graph['M_value'],
             y=df_for_graph["beta"],
             mode='markers',
-            marker=dict(symbol='circle', size=3, color='black'),
-            name='Beta Scenarios',
+            marker=dict(symbol='diamond', size=3, color='grey'),
+            name='Beta scenarios',
             showlegend=True
         )
     )
@@ -130,7 +129,6 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> go.F
     if export:
         export_dir = os.path.join(geoprob_pipe.visualizations.graphs.export_dir, "grafiek_betrouwbaarheidsindex")
         os.makedirs(export_dir, exist_ok=True)
-        # fig.write_html(os.path.join(export_dir, f"beta_scenarios.html"), include_plotlyjs='cdn')
         if geoprob_pipe.software_requirements.chrome_is_installed:
             fig.write_image(os.path.join(export_dir, f"beta_scenarios.png"), scale=6, format="png", width=1400, height=1000)
         
@@ -195,7 +193,6 @@ def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) ->
     if export:
         export_dir = os.path.join(geoprob_pipe.visualizations.graphs.export_dir, "grafiek_betrouwbaarheidsindex")
         os.makedirs(export_dir, exist_ok=True)
-        # fig.write_html(os.path.join(export_dir, f"beta_uittredepunten.html"), include_plotlyjs='cdn')
         if geoprob_pipe.software_requirements.chrome_is_installed:
             fig.write_image(os.path.join(export_dir, f"beta_uittredepunten.png"), format="png", scale=6, width=1400, height=1000)
         
@@ -223,9 +220,6 @@ def beta_vakken_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> go.Figu
                       x0=row["M_van"], x1=row["M_tot"],
                       y0=row["beta"], y1=row["beta"],
                       line=dict(color="black", width=2.5))
-        
-        # fig.add_vline(x=row["M_van"])
-        # fig.add_vline(x=row["M_tot"])
         
         fig.add_annotation(
             x=(row["M_van"] + row["M_tot"]) / 2, y=np.log10(row["beta"]),
@@ -265,11 +259,11 @@ def beta_vakken_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> go.Figu
     if export:
         export_dir = os.path.join(geoprob_pipe.visualizations.graphs.export_dir, "grafiek_betrouwbaarheidsindex")
         os.makedirs(export_dir, exist_ok=True)
-        # fig.write_html(os.path.join(export_dir, f"beta_vakken.html"), include_plotlyjs='cdn')
         if geoprob_pipe.software_requirements.chrome_is_installed:
             fig.write_image(os.path.join(export_dir, f"beta_vakken.png"), format="png", scale=6, width=1400, height=1000)
         
     return fig
+
 
 class GraphBetaValuesSingleInteractive:
     
@@ -332,8 +326,8 @@ class GraphBetaValuesSingleInteractive:
                 x=df_for_graph['M_value'],
                 y=df_for_graph["beta"],
                 mode='markers',
-                marker=dict(symbol='diamond', size=5, color='black'),
-                name='Beta Scenarios',
+                marker=dict(symbol='diamond', size=7, color='grey'),
+                name='Beta scenarios',
                 showlegend=True
             )
         )
@@ -354,8 +348,8 @@ class GraphBetaValuesSingleInteractive:
                 x=df_for_graph['M_value'],
                 y=df_for_graph["beta"],
                 mode='markers',
-                marker=dict(symbol='circle', size=5, color='black'),
-                name='Beta Uitredepunten',
+                marker=dict(symbol='circle', size=7, color='black'),
+                name='Beta uittredepunten',
                 showlegend=True
             )
         )
@@ -422,7 +416,7 @@ class GraphBetaValuesSingleInteractive:
     def _update_layout(self):
         
         self.fig.update_layout(
-        title=f"Betrouwbaarheidsindex STPH per uittredepunt",
+        title=f"Betrouwbaarheidsindex STPH",
         xaxis=dict(title=f"Metrering",
             type='linear',
             range=[self.M_van, self.M_tot],
@@ -458,6 +452,9 @@ class GraphBetaValuesSingleInteractive:
         if add_timestamp:
             timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
             timestamp_str = f"{timestamp}_"
-        self.fig.write_html(os.path.join(export_dir, f"{timestamp_str}betrouwbaarheidsindex.html"), include_plotlyjs='cdn')
+        self.fig.write_html(
+            os.path.join(export_dir, f"{timestamp_str}betrouwbaarheidsindex.html"), include_plotlyjs='cdn')
         if self.geoprob_pipe.software_requirements.chrome_is_installed:
-            self.fig.write_image(os.path.join(export_dir, f"{timestamp_str}betrouwbaarheidsindex.png"), format="png", scale=6, width=1400, height=1000)
+            self.fig.write_image(
+                os.path.join(export_dir, f"{timestamp_str}betrouwbaarheidsindex.png"),
+                format="png", scale=6, width=1400, height=1000)
