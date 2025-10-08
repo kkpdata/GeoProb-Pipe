@@ -10,6 +10,8 @@ Welkom bij de documentatie van GeoProb-Pipe, een probabilistische methode om pip
 uittredepuntenmethode uit te voeren. Deze documentatie biedt handreikingen voor het gebruik van GeoProb-Pipe, de
 achtergronden van de methode, API-referenties en voorbeelden.
 
+.. TODO: Afbeelding toevoegen de applicatie. Wellicht kaartje/bovenaanzicht van resultaat.
+
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
