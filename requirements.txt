@@ -13,3 +13,4 @@ sphinxcontrib-bibtex
 typer[all]
 InquirerPy
 gitpython
+rasterio

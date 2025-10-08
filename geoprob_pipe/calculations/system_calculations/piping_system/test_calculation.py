@@ -8,11 +8,11 @@ def test_calculation():
     from probabilistic_library import Alpha
     from geoprob_pipe.calculations.system_calculations.piping_system.reliability_calculation import  (
         PipingSystemReliabilityCalculation)
-    from geoprob_pipe.calculations.system_calculations.piping_system.dummy_input import PIPING_DUMMY_INPUT
+    from geoprob_pipe.calculations.system_calculations.piping_system.dummy_input import DUMMY_INPUT
     from geoprob_pipe.deterministic.system import DeterministicSystemCalculation
 
     obj = PipingSystemReliabilityCalculation(
-        system_variable_distributions=PIPING_DUMMY_INPUT
+        system_variable_distributions=DUMMY_INPUT
     )
 
     # Semi prob with mean:

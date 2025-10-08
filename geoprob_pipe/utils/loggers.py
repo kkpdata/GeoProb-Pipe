@@ -29,4 +29,4 @@ class TmpAppConsoleHandler:
     @staticmethod
     def info( msg: str):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(BColors.OKGREEN, f"{timestamp} - INFO - {msg}")
+        print(BColors.OKGREEN, f"{timestamp} - INFO - {msg}", BColors.ENDC)
