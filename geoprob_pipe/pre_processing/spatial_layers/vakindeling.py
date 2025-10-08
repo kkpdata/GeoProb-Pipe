@@ -2,6 +2,7 @@ from __future__ import annotations
 from geopandas import read_file
 from InquirerPy import inquirer
 import warnings
+from geoprob_pipe.pre_processing.utils.spatial import load_dijktraject_linestring
 import os
 from pathlib import Path
 from shapely import LineString, MultiLineString
@@ -31,8 +32,11 @@ def check_validity_vakindeling(app_settings: ApplicationSettings):
     if isinstance(gdf_dijktraject_geom, MultiLineString):
         assert gdf_dijktraject_geom.geoms.__len__() == 1
         ls_dijktraject: LineString = gdf_dijktraject_geom.geoms[0]
+    elif isinstance(gdf_dijktraject_geom, LineString):
+        ls_dijktraject = gdf_dijktraject_geom
     else:
-        raise NotImplementedError
+        raise NotImplementedError(f"Type of '{type(gdf_dijktraject_geom)} is not yet supported. Please contact the "
+                                  f"developer.'")
     dijktraject_length = round(ls_dijktraject.length, 2)
 
     gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="vakindeling")
@@ -42,6 +46,31 @@ def check_validity_vakindeling(app_settings: ApplicationSettings):
     assert dijktraject_length == vakindeling_total_length
     print(BColors.OKBLUE, f"✔  Vakindeling al toegevoegd.", BColors.ENDC)
     # TODO: Next step
+
+
+def import_from_geopackage(filepath: str) -> GeoDataFrame:
+    layer_name: Optional[str] = None
+    layer_name_is_valid = False
+    while layer_name_is_valid is False:
+        layer_name: str = inquirer.text(
+            message="Specificeer de laag met de vakindeling. "
+                    "Type 'listlayers' om een overzicht te krijgen van de geopackage-layers. ",
+        ).execute()
+
+        layer_names = fiona.listlayers(filepath)
+        layers_str = ", ".join(layer_names)
+        if layer_name == "listlayers":
+            print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geopackage: {layers_str}", BColors.ENDC)
+            continue
+        elif layer_name not in layer_names:
+            print(BColors.OKBLUE, f"De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
+                                  f"de geopackage: {layers_str}", BColors.ENDC)
+            continue
+
+        layer_name_is_valid = True
+
+    gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
+    return gdf
 
 
 def request_vakindeling_filepath(app_settings: ApplicationSettings):
@@ -69,6 +98,9 @@ def request_vakindeling_filepath(app_settings: ApplicationSettings):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
             gdf: GeoDataFrame = read_file(filepath)
+        specify_column_with_vaknaam(app_settings, gdf=gdf)
+    elif filepath.endswith(".gpkg"):
+        gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
         specify_column_with_vaknaam(app_settings, gdf=gdf)
     else:
         raise NotImplementedError(f"File with extension {filepath.split(sep='.')[-1]} is not yet supported. "
@@ -106,13 +138,7 @@ def align_vak_shp_to_dijktraject(
 ):
 
     # Get dijktraject linestring
-    gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="dijktraject")
-    gdf_dijktraject_geom = gdf_dijktraject.iloc[0].geometry
-    if isinstance(gdf_dijktraject_geom, MultiLineString):
-        assert gdf_dijktraject_geom.geoms.__len__() == 1
-        ls_dijktraject: LineString = gdf_dijktraject_geom.geoms[0]
-    else:
-        raise NotImplementedError
+    ls_dijktraject = load_dijktraject_linestring(app_settings=app_settings)
 
     # Data verzamelen uit provided vak shp
     rows = []

@@ -2,7 +2,7 @@ from __future__ import annotations
 from InquirerPy import inquirer
 from typing import TYPE_CHECKING, Optional
 import os
-import sys
+from geoprob_pipe.pre_processing.spatial_layers.uittredepunten.alg_walking_circles import algorithm_walking_circles
 from shapely import Point
 from geopandas import GeoDataFrame, read_file
 import fiona
@@ -41,7 +41,7 @@ def define_method_of_adding_uittredepunten(app_settings: ApplicationSettings):
     elif choice == choices_list[1]:
         import_uittredepunten_gis_file(app_settings)
     elif choice == choices_list[2]:
-        generate_uittredepunten_suggestions()
+        generate_uittredepunten_suggestions(app_settings=app_settings)
     else:
         raise ValueError
 
@@ -53,7 +53,7 @@ def add_maaiveld_niveau_exit_points():
 
 
 def create_empty_uittredepunten_layer():
-    sys.exit("Applicatie vroegtijdig afgesloten: Deze keuze is nog niet geïmplementeerd.")
+    raise NotImplementedError("Applicatie vroegtijdig afgesloten: Deze keuze is nog niet geïmplementeerd.")
 
 
 def import_uittredepunten_gis_file(app_settings: ApplicationSettings):
@@ -110,8 +110,21 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
     return gdf
 
 
-def generate_uittredepunten_suggestions():
-    sys.exit("Applicatie vroegtijdig afgesloten: Deze keuze is nog niet geïmplementeerd.")
+LEGAL_MODEL_OPTIONS =["Walking Circles", "Walking Circles, tilted"]
+
+
+def generate_uittredepunten_suggestions(app_settings: ApplicationSettings):
+    choices = inquirer.checkbox(
+        message="Welk algoritme wil je gebruiken? Meerdere opties mogelijk.\n"
+                "Press <space> to select, Enter when finished. ",
+        choices=LEGAL_MODEL_OPTIONS,
+    ).execute()
+
+    if LEGAL_MODEL_OPTIONS[0] in choices:
+        algorithm_walking_circles(app_settings=app_settings)
+    if LEGAL_MODEL_OPTIONS[1] in choices:
+        raise NotImplementedError(
+            f"Applicatie vroegtijdig afgesloten: 'LEGAL_MODEL_OPTIONS[1]' is nog niet geïmplementeerd.")
 
 
 def request_uittredepunten_filepath(app_settings: ApplicationSettings):
@@ -145,8 +158,9 @@ def request_uittredepunten_filepath(app_settings: ApplicationSettings):
     elif filepath.endswith(".gdb"):
         gdf: GeoDataFrame = import_from_geodatabase(filepath=filepath)
     else:
-        sys.exit(f"Applicatie vroegtijdig afgesloten: Een {filepath.split(sep='.')[-1]}-bestand is nog niet "
-                 f"geïmplementeerd.")
+        raise NotImplementedError(
+            f"Applicatie vroegtijdig afgesloten: Een {filepath.split(sep='.')[-1]}-bestand is nog niet "
+            f"geïmplementeerd.")
 
     # Confirm all are points
     all_geometries_are_points = gdf.geometry.apply(lambda geom: isinstance(geom, Point)).all()

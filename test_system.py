@@ -9,7 +9,7 @@ def test_system():
     import os
     repo_root = repository_root_path()
     workspace_path = os.path.join(repo_root, "workspaces", "traject_224")
-    project = GeoProbPipe(workspace_path)
-    project.export_archive()
+    geoprob_pipe = GeoProbPipe(workspace_path)
+    geoprob_pipe.export_archive()
 
     ##
