@@ -1,15 +1,37 @@
 .. _rekenmethodiek:
 
+
+.. TODO: Ik vind deze pagina onduidelijk ingedeeld. Kunnen we het volgende voorstel bespreken?
+    Rekenmethodiek
+        Berekeningsmodel
+        Stijghoogtemodellen
+            Model 4a
+            Numeriek stijghoogtemodel
+        Verschalingsfactoren
+            Getijdezandfactor
+            3D verschaling
+            Gebruikersgedefinieerde factoren
+
+
 Rekenmethodiek
 ==============
+
+
+.. contents::
+   :local:
+   :depth: 2
+
 
 Berekeningsmodellen
 -------------------
 
-In de schematiseringshandleiding piping :cite:`sh_piping_2021` zijn de berekeningsmodellen beschreven die gebruikt worden in het BOI.
-Piping treedt op wanneer de deklaag opbarst, heave optreedt en er doorgaande terugschrijdende erosie plaatsvindt.
+In de schematiseringshandleiding piping :cite:`sh_piping_2021` zijn de berekeningsmodellen beschreven die gebruikt
+worden in het BOI. Piping treedt op wanneer de deklaag opbarst, heave optreedt en er doorgaande terugschrijdende erosie
+plaatsvindt.
 
-TODO: foutenboom toevoegen als plaatje?
+.. TODO: foutenboom toevoegen als plaatje?
+.. TODO: Het kopje zegt 'Berekeningsmodellen' maar je begint vervolgens direct met één formule/model. Er is geen
+    introductie (behalve de inhoudsopgave die ik net heb toegevoegd, maar die is ook te beperkt).
 
 De grenstoestandfunctie van **opbarsten** :math:`Z_{u}` is in :cite:`sh_piping_2021` als volgt gedefinieerd:
 
