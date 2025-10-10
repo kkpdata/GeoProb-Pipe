@@ -1,4 +1,7 @@
-"""Alternatieve implementatie van de grenstoestandfuncties voor het WBI model, model 4a en MORIA. Alle grenstoestandsfuncties worden gecombineerd in één functie per model. De fysische componenten worden geïmporteerd vanuit de subpackage `physical_components.piping`. Deze implementatie is bedoeld om de leesbaarheid en onderhoudbaarheid van de code te verbeteren."""
+""" Alternatieve implementatie van de grenstoestandsfuncties voor het WBI-model, model 4a en MORIA. Alle
+grenstoestandsfuncties worden gecombineerd in één functie per model. De fysische componenten worden geïmporteerd vanuit
+de subpackage `physical_components.piping`. Deze implementatie is bedoeld om de leesbaarheid en onderhoudbaarheid van
+de code te verbeteren."""
 
 from typing import Tuple
 
@@ -39,6 +42,7 @@ import geoprob_pipe.calculations.physical_components.piping as pc_piping
 # gamma_water: float
 
 
+# noinspection PyPep8Naming
 def limit_state_wbi(
     L_kwelweg: float,
     buitenwaterstand: float,
@@ -68,7 +72,7 @@ def limit_state_wbi(
     gamma_water: float,
     **_,
 ) -> Tuple[float, float, float, float, float, float, float, float, float, float]:
-    """Grenstoestandfuncties volgens het standaard WBI model."""
+    """Grenstoestandsfuncties volgens het standaard WBI-model."""
     # phi_exit
     phi_exit = pc_piping.calc_phi_exit(
         polderpeil=polderpeil, r_exit=r_exit, buitenwaterstand=buitenwaterstand
@@ -164,6 +168,7 @@ def limit_state_wbi(
 # gamma_water: float
 
 
+# noinspection PyPep8Naming
 def limit_state_model4a(
     L_intrede: float,
     L_but: float,
@@ -214,7 +219,7 @@ def limit_state_model4a(
     float,
     float,
 ]:
-    """Grenstoestandfuncties volgens het WBI model met grondwaterstroming conform model 4a."""
+    """Grenstoestandsfuncties volgens het WBI-model met grondwaterstroming conform model 4a."""
     # L_voorland
     L_voorland = pc_piping.calc_lengte_voorland(L_intrede=L_intrede, L_but=L_but)
     # lambda_voorland
@@ -356,11 +361,12 @@ def limit_state_model4a(
 # gamma_water: float
 
 
+# noinspection PyPep8Naming
 def limit_state_MORIA(
     L_intrede: float,
     L_but: float,
     buitenwaterstand: float,
-    buienwaterstand_gemiddeld: float,
+    buitenwaterstand_gemiddeld: float,
     polderpeil: float,
     mv_exit: float,
     lambda_voorland: float,
@@ -406,7 +412,7 @@ def limit_state_MORIA(
     float,
     float,
 ]:
-    """Grenstoestandfuncties volgens het WBI model met grondwaterstroming conform MORIA model."""
+    """Grenstoestandsfuncties volgens het WBI-model met grondwaterstroming conform MORIA model."""
     # kD_wvp
     kD_wvp = k_wvp * D_wvp
     # L_voorland
@@ -425,7 +431,7 @@ def limit_state_MORIA(
 
     # phi_exit
     phi_exit = (
-        r_exit * (buitenwaterstand - buienwaterstand_gemiddeld) + phi_exit_gemiddeld
+        r_exit * (buitenwaterstand - buitenwaterstand_gemiddeld) + phi_exit_gemiddeld
     )
     # dc_phi_c_u
     dphi_c_u = pc_piping.calc_dphi_c_u(
