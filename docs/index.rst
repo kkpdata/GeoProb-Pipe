@@ -7,10 +7,10 @@ GeoProb-Pipe documentation
 ==========================
 
 Welkom bij de documentatie van GeoProb-Pipe, een probabilistische methode om pipingberekeningen met de
-uittredepuntenmethode uit te voeren. Deze documentatie biedt handreikingen voor het gebruik van GeoProb-Pipe, de
-achtergronden van de methode, API-referenties en voorbeelden.
+uittredepuntenmethode uit te voeren i.c.m. het analytische stijghoogtemodel 4a. Deze documentatie biedt handreikingen
+voor het gebruik van GeoProb-Pipe, de achtergronden van de methode, API-referenties en voorbeelden.
 
-.. TODO: Afbeelding toevoegen de applicatie. Wellicht kaartje/bovenaanzicht van resultaat.
+.. TODO: Uitnodigende afbeelding toevoegen de applicatie. Wellicht kaartje/bovenaanzicht van resultaat.
 
 .. toctree::
    :maxdepth: 1

@@ -15,27 +15,29 @@ In de onderstaande paragrafen is dieper in gegaan op het gebruik van `GeoProb-Pi
 Gebruik van GeoProb-Pipe
 ========================
 
-Deze procesbeschrijving gaat uit van de uittredepuntenmethode in combinatie met het analytische stijghoogtemodel 4a. Het
-gebruik bestaat uit de volgende stappen.
+GeoProb-Pipe is een command line-applicatie met een eenvoudig **installatieproces**. Je begint met het aanmaken van een
+nieuwe virtuele Python-omgeving en installeert vervolgens de ``geoprob_pipe``-package. Zie de paragraaf
+:ref:`installatie` voor meer details.
 
-* Installatie
+Tijdens het **pre-processen** bereid je de invoerdata voor. De applicatie begeleidt je stap voor stap door het proces.
+In de paragraaf :ref:`pre-processing` wordt dit verder toegelicht. Het resultaat van deze stap is een
+``.geoprob_pipe.gpkp``-bestand waarin alle invoer geografisch is gerefereerd en geschikt is voor gebruik als GeoPackage
+in ArcGIS of QGIS.
 
-`GeoProb-Pipe` is in de basis een command line applicatie. Daardoor is de installatie simpel. Je start een nieuwe
-virtuele Python omgeving en installeert de ``geoprob_pipe``-package. Zie paragraaf :ref:`installatie`.
+Na het pre-processen vraagt GeoProb-Pipe of je de **probabilistische berekeningen** wilt uitvoeren. Deze stap bestaat
+uitsluitend uit rekentijd. De resultaten van de berekeningen worden toegevoegd aan het ``.geoprob_pipe.gpkp``-bestand.
 
-* Pre-processing: tijdens het pre-processen zet je de invoer voor de berekeningen klaar. Dit doe doe je door de `GeoProb-Pipe`-applicatie op te starten. Deze neemt je vervolgens mee door alle stappen. In paragraaf :ref:`pre-processing` is hier verder op
-ingegaan. Het resultaat van deze stap is een ``.geoprob_pipe.gpkp``-bestand. Dit bestand is een GeoPackage, te openen in ArcGIS, met alle invoer.
-* Berekeningen: na het pre-processen vraagt `GeoProb-Pipe` of je de probabilistische berekeningen wilt uitvoeren. Deze keuze volgt na het pre-processing menu. Deze stap bestaat enkel uit rekentijd. De ruwe data van de rekenresultaten worden toegevoegd
-aan het ``.geoprob_pipe.gpkp``-bestand.
-* Post-processing: tijdens het post-processen worden alle resultaten geëxporteerd. Dit is inclusief ondersteunde bestanden zoals figuren.
+Tijdens het **post-processen** worden alle resultaten geëxporteerd, waaronder ruwe data en visualisaties.
 
 
 .. _installatie:
 Installatie en basis gebruik
 ----------------------------
 
+De installatie en het gebruik van `GeoProb-Pipe` is eenvoudig en wordt hieronder toegelicht.
+
 Start een schone Python environment. `GeoProb-Pipe` is ontwikkelt op Python 3.12. Deze versie wordt aangeraden voor
-gebruik. Voer daarna de volgende commando's uit om eerst `GeoProb-Pipe` te installeren en daarna de probabilistische
+gebruik. Voer daarna de volgende commando's uit om eerst `GeoProb-Pipe` te installeren en vervolgens de probabilistische
 bibliotheek (PTK-tool wrapper) te installeren.
 
 
@@ -44,27 +46,85 @@ bibliotheek (PTK-tool wrapper) te installeren.
     pip install geoprob_pipe
     pip install probabilistic_library
 
-Daarna start je de applicatie met het commando ``geoprob_pipe``. De applicatie zal je door het gebruik van de applicatie
-leiden. Je kunt op elk moment de applicatie afsluiten, en weer opnieuw opstarten. Indien je geen `Afsluit`-knop/optie
-ziet, dan kun je middels ``ctrl + c`` de applicatie stoppen.
+.. TODO: Overleggen met Deltares dat ze de probabilistic_library beschikbaar maken in PyPI.
 
-In de volgende paragrafen is het gebruik van de applicatie verder toegelicht.
+Daarna start je de applicatie met het commando. Zorg er voor dat je Python-environment actief is.
+
+.. code-block:: bash
+
+    geoprob_pipe
+
+Na het opstarten van de applicatie begeleidt `GeoProb-Pipe` je door het gebruik. Je kunt op elk moment de applicatie
+afsluiten, en weer opstarten. Meestal geeft de applicatie je de mogelijkheid om af te sluiten, is dit niet het geval,
+dan kun je dat doen middels de toetsencombinatie ``ctrl + c``.
 
 
 .. _pre-processing:
-Pre Processing
+Pre-processing
 --------------
 
-Tijdens het pre-processen zet je de invoer voor de berekeningen klaar. De `GeoProb-Pipe` applicatie neemt je mee door dit proces. 
-Het bestaat uit de volgende stappen. Tijdens deze stappen wordt een ``.geoprob_pipe.gpkp``-bestand
-aangemaakt. Dit is een GeoPackage waarin alle invoer, en later eveneens rekenresultaten, worden opgeslagen.
+Tijdens het pre-processen zet je de invoer klaar. `GeoProb-Pipe` neemt je mee door dit proces. Aan het einde zul je
+een vinkje hebben voor elk onderdeel.
 
-Algemene instellingen / Model keuze
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: bash
+
+    ALGEMEEN
+     ✔  Belastingmodel al ingesteld.
+     ✔  Verschalingsfactoren al ingesteld.
+
+    GIS LAGEN
+     ✔  Dijktraject al toegevoegd.
+     ✔  Vakindeling al toegevoegd.
+     ✔  HRD-bestanden al toegevoegd.
+     ✔  HRD-locatie punten al uitgelezen.
+     ✔  Uittredepunten al toegevoegd.
+     ✔  Polderpeil al toegevoegd.
+     ✔  Binnenteenlijn al toegevoegd.
+     ✔  Buitenteenlijn al toegevoegd.
+     ✔  Intredelijn al toegevoegd.
+     ✔  Gebruikersgedefinieerde GIS invoer (2 stuks): top_zand, D_wvp.
+
+    GEOGRAFISCHE KOPPELINGEN
+     ✔  HRD-locaties al gekoppeld aan uittredepunten.
+     ✔  Afstanden intrede, buitenteen en binnenteen al gekoppeld aan uittredepunten.
+     ✔  Polderpeil al gekoppeld aan uittredepunten.
+     ✔  Afstand en metrering tot reflijn al gekoppeld aan uittredepunten.
+     ✔  Vakken al gekoppeld aan uittredepunten.
+
+    HANDMATIGE INVOER
+     ✔  Excel-sheet ingeladen.
+
+
+De gebruiker kiest welk belastingmodel gebruikt wordt. Momenteel zijn dit of model4a of de stijghoogte o.b.v. respons.
+Paragraaf <<verwijzing aanmaken>> gaat hier verder op in. Daarnaast kan de gebruiker kiezen welke verschalingsfactoren
+worden toegepast. Dit zijn onder andere de getijdezandfactor en 3D verschaling. Dit is toegelicht in paragraaf
+<<verwijzing aanmaken>>.
+
+In het onderdeel 'GIS lagen' wordt de gebruiker gevraagd de geografische data in te laden. Dit zijn onder andere het
+dijktraject, de vakindeling en de intredelijn. Omdat de gebruiker vaak zijn invoer al geografisch gekoppeld heeft is
+gebruikersgedefinieerde GIS invoer ook mogelijk. Dit geeft je de vrijheid om van elke parameter geografisch gerefereerde
+data in te laden. Het klikken en/of automatisch genereren van uittredepunten worden verder toegelicht in paragraaf
+<<verwijzing aanmaken>>.
+
+Na het inladen van de geografische data wordt dit automatisch gekoppeld aan de uittredepunten en vakken.
+
+Tot slot verzoekt de applicatie je om de resterende invoer te definiëren in een Excel template.
+
+
+.. TODO: Verwijzingen aanmaken.
+
+
+Rekenmodel
+~~~~~~~~~~
 
 Er zijn enkele algemene instellingen, dit is hoofdzakelijk de systeem keuze. Momenteel is enkel `Piping`` een keuze.
 Later wordt dit uitgewerkt naar onder andere de keuzes ``model4a`` en deze i.c.m. Moria en/of het toepassen van
 respons.
+
+Verschalingsfactoren
+~~~~~~~~~~~~~~~~~~~~
+
+sdfsdf
 
 
 Importeren GIS-data
@@ -82,25 +142,6 @@ geïmporteerd.
 Aan het einde van het importeren van alle GIS-data zal `GeoProb-Pipe` vinkjes geven voor elk onderdeel. Dit ziet er
 als het volgt uit.
 
-.. code-block:: bash
-
-    GIS LAGEN
-     ✔  Dijktraject al toegevoegd.
-     ✔  Vakindeling al toegevoegd.
-     ✔  HRD-bestanden al toegevoegd.
-     ✔  HRD-locatie punten al uitgelezen.
-     ✔  Uittredepunten al toegevoegd (58 in totaal).
-     ✔  Polderpeil al toegevoegd.
-     ✔  Binnenteenlijn al toegevoegd.
-     ✔  Buitenteenlijn al toegevoegd.
-     ✔  Intredelijn al toegevoegd.
-
-    GEOGRAFISCHE KOPPELINGEN
-     ✔  HRD-locaties al gekoppeld aan uittredepunten.
-     ✔  Afstanden intrede, buitenteen en binnenteen al gekoppeld aan uittredepunten.
-     ✔  Polderpeil al gekoppeld aan uittredepunten.
-     ✔  Afstand en metrering tot reflijn al gekoppeld aan uittredepunten.
-     ✔  Vakken al gekoppeld aan uittredepunten.
 
 
 
@@ -173,13 +214,15 @@ Een kenmerk van ondergronscenario's is dat ze discreet zijn. Of het ene scenario
    Voorbeeld typen ondergrondscenario's
 
 
-Bronbestanden voor de uittredepunten tabel
-De locaties van mogelijke uittredepunten
-Uitvoer van een Hydra-NL berekening
-Vakindeling
-Genereren scenarioberekeningen
-Uitvoeren scenarioberekeningen
-Probabilistische berekeningen
-Combineren deelfaalmechanismen
-Combineren scenarioberekeningen
-Post Processing
+.. TODO:
+
+    Bronbestanden voor de uittredepunten tabel
+    De locaties van mogelijke uittredepunten
+    Uitvoer van een Hydra-NL berekening
+    Vakindeling
+    Genereren scenarioberekeningen
+    Uitvoeren scenarioberekeningen
+    Probabilistische berekeningen
+    Combineren deelfaalmechanismen
+    Combineren scenarioberekeningen
+    Post Processing

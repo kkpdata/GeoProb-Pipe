@@ -1,7 +1,14 @@
 .. _rekenmethodiek:
 
+
 Rekenmethodiek
 ==============
+
+
+.. contents::
+   :local:
+   :depth: 2
+
 
 Berekeningsmodellen
 -------------------
@@ -9,7 +16,7 @@ Berekeningsmodellen
 In de schematiseringshandleiding piping :cite:`sh_piping_2021` zijn de berekeningsmodellen beschreven die gebruikt worden in het BOI.
 Piping treedt op wanneer de deklaag opbarst, heave optreedt en er doorgaande terugschrijdende erosie plaatsvindt.
 
-TODO: foutenboom toevoegen als plaatje?
+.. TODO: foutenboom toevoegen als plaatje?
 
 De grenstoestandfunctie van **opbarsten** :math:`Z_{u}` is in :cite:`sh_piping_2021` als volgt gedefinieerd:
 
