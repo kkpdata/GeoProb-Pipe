@@ -106,14 +106,24 @@ PIPING_DUMMY_INPUT = [
         "source": "excel",
     },
     {
-        "name": "kD_wvp",
-        "description": "Transmissiviteit van het watervoerende pakket.",
+        "name": "r_exit",
+        "description": "TODO",  # TODO
         "remark": "",
-        "unit": "m²/dag",
-        "distribution_type": DistributionType.log_normal,
-        "mean": 2000.0,
-        "variation": 0.35,
-        "source": "excel",
+        "unit": "-",  # TODO
+        "distribution_type": DistributionType.normal,  # TODO
+        "mean": -0.5,  # TODO
+        "deviation": 0.05,  # TODO
+        "source": "excel",  # TODO
+    },
+    {
+        "name": "k_wvp",
+        "description": "",  # TODO
+        "remark": "",  # TODO
+        "unit": "",  # TODO
+        "distribution_type": DistributionType.log_normal,  # TODO
+        "mean": 2000.0,  # TODO
+        "variation": 0.35,  # TODO
+        "source": "excel",  # TODO
     },
     {
         "name": "modelfactor_h",
@@ -124,6 +134,46 @@ PIPING_DUMMY_INPUT = [
         "mean": 1.0,
         "variation": 0.1,
         "source": "excel",
+    },
+    {
+        "name": "modelfactor_ff",
+        "description": "Modelfactor voor fijne fractie.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,  # TODO
+        "mean": 1.0,  # TODO
+        "variation": 0.1,  # TODO
+        "source": "excel",  # TODO
+    },
+    {
+        "name": "modelfactor_3d",
+        "description": "Modelfactor voor 3D effecten.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,  # TODO
+        "mean": 1.0,  # TODO
+        "variation": 0.1,  # TODO
+        "source": "excel",  # TODO
+    },
+    {
+        "name": "modelfactor_aniso",
+        "description": "Modelfactor voor anisotropie.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,  # TODO
+        "mean": 1.0,  # TODO
+        "variation": 0.1,  # TODO
+        "source": "excel",  # TODO
+    },
+    {
+        "name": "modelfactor_ml",
+        "description": "Modelfactor voor meerlaagsheid zandpakket.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,  # TODO
+        "mean": 1.0,  # TODO
+        "variation": 0.1,  # TODO
+        "source": "excel",  # TODO
     },
     {
         "name": "i_c_h",

@@ -7,73 +7,58 @@ from typing import Tuple
 
 import geoprob_pipe.calculations.physical_components.piping as pc_piping
 
-# Define the input variables for the WBI limit state
-# The variables are grouped into categories for clarity
-# --geometry--
-# L_kwelweg: float
-# --Boundary conditions--
-# buitenwaterstand: float
-# polderpeil: float
-# mv_exit: float
-# --subsoil properties--
-# d_deklaag: float
-# r_exit: float
-# k_wvp: float wbi formally uses k, kD = k*D.
-# D_wvp: float
-# d70: float
-# gamma_sat_deklaag: float
-# --model properties--
-# modelfactor_u: float
-# modelfactor_h: float
-# modelfactor_p: float
-# modelfactor_ff: float model factor fijne fractie
-# modelfactor_3d: float model factor 3D effecten
-# modelfactor_aniso: float model factor anisotropie
-# modelfactor_ml: float model factor meerlaagsheid zandpakket
-# i_c_h: float
-# r_c_deklaag: float
-# d70_m: float
-# gamma_korrel: float
-# v: float
-# theta: float
-# eta: float
-# --constants--
-# g: float
-# gamma_water: float
-
 
 # noinspection PyPep8Naming
 def limit_state_wbi(
+        # Geometry parameters
         L_kwelweg: float,
+        # Boundary condition parameters
         buitenwaterstand: float,
-        polderpeil: float,
-        mv_exit: float,
+        polderpeil: float, mv_exit: float,
+        # Subsoil property parameters
         # d_deklaag: float,  # TODO: Vraag aan Sander: Hoort het niet top_zand en mv_exit te zijn? Heb het voor nu even aangepast.
-        top_zand: float,
-        r_exit: float,
-        k_wvp: float,
-        D_wvp: float,
-        d70: float,
-        gamma_sat_deklaag: float,
-        modelfactor_u: float,
-        modelfactor_h: float,
-        modelfactor_p: float,
-        modelfactor_ff: float,
-        modelfactor_3d: float,
-        modelfactor_aniso: float,
-        modelfactor_ml: float,
+        top_zand: float, r_exit: float, k_wvp: float, D_wvp: float, d70: float,gamma_sat_deklaag: float,
+        # Model property parameters
+        modelfactor_u: float, modelfactor_h: float, modelfactor_p: float, modelfactor_ff: float, modelfactor_3d: float,
+        modelfactor_aniso: float, modelfactor_ml: float,
         i_c_h: float,
         r_c_deklaag: float,
-        d70_m: float,
-        gamma_korrel: float,
-        v: float,
-        theta: float,
-        eta: float,
-        g: float,
+        # Overige parameters
         gamma_water: float,
-        **_,
+        # Constants  # TODO: Ombouwen tot globals
+        d70_m: float, gamma_korrel: float, v: float, theta: float, eta: float, g: float,
+        # Garbage term
 ) -> Tuple[float, float, float, float, float, float, float, float, float, float]:
-    """Grenstoestandsfuncties volgens het standaard WBI-model."""
+    """ Grenstoestandsfuncties volgens het standaard WBI-model.
+
+    :param L_kwelweg:
+    :param buitenwaterstand:
+    :param polderpeil:
+    :param mv_exit:
+    :param top_zand:
+    :param r_exit:
+    :param k_wvp:
+    :param D_wvp:
+    :param d70:
+    :param gamma_sat_deklaag:
+    :param gamma_water:
+    :param modelfactor_u:
+    :param modelfactor_h:
+    :param modelfactor_p:
+    :param modelfactor_ff: Model factor fijne fractie
+    :param modelfactor_3d: Model factor 3D effecten
+    :param modelfactor_aniso: Model factor anisotropie
+    :param modelfactor_ml: Model factor meerlaagsheid zandpakket
+    :param i_c_h:
+    :param r_c_deklaag:
+    :param d70_m:
+    :param gamma_korrel:
+    :param v:
+    :param theta:
+    :param eta:
+    :param g:
+    :return:
+    """
 
     d_deklaag: float = mv_exit - top_zand
 
