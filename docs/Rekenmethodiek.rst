@@ -279,14 +279,40 @@ De stijghoote in het uittredepunt wordt dan:
 
 .. math::
 
-   \phi_{exit}(x,y) = \phi_{gemiddeld}(x,y) + m_{gw} \cdot r_{exit}(x,y) \cdot (h_{buitenwaterstand} - h_{gemiddeld})
+   \phi_{exit}(x,y) = \phi_{gemiddeld}(x,y) + r_{exit}(x,y) \cdot (h_{buitenwaterstand} - h_{gemiddeld})
 
    L_{eff,voorland} = \lambda_{1} \cdot tanh(\frac{L_1}{\lambda_{1}})
 
    L_{kwelweg} = L_{but} + L_{eff,voorland}
 
-waarin :math:`m_{gw}` de modelfactor voor het stijghoogtemodel is [-].
+Bespreken: moeten we nog een modelfactor :math:`m_{gw}` voor het stijghoogtemodel toevoegen.
 
 De beschrijving van het geohydrologische systeem met deze variabelen betekent ook dat de onderlinge correlatie van de variabelen apart moet worden gedefinieerd. Dit betreft met name de correlatie tussen de spreidingslengte van het voorland :math:`\lambda_{1}` en de transmissiviteit van het watervoerende zandpakket :math:`kD` en in mindere mate de correlatie tussen de respons in het uittredepunt :math:`r_{exit}` en de transmissiviteit van het watervoerende zandpakket :math:`kD`. In het model 4a zijn deze correlaties modelmatig beschreven.
 
+De formules van de grenstoestandsfuncties zijn nu als volgt:
 
+Grenstoestandfunctie opbarsten:
+
+.. math::
+
+   Z_{u} = m_{u} \cdot \Delta \phi_{c,u} - (\phi_{exit}(x,y) - h_{exit})
+
+Grenstoestandfunctie heave:
+
+.. math::
+
+   Z_{h} = m_{h} \cdot i_{i,c} - \frac{\phi_{exit}(x,y) - h_{exit}}{d_{deklaag}}
+
+Grenstoestandfunctie terugschrijdende erosie:
+
+.. math::
+
+   Z_{p} = m_{p} \cdot \Delta H_{c} - \Delta h_{red}
+
+   \Delta h_{red} = h_{buitenwaterstand} - h_{exit} - r_{c,deklaag} \cdot d_{deklaag}
+
+   L_{kwelweg} = L_{but} + L_{eff,voorland}
+
+   L_{eff,voorland} = \lambda_{1} \cdot tanh(\frac{L_1}{\lambda_{1}})
+
+   \lambda_{1} = \sqrt{c_{voorland} \cdot k \cdot D_{wvp}}
