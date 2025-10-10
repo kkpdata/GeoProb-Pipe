@@ -5,9 +5,11 @@
     Rekenmethodiek
         Berekeningsmodel
         Stijghoogtemodellen
+            standaard WBI model
             Model 4a
             Numeriek stijghoogtemodel
-        Verschalingsfactoren
+        Modelfactoren
+            relatie met beslisraamwerk: welke factoren zijn er geimplementeerd?
             Getijdezandfactor
             3D verschaling
             Gebruikersgedefinieerde factoren
