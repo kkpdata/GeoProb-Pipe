@@ -1,4 +1,4 @@
-""" Alternatieve implementatie van de grenstoestandsfuncties voor het WBI-model, model 4a en MORIA. Alle
+"""Alternatieve implementatie van de grenstoestandsfuncties voor het WBI-model, model 4a en MORIA. Alle
 grenstoestandsfuncties worden gecombineerd in één functie per model. De fysische componenten worden geïmporteerd vanuit
 de subpackage `physical_components.piping`. Deze implementatie is bedoeld om de leesbaarheid en onderhoudbaarheid van
 de code te verbeteren."""
@@ -10,26 +10,43 @@ import geoprob_pipe.calculations.physical_components.piping as pc_piping
 
 # noinspection PyPep8Naming
 def limit_state_wbi(
-        # Geometry parameters
-        L_kwelweg: float,
-        # Boundary condition parameters
-        buitenwaterstand: float,
-        polderpeil: float, mv_exit: float,
-        # Subsoil property parameters
-        # d_deklaag: float,  # TODO: Vraag aan Sander: Hoort het niet top_zand en mv_exit te zijn? Heb het voor nu even aangepast.
-        top_zand: float, r_exit: float, k_wvp: float, D_wvp: float, d70: float,gamma_sat_deklaag: float,
-        # Model property parameters
-        modelfactor_u: float, modelfactor_h: float, modelfactor_p: float, modelfactor_ff: float, modelfactor_3d: float,
-        modelfactor_aniso: float, modelfactor_ml: float,
-        i_c_h: float,
-        r_c_deklaag: float,
-        # Overige parameters
-        gamma_water: float,
-        # Constants  # TODO: Ombouwen tot globals
-        d70_m: float, gamma_korrel: float, v: float, theta: float, eta: float, g: float,
-        # Garbage term
+    # Geometry parameters
+    L_kwelweg: float,
+    # Boundary condition parameters
+    buitenwaterstand: float,
+    polderpeil: float,
+    mv_exit: float,
+    # Subsoil property parameters
+    # d_deklaag: float,  # TODO: Vraag aan Sander: Hoort het niet top_zand en mv_exit te zijn? Heb het voor nu even aangepast.
+    # Antwoord: formeel is d_deklaag de stochast in de WBI aanpak. Voor de uniforme aanpak kan je er voor kiezen om top_zand en mv_exit als input te nemen en d_deklaag te berekenen. Voorstel: kiezen voor top_zand en mv_exit als input. = uniforme aanpak
+    top_zand: float,
+    r_exit: float,
+    k_wvp: float,
+    D_wvp: float,
+    d70: float,
+    gamma_sat_deklaag: float,
+    # Model property parameters
+    modelfactor_u: float,
+    modelfactor_h: float,
+    modelfactor_p: float,
+    modelfactor_ff: float,
+    modelfactor_3d: float,
+    modelfactor_aniso: float,
+    modelfactor_ml: float,
+    i_c_h: float,
+    r_c_deklaag: float,
+    # Overige parameters
+    gamma_water: float,
+    # Constants  # TODO: Ombouwen tot globals
+    d70_m: float,
+    gamma_korrel: float,
+    v: float,
+    theta: float,
+    eta: float,
+    g: float,
+    # Garbage term
 ) -> Tuple[float, float, float, float, float, float, float, float, float, float]:
-    """ Grenstoestandsfuncties volgens het standaard WBI-model.
+    """Grenstoestandsfuncties volgens het standaard WBI-model.
 
     :param L_kwelweg:
     :param buitenwaterstand:
@@ -59,8 +76,8 @@ def limit_state_wbi(
     :param g:
     :return:
     """
-
-    d_deklaag: float = mv_exit - top_zand
+    # d_deklaag
+    d_deklaag = pc_piping.calc_d_deklaag(mv_exit=mv_exit, top_zand=top_zand)
 
     # phi_exit
     phi_exit = pc_piping.calc_phi_exit(
