@@ -1,5 +1,4 @@
-from probabilistic_library import DistributionType
-from geoprob_pipe.calculations.system_calculations.piping_wbi_system.limit_state_functions import (
+from geoprob_pipe.calculations.system_calculations.piping_wbi.limit_state_functions import (
     system_variable_setup, calc_Z_h, calc_Z_p, calc_Z_u)
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)

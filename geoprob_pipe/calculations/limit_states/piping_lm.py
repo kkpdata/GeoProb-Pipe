@@ -44,35 +44,39 @@ import geoprob_pipe.calculations.physical_components.piping as pc_piping
 
 # noinspection PyPep8Naming
 def limit_state_wbi(
-    L_kwelweg: float,
-    buitenwaterstand: float,
-    polderpeil: float,
-    mv_exit: float,
-    d_deklaag: float,
-    r_exit: float,
-    k_wvp: float,
-    D_wvp: float,
-    d70: float,
-    gamma_sat_deklaag: float,
-    modelfactor_u: float,
-    modelfactor_h: float,
-    modelfactor_p: float,
-    modelfactor_ff: float,
-    modelfactor_3d: float,
-    modelfactor_aniso: float,
-    modelfactor_ml: float,
-    i_c_h: float,
-    r_c_deklaag: float,
-    d70_m: float,
-    gamma_korrel: float,
-    v: float,
-    theta: float,
-    eta: float,
-    g: float,
-    gamma_water: float,
-    **_,
+        L_kwelweg: float,
+        buitenwaterstand: float,
+        polderpeil: float,
+        mv_exit: float,
+        # d_deklaag: float,  # TODO: Vraag aan Sander: Hoort het niet top_zand en mv_exit te zijn? Heb het voor nu even aangepast.
+        top_zand: float,
+        r_exit: float,
+        k_wvp: float,
+        D_wvp: float,
+        d70: float,
+        gamma_sat_deklaag: float,
+        modelfactor_u: float,
+        modelfactor_h: float,
+        modelfactor_p: float,
+        modelfactor_ff: float,
+        modelfactor_3d: float,
+        modelfactor_aniso: float,
+        modelfactor_ml: float,
+        i_c_h: float,
+        r_c_deklaag: float,
+        d70_m: float,
+        gamma_korrel: float,
+        v: float,
+        theta: float,
+        eta: float,
+        g: float,
+        gamma_water: float,
+        **_,
 ) -> Tuple[float, float, float, float, float, float, float, float, float, float]:
     """Grenstoestandsfuncties volgens het standaard WBI-model."""
+
+    d_deklaag: float = mv_exit - top_zand
+
     # phi_exit
     phi_exit = pc_piping.calc_phi_exit(
         polderpeil=polderpeil, r_exit=r_exit, buitenwaterstand=buitenwaterstand
