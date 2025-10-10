@@ -69,7 +69,7 @@ een vinkje hebben voor elk onderdeel.
 .. code-block:: bash
 
     ALGEMEEN
-     ✔  Belastingmodel al ingesteld.
+     ✔  Stijghoogtemodel al ingesteld.
      ✔  Verschalingsfactoren al ingesteld.
 
     GIS LAGEN
