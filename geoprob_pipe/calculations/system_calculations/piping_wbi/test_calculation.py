@@ -7,18 +7,11 @@ def test_calculation():
     from geoprob_pipe.calculations.system_calculations.piping_wbi.reliability_calculation import  (
         PipingWBISystemReliabilityCalculation)
     from geoprob_pipe.calculations.system_calculations.piping_wbi.dummy_input import PIPING_DUMMY_INPUT
-    from geoprob_pipe.deterministic.system import DeterministicSystemCalculation
 
     obj = PipingWBISystemReliabilityCalculation(system_variable_distributions=PIPING_DUMMY_INPUT)
 
     # Run prob system
     obj.run()
-
-    ##
-
-    # Semi prob with mean:
-    # det_obj = DeterministicSystemCalculation(input_object=obj)
-    # print(det_obj.limit_state_results)
 
     # Model resultaten
     print(f"\nModellen:")
@@ -47,9 +40,5 @@ def test_calculation():
     sum_invloedsfactoren = round(sum(invloedsfactoren), 2)
     assert sum_invloedsfactoren == 1.00, \
         f"De som van de invloedsfactoren ({sum_invloedsfactoren=}) is niet gelijk aan aan 1.00."
-
-    # TODO Nu Must Middel: Optie toevoegen dat ParallelSystemReliabilityCalculation ook deterministisch word uitgerekend
-    #  Dit doen door gemiddelde waarden te gebruiken.
-    # TODO Nu Must Middel: Assert toevoegen die piping resultaat unit test
 
     ##

@@ -44,7 +44,6 @@ def limit_state_wbi(
     theta: float,
     eta: float,
     g: float,
-    # Garbage term
 ) -> Tuple[float, float, float, float, float, float, float, float, float, float]:
     """Grenstoestandsfuncties volgens het standaard WBI-model.
 
