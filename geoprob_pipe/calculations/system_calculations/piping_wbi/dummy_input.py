@@ -3,44 +3,6 @@ from probabilistic_library import DistributionType
 
 PIPING_DUMMY_INPUT = [
     {
-        "name": "L_achterland",
-        "description": "Afstand van uittredepunten tot achterlandlengte.",
-        "remark": "",
-        "unit": "m",
-        "distribution_type": DistributionType.deterministic,
-        "mean": 3500.0,
-        "source": "excel",
-    },
-    {
-        "name": "c_voorland",
-        "description": "Weerstand van de deklaag in het voorland.",
-        "remark": "",
-        "unit": "dagen",
-        "distribution_type": DistributionType.log_normal,
-        "mean": 10.0,
-        "variation": 0.1,
-        "source": "excel",
-    },
-    {
-        "name": "c_achterland",
-        "description": "Weerstand van de deklaag in het achterland.",
-        "remark": "",
-        "unit": "dagen",
-        "distribution_type": DistributionType.log_normal,
-        "mean": 50.0,
-        "variation": 0.1,
-        "source": "excel",
-    },
-    {
-        "name": "L_intrede",
-        "description": "Afstand van uittredepunten tot geometrische intredelijn.",
-        "remark": "",
-        "unit": "m",
-        "distribution_type": DistributionType.deterministic,
-        "mean": 150.0,
-        "source": "spatial",
-    },
-    {
         "name": "L_kwelweg",
         "description": "TODO",  # TODO
         "remark": "",
@@ -48,24 +10,6 @@ PIPING_DUMMY_INPUT = [
         "distribution_type": DistributionType.deterministic,  # TODO
         "mean": 150.0,  # TODO
         "source": "spatial",  # TODO
-    },
-    {
-        "name": "L_but",
-        "description": "Afstand van uittredepunten tot buitenteenlijn.",
-        "remark": "",
-        "unit": "m",
-        "distribution_type": DistributionType.deterministic,
-        "mean": 65.0,
-        "source": "spatial",
-    },
-    {
-        "name": "L_bit",
-        "description": "Afstand van uittredepunten tot binnenteenlijn.",
-        "remark": "",
-        "unit": "m",
-        "distribution_type": DistributionType.deterministic,
-        "mean": 20.0,
-        "source": "spatial",
     },
     {
         "name": "polderpeil",

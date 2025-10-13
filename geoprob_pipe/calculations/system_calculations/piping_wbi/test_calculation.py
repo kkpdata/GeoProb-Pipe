@@ -12,6 +12,7 @@ def test_calculation():
 
     # Run prob system
     obj.run()
+    assert obj.validation_messages.cnt == 0
 
     # Model resultaten
     print(f"\nModellen:")
