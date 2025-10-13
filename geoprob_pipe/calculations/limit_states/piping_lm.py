@@ -17,8 +17,6 @@ def limit_state_wbi(
     polderpeil: float,
     mv_exit: float,
     # Subsoil property parameters
-    # d_deklaag: float,  # TODO: Vraag aan Sander: Hoort het niet top_zand en mv_exit te zijn? Heb het voor nu even aangepast.
-    # Antwoord: formeel is d_deklaag de stochast in de WBI aanpak. Voor de uniforme aanpak kan je er voor kiezen om top_zand en mv_exit als input te nemen en d_deklaag te berekenen. Voorstel: kiezen voor top_zand en mv_exit als input. = uniforme aanpak
     top_zand: float,
     r_exit: float,
     k_wvp: float,
