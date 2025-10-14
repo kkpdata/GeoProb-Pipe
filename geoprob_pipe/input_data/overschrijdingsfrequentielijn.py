@@ -51,7 +51,7 @@ class Overschrijdingsfrequentielijn:
                              f"{file_path}")
 
         # Import frequency line
-        data = np.loadtxt('output.csv', delimiter=',', skiprows=1)
+        data = np.loadtxt(file_path, delimiter=',', skiprows=1)
         level = np.array(data[:, 0])
         exceedance_frequency = np.array(data[:, 1])
 
