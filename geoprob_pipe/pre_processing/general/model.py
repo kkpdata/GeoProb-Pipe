@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
 
-LEGEL_MODEL_OPTIONS =["model4a", "model4a i.c.m. MORIA"]
+LEGAL_MODEL_OPTIONS =["model4a", "model4a i.c.m. MORIA"]
 
 
 def created_model(app_settings: ApplicationSettings) -> bool:
@@ -22,7 +22,7 @@ def created_model(app_settings: ApplicationSettings) -> bool:
 
     # Check if specified model is legal
     current_specified_model = df[df['metadata_type'] == "model"]["values"].iloc[0]
-    if current_specified_model not in LEGEL_MODEL_OPTIONS:
+    if current_specified_model not in LEGAL_MODEL_OPTIONS:
         specify_model_to_use(app_settings, update_record=True)
         return True
 
@@ -35,8 +35,8 @@ def specify_model_to_use(app_settings: ApplicationSettings, update_record: bool 
 
     choice = inquirer.select(
         message="Welk rekenmodel wil je gebruiken? De invoer parameters variëren per model.",
-        choices=LEGEL_MODEL_OPTIONS,
-        default=LEGEL_MODEL_OPTIONS[0],
+        choices=LEGAL_MODEL_OPTIONS,
+        default=LEGAL_MODEL_OPTIONS[0],
     ).execute()
 
     # Push record
@@ -48,13 +48,5 @@ def specify_model_to_use(app_settings: ApplicationSettings, update_record: bool 
     cursor.execute(sql_statement)
     conn.commit()
     conn.close()
-
-    # Continue questionnaire based on choice
-    # if choice == LEGEL_MODEL_OPTIONS[0]:
-    #     raise NotImplementedError
-    # elif choice == LEGEL_MODEL_OPTIONS[1]:
-    #     raise NotImplementedError
-    # else:
-    #     raise ValueError
 
     print(BColors.OKBLUE, f"✅  Rekenmodel ingesteld.", BColors.ENDC)

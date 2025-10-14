@@ -11,6 +11,7 @@ wheels_outside_pypi/probabilistic_library-25.1.1-py3-none-any.whl
 typer[all]
 InquirerPy
 gitpython
+rasterio
 sphinx
 sphinx-autodoc-typehints
 sphinx-autoapi

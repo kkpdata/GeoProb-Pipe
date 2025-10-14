@@ -14,4 +14,3 @@ load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
 # Initiate GeoProb-Pipe project object
 geoprob_pipe = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
 geoprob_pipe.export_archive()
-

@@ -66,7 +66,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 <!-- START_TODO_TABLE_NU -->
 | Belang | Formaat | Beschrijving | Bestand | Regel |
 | -- | -- | -- | -- | -- |
-| could | middel | Uitvoeren van system calculations ombouwen naar Threads. | /calculations/system_calculations/piping_system/build_and_run.py | 23 | 
+| could | middel | Uitvoeren van system calculations ombouwen naar Threads. | /calculations/system_calculations/piping_system/build_and_run.py | 25 | 
 | must | klein | Voor export df_beta_limit_states, kolommen filteren? | /results/__init__.py | 67 | 
 | must | klein | Eigenlijk hoofdletter N_dsn. Maar ipv afkorting naam gebruiken? | /misc/traject_normering.py | 76 | 
 | must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/betrouwbaarheidsindex.py | 92 | 
@@ -120,6 +120,13 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 
 
 
+
+
+
+
+
+
+
 ### Op een later moment van belang
 <details>
   <summary>Bekijk de tabel</summary>
@@ -129,22 +136,30 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 <!-- START_TODO_TABLE_LATER -->
 | Belang | Formaat | Beschrijving | Bestand | Regel |
 | -- | -- | -- | -- | -- |
-| could | groot | Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze. | /app_object.py | 29 | 
+| could | groot | Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze. | /app_object.py | 30 | 
 | could | groot | Add functionality to read existing results (without running prob. calculations again) | /utils/workspace.py | 23 | 
 | could | klein | Bespreken of we de physical values willen afronden? Af wellicht afrondden in de export. | /results/df_alphas_influence_factors_and_physical_values.py | 108 | 
 | could | klein | Elk sub-object heeft een export_dir-method. Kan dit handiger? | /results/__init__.py | 49 | 
 | could | middel | De bovenstaande assertion triggert. Maar dat is fout. | /calculations/test_prob_lib_vs_openturns.py | 132 | 
-| must | klein | Check dat een LineString-laag wordt opgegeven. | /pre_processing/spatial_layers/dijktraject.py | 74 | 
+| must | klein | Check dat een LineString-laag wordt opgegeven. | /pre_processing/spatial_layers/dijktraject.py | 90 | 
 | nice | middel | Visualiseer physical design point value in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 20 | 
-| should | klein | Is het echt nodig om een 'FileSystem'-object te maken? Deze functies bestaan al toch? | /utils/file_system.py | 9 | 
 | should | klein | D zit ook in kD_wvp. Dat is dubbelop. | /calculations/system_calculations/piping_system/limit_state_functions.py | 9 | 
 | should | klein | Waarom zijn alle vaste parameters toegevoegd? Zoals zwaartekracht g. Global maken? | /calculations/system_calculations/piping_system/limit_state_functions.py | 75 | 
 | should | klein | Nadenken hoe we binnen een half uur een quick scan piping kunnen uitvoeren met het object. | /calculations/system_calculations/piping_system/test_calculation.py | 4 | 
+| should | klein | Is het echt nodig om een 'FileSystem'-object te maken? Deze functies bestaan al toch? | /utils/file_system.py | 9 | 
 | should | middel | Het zou goed zijn om voor dit simpele systeem ook betas te kunnen reproduceren. | /calculations/test_prob_lib_vs_openturns.py | 175 | 
-| should | middel | We vragen nu filepath, we kunnen daarnaast de optie geven voor normtrajecten direct. | /pre_processing/spatial_layers/dijktraject.py | 24 | 
 | should | middel | Visualiseer WBN waterstand in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 19 | 
+| should | middel | We vragen nu filepath, we kunnen daarnaast de optie geven voor normtrajecten direct. | /pre_processing/spatial_layers/dijktraject.py | 22 | 
+| should | middel | Should validate if AHN grid fully overlaps area | /pre_processing/spatial_layers/ahn.py | 13 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
+
+
+
+
+
+
 
 
 

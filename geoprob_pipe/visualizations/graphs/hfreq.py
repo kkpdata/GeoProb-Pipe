@@ -231,4 +231,5 @@ class GraphHFreqSingleInteractive:
             timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
             timestamp_str = f"{timestamp}_"
         self.fig.write_html(os.path.join(export_dir, f"{timestamp_str}hfreq.html"), include_plotlyjs='cdn')
-        self.fig.write_image(os.path.join(export_dir, f"{timestamp_str}hfreq.png"), format="png")
+        if self.geoprob_pipe.software_requirements.chrome_is_installed:
+            self.fig.write_image(os.path.join(export_dir, f"{timestamp_str}hfreq.png"), format="png")

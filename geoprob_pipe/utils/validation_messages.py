@@ -23,7 +23,8 @@ class BColors:
 
 class ValidationMessages:
 
-    def __init__(self):
+    def __init__(self, about: str = ""):
+        self.about: str = about
         self.df: Optional[DataFrame] = None
 
     def _append_new_rows(self, new_rows: Dict):
@@ -46,15 +47,39 @@ class ValidationMessages:
 
     def add_warning(self, msg: Union[str, List[str]]):
         msgs = self._to_list(msg=msg)
-        new_rows = {"type": ["warning"] * msgs.__len__(), "msg": msgs}
+        new_rows = {
+            "about": [self.about] * msgs.__len__(),
+            "type": ["warning"] * msgs.__len__(),
+            "msg": msgs,
+        }
         self._append_new_rows(new_rows)
 
     def add_error(self, msg: Union[str, List[str]]):
         msgs = self._to_list(msg=msg)
-        new_rows = {"type": ["error"] * msgs.__len__(), "msg": msgs}
+        new_rows = {
+            "about": [self.about] * msgs.__len__(),
+            "type": ["error"] * msgs.__len__(),
+            "msg": msgs,
+        }
         self._append_new_rows(new_rows)
 
     def add_info(self, msg: Union[str, List[str]]):
         msgs = self._to_list(msg=msg)
-        new_rows = {"type": ["info"] * msgs.__len__(), "msg": msgs}
+        new_rows = {
+            "about": [self.about] * msgs.__len__(),
+            "type": ["info"] * msgs.__len__(),
+            "msg": msgs,
+        }
         self._append_new_rows(new_rows)
+
+    def concat_with_df(self, df_to_append_to: Optional[DataFrame] = None) -> Optional[DataFrame]:
+        """ Helper function to concatenate the validation messages with validation messages of another
+        ValidationMessages-dataframe. """
+
+        if self.df is None:
+            return df_to_append_to
+
+        if df_to_append_to is None:
+            return self.df
+
+        return concat([df_to_append_to, self.df])

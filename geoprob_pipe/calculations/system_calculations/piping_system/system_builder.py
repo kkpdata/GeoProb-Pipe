@@ -1,3 +1,4 @@
+from importlib.metadata import metadata
 from geoprob_pipe.calculations.system_calculations.system_base_objects.base_system_build import BaseSystemBuilder
 from geoprob_pipe.calculations.system_calculations.piping_system.reliability_calculation import (
     PipingSystemReliabilityCalculation)
@@ -84,6 +85,13 @@ class PipingSystemBuilder(BaseSystemBuilder):
                     calc.metadata["ondergrondscenario_id"] = ondergrond_scenario.id
                     calc.metadata["ondergrondscenario"] = ondergrond_scenario
                     calc.metadata["vak_id"] = vak.id
+
+                    metadata_summary = {
+                        "uittredepunt_id": uittredepunt.id,
+                        "ondergrondscenario_id": ondergrond_scenario.id,
+                        "vak_id": vak.id}
+                    calc.validation_messages.about = f"Calculation {metadata_summary}"
+
                     list_calculations.append(calc)
         return list_calculations
 
