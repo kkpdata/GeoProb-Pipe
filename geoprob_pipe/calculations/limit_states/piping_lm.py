@@ -323,7 +323,6 @@ def limit_state_model4a(
     )
 
 
-
 # noinspection PyPep8Naming
 def limit_state_moria(
         # Geometry parameters
