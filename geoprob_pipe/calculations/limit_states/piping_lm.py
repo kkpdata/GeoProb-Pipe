@@ -323,99 +323,60 @@ def limit_state_model4a(
     )
 
 
-# Define the input variables for the MORIA limit state
-# The variables are grouped into categories for clarity
-# --geometry--
-# L_intrede: float
-# L_but: float
-# --Boundary conditions--
-# buitenwaterstand: float
-# buitenwaterstand_gemiddeld: float
-# polderpeil: float
-# mv_exit: float
-# --subsoil properties--
-# lambda_voorland: float
-# phi_exit_gemiddeld: float
-# r_exit: float
-# top_zand: float
-# k_wvp: float
-# D_wvp: float
-# d70: float
-# gamma_sat_deklaag: float
-# c_voorland: float
-# c_achterland: float
-# --model properties--
-# modelfactor_u: float
-# modelfactor_h: float
-# modelfactor_p: float
-# modelfactor_ff: float model factor fijne fractie
-# modelfactor_3d: float model factor 3D effecten
-# modelfactor_aniso: float model factor anisotropie
-# modelfactor_ml: float model factor meerlaagsheid zandpakket
-# i_c_h: float
-# r_c_deklaag: float
-# d70_m: float
-# gamma_korrel: float
-# v: float
-# theta: float
-# eta: float
-# --constants--
-# g: float
-# gamma_water: float
-
 
 # noinspection PyPep8Naming
-def limit_state_MORIA(
-    L_intrede: float,
-    L_but: float,
-    buitenwaterstand: float,
-    buitenwaterstand_gemiddeld: float,
-    polderpeil: float,
-    mv_exit: float,
-    lambda_voorland: float,
-    phi_exit_gemiddeld: float,
-    r_exit: float,
-    top_zand: float,
-    k_wvp: float,
-    D_wvp: float,
-    d70: float,
-    gamma_sat_deklaag: float,
-    modelfactor_u: float,
-    modelfactor_h: float,
-    modelfactor_p: float,
-    modelfactor_ff: float,
-    modelfactor_3d: float,
-    modelfactor_aniso: float,
-    modelfactor_ml: float,
-    i_c_h: float,
-    r_c_deklaag: float,
-    d70_m: float,
-    gamma_korrel: float,
-    v: float,
-    theta: float,
-    eta: float,
-    g: float,
-    gamma_water: float,
-    **_,
+def limit_state_moria(
+        # Geometry parameters
+        L_intrede: float, L_but: float,
+        # Boundary condition parameters
+        buitenwaterstand: float, buitenwaterstand_gemiddeld: float, polderpeil: float, mv_exit: float,
+        # Subsoil property parameters
+        lambda_voorland: float, phi_exit_gemiddeld: float, r_exit: float, top_zand: float, k_wvp: float, D_wvp: float,
+        d70: float, gamma_sat_deklaag: float,
+        # Model property parameters
+        modelfactor_u: float, modelfactor_h: float, modelfactor_p: float, modelfactor_ff: float, modelfactor_3d: float,
+        modelfactor_aniso: float, modelfactor_ml: float, i_c_h: float, r_c_deklaag: float, d70_m: float,
+        gamma_korrel: float, v: float, theta: float, eta: float,
+        # Constants
+        g: float, gamma_water: float,
 ) -> Tuple[
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
+    float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float
 ]:
-    """Grenstoestandsfuncties volgens het WBI-model met grondwaterstroming conform MORIA model."""
+    """ Grenstoestandsfuncties volgens het WBI-model met grondwaterstroming conform MORIA model.
+
+    :param L_intrede:
+    :param L_but:
+    :param buitenwaterstand:
+    :param buitenwaterstand_gemiddeld:
+    :param polderpeil:
+    :param mv_exit:
+    :param lambda_voorland:
+    :param phi_exit_gemiddeld:
+    :param r_exit:
+    :param top_zand:
+    :param k_wvp:
+    :param D_wvp:
+    :param d70:
+    :param gamma_sat_deklaag:
+    :param modelfactor_u:
+    :param modelfactor_h:
+    :param modelfactor_p:
+    :param modelfactor_ff: Model factor fijne fractie.
+    :param modelfactor_3d: Model factor 3D effecten.
+    :param modelfactor_aniso: Model factor anisotropie.
+    :param modelfactor_ml: Model factor meerlaagsheid zandpakket.
+    :param i_c_h:
+    :param r_c_deklaag:
+    :param d70_m:
+    :param gamma_korrel:
+    :param v:
+    :param theta:
+    :param eta:
+    :param g:
+    :param gamma_water:
+    :return:
+    """
+
     # kD_wvp
     kD_wvp = k_wvp * D_wvp
     # L_voorland

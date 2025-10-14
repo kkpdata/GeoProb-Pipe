@@ -4,3 +4,4 @@ openturns
 gitpython
 inflection
 bs4
+pytest

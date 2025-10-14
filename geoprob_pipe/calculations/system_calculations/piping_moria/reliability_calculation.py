@@ -1,11 +1,11 @@
-from geoprob_pipe.calculations.system_calculations.piping_wbi.limit_state_functions import (
+from geoprob_pipe.calculations.system_calculations.piping_moria.limit_state_functions import (
     system_variable_setup, calc_Z_h, calc_Z_p, calc_Z_u)
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
 from typing import List, Dict, Union
 
 
-class PipingWBISystemReliabilityCalculation(ParallelSystemReliabilityCalculation):
+class PipingMORIASystemReliabilityCalculation(ParallelSystemReliabilityCalculation):
     """ Vooraf gedefinieerde System Reliability Calculation voor piping met het WBI-stijghoogtemodel. """
 
     def __init__(

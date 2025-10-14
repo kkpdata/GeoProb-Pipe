@@ -26,7 +26,7 @@ def get_data():
     return data
 
 
-# defene input and output keys
+# define input and output keys
 input_keys_lm_wbi = [
     "L_kwelweg",
     "buitenwaterstand",
@@ -125,7 +125,7 @@ input_keys_lm_moria = [
     "L_intrede",
     "L_but",
     "buitenwaterstand",
-    "buienwaterstand_gemiddeld",
+    "buitenwaterstand_gemiddeld",
     "polderpeil",
     "mv_exit",
     "lambda_voorland",
