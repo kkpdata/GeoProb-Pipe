@@ -311,7 +311,6 @@ De stijghoote in het uittredepunt wordt dan:
 
 Bespreken: moeten we nog een modelfactor :math:`m_{gw}` voor het stijghoogtemodel toevoegen.
 
-De beschrijving van het geohydrologische systeem met deze variabelen betekent ook dat de onderlinge correlatie van de variabelen apart moet worden gedefinieerd. Dit betreft met name de correlatie tussen de spreidingslengte van het voorland :math:`\lambda_{1}` en de transmissiviteit van het watervoerende zandpakket :math:`kD` en in mindere mate de correlatie tussen de respons in het uittredepunt :math:`r_{exit}` en de transmissiviteit van het watervoerende zandpakket :math:`kD`. In het model 4a zijn deze correlaties modelmatig beschreven.
 
 De formules van de grenstoestandsfuncties zijn nu als volgt:
 
@@ -340,3 +339,21 @@ Grenstoestandfunctie terugschrijdende erosie:
    L_{eff,voorland} = \lambda_{1} \cdot tanh(\frac{L_1}{\lambda_{1}})
 
    \lambda_{1} = \sqrt{c_{voorland} \cdot k \cdot D_{wvp}}
+
+
+   Correlatie tussen variabelen
+   ----------------------------
+
+De beschrijving van het geohydrologische systeem met deze variabelen betekent ook dat de onderlinge correlatie van de variabelen apart moet worden gedefinieerd. Dit betreft met name de correlatie tussen de spreidingslengte van het voorland :math:`\lambda_{1}` en de transmissiviteit van het watervoerende zandpakket :math:`kD` en in mindere mate de correlatie tussen de respons in het uittredepunt :math:`r_{exit}` en de transmissiviteit van het watervoerende zandpakket :math:`kD`. In het model 4a zijn deze correlaties modelmatig beschreven.
+
+In het geval van een numeriek stijghoogtemodel is de correlatie tussen de spreidingslengte van het voorland en de transmissiviteit van het watervoerende zandpakket plaatsafhankelijk en wordt beschreven door het geohydrologische model. 
+
+Om een inschatting te doen van de correlatie tussen deze variabelen wordt een beperkte set van modelberekeningen uitgevoerd waarbij de transmissiviteit van het watervoerende pakket en de weerstand van het voorland wordt gevarieerd. 
+Voor elke berekening uit deze set wordt de spreidingslengte van het voorland afgeleid.
+Gebruikelijk is het om daarbij per variabele 3 scenario's te hanteren (gemiddeld, -1.64 * sigma, +1.64 * sigma).
+Voor 2 variabelen resulteert dit in 9 modelberekeningen. 
+
+Uit deze modelberekeningen wordt de gewogen correlatie tussen de transmissiviteit van het watervoerende pakket en de spreidingslengte van het voorland bepaald. Deze correlatie wordt vervolgens gebruikt in de probabilistische analyse.
+
+Op basis van het model 4a is de correlatie tussen de transmissiviteit van het watervoerende pakket en de spreidingslengte van het voorland ongeveer 0.7, afhankelijk van de gekozen spreiding.
+
