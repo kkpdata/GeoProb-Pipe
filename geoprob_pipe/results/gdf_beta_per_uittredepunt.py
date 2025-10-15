@@ -1,6 +1,5 @@
 from __future__ import annotations
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
-from pandas import DataFrame
 from geopandas import GeoDataFrame, points_from_xy
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -11,8 +10,8 @@ if TYPE_CHECKING:
 def calculate_gdf_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> GeoDataFrame:
 
     # Sum
-    df = results.df_beta_scenarios.assign(
-        failure_probability=results.df_beta_scenarios.apply(
+    df = results.gdf_beta_scenarios.assign(
+        failure_probability=results.gdf_beta_scenarios.apply(
             lambda row: row['failure_probability'] *
                         row['ondergrondscenario'].variables.ondergrondscenario_kans[
                             "value"], axis=1)).groupby('uittredepunt_id', as_index=False)[

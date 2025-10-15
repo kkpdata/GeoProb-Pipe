@@ -16,7 +16,7 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
 
     # Collect data
     df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
-    df_results_combined = geoprob_pipe.results.df_beta_scenarios
+    df_results_combined = geoprob_pipe.results.gdf_beta_scenarios
     df_for_graph = merge(
         left=df_results_combined[["uittredepunt_id", "beta"]],
         right=df_uittredepunten[["uittredepunt_id", "M_value"]],

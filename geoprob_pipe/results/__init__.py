@@ -1,10 +1,11 @@
 from __future__ import annotations
 from pandas import DataFrame
 from typing import TYPE_CHECKING, Optional
-from geoprob_pipe.results.construct_dataframes import (
-    collect_df_beta_per_limit_state, collect_df_beta_per_scenario, construct_df_beta_per_vak)
+from geoprob_pipe.results.df_beta_per_vak import construct_df_beta_per_vak
 from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import construct_df
 from geoprob_pipe.results.gdf_beta_per_uittredepunt import calculate_gdf_beta_per_uittredepunt
+from geoprob_pipe.results.gdf_beta_per_limit_state import collect_gdf_beta_per_limit_state
+from geoprob_pipe.results.gdf_beta_per_scenario import collect_gdf_beta_per_scenario
 import os
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -15,8 +16,8 @@ class Results:
 
     def __init__(self, geoprob_pipe: GeoProbPipe):
         self.geoprob_pipe = geoprob_pipe
-        self.df_beta_limit_states = collect_df_beta_per_limit_state(geoprob_pipe=geoprob_pipe)
-        self.df_beta_scenarios = collect_df_beta_per_scenario(geoprob_pipe=geoprob_pipe)
+        self.gdf_beta_limit_states = collect_gdf_beta_per_limit_state(geoprob_pipe=geoprob_pipe)
+        self.gdf_beta_scenarios = collect_gdf_beta_per_scenario(geoprob_pipe=geoprob_pipe)
         self._df_alphas_influence_factors_and_physical_values: Optional[DataFrame] = None
         self.gdf_beta_uittredepunten = calculate_gdf_beta_per_uittredepunt(geoprob_pipe=geoprob_pipe, results=self)
         self.df_beta_vakken = construct_df_beta_per_vak(self)
@@ -62,18 +63,12 @@ class Results:
 
         # Results of limit state calculations
         if bool_beta_limit_states:
-            df = self.df_beta_limit_states
-            # df = df[["uittredepunt_id", "ondergrondscenario_id", "model", "converged", "beta", "failure_probability"]]
-            # TODO Nu Must Klein: Voor export df_beta_limit_states, kolommen filteren?
-            df.to_excel(
-                excel_writer=os.path.join(self.export_dir, "df_beta_limit_states.xlsx"))
-            # TODO Nu Should Klein: Sommige resultaten zijn niet converged. Wat doen we daarmee?
-            #  Op dit moment worden ze gewoon gebruikt om de scenario-faalkans te berekenen.
+            df = self.gdf_beta_limit_states.drop(columns=["geometry"])
+            df.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_limit_states.xlsx"))
 
         if bool_beta_scenarios:
-            df = self.df_beta_scenarios.drop(columns=['ondergrondscenario', 'system_calculation'])
-            df.to_excel(
-                excel_writer=os.path.join(self.export_dir, "df_beta_scenarios.xlsx"))
+            df = self.gdf_beta_scenarios.drop(columns=['geometry', 'ondergrondscenario', 'system_calculation'])
+            df.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_scenarios.xlsx"))
 
         if bool_alphas_influence_factors_and_physical_values:
             df = self.df_alphas_influence_factors_and_physical_values()
