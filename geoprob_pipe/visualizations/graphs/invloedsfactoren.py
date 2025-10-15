@@ -35,7 +35,7 @@ def get_influence_factors_for_vak(
     In the past weigh it for the uittredepunt, or average is among all uittredepunten, as was done in the past. The
     choice was made to keep the actual resulting influence factors because they sum up to 100%. There is also no
     physical reason to average them, and the worst case scenario is normative for the final result anyway. """
-    df_result = geoprob_pipe.results.df_beta_scenarios
+    df_result = geoprob_pipe.results.gdf_beta_scenarios
     df_result = df_result[df_result["vak_id"] == vak_id]
 
     # Check if results for vak

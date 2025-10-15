@@ -54,7 +54,7 @@ def _calculate_derived_values(geoprob_pipe: GeoProbPipe):
     """
 
     # Get kwargs per calculation
-    df = geoprob_pipe.results.df_beta_scenarios.copy(deep=True)
+    df = geoprob_pipe.results.gdf_beta_scenarios.drop(columns=["geometry"]).copy(deep=True)
     df['physical_values'] = df['system_calculation'].apply(
         lambda sc: {alpha.variable.name: alpha.x for alpha in sc.system_design_point.alphas}
     )
