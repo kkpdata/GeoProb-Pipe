@@ -324,9 +324,9 @@ def limit_state_model4a(
 
 
 # noinspection PyPep8Naming
-def limit_state_moria(
+def limit_state_moria(  # TODO: Naam moria vervangen voor iets generieks?
         # Geometry parameters
-        L_intrede: float, L_but: float,
+        L_intrede: float, L_but: float,  # TODO: Moet L_but L_buk worden? Of L_spreidingslengte?
         # Boundary condition parameters
         buitenwaterstand: float, buitenwaterstand_gemiddeld: float, polderpeil: float, mv_exit: float,
         # Subsoil property parameters
