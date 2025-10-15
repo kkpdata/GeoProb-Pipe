@@ -91,5 +91,16 @@ def export_template(app_settings: ApplicationSettings):
 
 
 def import_excel(app_settings: ApplicationSettings):
-    pass
 
+    # Benodigde identifiers ophalen voor invoer per scenario opzetten
+    #   - df_uittredepunt met 'uittredepunt_id' en 'vak_id'
+    #   - mergen met df_ondergrondscenarios:
+    #       - explodeert df_uittredepunt naar rij per scenario
+    #       - voeg kolom ondergrondscenario_id toe
+    # Merge per parameter op uittredepunt-niveau met de 'Parameter invoer'-Excel sheet
+    # Voor de lege cellen, merge per parameter op scenario en vakniveau-niveau met de 'Parameter invoer'-Excel sheet
+    # Voor de lege cellen, merge per parameter op vakniveau-niveau met de 'Parameter invoer'-Excel sheet
+    # Voor de lege cellen, merge per parameter op traject-niveau met de 'Parameter invoer'-Excel sheet
+    # Voor overige lege cellen, geeft validatie error terug.
+
+    pass
