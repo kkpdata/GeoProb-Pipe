@@ -1,64 +1,24 @@
 .. GeoProb-Pipe documentation master file, created by
-   sphinx-quickstart on Fri Mar 28 16:05:34 2025.
+   sphinx-quickstart on Mon Sep  1 13:09:20 2025.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+GeoProb-Pipe documentation
+==========================
 
-**GeoProb-Pipe** is een Python app om probabilistische pipingberekeningen uit te voeren. De grenstoestandfuncties zijn aangepast zodat de respons in het watervoerende pakket beschreven wordt door model4a van het Technisch Rapport Waterspanningen bij Dijken :cite:`trw_2004`. Deze documentatie is bedoeld om de gebruiker achtergronden te geven bij keuzes die gemaakt zijn bij de implementatie van de grenstoestandfuncties en de analytische oplossing van het stationaire model. De documentatie is ook bedoeld voor ontwikkelaars die de bibliotheek verder willen ontwikkelen.
+Welkom bij de documentatie van GeoProb-Pipe, een probabilistische methode om pipingberekeningen met de
+uittredepuntenmethode uit te voeren i.c.m. het analytische stijghoogtemodel 4a. Deze documentatie biedt handreikingen
+voor het gebruik van GeoProb-Pipe, de achtergronden van de methode, API-referenties en voorbeelden.
 
-
-Gebruiksinstructies
--------
-
-In het Python-bestand ``GeoProb-Pipe/app/main_piping.py`` vind je een template om de applicatie uit te voeren. Hier kun
-je een kopie van maken en aanpassen naar jouw use case. Pas bijvoorbeeld de variabele ``PATH_WORKSPACE`` aan en verwijs
-naar de locatie met jouw invoer bestanden. In de huidige locatie van ``PATH_WORKSPACE`` staan voorbeeld bestanden.
-
-
-Toepassingsgebied
--------
-
-De methode gaat uit van (in principe) een oneindig aantal mogelijke locaties van wellen (of uittredepunten) die een onbekende bijdrage kunnen hebben aan de overstromingskans van een dijktraject. Meer informatie is te vinden in onderstaande link.
+.. TODO: Uitnodigende afbeelding toevoegen de applicatie. Wellicht kaartje/bovenaanzicht van resultaat.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+   :caption: Contents:
 
-   background/uittredepuntenmethode
-
-Achtergronden
--------------
-
-In dit deel van de documentatie zijn de achtergronden beschreven van de implementatie van de functies die in deze bibliotheek zijn opgenomen.
-
-.. toctree::
-   :maxdepth: 2
-
-   background/uittredepuntenmethode
-   background/stationair_model
-   background/piping
-   background/grenstoestandfuncties
-   
-
-API
----
-
-.. toctree::
-   :maxdepth: 2
-
-   dev/overview
-
-
-Referenties
------------
-
-.. toctree::
-   :maxdepth: 2
-
+   gebruik_GeoProb-Pipe
+   Uittredepuntenmethode
+   Rekenmethodiek
+   Relatie_beslisraamwerk_piping
    references
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

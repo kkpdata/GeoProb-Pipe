@@ -3,6 +3,13 @@ from typing import Optional, Dict, Union, List
 
 
 class BColors:
+    """ Helper object om prints kleur te geven. Gebruik als
+
+    >>> print(BColors.WARNING, 'Mijn waarschuwing. ', BColors.ENDC)
+
+    Let op. Met `BColors.ENDC` eindig je de kleur. Als je dit vergeet dan zijn alle volgende prints eveneens in kleur.
+
+    """
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKCYAN = '\033[96m'

@@ -8,11 +8,7 @@ def z_piping(
         modelfactor_p: float, d70: float, D_wvp: float, kD_wvp: float, top_zand: float, gamma_water: float, g: float,
         v: float, theta: float, eta: float, d70_m: float, gamma_korrel: float, r_c_deklaag: float, **_,
 ) -> Tuple[float, float, float, float, float, float, float, float, float]:
-    r"""Grenstoestandfunctie voor het mechanisme piping
-
-    Returns:
-        float: Z waarde van de grenstoestandfunctie voor piping
-    """
+    """ Grenstoestandfunctie voor het mechanisme piping. """
 
     L_voorland = pc_piping.calc_lengte_voorland(L_intrede=L_intrede, L_but=L_but)
     lambda_voorland = pc_piping.calc_lambda_voorland(kD_wvp=kD_wvp, c_voorland=c_voorland)

@@ -26,7 +26,7 @@ from geoprob_pipe.software_requirements import SoftwareRequirements
 
 
 class GeoProbPipe:
-    """ Project class """
+    """ GeoProb-Pipe application object. """
     # TODO Later Could Groot: Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze.
 
     def __init__(

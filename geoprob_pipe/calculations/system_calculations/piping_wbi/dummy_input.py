@@ -1,0 +1,254 @@
+from probabilistic_library import DistributionType
+
+
+PIPING_DUMMY_INPUT = [
+    {
+        "name": "L_kwelweg",
+        "description": "TODO",  # TODO
+        "remark": "",
+        "unit": "m",
+        "distribution_type": DistributionType.deterministic,  # TODO
+        "mean": 150.0,  # TODO
+        "source": "spatial",  # TODO
+    },
+    {
+        "name": "polderpeil",
+        "description": "Polderpeil ter plaatse van uittredepunten.",
+        "remark": "",
+        "unit": "m+NAP",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 0.0,
+        "source": "spatial",
+    },
+    {
+        "name": "buitenwaterstand",
+        "description": "Buitenwaterstand. Indien keuze voor 'cdf_curve' als distributie type, dan wordt er een "
+                       "een overschrijdingsfrequentielijn berekend met de Hydra-NL Python wrapper Pydra.",
+        "remark": "",
+        "unit": "m+NAP",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 5.0,
+        "source": "excel",
+    },
+    {
+        "name": "mv_exit",
+        "description": "Bodemhoogte ter plaatse van uittredepunten.",
+        "remark": "",
+        "unit": "m+NAP",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 0.5,
+        "source": "spatial",
+    },
+    {
+        "name": "top_zand",
+        "description": "Geschematiseerde top van het zand in het vak.",
+        "remark": "",
+        "unit": "m+NAP",
+        "distribution_type": DistributionType.normal,
+        "mean": -3.0,
+        "deviation": 0.5,
+        "source": "excel",
+    },
+    {
+        "name": "r_exit",
+        "description": "TODO",  # TODO
+        "remark": "",
+        "unit": "-",  # TODO
+        "distribution_type": DistributionType.normal,  # TODO
+        "mean": -0.5,  # TODO
+        "deviation": 0.05,  # TODO
+        "source": "excel",  # TODO
+    },
+    {
+        "name": "k_wvp",
+        "description": "",  # TODO
+        "remark": "",  # TODO
+        "unit": "",  # TODO
+        "distribution_type": DistributionType.log_normal,  # TODO
+        "mean": 2000.0,  # TODO
+        "variation": 0.35,  # TODO
+        "source": "excel",  # TODO
+    },
+    {
+        "name": "modelfactor_h",
+        "description": "Modelfactor voor heave.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
+    },
+    {
+        "name": "modelfactor_ff",
+        "description": "Modelfactor voor fijne fractie.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,  # TODO
+        "mean": 1.0,  # TODO
+        "variation": 0.1,  # TODO
+        "source": "excel",  # TODO
+    },
+    {
+        "name": "modelfactor_3d",
+        "description": "Modelfactor voor 3D effecten.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,  # TODO
+        "mean": 1.0,  # TODO
+        "variation": 0.1,  # TODO
+        "source": "excel",  # TODO
+    },
+    {
+        "name": "modelfactor_aniso",
+        "description": "Modelfactor voor anisotropie.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,  # TODO
+        "mean": 1.0,  # TODO
+        "variation": 0.1,  # TODO
+        "source": "excel",  # TODO
+    },
+    {
+        "name": "modelfactor_ml",
+        "description": "Modelfactor voor meerlaagsheid zandpakket.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,  # TODO
+        "mean": 1.0,  # TODO
+        "variation": 0.1,  # TODO
+        "source": "excel",  # TODO
+    },
+    {
+        "name": "i_c_h",
+        "description": "Kritieke heave gradiënt.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,
+        "mean": 0.7,
+        "variation": 0.15,
+        "source": "excel",
+    },
+    {
+        "name": "D_wvp",
+        "description": "Dikte van het watervoerende pakket.",
+        "remark": "",
+        "unit": "m",
+        "distribution_type": DistributionType.log_normal,
+        "mean": 50,
+        "deviation": 1.5,
+        "source": "excel",
+    },
+    {
+        "name": "modelfactor_u",
+        "description": "Modelfactor voor uplift.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
+    },
+    {
+        "name": "gamma_water",
+        "description": "Volumegewicht van water.",
+        "remark": "",
+        "unit": "kN/m³",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 9.81,
+        "source": "excel",
+    },
+    {
+        "name": "gamma_sat_deklaag",
+        "description": "Gemiddeld volumegewicht van de deklaag.",
+        "remark": "",
+        "unit": "kN/m³",
+        "distribution_type": DistributionType.log_normal,
+        "mean": 13.9,
+        "variation": 0.05,
+        "source": "excel",
+    },
+    {
+        "name": "modelfactor_p",
+        "description": "Modelfactor voor piping.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
+    },
+    {
+        "name": "d70",
+        "description": "70% percentiel van de korrelverdeling.",
+        "remark": "",
+        "unit": "m",
+        "distribution_type": DistributionType.log_normal,
+        "mean": 2.8e-4,
+        "variation": 0.15,
+        "source": "excel",
+    },
+    {
+        "name": "g",
+        "description": "Zwaartekrachtversnelling.",
+        "remark": "",
+        "unit": "m/s²",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 9.81,
+        "source": "excel",
+    },
+    {
+        "name": "v",
+        "description": "Kinematische viscositeit – Sellmeijer.",
+        "remark": "",
+        "unit": "m²/s",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 0.00000133,
+        "source": "excel",
+    },
+    {
+        "name": "theta",
+        "description": "Rolweerstandshoek – Sellmeijer.",
+        "remark": "",
+        "unit": "graden",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 37.0,
+        "source": "excel",
+    },
+    {
+        "name": "eta",
+        "description": "White's weerstandscoëfficiënt (sleepkrachtfactor, constante van White) – Sellmeijer",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 0.25,
+        "source": "excel",
+    },
+    {
+        "name": "d70_m",
+        "description": "Referentiewaarde voor de 70% percentiel van de korrelverdeling – Sellmeijer.",
+        "remark": "",
+        "unit": "m",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 2.08e-4,
+        "source": "excel",
+    },
+    {
+        "name": "gamma_korrel",
+        "description": "Volumieke dichtheid zand onder water – Sellmeijer.",
+        "remark": "",
+        "unit": "kN/m³",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 16.5,
+        "source": "excel",
+    },
+    {
+        "name": "r_c_deklaag",
+        "description": "Reductie constante van het verval over de deklaag.",
+        "remark": "",
+        "unit": "[-]",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 0.3,
+        "source": "excel",
+    },
+]
