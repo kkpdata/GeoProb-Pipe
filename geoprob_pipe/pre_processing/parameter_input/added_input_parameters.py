@@ -83,7 +83,11 @@ def export_template(app_settings: ApplicationSettings):
         "name", "scope", "scope_referentie", "ondergrondscenario_naam",
         "distribution_type", "mean", "variation", "deviation"]].copy()
     with ExcelWriter(dst_path, engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
-        df_parameter_invoer.to_excel(writer, sheet_name="Parameter invoer", index=False, header=False, startrow=4, startcol=0)
+        df_parameter_invoer.to_excel(
+            writer, sheet_name="Parameter invoer", index=False, header=False, startrow=4, startcol=0)
+
+    print(f"Exporteren van template compleet:\n"
+          f"{dst_path}")
 
 
 def import_excel(app_settings: ApplicationSettings):
