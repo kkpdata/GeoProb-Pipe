@@ -324,24 +324,61 @@ def limit_state_model4a(
 
 
 # noinspection PyPep8Naming
-def limit_state_moria(  # TODO: Naam moria vervangen voor iets generieks?
-        # Geometry parameters
-        L_intrede: float, L_but: float,  # TODO: Moet L_but L_buk worden? Of L_spreidingslengte?
-        # Boundary condition parameters
-        buitenwaterstand: float, buitenwaterstand_gemiddeld: float, polderpeil: float, mv_exit: float,
-        # Subsoil property parameters
-        lambda_voorland: float, phi_exit_gemiddeld: float, r_exit: float, top_zand: float, k_wvp: float, D_wvp: float,
-        d70: float, gamma_sat_deklaag: float,
-        # Model property parameters
-        modelfactor_u: float, modelfactor_h: float, modelfactor_p: float, modelfactor_ff: float, modelfactor_3d: float,
-        modelfactor_aniso: float, modelfactor_ml: float, i_c_h: float, r_c_deklaag: float, d70_m: float,
-        gamma_korrel: float, v: float, theta: float, eta: float,
-        # Constants
-        g: float, gamma_water: float,
+def limit_state_moria(  # TODO: Naam moria vervangen voor iets generieks? --> limit_state_gw_flow_model?
+    # Geometry parameters
+    L_intrede: float,
+    L_but: float,  # TODO: Moet L_but L_buk worden? Of L_spreidingslengte?
+    # Boundary condition parameters
+    buitenwaterstand: float,
+    buitenwaterstand_gemiddeld: float,
+    polderpeil: float,
+    mv_exit: float,
+    # Subsoil property parameters
+    lambda_voorland: float,
+    phi_exit_gemiddeld: float,
+    r_exit: float,
+    top_zand: float,
+    k_wvp: float,
+    D_wvp: float,
+    d70: float,
+    gamma_sat_deklaag: float,
+    # Model property parameters
+    modelfactor_u: float,
+    modelfactor_h: float,
+    modelfactor_p: float,
+    modelfactor_ff: float,
+    modelfactor_3d: float,
+    modelfactor_aniso: float,
+    modelfactor_ml: float,
+    i_c_h: float,
+    r_c_deklaag: float,
+    d70_m: float,
+    gamma_korrel: float,
+    v: float,
+    theta: float,
+    eta: float,
+    # Constants
+    g: float,
+    gamma_water: float,
 ) -> Tuple[
-    float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
+    float,
 ]:
-    """ Grenstoestandsfuncties volgens het WBI-model met grondwaterstroming conform MORIA model.
+    """Grenstoestandsfuncties volgens het WBI-model met grondwaterstroming conform MORIA model.
 
     :param L_intrede:
     :param L_but:
