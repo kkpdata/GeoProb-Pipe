@@ -37,8 +37,8 @@ def get_gdf_beta_scenarios(geoprob_pipe: GeoProbPipe, export: bool = False) -> G
     return gdf
 
 
-def get_gdf_beta_uittredepunten(geoprob_pipe: GeoProbPipe, export: bool = False) -> GeoDataFrame:
-    gdf = _get_uittredepunten_gdf_beta_results(geoprob_pipe, geoprob_pipe.results.df_beta_uittredepunten)
-    if export:
-        gdf.to_file(geoprob_pipe.spatial.export_path_geopackage, layer="beta_uittredepunten", driver="GPKG")
-    return gdf
+# def get_gdf_beta_uittredepunten(geoprob_pipe: GeoProbPipe, export: bool = False) -> GeoDataFrame:
+#     gdf = _get_uittredepunten_gdf_beta_results(geoprob_pipe, geoprob_pipe.results.df_beta_uittredepunten)
+#     if export:
+#         gdf.to_file(geoprob_pipe.spatial.export_path_geopackage, layer="beta_uittredepunten", driver="GPKG")
+#     return gdf

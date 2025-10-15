@@ -119,9 +119,9 @@ def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) ->
 
     # Collect data
     df_uittredepunten_m = geoprob_pipe.input_data.uittredepunten.df
-    df_results_uittredepunten = geoprob_pipe.results.df_beta_uittredepunten
+    gdf_results_uittredepunten = geoprob_pipe.results.gdf_beta_uittredepunten
     df_for_graph = merge(
-        left=df_results_uittredepunten[["uittredepunt_id", "beta"]],
+        left=gdf_results_uittredepunten[["uittredepunt_id", "beta"]],
         right=df_uittredepunten_m[["uittredepunt_id", "M_value"]],
         on="uittredepunt_id",
         how="left"

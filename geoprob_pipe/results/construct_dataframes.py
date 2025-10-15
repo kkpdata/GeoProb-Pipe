@@ -53,61 +53,6 @@ def collect_df_beta_per_scenario(geoprob_pipe: GeoProbPipe) -> DataFrame:
     return df
 
 
-def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> DataFrame:
-
-    # Sum
-    df = results.df_beta_scenarios.assign(
-        failure_probability=results.df_beta_scenarios.apply(
-            lambda row: row['failure_probability'] *
-                        row['ondergrondscenario'].variables.ondergrondscenario_kans[
-                            "value"], axis=1)).groupby('uittredepunt_id', as_index=False)[
-        'failure_probability'].sum()
-    df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
-
-    # Add vak id back to it
-    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
-    df_uittredepunten = df_uittredepunten[["uittredepunt_id", "vak_id"]]
-    df = df.merge(df_uittredepunten, left_on="uittredepunt_id", right_on="uittredepunt_id")
-
-    return df[["uittredepunt_id", "vak_id", "beta", "failure_probability"]]
-
-
 def construct_df_beta_per_vak(results: Results):
-    df = results.df_beta_uittredepunten
-    return df.loc[df.groupby('vak_id')['beta'].idxmin()]
-
-
-# def collect_df_alphas_influence_factors_and_physical_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
-#     """ Collects all Alphas, Influence factors and Physical values of the stochast input parameters. """
-#
-#     # Create
-#     def create_df_rows_for_design_point(
-#             dp: DesignPoint, calc: ParallelSystemReliabilityCalculation
-#     ) -> List[Dict[str, Union[str, float]]]:
-#         rows_from_dp = []
-#         for alpha in dp.alphas:
-#             alpha: Alpha
-#             rows_from_dp.append({
-#                 "uittredepunt_id": calc.metadata['uittredepunt_id'],
-#                 "ondergrondscenario_id": calc.metadata['ondergrondscenario_id'],
-#                 "vak_id": calc.metadata['vak_id'],
-#                 "design_point": dp.identifier,
-#                 "variable": alpha.identifier,
-#                 "distribution_type": alpha.variable.distribution.value,
-#                 "alpha": alpha.alpha,
-#                 "influence_factor": alpha.alpha * alpha.alpha,
-#                 "physical_value": alpha.x
-#             })
-#         return rows_from_dp
-#
-#     # Gather data
-#     rows = []
-#     for calculation in geoprob_pipe.calculations:
-#         for design_point in calculation.model_design_points:
-#             rows.extend(create_df_rows_for_design_point(dp=design_point, calc=calculation))
-#         rows.extend(create_df_rows_for_design_point(dp=calculation.system_design_point, calc=calculation))
-#
-#     # Generate df from rows
-#     df = DataFrame(rows)
-#
-#     return df
+    gdf = results.gdf_beta_uittredepunten
+    return gdf.loc[gdf.groupby('vak_id')['beta'].idxmin()]
