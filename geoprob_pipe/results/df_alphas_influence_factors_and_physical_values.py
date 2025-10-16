@@ -1,6 +1,7 @@
 from __future__ import annotations
 from pandas import DataFrame, concat
-from probabilistic_library import DesignPoint, Alpha
+from geoprob_pipe.calculations.system_calculations.piping_system.safe_alpha import SafeAlpha
+from geoprob_pipe.calculations.system_calculations.piping_system.safe_design_point import SafeDesignPoint
 from geoprob_pipe.calculations.limit_states.piping import z_piping
 from geoprob_pipe.calculations.limit_states.uplift_icw_model4a import z_uplift
 from geoprob_pipe.calculations.limit_states.heave_icw_model4a import z_heave
@@ -17,11 +18,11 @@ def _collect_stochast_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
 
     # Create
     def create_df_rows_for_design_point(
-            dp: DesignPoint, calc: ParallelSystemReliabilityCalculation
+            dp: SafeDesignPoint, calc: ParallelSystemReliabilityCalculation
     ) -> List[Dict[str, Union[str, float]]]:
         rows_from_dp = []
         for alpha in dp.alphas:
-            alpha: Alpha
+            alpha: SafeAlpha
             rows_from_dp.append({
                 "uittredepunt_id": calc.metadata['uittredepunt_id'],
                 "ondergrondscenario_id": calc.metadata['ondergrondscenario_id'],

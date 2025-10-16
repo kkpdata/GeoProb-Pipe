@@ -58,6 +58,36 @@ class PipingSystemBuilder(BaseSystemBuilder):
         super().__init__()
         self.system_class = PipingSystemReliabilityCalculation
 
+    def build_single_instance(
+            self,
+            vak: Vak,
+            uittredepunt,
+            ondergrond_scenario,
+            df_settings: DataFrame,
+            df_constants: DataFrame,
+            ):
+        project_settings = self.construct_project_settings(df_settings=df_settings)
+        calc = PipingSystemReliabilityCalculation(
+                        system_variable_distributions=self.construct_system_variable_distributions(
+                            vak=vak,
+                            uittredepunt=uittredepunt,
+                            ondergrond_scenario=ondergrond_scenario,
+                            df_constants=df_constants,
+                        ),
+                        project_settings=project_settings
+                    )
+        calc.metadata["uittredepunt_id"] = uittredepunt.id
+        calc.metadata["ondergrondscenario_id"] = ondergrond_scenario.id
+        calc.metadata["ondergrondscenario"] = ondergrond_scenario
+        calc.metadata["vak_id"] = vak.id
+
+        metadata_summary = {
+            "uittredepunt_id": uittredepunt.id,
+            "ondergrondscenario_id": ondergrond_scenario.id,
+            "vak_id": vak.id}
+        calc.validation_messages.about = f"Calculation {metadata_summary}"
+        return calc
+
     def build_instances(
             self,
             vak_collection: VakCollection,

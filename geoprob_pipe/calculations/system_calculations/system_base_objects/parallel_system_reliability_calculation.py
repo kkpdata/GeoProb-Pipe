@@ -4,10 +4,14 @@ from probabilistic_library import (
 from typing import Optional, Callable, List, Dict, Union
 from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
     system_variable_setup, limit_state_example_1, limit_state_example_2)
+from geoprob_pipe.calculations.system_calculations.piping_system.limit_state_functions import (
+    system_variable_setup, calc_Z_h, calc_Z_p, calc_Z_u)
 from geoprob_pipe.calculations.system_calculations.system_base_objects._base_system_reliability_calculation import (
     BaseSystemReliabilityCalculation)
 import logging
 from geoprob_pipe.utils.validation_messages import ValidationMessages
+from typing import Tuple
+from geoprob_pipe.calculations.system_calculations.piping_system.safe_design_point import SafeDesignPoint
 
 
 logger = logging.getLogger("geoprob_pipe_logger")
@@ -86,6 +90,15 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self._assign_variables()
         self._generate_model_design_points()
         self._generate_system_design_point()
+
+    def export_result(self) -> Tuple[List[DesignPoint], DesignPoint]:
+        model_design_points = [SafeDesignPoint(dp._id).to_plain() for dp in self.model_design_points]
+        system_design_point = SafeDesignPoint(self.system_design_point._id).to_plain()
+        return model_design_points,  system_design_point
+
+    def import_results(self, result: Tuple[List[DesignPoint], DesignPoint]):
+        self.model_design_points = [SafeDesignPoint.from_plain(dp) for dp in result[0]]
+        self.system_design_point = SafeDesignPoint.from_plain(result[1])
 
     def _setup_project(self):
         """ Sets up the ReliabilityProject-object. This will be used for all model design points. """
