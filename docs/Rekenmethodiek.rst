@@ -13,27 +13,51 @@
             Getijdezandfactor
             3D verschaling
             Gebruikersgedefinieerde factoren
+  Ik zit met dezelfde vraag na het lezen. Het voelt nu nog rommelig aan. Ik doe een voorstel in de code hieronder  
+  Willen we van stijghoogtemodellen een aparte rst maken?
 
 
 Rekenmethodiek
 ==============
 
+Deze pagina beschrijft de rekenmethodiek die `GeoProb-Pipe` hanteert voor het berekenen van de totale faalkans op piping per uittredepunt.
+De rekenmethodiek legt vast hoe de fysieke processen die leiden tot opbarsten, heave en terugschrijdende erosie worden gemodelleerd, en hoe deze processen zijn vertaald naar grenstoestandsfuncties.  
+De formulering van de grenstoestandsfuncties volgt de schematiseringshandleiding piping :cite:`sh_piping_2021`.
+Afhankelijk van de beschikbare gegevens kan de stijghoogte worden berekend met verschillende stijghoogtemodellen, zoals het analytische model 4A of een numeriek grondwatermodel (bijvoorbeeld MORIA).  
+Voor elk van deze stijghoogtemodellen is een afzonderlijke set van grenstoestandsfuncties opgesteld.  
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 3
 
 
-Berekeningsmodellen
--------------------
+Modelbeschrijving piping
+------------------------
 
-In de schematiseringshandleiding piping :cite:`sh_piping_2021` zijn de berekeningsmodellen beschreven die gebruikt
-worden in het BOI. Piping treedt op wanneer de deklaag opbarst, heave optreedt en er doorgaande terugschrijdende erosie
-plaatsvindt.
+In figuur :numref:`faalpad-STPH` zie je een veelvoorkomend faalpad voor het faalmechanisme *piping* :cite:`HOVK_STPH_2024`. 
+`GeoProb-Pipe` richt zich op het modelleren van de initiële mechanismen die leiden tot piping: opbarsten, heave en terugschrijdende erosie. 
+Hierbij wordt aangenomen dat piping optreedt wanneer de deklaag opbarst, heave optreedt en er doorgaande terugschrijdende erosie plaatsvindt. 
+In de schematiseringshandleiding piping :cite:`sh_piping_2021` zijn de bijbehorende grenstoestandsfuncties beschreven die in het BOI en in `GeoProb-Pipe` worden gebruikt.
 
-.. TODO: foutenboom toevoegen als plaatje?
-.. TODO: Het kopje zegt 'Berekeningsmodellen' maar je begint vervolgens direct met één formule/model. Er is geen
+.. _faalpad-STPH:
+
+.. figure:: _static/faalpad_piping.png
+   :alt: Veelvoorkomend faalpad voor het faalmechanisme piping.
+   :align: center
+
+   Veelvoorkomend faalpad voor het faalmechanisme *piping* :cite:`HOVK_STPH_2024`.
+
+.. TODO: Foutenboom toevoegen als plaatje?
+.. TODO: Het kopje zegt 'Berekeningsmodellen', maar je begint vervolgens direct met één formule/model. Er is geen
     introductie (behalve de inhoudsopgave die ik net heb toegevoegd, maar die is ook te beperkt).
+    #Ik (Laura) denk dat we dit 'Grenstoestandsfuncties' moeten noemen, want dat is wat we hier beschrijven.
+
+
+Grenstoestandfuncties STPH
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Opbarsten
+^^^^^^^^^^
 
 De grenstoestandfunctie van **opbarsten** :math:`Z_{u}` is in :cite:`sh_piping_2021` als volgt gedefinieerd:
 
@@ -42,6 +66,7 @@ De grenstoestandfunctie van **opbarsten** :math:`Z_{u}` is in :cite:`sh_piping_2
    Z_{u} = m_{u} \cdot \Delta \phi_{c,u} - (\phi_{exit} - h_{exit})
 
 waarbij :math:`m_{u}` de modelfactor voor opbarsten is [-]. 
+
 De grenspotentiaal ten opzichte van maaiveldniveau :math:`\Delta \phi_{c,u}` [m] wordt bepaald door het effectieve gewicht van de deklaag onder water:
 
 .. math::
@@ -54,14 +79,14 @@ waarin:
 - :math:`\gamma_{sat}` het gemiddeld verzadigd volumegewicht van de cohesieve deklaag is [kN/m³]
 - :math:`\gamma_{w}` het volumegewicht van water is [kN/m³]
 
-De dikte van de deklaag :math:`d_{deklaag}` ter plaatse van het uittredepunt is definieerd als de verticale afstand tussen het maaiveldniveau en de bovenkant van de pipinggevoelige zandlaag:
+De dikte van de deklaag :math:`d_{deklaag}` ter plaatse van het uittredepunt is gedefinieerd als de verticale afstand tussen het maaiveldniveau en de bovenkant van de pipinggevoelige zandlaag:
 
 .. math::
 
    d_{deklaag} = mv_{exit} - top_{zandlaag}
 
 waarin:
-- :math:`mv_{exit}` maaiveldniveau ter plaatse van uittredepunt [m+NAP]
+- :math:`mv_{exit}` maaiveldniveau ter plaatse van het uittredepunt [m+NAP]
 - :math:`top_{zandlaag}` niveau bovenkant van de pipinggevoelige zandlaag [m+NAP]
 
 De stijghoogte ter plaatse van het uittredepunt :math:`\phi_{exit}` [m+NAP] wordt volgens de schematiseringshandleiding :cite:`sh_piping_2021` beschreven door:
@@ -78,17 +103,19 @@ waarin:
 
 De dempingsfactor :math:`r_{exit}` ter plaatse van het uittredepunt is afhankelijk van de locatie van het uittredepunt ten opzichte van de dijk en de geohydrologische situatie. De schematiseringshandleiding piping :cite:`sh_piping_2021` hanteert dit als een onafhankelijke invoerparameter.
 
-
-:math:`h_{exit}` is de randvoorwaarde in het uittrredepunt gedefinieerd door het maximumm van het polderpeil en het maaiveldniveau ter plaatse van het uittredepunt:
+:math:`h_{exit}` is de randvoorwaarde in het uittredepunt, gedefinieerd door het maximum van het polderpeil en het maaiveldniveau ter plaatse van het uittredepunt:
 
 .. math::
 
-   h_{exit} = max(\phi_{polder} + mv_{exit})
+   h_{exit} = max(\phi_{polder}, mv_{exit})
 
 waarin:
 
 - :math:`\phi_{polder}` het waterniveau in de polder [m+NAP]
 
+
+Heave
+^^^^^^^^^^
 
 De grenstoestandfunctie van **heave** :math:`Z_{h}` is in :cite:`sh_piping_2021` als volgt gedefinieerd:
 
@@ -99,9 +126,13 @@ De grenstoestandfunctie van **heave** :math:`Z_{h}` is in :cite:`sh_piping_2021`
 waarin:
 
 - :math:`m_{h}` de modelfactor voor heave is [-]
-- :math:`i_{i,c}` de kritieke heave gradiënt is [-]
+- :math:`i_{i,c}` de kritieke heave-gradiënt is [-]
 
 Opgemerkt wordt dat de modelfactoren :math:`m_{u}` en :math:`m_{h}` niet zijn opgenomen in de formules van de schematiseringshandleiding piping :cite:`sh_piping_2021`, maar wel in deze implementatie zijn opgenomen om de modelonzekerheid expliciet te kunnen kwantificeren.
+
+
+Terugschrijdende erosie
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 De grenstoestandfunctie van **terugschrijdende erosie** :math:`Z_{p}` is in :cite:`sh_piping_2021` als volgt gedefinieerd:
 
@@ -124,9 +155,9 @@ waarin:
 - :math:`r_{c,deklaag}` de reductieconstante van het verval over de deklaag is [-]
 - :math:`d_{deklaag}` de dikte van de deklaag is [m]
 
- Het kritieke verval over de deklaag :math:`\Delta H_{c}` is gebaseerd op het in 2011 aangepaste model van Sellmeijer.
+Het kritieke verval over de deklaag :math:`\Delta H_{c}` is gebaseerd op het in 2011 aangepaste model van Sellmeijer.
 
- .. math::
+.. math::
 
    \Delta H_{c} = L_{kwelweg} \cdot F_{resistance} \cdot F_{scale} \cdot F_{geometry}
 
@@ -140,31 +171,43 @@ met:
 
    F_{geometry} = 0.91 \left(\frac{D_{wvp}}{L_{kwelweg}} \right)^{\frac{0.28}{\left(\frac{D_{wvp}}{L_{kwelweg}} \right)^{2.8} - 1} + 0.04}
 
-
 waarin:
 
-- :math:`L_{kwelweg}` de kwelweglengte is [m]. Deze is gedefinieerd als de horizontale afstand tussen het uittredepunt en een onzeker intredepunt.
+- :math:`L_{kwelweg}` de kwelweglengte is [m], gedefinieerd als de horizontale afstand tussen het uittredepunt en een onzeker intredepunt.
 - :math:`\eta` coëfficiënt van White (sleepkrachtfactor) [-]. Standaardwaarde is 0.25
-- :math:`\gamma_{korrel}` Volumieke dichtheid zand [kN/m³]. Standaardwaarde is 26.0 kN/m³
-- :math:`\gamma_{w}` het volumegewicht van water is [kN/m³]
-- :math:`\theta` de rolweerstandshoek van zandkorrels van de aangepaste Sellmeijer rekenregel is [°]. Standaardwaarde is 37°
-- :math:`d_{70,m}` de referentie :math:`d_{70}` waarde is [m]. Standaardwaarde is 2.08E-4 m
-- :math:`d_{70}` de 70-percentielwaarde van de korrelverdeling van de pipinggevoelige laag is [m]
-- :math:`k` de darcy doorlatendheid van de zandlaag is [m/s]
-- :math:`\upsilon_{w}` de kinematische viscositeit van water is [m²/s]. Standaardwaarde is 1.33E-6 m²/s bij 10°C
-- :math:`g` de zwaartekrachtversnelling is [m/s²]. Standaardwaarde is 9.81 m/s²
-- :math:`D_{wvp}` de dikte van de watervoerende zandlaag is [m]
+- :math:`\gamma_{korrel}` volumieke dichtheid van zand [kN/m³]. Standaardwaarde is 26.0 kN/m³
+- :math:`\gamma_{w}` het volumegewicht van water [kN/m³]
+- :math:`\theta` de rolweerstandshoek van zandkorrels van de aangepaste Sellmeijer-rekenregel [°]. Standaardwaarde is 37°
+- :math:`d_{70,m}` de referentie- :math:`d_{70}`-waarde [m]. Standaardwaarde is 2.08E-4 m
+- :math:`d_{70}` de 70-percentielwaarde van de korrelverdeling van de pipinggevoelige laag [m]
+- :math:`k` de Darcy-doorlatendheid van de zandlaag [m/s]
+- :math:`\upsilon_{w}` de kinematische viscositeit van water [m²/s]. Standaardwaarde is 1.33E-6 m²/s bij 10°C
+- :math:`g` de zwaartekrachtversnelling [m/s²]. Standaardwaarde is 9.81 m/s²
+- :math:`D_{wvp}` de dikte van de watervoerende zandlaag [m]
 
 
-Berekeningsmodel met stijghoogtemodel 4a
-----------------------------------------
+Stijghoogtemodellen
+-------------------
 
-De drijvende kracht achter terugschrijdende erosie is grondwaterstroming. Door het analytische grondwatermodel 4a van :cite:`trw_2004` toe te passen, kan de respons :math:`r_{exit}` in het uittredepunt beschreven worden als functie van de locatie in het dwarspofiel :math:`x_{exit}` [m] en de geohydrologische parameters van model 4a. Uitleg over het model 4a is te vinden in de :ref:`stationair-model`. De repons in het uittredepunt wordt dan:
+Binnen `GeoProb-Pipe` zijn momenteel twee methoden geïmplementeerd voor het bepalen van de stijghoogte bij het uittredepunt:  
+(1) het analytische grondwatermodel 4A, en  
+(2) een numeriek stijghoogtemodel in de vorm van een grid, zoals het regionale grondwatermodel MORIA.  
+
+De rekenmethodiek is zodanig opgezet dat in de toekomst ook andere stijghoogtemodellen kunnen worden toegevoegd.
+
+
+Analytische stijghoogtemodel 4A
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+De drijvende kracht achter terugschrijdende erosie is grondwaterstroming. Door het analytische grondwatermodel 4A van :cite:`trw_2004` toe te passen, kan de respons :math:`r_{exit}` in het uittredepunt beschreven worden als functie van de locatie in het dwarspofiel :math:`x_{exit}` [m] en de geohydrologische parameters van model 4A. 
+Uitleg over het model 4A is te vinden in de :ref:`stationair-model`. De repons in het uittredepunt wordt dan:
 
 .. math::
 
    r_{exit}(x) = f(x_{exit}, L_1, L_2, L_3, c_{voorland}, c_{achterland}, k, D_{wvp})
 
+Geometrische parameters
+^^^^^^^^^^^^^^^^^^^^^^^^
 Geometrische parameters :math:`L_1` en :math:`L_2` zijn omgeschreven naar afstanden ten opzichte van het uittredepunt:
 
 .. math::
@@ -183,6 +226,9 @@ waarin:
 - :math:`c_{voorland}` de weerstand van de deklaag in het voorland [dag]
 - :math:`c_{achterland}` dde weerstand van de deklaag in het achterland [dag]
 
+
+Effectieve voorlandlengte
+^^^^^^^^^^^^^^^^^^^^^^^^^^  
 De kwelweglengte :math:`L_{kwelweg}` maakt conform de schematiseringshandleiding piping :cite:`sh_piping_2021` gebruik van het principe van de effectieve voorlandlengte. 
 
 .. math::
@@ -198,12 +244,12 @@ waarin:
 - :math:`L_{eff,voorland}` de effectieve voorlandlengte is [m]
 - :math:`\lambda_{1}` de spreidingslengte van het voorland is [m]
 
-Overzicht parameters berekeningsmodel met model 4a
---------------------------------------------------
+Overzicht parameters model 4A
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Het berekeningsmodel met het analytische grondwatermodel 4a kent de volgende invoerparameters:
+Het berekeningsmodel met het analytische grondwatermodel 4A kent de volgende invoerparameters:
 
-.. list-table:: Invoerparameters berekeningsmodel met model 4a
+.. list-table:: Invoerparameters berekeningsmodel met model 4A
    :widths: 20 60 20 
    :header-rows: 1
 
@@ -289,17 +335,17 @@ Het berekeningsmodel met het analytische grondwatermodel 4a kent de volgende inv
      - Modelfactor terugschrijdende erosie [-]
      - normaal
 
-Berekeningsmodel met andere (numerieke) stijghoogtemodellen
------------------------------------------------------------
+Numerieke stijghoogtemodellen
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In plaats van het analytische grondwatermodel 4a kan ook een ander (numeriek) stijghoogtemodel worden gebruikt om de respons in het uittredepunt te bepalen. In het geval van Waterschap Rivierenland is dat het regionale grondwaterstromingsmodel MORIA. Informatie van numerieke modellen is vaak beschikbaar in de vorm van een grid. Per uittredepunt kunnen de geohydrologische parameters worden uitgelezen uit het grid. De benodigde variabelen zijn:
+In plaats van het analytische grondwatermodel 4A kan ook een ander (numeriek) stijghoogtemodel worden gebruikt om de respons in het uittredepunt te bepalen. In het geval van Waterschap Rivierenland is dat het regionale grondwaterstromingsmodel MORIA. Informatie van numerieke modellen is vaak beschikbaar in de vorm van een grid. Per uittredepunt kunnen de geohydrologische parameters worden uitgelezen uit het grid. De benodigde variabelen zijn:
 
 - :math:`\phi_{gemiddeld}(x,y)` een grid met het gemiddelde grondwaterstandniveau bij gemiddelde rivierwaterstand [m+NAP]
 - :math:`h_{gemiddeld}` de gemiddelde rivierwaterstand nabij het uittredepunt [m+NAP]
 - :math:`r_{exit}(x,y)` een grid met de respons in het uittredepunt [-]
 - :math:`\lambda_{1}` de spreidingslengte van het voorland [m]
 
-De stijghoote in het uittredepunt wordt dan:
+De stijghoogte in het uittredepunt wordt dan:
 
 .. math::
 
@@ -311,7 +357,8 @@ De stijghoote in het uittredepunt wordt dan:
 
 Bespreken: moeten we nog een modelfactor :math:`m_{gw}` voor het stijghoogtemodel toevoegen.
 
-
+Grenstoestandfuncties numeriek stijghoogtemodel
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 De formules van de grenstoestandsfuncties zijn nu als volgt:
 
 Grenstoestandfunctie opbarsten:
@@ -341,10 +388,10 @@ Grenstoestandfunctie terugschrijdende erosie:
    \lambda_{1} = \sqrt{c_{voorland} \cdot k \cdot D_{wvp}}
 
 
-   Correlatie tussen variabelen
-   ----------------------------
+Correlatie tussen variabelen
+-----------------------------------------------------------
 
-De beschrijving van het geohydrologische systeem met deze variabelen betekent ook dat de onderlinge correlatie van de variabelen apart moet worden gedefinieerd. Dit betreft met name de correlatie tussen de spreidingslengte van het voorland :math:`\lambda_{1}` en de transmissiviteit van het watervoerende zandpakket :math:`kD` en in mindere mate de correlatie tussen de respons in het uittredepunt :math:`r_{exit}` en de transmissiviteit van het watervoerende zandpakket :math:`kD`. In het model 4a zijn deze correlaties modelmatig beschreven.
+De beschrijving van het geohydrologische systeem met deze variabelen betekent ook dat de onderlinge correlatie van de variabelen apart moet worden gedefinieerd. Dit betreft met name de correlatie tussen de spreidingslengte van het voorland :math:`\lambda_{1}` en de transmissiviteit van het watervoerende zandpakket :math:`kD` en in mindere mate de correlatie tussen de respons in het uittredepunt :math:`r_{exit}` en de transmissiviteit van het watervoerende zandpakket :math:`kD`. In het model 4A zijn deze correlaties modelmatig beschreven.
 
 In het geval van een numeriek stijghoogtemodel is de correlatie tussen de spreidingslengte van het voorland en de transmissiviteit van het watervoerende zandpakket plaatsafhankelijk en wordt beschreven door het geohydrologische model. 
 
@@ -355,5 +402,5 @@ Voor 2 variabelen resulteert dit in 9 modelberekeningen.
 
 Uit deze modelberekeningen wordt de gewogen correlatie tussen de transmissiviteit van het watervoerende pakket en de spreidingslengte van het voorland bepaald. Deze correlatie wordt vervolgens gebruikt in de probabilistische analyse.
 
-Op basis van het model 4a is de correlatie tussen de transmissiviteit van het watervoerende pakket en de spreidingslengte van het voorland ongeveer 0.7, afhankelijk van de gekozen spreiding.
-
+Op basis van het model 4A is de correlatie tussen de transmissiviteit van het watervoerende pakket en de spreidingslengte van het voorland ongeveer 0.7, afhankelijk van de gekozen spreiding.
+.. TODO: over de correlatie tussen variabele twijfel ik of dit bij de twee losse stijghoogte mogelijkheden opgeslpitst moet worden of dat dit een apart kopje moet zijn. Wat vinden jullie?
