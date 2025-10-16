@@ -1,5 +1,6 @@
 from probabilistic_library import interface
 from probabilistic_library.reliability import Alpha
+from geoprob_pipe.calculations.system_calculations.piping_system.safe_stochast import SafeStochast
 
 
 class SafeAlpha(Alpha):
@@ -50,23 +51,28 @@ class SafeAlpha(Alpha):
     # -------------------------------------------------------------------------
     def to_plain(self) -> dict:
         """Export this Alpha as a pure Python dict (safe for pickling)."""
-        data = {}
-        try:
-            data["identifier"] = getattr(self, "identifier", None)
-            data["alpha"] = getattr(self, "alpha", None)
-            data["alpha_correlated"] = getattr(self, "alpha_correlated", None)
-            data["influence_factor"] = getattr(self, "influence_factor", None)
-            data["index"] = getattr(self, "index", None)
-            data["u"] = getattr(self, "u", None)
-            data["x"] = getattr(self, "x", None)
-        except Exception:
-            pass
+        data = {
+            "identifier": getattr(self, "identifier", None),
+            "alpha": getattr(self, "alpha", None),
+            "alpha_correlated": getattr(self, "alpha_correlated", None),
+            "influence_factor": getattr(self, "influence_factor", None),
+            "index": getattr(self, "index", None),
+            "u": getattr(self, "u", None),
+            "x": getattr(self, "x", None),
+        }
 
-        # Variable: store minimal info to link back later
         try:
-            variable = getattr(self, "variable", None)
-            if variable is not None:
-                data["variable"] = getattr(variable, "name", str(variable))
+            var = getattr(self, "variable", None)
+            if var is not None:
+                data["variable"] = {
+                    "name": getattr(var, "name", None),
+                    "distribution": getattr(getattr(var, "distribution", None), "value", None),
+                    "mean": getattr(var, "mean", None),
+                    "minimum": getattr(var, "minimum", None),
+                    "maximum": getattr(var, "maximum", None),
+                    "deviation": getattr(var, "deviation", None),
+                    "variation": getattr(var, "variation", None),
+                }
         except Exception:
             data["variable"] = None
 
@@ -87,7 +93,14 @@ class SafeAlpha(Alpha):
         a._index_cached = data.get("index")
         a._u_cached = data.get("u")
         a._x_cached = data.get("x")
-        a._variable_cached = data.get("variable")
+        variable_data = data.get("variable")
+        if isinstance(variable_data, dict):
+            a._variable_cached = SafeStochast.from_plain(variable_data)
+        elif isinstance(variable_data, str):
+            a._variable_cached = SafeStochast(name=variable_data)
+        else:
+            a._variable_cached = None
+
         return a
 
     # -------------------------------------------------------------------------
@@ -138,7 +151,20 @@ class SafeAlpha(Alpha):
     @property
     def variable(self):
         if getattr(self, "_rehydrated", False):
-            return self._variable_cached
+            # ✅ Always return a SafeStochast
+            var = getattr(self, "_variable_cached", None)
+            if isinstance(var, SafeStochast):
+                return var
+            elif isinstance(var, dict):
+                return SafeStochast.from_plain(var)
+            elif isinstance(var, str):
+                return SafeStochast(name=var)
+            elif var is None:
+                return SafeStochast()  # default stub
+            else:
+                # fallback: already a Stochast-like object
+                return var
+        # Live mode
         return super().variable
 
     def __repr__(self):

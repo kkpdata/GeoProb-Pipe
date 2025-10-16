@@ -63,6 +63,7 @@ class SafeDesignPoint(DesignPoint):
     # EXPORT TO PLAIN DICT
     # ---------------------------------------------------------------------
     def to_plain(self, include_nested=False, max_depth=1) -> dict:
+        """Export this SafeDesignPoint and its alphas as pure Python data."""
         data = {}
         try:
             data["identifier"] = self.identifier
@@ -75,17 +76,44 @@ class SafeDesignPoint(DesignPoint):
             data["total_model_runs"] = self.total_model_runs
         except Exception:
             pass
-        # Toevoegen variable.distrubutie.
+
+        # ----------------------------------------------------------------------
+        # ✅ Export detailed alpha info (including variable distribution)
+        # ----------------------------------------------------------------------
         data["alphas"] = []
         try:
             for a in getattr(self, "alphas", []):
+                # Safe extraction of variable attributes
+                var = getattr(a, "variable", None)
+                if var is not None:
+                    variable_data = {
+                        "name": getattr(var, "name", None),
+                        "distribution": getattr(getattr(var, "distribution", None), "value", None),
+                        "mean": getattr(var, "mean", None),
+                        "minimum": getattr(var, "minimum", None),
+                        "maximum": getattr(var, "maximum", None),
+                        "deviation": getattr(var, "deviation", None),
+                        "variation": getattr(var, "variation", None),
+                    }
+                else:
+                    variable_data = None
+
                 data["alphas"].append({
-                    "variable": getattr(a, "variable", None),
+                    "identifier": getattr(a, "identifier", None),
                     "alpha": getattr(a, "alpha", None),
+                    "alpha_correlated": getattr(a, "alpha_correlated", None),
+                    "influence_factor": getattr(a, "influence_factor", None),
+                    "index": getattr(a, "index", None),
+                    "u": getattr(a, "u", None),
+                    "x": getattr(a, "x", None),
+                    "variable": variable_data,  # ✅ structured variable
                 })
         except Exception:
             pass
 
+        # ----------------------------------------------------------------------
+        # Messages (optional diagnostics)
+        # ----------------------------------------------------------------------
         data["messages"] = []
         try:
             for m in getattr(self, "messages", []):
