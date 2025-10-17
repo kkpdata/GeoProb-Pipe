@@ -1,13 +1,13 @@
 class SafeStochast:
     """Pure-Python replacement for probabilistic_library.Stochast."""
-    def __init__(self, name=None, distribution=None, value=None, **kwargs):
+    def __init__(self, name=None, distribution=None, **kwargs):
         self.name = name or "<unknown>"
         # Always create a lightweight object for .distribution.value
         self.distribution = type("DistributionType", (), {"value": distribution or "<unknown>"})()
         self._extra = kwargs
 
     def __repr__(self):
-        return f"<SafeStochast name={self.name} distribution={self.distribution.value}>"
+        return f"<SafeStochast name={self.name} distribution={self.distribution}>"
 
     def __getattr__(self, item):
         if item in self._extra:
@@ -16,7 +16,7 @@ class SafeStochast:
 
     def to_plain(self):
         return {"name": self.name,
-                "distribution": self.distribution.value,
+                "distribution": self.distribution,
                 **self._extra}
 
     @classmethod

@@ -1,6 +1,17 @@
+import numpy as np
 from probabilistic_library import interface
 from probabilistic_library.reliability import Alpha
 from geoprob_pipe.calculations.system_calculations.piping_system.safe_stochast import SafeStochast
+
+
+def _py(x):
+    # robust cast for numpy types -> Python scalars
+    try:
+        if isinstance(x, (np.floating, np.integer)):
+            return x.item()
+    except Exception:
+        pass
+    return x
 
 
 class SafeAlpha(Alpha):
@@ -51,32 +62,34 @@ class SafeAlpha(Alpha):
     # -------------------------------------------------------------------------
     def to_plain(self) -> dict:
         """Export this Alpha as a pure Python dict (safe for pickling)."""
-        data = {
-            "identifier": getattr(self, "identifier", None),
-            "alpha": getattr(self, "alpha", None),
-            "alpha_correlated": getattr(self, "alpha_correlated", None),
-            "influence_factor": getattr(self, "influence_factor", None),
-            "index": getattr(self, "index", None),
-            "u": getattr(self, "u", None),
-            "x": getattr(self, "x", None),
-        }
-
         try:
             var = getattr(self, "variable", None)
             if var is not None:
-                data["variable"] = {
+                dist_value = getattr(getattr(var, "distribution", None), "value", None)
+                variable_data = {
                     "name": getattr(var, "name", None),
-                    "distribution": getattr(getattr(var, "distribution", None), "value", None),
-                    "mean": getattr(var, "mean", None),
-                    "minimum": getattr(var, "minimum", None),
-                    "maximum": getattr(var, "maximum", None),
-                    "deviation": getattr(var, "deviation", None),
-                    "variation": getattr(var, "variation", None),
+                    "distribution": dist_value,  # <- ensure primitive
+                    "mean": _py(getattr(var, "mean", None)),
+                    "minimum": _py(getattr(var, "minimum", None)),
+                    "maximum": _py(getattr(var, "maximum", None)),
+                    "deviation": _py(getattr(var, "deviation", None)),
+                    "variation": _py(getattr(var, "variation", None)),
                 }
+            else:
+                variable_data = None
         except Exception:
-            data["variable"] = None
+            variable_data = None
 
-        return data
+        return {
+            "identifier": getattr(self, "identifier", None),
+            "alpha": _py(getattr(self, "alpha", None)),
+            "alpha_correlated": _py(getattr(self, "alpha_correlated", None)),
+            "influence_factor": _py(getattr(self, "influence_factor", None)),
+            "index": _py(getattr(self, "index", None)),
+            "u": _py(getattr(self, "u", None)),
+            "x": _py(getattr(self, "x", None)),
+            "variable": variable_data,
+        }
 
     # -------------------------------------------------------------------------
     # REHYDRATION FROM PLAIN DICT

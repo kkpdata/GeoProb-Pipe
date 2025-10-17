@@ -17,6 +17,87 @@ from geoprob_pipe.calculations.system_calculations.piping_system.safe_design_poi
 logger = logging.getLogger("geoprob_pipe_logger")
 
 
+def _alpha_to_plain_live(alpha) -> dict:
+    """Read Alpha *directly* from the live object."""
+    var = getattr(alpha, "variable", None)
+    if var is not None:
+        var_plain = {
+            "name": getattr(var, "name", None),
+            "distribution": getattr(getattr(var, "distribution", None), "value", None),
+            "mean": getattr(var, "mean", None),
+            "minimum": getattr(var, "minimum", None),
+            "maximum": getattr(var, "maximum", None),
+            "deviation": getattr(var, "deviation", None),
+            "variation": getattr(var, "variation", None),
+        }
+    else:
+        var_plain = None
+
+    def _py(x):
+        try:
+            import numpy as np
+            if isinstance(x, (np.floating, np.integer)):
+                return x.item()
+        except Exception:
+            pass
+        return x
+
+    return {
+        "identifier": getattr(alpha, "identifier", None),
+        "alpha": _py(getattr(alpha, "alpha", None)),
+        "alpha_correlated": _py(getattr(alpha, "alpha_correlated", None)),
+        "influence_factor": _py(getattr(alpha, "influence_factor", None)),
+        "index": _py(getattr(alpha, "index", None)),
+        "u": _py(getattr(alpha, "u", None)),
+        "x": _py(getattr(alpha, "x", None)),
+        "variable": var_plain,
+    }
+
+
+def _design_point_to_plain_live(dp) -> dict:
+    """Read a DesignPoint *directly* from the live object, including alphas."""
+    def _py(x):
+        try:
+            import numpy as np
+            if isinstance(x, (np.floating, np.integer)):
+                return x.item()
+        except Exception:
+            pass
+        return x
+
+    data = {
+        "identifier": getattr(dp, "identifier", None),
+        "reliability_index": _py(getattr(dp, "reliability_index", None)),
+        "probability_failure": _py(getattr(dp, "probability_failure", None)),
+        "convergence": _py(getattr(dp, "convergence", None)),
+        "is_converged": bool(getattr(dp, "is_converged", False)),
+        "total_directions": _py(getattr(dp, "total_directions", None)),
+        "total_iterations": _py(getattr(dp, "total_iterations", None)),
+        "total_model_runs": _py(getattr(dp, "total_model_runs", None)),
+        "alphas": [],
+        "messages": [],
+        "contributing_design_points": [],   # add if you need nested
+    }
+
+    # ✅ pull live alphas right now
+    try:
+        for a in getattr(dp, "alphas", []):
+            data["alphas"].append(_alpha_to_plain_live(a))
+    except Exception:
+        pass
+
+    # optional: messages
+    try:
+        msgs = []
+        for m in getattr(dp, "messages", []):
+            msgs.append(str(m))
+        data["messages"] = msgs
+    except Exception:
+        pass
+
+    return data
+
+
 class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
     """ Pre-defined system reliability calculation for parallel systems. In the example below for a parallel system for
     Piping. Note however that for Piping there is already a predefined system in
@@ -91,14 +172,15 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self._generate_model_design_points()
         self._generate_system_design_point()
 
-    def export_result(self) -> Tuple[List[DesignPoint], DesignPoint]:
-        model_design_points = [SafeDesignPoint(dp._id).to_plain() for dp in self.model_design_points]
-        system_design_point = SafeDesignPoint(self.system_design_point._id).to_plain()
-        return model_design_points,  system_design_point
+    def export_result(self) -> Tuple[List[dict], dict]:
+        model_plain = [_design_point_to_plain_live(dp) for dp in self.model_design_points]
+        system_plain = _design_point_to_plain_live(self.system_design_point)
+        return (model_plain, system_plain)
 
-    def import_results(self, result: Tuple[List[DesignPoint], DesignPoint]):
-        self.model_design_points = [SafeDesignPoint.from_plain(dp) for dp in result[0]]
-        self.system_design_point = SafeDesignPoint.from_plain(result[1])
+    def import_results(self, result: Tuple[List[dict], dict]):
+        model_plain_list, system_plain = result
+        self.model_design_points = [SafeDesignPoint.from_plain(dp) for dp in model_plain_list]
+        self.system_design_point = SafeDesignPoint.from_plain(system_plain)
 
     def _setup_project(self):
         """ Sets up the ReliabilityProject-object. This will be used for all model design points. """

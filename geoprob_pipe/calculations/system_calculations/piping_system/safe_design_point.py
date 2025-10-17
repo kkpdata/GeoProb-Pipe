@@ -83,31 +83,7 @@ class SafeDesignPoint(DesignPoint):
         data["alphas"] = []
         try:
             for a in getattr(self, "alphas", []):
-                # Safe extraction of variable attributes
-                var = getattr(a, "variable", None)
-                if var is not None:
-                    variable_data = {
-                        "name": getattr(var, "name", None),
-                        "distribution": getattr(getattr(var, "distribution", None), "value", None),
-                        "mean": getattr(var, "mean", None),
-                        "minimum": getattr(var, "minimum", None),
-                        "maximum": getattr(var, "maximum", None),
-                        "deviation": getattr(var, "deviation", None),
-                        "variation": getattr(var, "variation", None),
-                    }
-                else:
-                    variable_data = None
-
-                data["alphas"].append({
-                    "identifier": getattr(a, "identifier", None),
-                    "alpha": getattr(a, "alpha", None),
-                    "alpha_correlated": getattr(a, "alpha_correlated", None),
-                    "influence_factor": getattr(a, "influence_factor", None),
-                    "index": getattr(a, "index", None),
-                    "u": getattr(a, "u", None),
-                    "x": getattr(a, "x", None),
-                    "variable": variable_data,  # ✅ structured variable
-                })
+                data["alphas"].append(a.to_plain())
         except Exception:
             pass
 
