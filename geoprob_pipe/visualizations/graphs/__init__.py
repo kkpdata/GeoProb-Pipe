@@ -5,6 +5,7 @@ from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive
 from geoprob_pipe.visualizations.graphs.physical_values_along_levee import physical_values_buitenwaterstand_and_top_zand
 from geoprob_pipe.visualizations.graphs.invloedsfactoren import invloedsfactoren
 from geoprob_pipe.visualizations.graphs.phreatic_waterline import phreatic_waterline
+from geoprob_pipe.visualizations.graphs.overview_alpha import overview_alpha
 from typing import TYPE_CHECKING, List
 from matplotlib.pyplot import Figure as MatplotLibFigure
 from plotly.graph_objects import Figure as PlotlyFigure
@@ -50,6 +51,9 @@ class Graphs:
     def phreatic_waterline(self) -> PlotlyFigure:
         return phreatic_waterline(self.geoprob_pipe, export=False)
 
+    def overview_alpha(self) -> PlotlyFigure:
+        return overview_alpha(self.geoprob_pipe, export=False)
+
     def export_graphs(self):
         GraphHFreqSingleInteractive(self.geoprob_pipe, export=True)
         hfreq_graphs_per_location(self.geoprob_pipe, export=True)
@@ -59,3 +63,4 @@ class Graphs:
         self.physical_values_buitenwaterstand_and_top_zand(export=True)
         self.invloedsfactoren(export=True)
         phreatic_waterline(self.geoprob_pipe, export=True)
+        overview_alpha(self.geoprob_pipe, export=True)

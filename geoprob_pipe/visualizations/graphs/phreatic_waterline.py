@@ -50,7 +50,7 @@ def phreatic_waterline(geoprob_pipe: GeoProbPipe, export: bool = False):
             x=df_filtered['M_value'],
             y=df_filtered["physical_value"],
             mode='markers',
-            name="Hoogte uitredepunt",
+            name="Hoogte uitredepunt",  # Of iets anders
             marker=dict(symbol='circle', size=5, color='black')))
 
     df_filtered = df[df['variable'] == "top_zand"]
@@ -75,8 +75,12 @@ def phreatic_waterline(geoprob_pipe: GeoProbPipe, export: bool = False):
             showgrid=True, gridwidth=0.5, gridcolor="gray",
             minor=dict(showgrid=True, dtick=1))
     )
+    
     if export:
-        export_dir = geoprob_pipe.visualizations.graphs.export_dir
+        export_dir = os.path.join(
+            geoprob_pipe.visualizations.graphs.export_dir,
+            "grafiek_physical_values"
+            )
         os.makedirs(export_dir, exist_ok=True)
         fig.write_html(
             os.path.join(export_dir, "phreatic_waterline.html"),
