@@ -4,6 +4,7 @@ from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex_oud import (
 from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive, hfreq_graphs_per_location
 from geoprob_pipe.visualizations.graphs.physical_values_along_levee import physical_values_buitenwaterstand_and_top_zand
 from geoprob_pipe.visualizations.graphs.invloedsfactoren import invloedsfactoren
+from geoprob_pipe.visualizations.graphs.phreatic_waterline import phreatic_waterline
 from typing import TYPE_CHECKING, List
 from matplotlib.pyplot import Figure as MatplotLibFigure
 from plotly.graph_objects import Figure as PlotlyFigure
@@ -46,6 +47,9 @@ class Graphs:
     def beta_vakken(self) -> MatplotLibFigure:
         return beta_vakken_graph(self.geoprob_pipe, export=False)
 
+    def phreatic_waterline(self) -> PlotlyFigure:
+        return phreatic_waterline(self.geoprob_pipe, export=False)
+
     def export_graphs(self):
         GraphHFreqSingleInteractive(self.geoprob_pipe, export=True)
         hfreq_graphs_per_location(self.geoprob_pipe, export=True)
@@ -54,3 +58,4 @@ class Graphs:
         beta_vakken_graph(self.geoprob_pipe, export=True)
         self.physical_values_buitenwaterstand_and_top_zand(export=True)
         self.invloedsfactoren(export=True)
+        phreatic_waterline(self.geoprob_pipe, export=True)
