@@ -135,7 +135,7 @@ def overview_alpha(geoprob_pipe, export: bool = False):
                     os.path.join(export_dir,
                                  f"overview_alphas_scenario_{scen_order}.png"),
                     format="png",
-                    width=2800,
+                    width=1400,
                     height=300*len(parameters)
                 )
 
