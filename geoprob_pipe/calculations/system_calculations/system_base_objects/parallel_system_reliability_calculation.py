@@ -1,11 +1,7 @@
 from probabilistic_library import (
-    ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod, CombinerMethod, CombineType, DistributionType,
-    Stochast, Settings)
+    ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod,
+    CombinerMethod, CombineType, Stochast, Settings)
 from typing import Optional, Callable, List, Dict, Union
-from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
-    system_variable_setup, limit_state_example_1, limit_state_example_2)
-from geoprob_pipe.calculations.system_calculations.piping_system.limit_state_functions import (
-    system_variable_setup, calc_Z_h, calc_Z_p, calc_Z_u)
 from geoprob_pipe.calculations.system_calculations.system_base_objects._base_system_reliability_calculation import (
     BaseSystemReliabilityCalculation)
 import logging
@@ -18,12 +14,13 @@ logger = logging.getLogger("geoprob_pipe_logger")
 
 
 def _alpha_to_plain_live(alpha) -> dict:
-    """Read Alpha *directly* from the live object."""
+    """Read Alpha directly from the live object."""
     var = getattr(alpha, "variable", None)
     if var is not None:
         var_plain = {
             "name": getattr(var, "name", None),
-            "distribution": getattr(getattr(var, "distribution", None), "value", None),
+            "distribution": getattr(getattr(var, "distribution", None),
+                                    "value", None),
             "mean": getattr(var, "mean", None),
             "minimum": getattr(var, "minimum", None),
             "maximum": getattr(var, "maximum", None),
@@ -55,7 +52,7 @@ def _alpha_to_plain_live(alpha) -> dict:
 
 
 def _design_point_to_plain_live(dp) -> dict:
-    """Read a DesignPoint *directly* from the live object, including alphas."""
+    """Read a DesignPoint directly from the live object, including alphas."""
     def _py(x):
         try:
             import numpy as np
@@ -173,11 +170,18 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self._generate_system_design_point()
 
     def export_result(self) -> Tuple[List[dict], dict]:
+        """
+        Split the results from the calculation and convert them to dicts
+        ready to be pickeled.
+        """
         model_plain = [_design_point_to_plain_live(dp) for dp in self.model_design_points]
         system_plain = _design_point_to_plain_live(self.system_design_point)
         return (model_plain, system_plain)
 
     def import_results(self, result: Tuple[List[dict], dict]):
+        """
+        Add the results into the class after rehydrating.
+        """
         model_plain_list, system_plain = result
         self.model_design_points = [SafeDesignPoint.from_plain(dp) for dp in model_plain_list]
         self.system_design_point = SafeDesignPoint.from_plain(system_plain)

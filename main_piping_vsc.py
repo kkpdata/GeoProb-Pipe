@@ -1,7 +1,8 @@
-""" The below code displays an example of how GeoProb-Pipe is run. This example works inside the repository. Use the
+""" The below code displays an example of how GeoProb-Pipe is run.
+This example works inside the repository. Use the
 Project-object directly outside the repository. """
 import sys
-#add the "scr" directory to the system path
+# add the "scr" directory to the system path
 repo_root = r"C:\Users\vinji\Python\GEOprob-Pipe\GeoProb-Pipe"
 sys.path.append(repo_root) 
 
