@@ -1,94 +1,151 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-from plotly.graph_objects import Figure, Scatter
-from pandas import merge
 import os
-if TYPE_CHECKING:
-    from geoprob_pipe import GeoProbPipe
+import plotly.graph_objects as go
+import pandas as pd
 
 
-def phreatic_waterline(geoprob_pipe: GeoProbPipe, export: bool = False):
-
-    # Get data for graphing
+def phreatic_waterline(geoprob_pipe, export: bool = False):
+    # Prepare data
     df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
-        system_only=True, filter_deterministic=False, filter_derived=False)
+        system_only=True, filter_deterministic=False, filter_derived=False
+    )
     df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id",
              "variable", "distribution_type", "physical_value"]]
 
-    # Attach measure
     df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
-    df = merge(
-        left=df,
-        right=df_uittredepunten[["uittredepunt_id", "M_value"]],
-        on="uittredepunt_id",
-        how="left")
+    df = df.merge(
+        df_uittredepunten[["uittredepunt_id", "M_value"]],
+        on="uittredepunt_id", how="left"
+    )
 
-    fig = Figure()
+    # Determine scenario rank per uittredepunt_id
+    # Assign "scenario_order" = 1, 2, 3, ... based on encounter order
+    df["scenario_order"] = (
+        df.groupby("uittredepunt_id")["ondergrondscenario_id"]
+        .transform(lambda x: pd.factorize(x)[0] + 1)
+    )
 
-    # Add scatterplots for the selected variables
-    df_filtered = df[df['variable'] == "buitenwaterstand"]
-    fig.add_trace(
-        Scatter(
-            x=df_filtered['M_value'],
-            y=df_filtered["physical_value"],
-            name="Buitenwaterstand",
-            mode='markers',
-            marker=dict(symbol='square', size=5, color='blue')))
+    scenario_orders = sorted(df["scenario_order"].unique())
 
-    df_filtered = df[df['variable'] == "phi_exit"]
-    fig.add_trace(
-        Scatter(
-            x=df_filtered['M_value'],
-            y=df_filtered["physical_value"],
-            mode='markers',
-            name="Stijghoogte",
-            marker=dict(symbol='x', size=5, color='blue')))
+    # Plotly setup
+    fig = go.Figure()
+    buttons = []
 
-    df_filtered = df[df['variable'] == "h_exit"]
-    fig.add_trace(
-        Scatter(
-            x=df_filtered['M_value'],
-            y=df_filtered["physical_value"],
-            mode='markers',
-            name="Hoogte uitredepunt",  # Of iets anders
-            marker=dict(symbol='circle', size=5, color='black')))
+    colors = {
+        "buitenwaterstand": "blue",
+        "phi_exit": "green",
+        "h_exit": "black",
+        "top_zand": "brown"
+    }
+    symbols = {
+        "buitenwaterstand": "square",
+        "phi_exit": "x",
+        "h_exit": "circle",
+        "top_zand": "square"
+    }
 
-    df_filtered = df[df['variable'] == "top_zand"]
-    fig.add_trace(
-        Scatter(
-            x=df_filtered['M_value'],
-            y=df_filtered["physical_value"],
-            mode='markers',
-            name="Top zand",
-            marker=dict(symbol='square', size=5, color='brown')))
+    # Build one frame per scenario order
+    for i, scen_order in enumerate(scenario_orders):
+        df_case = df[df["scenario_order"] == scen_order]
 
+        # Add 4 variable traces per scenario_order
+        for variable in ["buitenwaterstand", "phi_exit", "h_exit", "top_zand"]:
+            df_var = df_case[df_case["variable"] == variable]
+            fig.add_trace(go.Scatter(
+                x=df_var['M_value'],
+                y=df_var["physical_value"],
+                mode='markers',
+                name=variable,
+                marker=dict(
+                    symbol=symbols[variable],
+                    size=5,
+                    color=colors[variable]
+                ),
+                visible=(i == 0)
+            ))
+
+        # Button logic
+        total_traces = len(scenario_orders) * 4
+        vis = [False] * total_traces
+        vis[i*4:(i+1)*4] = [True]*4
+
+        buttons.append(dict(
+            label=f"Scenario {scen_order}",
+            method="update",
+            args=[
+                {"visible": vis},
+                {"title": f"Phreatic waterline – Scenario {scen_order}"}
+            ]
+        ))
+
+    # Layout and controls
     fig.update_layout(
+        title=f"Phreatic waterline – Scenario {scenario_orders[0]}",
+        updatemenus=[dict(
+            active=0,
+            buttons=buttons,
+            direction="down",
+            showactive=True,
+            x=1.05, y=1.15
+        )],
         xaxis=dict(
             title="Metrering",
-            type='linear',
-            range=[df['M_value'].min()-10,
-                   df['M_value'].max()+10],
-            showgrid=True,
-            gridwidth=0.5, gridcolor="gray"),
+            showgrid=True, gridwidth=0.5, gridcolor="gray",
+        ),
         yaxis=dict(
             title="Hoogte [m+NAP]",
             showgrid=True, gridwidth=0.5, gridcolor="gray",
-            minor=dict(showgrid=True, dtick=1))
+        ),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.25,
+            xanchor="center",
+            x=0.5
+        ),
+        height=600,
     )
-    
+
+    # Exports
     if export:
         export_dir = os.path.join(
             geoprob_pipe.visualizations.graphs.export_dir,
             "grafiek_physical_values"
-            )
+        )
         os.makedirs(export_dir, exist_ok=True)
+
+        # Export interactive HTML
         fig.write_html(
             os.path.join(export_dir, "phreatic_waterline.html"),
-            include_plotlyjs='cdn')
+            include_plotlyjs='cdn'
+        )
+
+        # Export one PNG per scenario_order
         if geoprob_pipe.software_requirements.chrome_is_installed:
-            fig.write_image(
-                os.path.join(export_dir, "phreatic_waterline.png"),
-                format="png"
+            for scen_order in scenario_orders:
+                df_case = df[df["scenario_order"] == scen_order]
+                fig_case = go.Figure()
+                for variable in ["buitenwaterstand", "phi_exit", "h_exit", "top_zand"]:
+                    df_var = df_case[df_case["variable"] == variable]
+                    fig_case.add_trace(go.Scatter(
+                        x=df_var["M_value"],
+                        y=df_var["physical_value"],
+                        mode="markers",
+                        name=variable,
+                        marker=dict(
+                            color=colors[variable],
+                            symbol=symbols[variable],
+                            size=5
+                        )
+                    ))
+                fig_case.update_layout(
+                    title=f"Phreatic waterline – Scenario {scen_order}",
+                    xaxis_title="Metrering",
+                    yaxis_title="Hoogte [m+NAP]",
+                    showlegend=True,
+                )
+                fig_case.write_image(
+                    os.path.join(export_dir, f"phreatic_waterline_scenario_{scen_order}.png"),
+                    format="png", scale=5
                 )
 
     return fig
