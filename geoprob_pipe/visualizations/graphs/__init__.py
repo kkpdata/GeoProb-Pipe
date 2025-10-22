@@ -6,6 +6,7 @@ from geoprob_pipe.visualizations.graphs.physical_values_along_levee import physi
 from geoprob_pipe.visualizations.graphs.invloedsfactoren import invloedsfactoren
 from geoprob_pipe.visualizations.graphs.phreatic_waterline import phreatic_waterline
 from geoprob_pipe.visualizations.graphs.overview_alpha import overview_alpha
+from geoprob_pipe.visualizations.graphs.river_waterlevel import river_waterlevel
 from typing import TYPE_CHECKING, List
 from matplotlib.pyplot import Figure as MatplotLibFigure
 from plotly.graph_objects import Figure as PlotlyFigure
@@ -54,6 +55,9 @@ class Graphs:
     def overview_alpha(self) -> PlotlyFigure:
         return overview_alpha(self.geoprob_pipe, export=False)
 
+    def river_waterlevel(self) -> PlotlyFigure:
+        return river_waterlevel(self.geoprob_pipe, export=False)
+
     def export_graphs(self):
         GraphHFreqSingleInteractive(self.geoprob_pipe, export=True)
         hfreq_graphs_per_location(self.geoprob_pipe, export=True)
@@ -64,3 +68,4 @@ class Graphs:
         self.invloedsfactoren(export=True)
         phreatic_waterline(self.geoprob_pipe, export=True)
         overview_alpha(self.geoprob_pipe, export=True)
+        river_waterlevel(self.geoprob_pipe, export=True)
