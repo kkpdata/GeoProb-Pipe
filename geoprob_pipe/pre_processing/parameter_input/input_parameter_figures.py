@@ -47,6 +47,10 @@ class InputParameterFigures:
         gdf_vakindeling: GeoDataFrame = read_file(self.app_settings.geopackage_filepath, layer="vakindeling")
         self.dict_vakindeling = gdf_vakindeling.set_index('id').to_dict(orient='index')
 
+        # Uittredepunten dictionary
+        gdf_uittredepunten: GeoDataFrame = read_file(self.app_settings.geopackage_filepath, layer="uittredepunten")
+        self.dict_uittredepunten = gdf_uittredepunten.set_index('uittredepunt_id').to_dict(orient='index')
+
     @staticmethod
     def _get_display_values_from_row(row) -> Tuple[float, Optional[float]]:
         mean_value: float = row['mean']
@@ -210,42 +214,45 @@ class InputParameterFigures:
         df_filter: DataFrame = self.df_parameter_invoer[
             (self.df_parameter_invoer['parameter'] == parameter_name) &
             (self.df_parameter_invoer['scope'] == 'uittredepunt')]
-        show_legend_item = True
+        show_legend_item_mean = True
+        show_legend_item_deviation = True
 
         for index, row in df_filter.iterrows():
             mean, deviation = self._get_display_values_from_row(row=row)
-            x_value = row['metrering']
+            x_value = self.dict_uittredepunten[row['scope_referentie']]['metrering']
 
             # Add mean
             fig.add_trace(go.Scatter(
                 x=[x_value],
                 y=[mean],
-                fill='toself',
                 mode='markers',
                 name="Uittredepunt-niveau",
                 legendgroup="Uittredepunt-niveau",
-                showlegend=show_legend_item,
-                marker=dict(color='rgba(0, 0, 0, 1)', size=5),
+                showlegend=show_legend_item_mean,
+                marker=dict(color='rgba(0, 0, 0, 1)', size=10, symbol="circle"),
             ))
-            show_legend_item = False
+            show_legend_item_mean = False
 
-            # # Add (possibly) deviation
-            # if deviation:
-            #     fig.add_trace(go.Scatter(
-            #         x=[x_min, x_max],
-            #         y=[mean-deviation, mean-deviation],
-            #         mode='lines',
-            #         name="Vak-niveau",
-            #         legendgroup="Vak-niveau",
-            #         showlegend=False,
-            #         line=dict(width=4, color="rgba(0, 0, 0, 1)"),
-            #     ))
+            # Add (possibly) deviation
+            if deviation:
+                fig.add_trace(go.Scatter(
+                    x=[x_value, x_value],
+                    y=[mean-deviation, mean-deviation],  # TODO: Ondergrens/bovengrens goed toepassen
+                    mode='markers',
+                    name="Uittredepunt-niveau (mean)",
+                    legendgroup="Uittredepunt-niveau (mean-deviation)",
+                    showlegend=show_legend_item_deviation,
+                    marker=dict(color='rgba(0, 0, 0, 1)', size=10, symbol="triangle-up"),
+                ))
+                show_legend_item_deviation = False
 
         return fig
 
     def _create_figures(self):
         export_dir = os.path.join(self.app_settings.workspace_dir, "parameter_input_process")
         os.makedirs(export_dir, exist_ok=True)
+
+        # TODO: Overal hovers toepassen
 
         for parameter_name in self.df_parameter_invoer['parameter'].unique():
 
