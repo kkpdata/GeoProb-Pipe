@@ -2,7 +2,7 @@ from __future__ import annotations
 from geopandas import GeoDataFrame, read_file
 from typing import TYPE_CHECKING
 import sqlite3
-from geoprob_pipe.calculations.system_calculations.piping_system.dummy_input import DUMMY_INPUT
+from geoprob_pipe.calculations.system_calculations import SYSTEM_CALCULATION_MAPPER
 from pandas import DataFrame
 import numpy as np
 if TYPE_CHECKING:
@@ -29,8 +29,22 @@ def push_scenario_invoer_tabel(app_settings: ApplicationSettings):
 
 def push_parameter_invoer_tabel(app_settings: ApplicationSettings):
 
+    # Get geohydrological model
+    conn = sqlite3.connect(app_settings.geopackage_filepath)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT geoprob_pipe_metadata."values" 
+        FROM geoprob_pipe_metadata 
+        WHERE metadata_type='geohydrologisch_model';
+    """)
+    result = cursor.fetchone()
+    if not result:
+        raise ValueError
+    model_string = result[0]
+    conn.close()
+
     # Start base of table
-    df_dummy_data = DataFrame(DUMMY_INPUT)  # TODO: Geohydrologische model keuze moet nog opgehaald worden
+    df_dummy_data = DataFrame(SYSTEM_CALCULATION_MAPPER[model_string]['dummy_invoer'])
     df_dummy_data = df_dummy_data.sort_values(by=["name"])
     df_parameter_invoer: DataFrame = df_dummy_data[[
         "name", "distribution_type", "mean", "variation", "deviation"]].copy()

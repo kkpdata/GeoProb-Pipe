@@ -34,6 +34,10 @@ def coupled_uittredepunten_to_refline(app_settings: ApplicationSettings) -> bool
     gdf_exit_points['afstand_reflijn'] = gdf_exit_points.geometry.apply(
         lambda pnt: round(ls_dijktraject.distance(pnt), 1))
 
+    # Add uittredepunt id
+    gdf_exit_points = gdf_exit_points.sort_values(by=["metrering"])
+    gdf_exit_points['uittredepunt'] = range(1, len(gdf_exit_points) + 1)
+
     # Store back in geopackage
     gdf_exit_points.to_file(Path(app_settings.geopackage_filepath), layer="uittredepunten", driver="GPKG")
     print(BColors.OKBLUE,

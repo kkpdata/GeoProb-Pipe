@@ -120,6 +120,10 @@ def generate_uittredepunten_suggestions(app_settings: ApplicationSettings):
         choices=LEGAL_MODEL_OPTIONS,
     ).execute()
 
+    if choices.__len__() == 0:
+        print(BColors.OKBLUE, f"Je hebt geen selectie gemaakt. Maak een keuze of sluit af (ctrl+c).", BColors.ENDC)
+        generate_uittredepunten_suggestions(app_settings=app_settings)
+
     if LEGAL_MODEL_OPTIONS[0] in choices:
         algorithm_walking_circles(app_settings=app_settings)
     if LEGAL_MODEL_OPTIONS[1] in choices:
@@ -202,6 +206,7 @@ def specify_column_with_maaiveld_niveau(app_settings: ApplicationSettings, gdf: 
         column_name_is_valid = True
 
     gdf_to_add = gdf[["geometry", column_name]]
+    # No uittredepunt id yet. This will be set when the metering is determined.
     gdf_to_add = gdf_to_add.rename(columns={column_name: "mv_exit"})
     gdf_to_add.to_file(app_settings.geopackage_filepath, layer="uittredepunten", driver="GPKG")
     print(BColors.OKBLUE, f"✅  Uittredepunten toegevoegd.", BColors.ENDC)
