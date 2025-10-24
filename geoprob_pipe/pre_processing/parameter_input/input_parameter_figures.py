@@ -5,6 +5,7 @@ import os
 import numpy as np
 from typing import Optional, Dict, Tuple, List
 from geopandas import GeoDataFrame, read_file
+from geoprob_pipe.utils.statistics import calc_kar_waarde_lognormal, calc_kar_waarde_normal
 import plotly.graph_objects as go
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
@@ -52,8 +53,19 @@ class InputParameterFigures:
         self.dict_uittredepunten = gdf_uittredepunten.set_index('uittredepunt_id').to_dict(orient='index')
 
     @staticmethod
-    def _get_display_values_from_row(row) -> Tuple[float, Optional[float]]:
+    def _get_display_values_from_row(row) -> Tuple[float, Optional[float], Optional[float]]:
+        """
+
+        :param row:
+        :return: mean, 5% ondergrens, 95% bovengrens
+        """
+
+        # Deterministic
         mean_value: float = row['mean']
+        if row['distributie_type'] == 'deterministic':
+            return mean_value, None, None
+
+        # Determine standard deviation
         variation = row['variation']
         deviation = row['deviation']
         deviation_value: Optional[float] = None
@@ -61,31 +73,83 @@ class InputParameterFigures:
             deviation_value = deviation
         elif not np.isnan(variation):
             deviation_value = mean_value * variation
-        return mean_value, deviation_value
+        else:
+            ValueError(f"Should have either a variation or deviation. Or maybe a bug and contact the developer.")
+
+        # Log normal
+        if row['distributie_type'] == 'log_normal':
+            kar_5pr = calc_kar_waarde_lognormal(mean=mean_value, sd=deviation_value, percentiel=0.05)  # TODO: Shift bepalen
+            kar_95pr = calc_kar_waarde_lognormal(mean=mean_value, sd=deviation_value, percentiel=0.95)
+            return mean_value, kar_5pr, kar_95pr
+
+        # Normal
+        if row['distributie_type'] == 'normal':
+            kar_5pr = calc_kar_waarde_normal(mean=mean_value, std=deviation_value, percentiel=0.05)
+            kar_95pr = calc_kar_waarde_normal(mean=mean_value, std=deviation_value, percentiel=0.95)
+            return mean_value, kar_5pr, kar_95pr
+
+        raise ValueError(f"Unknown distributie_type '{row['distributie_type']}'.")
 
     @staticmethod
-    def _get_display_values_from_df(df: DataFrame) -> Tuple[List[float], Optional[List[Optional[None]]]]:
-        mean_values: List[float] = df['mean'].values.tolist()
-        variation: List = df['variation'].values.tolist()
-        deviation: List = df['deviation'].values.tolist()
+    def _get_display_values_from_df(
+            df: DataFrame
+) -> Tuple[
+        List[float],
+        Optional[List[Optional[None]]],
+        Optional[List[Optional[None]]],
+    ]:
+        """ Leest de gemiddelde en 5% en 95% karakteristieke waarden uit o.b.v. de mean en deviation. """
 
-        deviation_values: List[Optional[float]] = []
-        for mean, var, dev in zip(mean_values, variation, deviation):
-            if not np.isnan(dev):
-                deviation_values.append(dev)
-            elif not np.isnan(var):
-                deviation_values.append(mean * var)
+        mean_values = []
+        kar5pr_values = []
+        kar95pr_values = []
+
+        for index, row in df.iterrows():
+            mean_value = row['mean']
+            mean_values.append(mean_value)
+            if row['distributie_type'] == 'deterministic':
+                kar5pr_values.append(None)
+                kar95pr_values.append(None)
+                continue
+            deviation_value: Optional[float] = None
+            if not np.isnan(row['deviation']):
+                deviation_value = row['deviation']
+            elif not np.isnan(row['variation']):
+                deviation_value = mean_value * row['variation']
             else:
-                deviation_values.append(None)
+                ValueError(f"Should have either a variation or deviation. Or maybe a bug and contact the developer.")
+            if row['distributie_type'] == 'log_normal':
+                kar5pr_values.append(calc_kar_waarde_lognormal(
+                    mean=mean_value, sd=deviation_value, percentiel=0.05))  # TODO: Shift bepalen
+                kar95pr_values.append(
+                    calc_kar_waarde_lognormal(mean=mean_value, sd=deviation_value, percentiel=0.95))
+                continue
+            if row['distributie_type'] == 'normal':
+                kar5pr_values.append(calc_kar_waarde_normal(mean=mean_value, std=deviation_value, percentiel=0.05))
+                kar95pr_values.append(calc_kar_waarde_normal(mean=mean_value, std=deviation_value, percentiel=0.95))
+                continue
 
-        return mean_values, deviation_values
+        # mean_values: List[float] = df['mean'].values.tolist()
+        # variation: List = df['variation'].values.tolist()
+        # deviation: List = df['deviation'].values.tolist()
+        #
+        # deviation_values: List[Optional[float]] = []
+        # for mean, var, dev in zip(mean_values, variation, deviation):
+        #     if not np.isnan(dev):
+        #         deviation_values.append(dev)
+        #     elif not np.isnan(var):
+        #         deviation_values.append(mean * var)
+        #     else:
+        #         deviation_values.append(None)
+
+        return mean_values, kar5pr_values, kar95pr_values
 
     def _add_traject_level_data(self, fig: go.Figure, parameter_name: str) -> go.Figure:
         df_filter = self.df_parameter_invoer[
             (self.df_parameter_invoer['parameter'] == parameter_name) &
             (self.df_parameter_invoer['scope'] == 'traject')]
         for index, row in df_filter.iterrows():
-            mean, deviation = self._get_display_values_from_row(row=row)
+            mean, kar_5pr, kar_95pr = self._get_display_values_from_row(row=row)
 
             fig.add_trace(go.Scatter(
                 x=[self.x_min, self.x_max, self.x_max, self.x_min, self.x_min],
@@ -99,18 +163,27 @@ class InputParameterFigures:
                 line=dict(width=1, color="rgb(0, 0, 0)"),
             ))
 
-            # Add (possibly) deviation
-            if deviation:
+            # Add (possibly) kar values
+            if kar_5pr:
                 fig.add_trace(go.Scatter(
                     x=[self.x_min, self.x_max],
-                    y=[mean-deviation, mean-deviation],
+                    y=[kar_5pr, kar_5pr],
                     mode='lines',
                     name="Traject-niveau",
                     legendgroup="Traject-niveau",
                     showlegend=False,
                     line=dict(width=4, color="rgba(0, 0, 0, 1)"),
                 ))
-
+            if kar_95pr:
+                fig.add_trace(go.Scatter(
+                    x=[self.x_min, self.x_max],
+                    y=[kar_95pr, kar_95pr],
+                    mode='lines',
+                    name="Traject-niveau",
+                    legendgroup="Traject-niveau",
+                    showlegend=False,
+                    line=dict(width=4, color="rgba(0, 0, 0, 1)", dash='dot'),
+                ))
 
         return fig
 
@@ -123,7 +196,7 @@ class InputParameterFigures:
         show_legend_item = True
 
         for index, row in df_filter.iterrows():
-            mean, deviation = self._get_display_values_from_row(row=row)
+            mean, kar_5pr, kar_95pr = self._get_display_values_from_row(row=row)
             vak_id = row['scope_referentie']
             x_min = self.dict_vakindeling[vak_id]['m_start']
             x_max = self.dict_vakindeling[vak_id]['m_end']
@@ -143,16 +216,24 @@ class InputParameterFigures:
             show_legend_item = False
 
             # Add (possibly) deviation
-            if deviation:
+            if kar_5pr:
                 fig.add_trace(go.Scatter(
                     x=[x_min, x_max],
-                    y=[mean-deviation, mean-deviation],
+                    y=[kar_5pr, kar_5pr],
                     mode='lines',
                     name="Vak-niveau",
                     legendgroup="Vak-niveau",
                     showlegend=False,
-                    line=dict(width=4, color="rgba(0, 0, 0, 1)"),
-                ))
+                    line=dict(width=4, color="rgba(0, 0, 0, 1)")))
+            if kar_95pr:
+                fig.add_trace(go.Scatter(
+                    x=[x_min, x_max],
+                    y=[kar_95pr, kar_95pr],
+                    mode='lines',
+                    name="Vak-niveau",
+                    legendgroup="Vak-niveau",
+                    showlegend=False,
+                    line=dict(width=4, color="rgba(0, 0, 0, 1)", dash='dot')))
 
         return fig
 
@@ -160,13 +241,15 @@ class InputParameterFigures:
         df_filter: DataFrame = self.df_parameter_invoer[
             (self.df_parameter_invoer['parameter'] == parameter_name) &
             (self.df_parameter_invoer['scope'] == 'vak') &
-            (self.df_parameter_invoer['ondergrondscenario_naam'].notna())
-        ]
+            (self.df_parameter_invoer['ondergrondscenario_naam'].notna())]
         show_legend_item = True
 
         for vak_id in df_filter['scope_referentie'].unique():
             df_filter2 = df_filter[df_filter['scope_referentie'] == vak_id]
-            mean_values, deviation_values = self._get_display_values_from_df(df_filter2)
+            mean_values, kar_5pr_values, kar_95pr_values = self._get_display_values_from_df(df_filter2)
+            print(f"{mean_values=}")
+            print(f"{kar_5pr_values=}")
+            print(f"{kar_95pr_values=}")
             max_mean = max(mean_values)
             x_min = self.dict_vakindeling[vak_id]['m_start']
             x_max = self.dict_vakindeling[vak_id]['m_end']
@@ -185,9 +268,8 @@ class InputParameterFigures:
             ))
             show_legend_item = False
 
-
             # Add (possibly) deviation
-            for mean, deviation in zip(mean_values, deviation_values):
+            for mean, kar_5pr_value, kar_95pr_value in zip(mean_values, kar_5pr_values, kar_95pr_values):
                 if mean is not max_mean:
                     fig.add_trace(go.Scatter(
                         x=[x_min, x_max],
@@ -197,16 +279,24 @@ class InputParameterFigures:
                         legendgroup="Vak-niveau per scenario",
                         showlegend=False,
                         line=dict(width=1, color="rgba(0, 0, 0, 1)")))
-                if deviation is not None:
-                    deviation: float
+                if kar_5pr_value is not None:
                     fig.add_trace(go.Scatter(
                         x=[x_min, x_max],
-                        y=[mean-deviation, mean-deviation],
+                        y=[kar_5pr_value, kar_5pr_value],
                         mode='lines',
                         name="Vak-niveau per scenario",
                         legendgroup="Vak-niveau per scenario",
                         showlegend=False,
                         line=dict(width=4, color="rgba(0, 0, 0, 1)")))
+                if kar_95pr_value is not None:
+                    fig.add_trace(go.Scatter(
+                        x=[x_min, x_max],
+                        y=[kar_95pr_value, kar_95pr_value],
+                        mode='lines',
+                        name="Vak-niveau per scenario",
+                        legendgroup="Vak-niveau per scenario",
+                        showlegend=False,
+                        line=dict(width=4, color="rgba(0, 0, 0, 1)", dash='dot')))
 
         return fig
 
@@ -215,10 +305,9 @@ class InputParameterFigures:
             (self.df_parameter_invoer['parameter'] == parameter_name) &
             (self.df_parameter_invoer['scope'] == 'uittredepunt')]
         show_legend_item_mean = True
-        show_legend_item_deviation = True
 
         for index, row in df_filter.iterrows():
-            mean, deviation = self._get_display_values_from_row(row=row)
+            mean, kar_5pr, kar_95pr = self._get_display_values_from_row(row=row)
             x_value = self.dict_uittredepunten[row['scope_referentie']]['metrering']
 
             # Add mean
@@ -234,17 +323,61 @@ class InputParameterFigures:
             show_legend_item_mean = False
 
             # Add (possibly) deviation
-            if deviation:
+            if kar_5pr:
                 fig.add_trace(go.Scatter(
                     x=[x_value, x_value],
-                    y=[mean-deviation, mean-deviation],  # TODO: Ondergrens/bovengrens goed toepassen
+                    y=[kar_5pr, kar_5pr],
                     mode='markers',
-                    name="Uittredepunt-niveau (mean)",
-                    legendgroup="Uittredepunt-niveau (mean-deviation)",
-                    showlegend=show_legend_item_deviation,
-                    marker=dict(color='rgba(0, 0, 0, 1)', size=10, symbol="triangle-up"),
-                ))
-                show_legend_item_deviation = False
+                    name="Uittredepunt-niveau",
+                    legendgroup="Uittredepunt-niveau",
+                    showlegend=False,
+                    marker=dict(color='rgba(0, 0, 0, 1)', size=10, symbol="triangle-up")))
+            if kar_95pr:
+                fig.add_trace(go.Scatter(
+                    x=[x_value, x_value],
+                    y=[kar_95pr, kar_95pr],
+                    mode='markers',
+                    name="Uittredepunt-niveau",
+                    legendgroup="Uittredepunt-niveau",
+                    showlegend=False,
+                    marker=dict(color='rgba(0, 0, 0, 1)', size=10, symbol="triangle-down")))
+
+        return fig
+
+    @staticmethod
+    def _add_legend_symbols(fig: go.Figure) -> go.Figure:
+        fig.add_trace(go.Scatter(
+            x=[-1000, -1000],
+            y=[0, 0],
+            mode='lines',
+            name="95% bovengrens",
+            legendgroup="95% bovengrens",
+            showlegend=True,
+            line=dict(width=4, color="rgba(0, 0, 0, 1)", dash='dot')))
+        fig.add_trace(go.Scatter(
+            x=[-1000, -1000],
+            y=[0, 0],
+            mode='lines',
+            name="5% ondergrens",
+            legendgroup="5% ondergrens",
+            showlegend=True,
+            line=dict(width=4, color="rgba(0, 0, 0, 1)")))
+        fig.add_trace(go.Scatter(
+            x=[-1000, -1000],
+            y=[0, 0],
+            mode='markers',
+            name="95% bovengrens",
+            legendgroup="95% bovengrens",
+            showlegend=True,
+            marker=dict(color='rgba(0, 0, 0, 1)', size=10, symbol="triangle-down")))
+        fig.add_trace(go.Scatter(
+            x=[-1000, -1000],
+            y=[0, 0],
+            mode='markers',
+            name="5% ondergrens",
+            legendgroup="5% ondergrens",
+            showlegend=True,
+            marker=dict(color='rgba(0, 0, 0, 1)', size=10, symbol="triangle-up")))
 
         return fig
 
@@ -274,12 +407,15 @@ class InputParameterFigures:
             # Add uittredepunten-level
             fig = self._add_uittredepunt_level_data(fig=fig, parameter_name=parameter_name)
 
+            # Add some legend items
+            fig = self._add_legend_symbols(fig=fig)
+
             # Update layout
             fig.update_layout(
                 title=f"Parameter invoer voor '{parameter_name}'",
                 xaxis_title="Metrering [m]",
-                yaxis_title="Y-as",
-            )
+                yaxis_title="Y-as")
+            fig.update_layout(xaxis=dict(range=[0, self.x_max]))
 
             # Export figure
             if self.export:
