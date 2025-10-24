@@ -45,7 +45,6 @@ def check_validity_vakindeling(app_settings: ApplicationSettings):
 
     assert dijktraject_length == vakindeling_total_length
     print(BColors.OKBLUE, f"✔  Vakindeling al toegevoegd.", BColors.ENDC)
-    # TODO: Next step
 
 
 def import_from_geopackage(filepath: str) -> GeoDataFrame:
@@ -130,11 +129,60 @@ def specify_column_with_vaknaam(app_settings: ApplicationSettings, gdf: GeoDataF
         column_name_is_valid = True
 
     column_name: str
-    align_vak_shp_to_dijktraject(app_settings, gdf_vakindeling=gdf, kolom_vaknaam=column_name)
+    specify_column_with_vak_id(app_settings, gdf=gdf, kolom_vak_naam=column_name)
+
+
+def is_numeric_integer(val):
+    try:
+        return float(val) % 1 == 0
+    except (ValueError, TypeError):
+        return False
+
+
+def specify_column_with_vak_id(app_settings: ApplicationSettings, gdf: GeoDataFrame, kolom_vak_naam: str):
+    kolom_vak_id: Optional[str] = None
+    column_name_is_valid = False
+    while column_name_is_valid is False:
+        kolom_vak_id: str = inquirer.text(
+            message="Specificeer de kolom waarin het vak id staat. Indien onnodig, type 'nvt'. Type 'listcolumns' om "
+                    "een overzicht te krijgen van de kolommen. ",
+        ).execute()
+
+        column_names = gdf.columns
+        columns_str = ", ".join(column_names)
+        if kolom_vak_id.lower() == "nvt":
+            align_vak_shp_to_dijktraject(
+                app_settings, gdf_vakindeling=gdf, kolom_vak_naam=kolom_vak_naam, kolom_vak_id=None)
+            return
+        elif kolom_vak_id == "listcolumns":
+            print(BColors.OKBLUE,
+                  f"De volgende kolommen zijn beschikbaar in de spatial layer: {columns_str}", BColors.ENDC)
+            continue
+        elif kolom_vak_id not in column_names:
+            print(BColors.OKBLUE, f"De kolom naam '{kolom_vak_id}' bestaat niet. De volgende kolommen zijn beschikbaar "
+                                  f"in de spatial layer: {columns_str}", BColors.ENDC)
+            continue
+
+        # Ensure column values are unique and integers
+        if gdf[kolom_vak_id].__len__() != gdf[kolom_vak_id].unique().__len__():
+            print(BColors.OKBLUE, f"De waarden in deze kolom zijn niet uniek. Corrigeer de dubbelingen, of kies een "
+                                  f"andere kolom.", BColors.ENDC)
+            continue
+
+        elif not gdf[kolom_vak_id].apply(is_numeric_integer).all():
+            print(BColors.OKBLUE, f"De waarden in deze kolom zijn niet allen volledige getallen (integers). "
+                                  f"Corrigeer de kolom, of kies een andere.", BColors.ENDC)
+            continue
+
+        column_name_is_valid = True
+
+    kolom_vak_id: str
+    align_vak_shp_to_dijktraject(
+        app_settings, gdf_vakindeling=gdf, kolom_vak_naam=kolom_vak_naam, kolom_vak_id=kolom_vak_id)
 
 
 def align_vak_shp_to_dijktraject(
-        app_settings: ApplicationSettings, gdf_vakindeling: GeoDataFrame , kolom_vaknaam: str
+        app_settings: ApplicationSettings, gdf_vakindeling: GeoDataFrame , kolom_vak_naam: str, kolom_vak_id: Optional[str] = None
 ):
 
     # Get dijktraject linestring
@@ -148,7 +196,9 @@ def align_vak_shp_to_dijktraject(
         m_pnt1 = round(ls_dijktraject.project(pnt1), 1)
         m_pnt2 = round(ls_dijktraject.project(pnt2), 1)
         m_start = min(m_pnt1, m_pnt2)
-        new_row = {"naam": row[kolom_vaknaam], "m_start": m_start,}
+        new_row = {"naam": row[kolom_vak_naam], "m_start": m_start}
+        if kolom_vak_id:
+            new_row['id'] = int(row[kolom_vak_id])
         rows.append(new_row)
     df = DataFrame(rows)
     df = df.sort_values(by=["m_start"], ignore_index=True)
@@ -167,9 +217,12 @@ def align_vak_shp_to_dijktraject(
             "m_end": row["m_end"],
             "geometry": substring(ls_dijktraject, row["m_start"], row["m_end"])
         }
+        if kolom_vak_id:
+            new_row["id"] = row[kolom_vak_id]
         rows.append(new_row)
     gdf_new_vakindeling = GeoDataFrame(rows, crs='EPSG:28992')
-    gdf_new_vakindeling['id'] = gdf_new_vakindeling.index + 1
+    if not kolom_vak_id:
+        gdf_new_vakindeling['id'] = gdf_new_vakindeling.index + 1
     gdf_new_vakindeling: GeoDataFrame = gdf_new_vakindeling[["id", "naam", "m_start", "m_end", "geometry"]]
 
     # Add to geopackage
