@@ -4,6 +4,7 @@ import sqlite3
 import shutil
 from openpyxl import load_workbook
 from pandas import ExcelWriter, DataFrame
+from geopandas import read_file, GeoDataFrame
 from datetime import datetime
 import importlib.resources
 from typing import TYPE_CHECKING
@@ -11,6 +12,13 @@ from geoprob_pipe.calculations.system_calculations import SYSTEM_CALCULATION_MAP
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
     from geoprob_pipe.pre_processing.parameter_input.input_parameter_tables import InputParameterTables
+
+
+def join_vak_naam(df: DataFrame, app_settings: ApplicationSettings, ) -> DataFrame:
+    gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="vakindeling")
+    gdf_vakindeling = gdf_vakindeling.rename(columns={"naam": "vak_naam", "id": "vak_id"})
+    df = df.merge(gdf_vakindeling[["vak_naam", "vak_id"]], left_on="vak_id", right_on="vak_id")
+    return df[["vak_id", "vak_naam", "naam", "kans"]]
 
 
 def export_input_parameter_tables(app_settings: ApplicationSettings, tables: InputParameterTables):
@@ -56,6 +64,7 @@ def export_input_parameter_tables(app_settings: ApplicationSettings, tables: Inp
 
     # Fill 'Scenario invoer'
     df_scenario_invoer = tables.df_scenario_invoer
+    df_scenario_invoer = join_vak_naam(df=df_scenario_invoer, app_settings=app_settings)
     with ExcelWriter(dst_path, engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
         df_scenario_invoer.to_excel(
             writer, sheet_name="Scenario invoer", index=False, header=False, startrow=3, startcol=0)

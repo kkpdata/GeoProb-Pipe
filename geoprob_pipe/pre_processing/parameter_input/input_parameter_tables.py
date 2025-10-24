@@ -31,7 +31,8 @@ class InputParameterTables:
     def _load_data_from_geopackage(self, app_settings: ApplicationSettings):
         gpkg_file_path = app_settings.geopackage_filepath
         conn = sqlite3.connect(gpkg_file_path)
-        self.df_scenario_invoer = read_sql("SELECT * FROM scenario_invoer;", conn)
+        df_scenario_invoer = read_sql("SELECT * FROM scenario_invoer;", conn)
+        self.df_scenario_invoer = df_scenario_invoer[["vak_id", "naam", "kans"]]
         self.df_parameter_invoer = read_sql("SELECT * FROM parameter_invoer;", conn)
         self.df_fragility_values_invoer = read_sql("SELECT * FROM fragility_values_invoer;", conn)
         conn.close()

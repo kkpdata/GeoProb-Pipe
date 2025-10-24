@@ -62,7 +62,7 @@ class InputParameterFigures:
 
         # Deterministic
         mean_value: float = row['mean']
-        if row['distributie_type'] == 'deterministic':
+        if row['distribution_type'] == 'deterministic':
             return mean_value, None, None
 
         # Determine standard deviation
@@ -77,18 +77,18 @@ class InputParameterFigures:
             ValueError(f"Should have either a variation or deviation. Or maybe a bug and contact the developer.")
 
         # Log normal
-        if row['distributie_type'] == 'log_normal':
+        if row['distribution_type'] == 'log_normal':
             kar_5pr = calc_kar_waarde_lognormal(mean=mean_value, sd=deviation_value, percentiel=0.05)  # TODO: Shift bepalen
             kar_95pr = calc_kar_waarde_lognormal(mean=mean_value, sd=deviation_value, percentiel=0.95)
             return mean_value, kar_5pr, kar_95pr
 
         # Normal
-        if row['distributie_type'] == 'normal':
+        if row['distribution_type'] == 'normal':
             kar_5pr = calc_kar_waarde_normal(mean=mean_value, std=deviation_value, percentiel=0.05)
             kar_95pr = calc_kar_waarde_normal(mean=mean_value, std=deviation_value, percentiel=0.95)
             return mean_value, kar_5pr, kar_95pr
 
-        raise ValueError(f"Unknown distributie_type '{row['distributie_type']}'.")
+        raise ValueError(f"Unknown distribution_type '{row['distribution_type']}'.")
 
     @staticmethod
     def _get_display_values_from_df(
@@ -107,7 +107,7 @@ class InputParameterFigures:
         for index, row in df.iterrows():
             mean_value = row['mean']
             mean_values.append(mean_value)
-            if row['distributie_type'] == 'deterministic':
+            if row['distribution_type'] == 'deterministic':
                 kar5pr_values.append(None)
                 kar95pr_values.append(None)
                 continue
@@ -118,13 +118,13 @@ class InputParameterFigures:
                 deviation_value = mean_value * row['variation']
             else:
                 ValueError(f"Should have either a variation or deviation. Or maybe a bug and contact the developer.")
-            if row['distributie_type'] == 'log_normal':
+            if row['distribution_type'] == 'log_normal':
                 kar5pr_values.append(calc_kar_waarde_lognormal(
                     mean=mean_value, sd=deviation_value, percentiel=0.05))  # TODO: Shift bepalen
                 kar95pr_values.append(
                     calc_kar_waarde_lognormal(mean=mean_value, sd=deviation_value, percentiel=0.95))
                 continue
-            if row['distributie_type'] == 'normal':
+            if row['distribution_type'] == 'normal':
                 kar5pr_values.append(calc_kar_waarde_normal(mean=mean_value, std=deviation_value, percentiel=0.05))
                 kar95pr_values.append(calc_kar_waarde_normal(mean=mean_value, std=deviation_value, percentiel=0.95))
                 continue
@@ -247,9 +247,6 @@ class InputParameterFigures:
         for vak_id in df_filter['scope_referentie'].unique():
             df_filter2 = df_filter[df_filter['scope_referentie'] == vak_id]
             mean_values, kar_5pr_values, kar_95pr_values = self._get_display_values_from_df(df_filter2)
-            print(f"{mean_values=}")
-            print(f"{kar_5pr_values=}")
-            print(f"{kar_95pr_values=}")
             max_mean = max(mean_values)
             x_min = self.dict_vakindeling[vak_id]['m_start']
             x_max = self.dict_vakindeling[vak_id]['m_end']
