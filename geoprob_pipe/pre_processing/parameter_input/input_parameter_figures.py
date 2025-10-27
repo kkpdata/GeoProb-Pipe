@@ -105,6 +105,7 @@ class InputParameterFigures:
         kar95pr_values = []
 
         for index, row in df.iterrows():
+            print(f"{row=}")
             mean_value = row['mean']
             mean_values.append(mean_value)
             if row['distribution_type'] == 'deterministic':

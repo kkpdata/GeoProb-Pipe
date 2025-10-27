@@ -79,6 +79,7 @@ def specify_geodatabase_layer(app_settings: ApplicationSettings, filepath: str):
         ).execute()
 
         layer_names = fiona.listlayers(filepath)
+        layer_names.sort()
         layers_str = ", ".join(layer_names)
         if layer_name == "listlayers":
             print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geodatabase: {layers_str}", BColors.ENDC)

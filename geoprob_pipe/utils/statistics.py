@@ -10,6 +10,8 @@ def calc_kar_waarde_lognormal(
     r""" Berekening van de percentiel waarde van een lognormale verdeling met standaarddeviatie/variatie coëfficient
     en verschuiving.
 
+    # TODO: Bron naar documentatie van deze methodiek.
+
     Args:
        mean (float): verwachtingswaarde van de lognormale verdeling
        sd (float): standaarddeviatie van de lognormale verdeling, verplicht indien vc niet gegeven

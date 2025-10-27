@@ -7,6 +7,7 @@ from shapely import Point
 from geopandas import GeoDataFrame, read_file
 import fiona
 from geoprob_pipe.utils.validation_messages import BColors
+import warnings
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
@@ -70,6 +71,7 @@ def import_from_geodatabase(filepath: str) -> GeoDataFrame:
         ).execute()
 
         layer_names = fiona.listlayers(filepath)
+        layer_names.sort()
         layers_str = ", ".join(layer_names)
         if layer_name == "listlayers":
             print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geodatabase: {layers_str}", BColors.ENDC)
@@ -95,6 +97,7 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
         ).execute()
 
         layer_names = fiona.listlayers(filepath)
+        layer_names.sort()
         layers_str = ", ".join(layer_names)
         if layer_name == "listlayers":
             print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geopackage: {layers_str}", BColors.ENDC)
@@ -106,7 +109,9 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
 
         layer_name_is_valid = True
 
-    gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
+        gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
     return gdf
 
 

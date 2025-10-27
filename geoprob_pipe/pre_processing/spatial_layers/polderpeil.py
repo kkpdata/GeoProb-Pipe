@@ -2,7 +2,6 @@ from __future__ import annotations
 from InquirerPy import inquirer
 from typing import TYPE_CHECKING, Optional
 import os
-import sys
 from shapely import Polygon, MultiPolygon
 from geopandas import GeoDataFrame, read_file
 import fiona
@@ -78,6 +77,7 @@ def import_from_geodatabase(filepath: str) -> GeoDataFrame:
         ).execute()
 
         layer_names = fiona.listlayers(filepath)
+        layer_names.sort()
         layers_str = ", ".join(layer_names)
         if layer_name == "listlayers":
             print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geodatabase: {layers_str}", BColors.ENDC)
@@ -103,6 +103,7 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
         ).execute()
 
         layer_names = fiona.listlayers(filepath)
+        layer_names.sort()
         layers_str = ", ".join(layer_names)
         if layer_name == "listlayers":
             print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geopackage: {layers_str}", BColors.ENDC)

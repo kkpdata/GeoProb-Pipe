@@ -58,13 +58,12 @@
 # gdf_exit_points_with_vakken.to_excel(r"K:\DATATOETSING\Werkmap\DT16-1_STPH\workspace\input\uittredepunten_sjoin_vakken.xlsx")
 #
 #
-
-
-from geopandas import GeoDataFrame, read_file
-gdf_vakindeling: GeoDataFrame = read_file(
-    r"C:\Users\CP\Downloads\C_Analyse_corr\Nieuwe map (12)\Analyse224.geoprob_pipe.gpkg", layer="vakindeling")
-
-gdf_vakindeling['id'] = gdf_vakindeling['id'] + 3
-
-from pathlib import Path
-gdf_vakindeling.to_file(Path(r"C:\Users\CP\Downloads\C_Analyse_corr\Nieuwe map (13)\vakindeling.shp"))
+#
+# from geopandas import GeoDataFrame, read_file
+# gdf_vakindeling: GeoDataFrame = read_file(
+#     r"C:\Users\CP\Downloads\C_Analyse_corr\Nieuwe map (12)\Analyse224.geoprob_pipe.gpkg", layer="vakindeling")
+#
+# gdf_vakindeling['id'] = gdf_vakindeling['id'] + 3
+#
+# from pathlib import Path
+# gdf_vakindeling.to_file(Path(r"C:\Users\CP\Downloads\C_Analyse_corr\Nieuwe map (13)\vakindeling.shp"))

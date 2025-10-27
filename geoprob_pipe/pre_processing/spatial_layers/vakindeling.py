@@ -57,6 +57,7 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
         ).execute()
 
         layer_names = fiona.listlayers(filepath)
+        layer_names.sort()
         layers_str = ", ".join(layer_names)
         if layer_name == "listlayers":
             print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geopackage: {layers_str}", BColors.ENDC)
@@ -68,7 +69,9 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
 
         layer_name_is_valid = True
 
-    gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
+        gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
     return gdf
 
 
@@ -218,7 +221,7 @@ def align_vak_shp_to_dijktraject(
             "geometry": substring(ls_dijktraject, row["m_start"], row["m_end"])
         }
         if kolom_vak_id:
-            new_row["id"] = row[kolom_vak_id]
+            new_row["id"] = row['id']
         rows.append(new_row)
     gdf_new_vakindeling = GeoDataFrame(rows, crs='EPSG:28992')
     if not kolom_vak_id:
