@@ -3,7 +3,6 @@ import os
 import numpy as np
 import plotly.colors as pc
 from plotly.graph_objects import Figure, Scatter
-import pandas as pd
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -11,7 +10,7 @@ if TYPE_CHECKING:
 
 
 def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
-    # --- Prepare base data
+    # Prepare base data
     df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
         system_only=True, filter_deterministic=False, filter_derived=False
     )
@@ -27,21 +26,26 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
     )
     df_beta = geoprob_pipe.results.df_beta_uittredepunten
 
-    # --- Target exceedance frequencies
+    # Target exceedance frequencies
     target_freqs = np.array([
         0.1, 0.033333333, 0.01, 0.003333333,
         0.001, 0.000333333, 0.0001, 3.33333E-05,
         0.00001, 3.33333E-06
     ])
 
-    # --- Blue gradient for lines
-    line_colors = pc.sample_colorscale("Blues", np.linspace(0.2, 0.9, len(target_freqs)))
+    # Blue gradient for lines
+    line_colors = pc.sample_colorscale(
+        "Blues", np.linspace(0.2, 0.9, len(target_freqs))
+        )
     freq_color_map = {f: c for f, c in zip(target_freqs, line_colors)}
 
-    # --- Figure
+    # Figure
     fig = Figure()
 
-    # --- Add Hydra lines (grouped per frequency)
+    # Prepare storage for Hydra curves per frequency
+    hydra_curves = {freq: {"M": [], "level": []} for freq in target_freqs}
+
+    # Add Hydra lines (grouped per frequency)
     for hydra_nl_name, hfreq in geoprob_pipe.input_data.overschrijdingsfrequentielijnen.items():
         df_subset = df_uittredepunten[df_uittredepunten["hydra_locatie_id"] == hydra_nl_name]
         if df_subset.empty:
@@ -61,33 +65,30 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
         # Interpolate levels for standard frequencies
         interp_levels = np.interp(target_freqs, freqs, levels)
 
+        # Store values for each frequency
         for freq, level in zip(target_freqs, interp_levels):
-            fig.add_trace(
-                Scatter(
-                    x=m_values,
-                    y=np.full_like(m_values, level),
-                    mode="lines",
-                    line=dict(color=freq_color_map[freq], width=2),
-                    name=f"1/{1/freq:.0f}",
-                    legendgroup=f"{freq}",
-                    showlegend=False,  # only show once per freq later
-                )
-            )
+            hydra_curves[freq]["M"].extend(m_values)
+            hydra_curves[freq]["level"].extend(np.full_like(m_values, level))
 
-    # --- One legend entry per frequency
-    for freq in target_freqs:
+    # Plot one continuous line per exceedance frequency
+    for freq, data in hydra_curves.items():
+        # Sort by M_value for continuous line plotting
+        sort_idx = np.argsort(data["M"])
+        M_sorted = np.array(data["M"])[sort_idx]
+        level_sorted = np.array(data["level"])[sort_idx]
+
         fig.add_trace(
             Scatter(
-                x=[None], y=[None],
+                x=M_sorted,
+                y=level_sorted,
                 mode="lines",
-                line=dict(color=freq_color_map[freq], width=3),
-                name=f"1/{1/freq:.0f}",
-                legendgroup=f"{freq}",
+                line=dict(color=freq_color_map[freq], width=2),
+                name=f"1/{1/freq:,.0f}".replace(",", "."),
                 showlegend=True,
             )
         )
 
-    # --- Buitenwaterstand markers with β color scale
+    # Buitenwaterstand markers with β color scale
     df_filtered = df[df["variable"] == "buitenwaterstand"].merge(
         df_beta[["uittredepunt_id", "beta"]],
         on="uittredepunt_id", how="left"
@@ -112,7 +113,7 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
                 cmax=10,
                 colorbar=dict(
                     title="β",
-                    xanchor="left", x=0,
+                    xanchor="right", x=-0.05,
                     ticks="outside",
                 ),
                 line=dict(width=0.5, color="black"),
@@ -121,11 +122,13 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
         )
     )
 
-    # --- Layout
+    # Layout
     fig.update_layout(
         title="WBN en buitenwaterstand designpoint",
-        xaxis=dict(title="Metrering", showgrid=True, gridwidth=0.5, gridcolor="gray"),
-        yaxis=dict(title="Hoogte [m+NAP]", showgrid=True, gridwidth=0.5, gridcolor="gray"),
+        xaxis=dict(title="Metrering", showgrid=True,
+                   gridwidth=0.5, gridcolor="gray"),
+        yaxis=dict(title="Hoogte [m+NAP]", showgrid=True,
+                   gridwidth=0.5, gridcolor="gray"),
         legend=dict(
             orientation="v",
             yanchor="middle",
@@ -139,7 +142,7 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
         margin=dict(r=200),
     )
 
-    # --- Export
+    # Export
     if export:
         export_dir = os.path.join(
             geoprob_pipe.visualizations.graphs.export_dir,
@@ -147,7 +150,9 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
         )
         os.makedirs(export_dir, exist_ok=True)
 
-        fig.write_html(os.path.join(export_dir, "river_waterlevel.html"), include_plotlyjs='cdn')
-        fig.write_image(os.path.join(export_dir, "river_waterlevel.png"), format="png", scale=5)
+        fig.write_html(os.path.join(export_dir, "river_waterlevel.html"),
+                       include_plotlyjs='cdn')
+        fig.write_image(os.path.join(export_dir, "river_waterlevel.png"),
+                        format="png", scale=5, width=1400, height=800)
 
     return fig

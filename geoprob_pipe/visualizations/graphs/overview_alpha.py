@@ -123,8 +123,10 @@ def overview_alpha(geoprob_pipe, export: bool = False):
                         ),
                         row=row_idx, col=1
                     )
-                    fig_case.update_xaxes(showgrid=True, tickangle=90, row=row_idx, col=1)
-                    fig_case.update_yaxes(showgrid=True, title_text=param, row=row_idx, col=1)
+                    fig_case.update_xaxes(showgrid=True, tickangle=90,
+                                          row=row_idx, col=1)
+                    fig_case.update_yaxes(showgrid=True, title_text=param,
+                                          row=row_idx, col=1)
 
                 fig_case.update_layout(
                     height=300*len(parameters),

@@ -124,7 +124,8 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
             for scen_order in scenario_orders:
                 df_case = df[df["scenario_order"] == scen_order]
                 fig_case = go.Figure()
-                for variable in ["buitenwaterstand", "phi_exit", "h_exit", "top_zand"]:
+                for variable in ["buitenwaterstand", "phi_exit",
+                                 "h_exit", "top_zand"]:
                     df_var = df_case[df_case["variable"] == variable]
                     fig_case.add_trace(go.Scatter(
                         x=df_var["M_value"],
@@ -144,8 +145,11 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
                     showlegend=True,
                 )
                 fig_case.write_image(
-                    os.path.join(export_dir, f"phreatic_waterline_scenario_{scen_order}.png"),
-                    format="png", scale=5
+                    os.path.join(
+                        export_dir,
+                        f"phreatic_waterline_scenario_{scen_order}.png"
+                        ),
+                    format="png", scale=5, width=1400
                 )
 
     return fig
