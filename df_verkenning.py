@@ -1,3 +1,67 @@
+from geopandas import GeoDataFrame, read_file
+from geoprob_pipe.utils.validation_messages import BColors
+from pathlib import Path
+import fiona
+import sqlite3
+from pandas import read_sql_query
+from pandas import DataFrame
+
+##
+
+
+
+
+##
+
+geopackage_filepath = r"C:\Users\CP\Downloads\C_Analyse_corr\16-1\Analyse_16-1_test_gisjointable.geoprob_pipe.gpkg"
+
+# Getting necessary GeoDataframes
+gdf_exit_points: GeoDataFrame = read_file(geopackage_filepath, layer="uittredepunten")
+# gdf_polderpeil: GeoDataFrame = read_file(geopackage_filepath, layer="polderpeil")
+
+# Check if already added
+# if "polderpeil" in gdf_exit_points.columns:
+#     print(BColors.OKBLUE, f"✔  Polderpeil al gekoppeld aan uittredepunten.", BColors.ENDC)
+#     return True  # Assuming already added
+# TODO
+# if "polderpeil" in gdf_exit_points.columns:
+#     gdf_exit_points = gdf_exit_points.drop(columns=["polderpeil"])
+
+
+# Perform spatial join to find the nearest HRD-location for each Exit Point
+# gdf_exit_with_hrd = gdf_exit_points.sjoin_nearest(
+#     gdf_polderpeil[['geometry', 'polderpeil']], how='left', distance_col='distance')
+
+
+from pandas import DataFrame
+import numpy as np
+
+columns_to_keep = ["uittredepunt_id", "afstand_intredelijn"]
+
+df: DataFrame = gdf_exit_points[columns_to_keep]
+df = df.rename(columns={"afstand_intredelijn": "mean"})
+
+
+
+
+
+##
+
+##
+
+# # Define which columns to keep (after spatial join)
+# columns_to_keep = list(gdf_exit_points.columns)
+# columns_to_keep.append("polderpeil")
+# gdf_new_exit_points = gdf_exit_with_hrd[columns_to_keep]
+#
+# # Store back in geopackage
+# gdf_new_exit_points.to_file(Path(app_settings.geopackage_filepath), layer="uittredepunten", driver="GPKG")
+# print(BColors.OKBLUE, f"✅  Polderpeil is nu gekoppeld aan de uittredepunten.", BColors.ENDC)
+# return True
+#
+
+
+
 # from geopandas import GeoDataFrame, read_file
 #
 #

@@ -37,10 +37,10 @@ def pre_processing_questionnaire(app_settings: ApplicationSettings):
     added_ahn(app_settings=app_settings, display_added_msg=True)  # AHN may be optional
 
     print(f"\nGEOGRAFISCHE KOPPELINGEN")
+    if not coupled_uittredepunten_to_refline(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_hrd_to_uittredepunten(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_distances_to_uittredepunten(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_polderpeil_to_uittredepunten(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
-    if not coupled_uittredepunten_to_refline(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_uittredepunten_to_vakken(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
 
     print(f"\nPARAMETER INVOER")
