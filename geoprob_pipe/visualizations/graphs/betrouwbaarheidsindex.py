@@ -392,7 +392,7 @@ class GraphBetaValuesSingleInteractive:
                 y=df_for_graph["beta"],
                 mode='markers',
                 marker=dict(symbol='circle', size=7, color='black'),
-                name='Beta uitredepunten',
+                name='Beta uittredepunten',
                 showlegend=True
             )
         )
