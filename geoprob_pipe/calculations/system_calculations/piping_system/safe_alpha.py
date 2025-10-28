@@ -16,8 +16,7 @@ def _py(x):
 
 class SafeAlpha(Alpha):
     """
-    Safe subclass of probabilistic_library.reliability.Alpha
-    that can exist in two modes:
+    Safe subclass of probabilistic_library.reliability.Alpha that can exist in two modes:
       - Live: full C-backed interface
       - Rehydrated: pure Python cached data (no C calls)
     """

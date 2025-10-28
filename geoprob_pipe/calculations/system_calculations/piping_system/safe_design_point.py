@@ -4,8 +4,8 @@ from geoprob_pipe.calculations.system_calculations.piping_system.safe_alpha impo
 
 class SafeDesignPoint(DesignPoint):
     """
-    A DesignPoint subclass that is fully interchangeable with the original,
-    but can also exist as a "rehydrated" (pure Python) clone with no C pointers.
+    A DesignPoint subclass that is fully interchangeable with the original parent, but can also exist as a "rehydrated"
+    (pure Python) clone with no C pointers.
     """
 
     # ---------------------------------------------------------------------
@@ -18,7 +18,7 @@ class SafeDesignPoint(DesignPoint):
             self._rehydrated = False
         else:
             # Create a shell without calling DesignPoint.__init__
-            # because we don't want to allocate a C object.
+            # because we don't want to allocate a C-object.
             self._id = 0
             self._rehydrated = True
 
@@ -41,9 +41,7 @@ class SafeDesignPoint(DesignPoint):
         self._total_model_runs_cached = getattr(self, "_total_model_runs_cached", None)
         self._alphas_cached = getattr(self, "_alphas_cached", [])
         self._messages_cached = getattr(self, "_messages_cached", [])
-        self._contributing_design_points_cached = getattr(
-            self, "_contributing_design_points_cached", []
-        )
+        self._contributing_design_points_cached = getattr(self, "_contributing_design_points_cached", [])
 
     # ---------------------------------------------------------------------
     # SAFE DESTRUCTOR
@@ -104,9 +102,7 @@ class SafeDesignPoint(DesignPoint):
                     if isinstance(dp, DesignPoint):
                         nested.append(
                             SafeDesignPoint(dp._id).to_plain(
-                                include_nested=True, max_depth=max_depth - 1
-                            )
-                        )
+                                include_nested=True, max_depth=max_depth - 1))
                 data["contributing_design_points"] = nested
             except Exception:
                 pass
@@ -130,9 +126,7 @@ class SafeDesignPoint(DesignPoint):
         raw_alphas = data.get("alphas", [])
         dp._alphas_cached = [SafeAlpha.from_plain(a) for a in raw_alphas]
         dp._messages_cached = data.get("messages", [])
-        dp._contributing_design_points_cached = [
-            cls.from_plain(c) for c in data.get("contributing_design_points", [])
-        ]
+        dp._contributing_design_points_cached = [cls.from_plain(c) for c in data.get("contributing_design_points", [])]
         return dp
 
     # ---------------------------------------------------------------------
@@ -214,5 +208,4 @@ class SafeDesignPoint(DesignPoint):
         tag = "[rehydrated]" if getattr(self, "_rehydrated", False) else "[live]"
         return (
             f"<SafeDesignPoint {tag} id={getattr(self, '_id', None)} "
-            f"name={self.identifier} β={self.reliability_index} Pf={self.probability_failure}>"
-        )
+            f"name={self.identifier} β={self.reliability_index} Pf={self.probability_failure}>")
