@@ -106,7 +106,6 @@ class InputParameterFigures:
         kar95pr_values = []
 
         for index, row in df.iterrows():
-            # print(f"{row=}")
             mean_value = row['mean']
             mean_values.append(mean_value)
             if row['distribution_type'] == 'deterministic':
@@ -140,10 +139,14 @@ class InputParameterFigures:
         show_legend_item_mean = True
 
         for index, row in df_filter.iterrows():
-            mean, kar_5pr, kar_95pr = self._get_display_values_from_row(row=row)
-            x_value = self.dict_uittredepunten[row['scope_referentie']]['metrering']
+
+            # Skip cdf curve
+            if row['distribution_type'] == 'cdf_curve':
+                continue
 
             # Add mean
+            mean, kar_5pr, kar_95pr = self._get_display_values_from_row(row=row)
+            x_value = self.dict_uittredepunten[row['scope_referentie']]['metrering']
             fig.add_trace(go.Scatter(
                 x=[x_value],
                 y=[mean],
@@ -181,8 +184,12 @@ class InputParameterFigures:
             (self.df_parameter_invoer['parameter'] == parameter_name) &
             (self.df_parameter_invoer['scope'] == 'traject')]
         for index, row in df_filter.iterrows():
-            mean, kar_5pr, kar_95pr = self._get_display_values_from_row(row=row)
 
+            # Skip cdf curve
+            if row['distribution_type'] == 'cdf_curve':
+                continue
+
+            mean, kar_5pr, kar_95pr = self._get_display_values_from_row(row=row)
             fig.add_trace(go.Scatter(
                 x=[self.x_min, self.x_max, self.x_max, self.x_min, self.x_min],
                 y=[self.y_min, self.y_min, mean, mean, self.y_min],
@@ -228,6 +235,11 @@ class InputParameterFigures:
         show_legend_item = True
 
         for index, row in df_filter.iterrows():
+
+            # Skip cdf curve
+            if row['distribution_type'] == 'cdf_curve':
+                continue
+
             mean, kar_5pr, kar_95pr = self._get_display_values_from_row(row=row)
             vak_id = row['scope_referentie']
             x_min = self.dict_vakindeling[vak_id]['m_start']
@@ -336,6 +348,11 @@ class InputParameterFigures:
         show_legend_item_mean = True
 
         for index, row in df_filter.iterrows():
+
+            # Skip cdf curve
+            if row['distribution_type'] == 'cdf_curve':
+                continue
+
             mean, kar_5pr, kar_95pr = self._get_display_values_from_row(row=row)
             x_value = self.dict_uittredepunten[row['scope_referentie']]['metrering']
 
