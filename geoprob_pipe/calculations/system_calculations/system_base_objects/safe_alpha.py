@@ -1,4 +1,4 @@
-from probabilistic_library.reliability import Alpha
+from probabilistic_library.reliability import Alpha, interface
 from geoprob_pipe.calculations.system_calculations.system_base_objects.safe_stochast import SafeStochast
 
 
@@ -35,6 +35,17 @@ class SafeAlpha(Alpha):
         self._index_cached = getattr(self, "_index_cached", None)
         self._u_cached = getattr(self, "_u_cached", None)
         self._x_cached = getattr(self, "_x_cached", None)
+
+    # -------------------------------------------------------------------------
+    # SAFE DESTRUCTOR
+    # -------------------------------------------------------------------------
+    def __del__(self):
+        if getattr(self, "_rehydrated", False):
+            return
+        _id = getattr(self, "_id", 0)
+        if _id:
+            interface.Destroy(_id)
+            self._id = 0
 
     # -------------------------------------------------------------------------
     # REBUILD FROM PLAIN DICT

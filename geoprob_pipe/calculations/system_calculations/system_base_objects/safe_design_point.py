@@ -5,7 +5,7 @@ from geoprob_pipe.calculations.system_calculations.system_base_objects.safe_alph
 class SafeDesignPoint(DesignPoint):
     """
     A DesignPoint subclass that is fully interchangeable with the original parent,
-    but can also exist as a "rebuild" clone purely in python with no c pointers.
+    but can also exist as a "rebuild" clone purely in python with no c-pointers.
     """
 
     # ---------------------------------------------------------------------
@@ -53,7 +53,6 @@ class SafeDesignPoint(DesignPoint):
         if _id:
             interface.Destroy(_id)
             self._id = 0
-
 
     # ---------------------------------------------------------------------
     # REBUILD FROM DICT
@@ -157,4 +156,5 @@ class SafeDesignPoint(DesignPoint):
         tag = "[rehydrated]" if getattr(self, "_rebuild", False) else "[live]"
         return (
             f"<SafeDesignPoint {tag} id={getattr(self, '_id', None)} "
-            f"name={self.identifier} β={self.reliability_index} Pf={self.probability_failure}>")
+            f"name={self.identifier} β={self.reliability_index} Pf={self.probability_failure}>"
+            )

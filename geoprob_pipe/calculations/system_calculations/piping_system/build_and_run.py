@@ -30,7 +30,8 @@ def _worker(build_input):
         uittredepunt=uittredepunt,
         ondergrond_scenario=ondergrond_scenario,
         df_settings=df_settings,
-        df_constants=df_constants)
+        df_constants=df_constants
+        )
     calc.run()
     # Convert the results to a dict for pickeling
     result = calc.export_result()
@@ -54,15 +55,19 @@ def build_and_run_piping_system_calculations(
     for vak in geoprob_pipe.input_data.vakken.values():
         uittredepunten = vak.uittredepunten
         ondergrond_scenarios = vak.ondergrond_scenarios
-        for uittredepunt, ondergrond_scenario in product(uittredepunten, ondergrond_scenarios):
-            build_inputs.append((vak, uittredepunt, ondergrond_scenario, df_settings, df_constants))
+        for uittredepunt, ondergrond_scenario in product(uittredepunten,
+                                                         ondergrond_scenarios):
+            build_inputs.append((vak, uittredepunt, ondergrond_scenario,
+                                 df_settings, df_constants))
 
     # Perform calculations
     with Pool(processes=min(len(build_inputs), cpu_count()-1)) as pool:
         results = pool.map(_worker, build_inputs)
 
     # Remake the calculation classes for further use in the code
-    calculations = system_builder.build_instances(geoprob_pipe.input_data.vakken, df_settings, df_constants)
+    calculations = system_builder.build_instances(
+        geoprob_pipe.input_data.vakken, df_settings, df_constants
+        )
 
     # Add the results from the worker to the remade calculations
     for result, calculation in zip(results, calculations):

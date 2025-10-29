@@ -24,7 +24,7 @@ def _py(x):
 def _alpha_to_plain_live(alpha) -> dict:
     """
     Read Alpha directly from the live object and
-    covert it to a dict ready to be pickeld.
+    covert it to a dict ready to be pickled.
     """
     var = getattr(alpha, "variable", None)
     if var is not None:
