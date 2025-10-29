@@ -1,4 +1,4 @@
-from probabilistic_library import DesignPoint
+from probabilistic_library import DesignPoint, interface
 from geoprob_pipe.calculations.system_calculations.system_base_objects.safe_alpha import SafeAlpha
 
 
@@ -42,6 +42,18 @@ class SafeDesignPoint(DesignPoint):
         self._alphas_cached = getattr(self, "_alphas_cached", [])
         self._messages_cached = getattr(self, "_messages_cached", [])
         self._contributing_design_points_cached = getattr(self, "_contributing_design_points_cached", [])
+
+    # ---------------------------------------------------------------------
+    # SAFE DESTRUCTOR
+    # ---------------------------------------------------------------------
+    def __del__(self):
+        if getattr(self, "_rehydrated", False):
+            return
+        _id = getattr(self, "_id", 0)
+        if _id:
+            interface.Destroy(_id)
+            self._id = 0
+
 
     # ---------------------------------------------------------------------
     # REBUILD FROM DICT
