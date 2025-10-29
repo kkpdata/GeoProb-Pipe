@@ -43,7 +43,7 @@ def append_to_gis_join_parameter_invoer_table(df_sjoin: DataFrame, parameter_nam
         return
     # If polderpeil not yet in gis_join-table
     df_existing = read_sql_query("SELECT * FROM gis_join_parameter_invoer;", conn)
-    if "polderpeil" not in df_existing['parameter'].unique():
+    if parameter_name not in df_existing['parameter'].unique():
         df_to_append.to_sql("gis_join_parameter_invoer", conn, if_exists="append", index=False)
         return
     raise ValueError
