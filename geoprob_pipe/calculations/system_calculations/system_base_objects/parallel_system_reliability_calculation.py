@@ -102,25 +102,11 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
 
     Usage by
     - Calling the object;
-    - inserting the system setup variable that initatiates all variable names;
+    - inserting the system setup variable that initiate all variable names;
     - inserting the variable distributions;
     - inserting the system models, i.e. the parallel limit states;
     - and after that calling the run-method.
-
-    >>> obj = ParallelSystemReliabilityCalculation(
-    ...     system_variables_setup_function=system_variable_setup,
-    ...     system_variable_distributions=[
-    ...         {
-    ...             "name": "a",
-    ...             "distribution_type": DistributionType.uniform,
-    ...             "minimum": -1,
-    ...             "maximum": 1,
-    ...         },
-    ...         ...,
-    ...     ],
-    ...     system_models=[limit_state_example_1, limit_state_example_2]
-    ... )
-    >>> obj.run()
+    See examples in child classes.
     """
 
     def __init__(
@@ -150,7 +136,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self.given_system_variables_setup_function: Callable = system_variables_setup_function
         self.given_system_models: List[Callable] = system_models
         self.given_system_variable_distributions: List[Dict] = system_variable_distributions
-        # TODO Nu Should Klein: I.p.v. dict maak gebruik van Distributie-objecten. Minder fout gevoelig.
+        # TODO Later Should Klein: I.p.v. dict maak gebruik van Distributie-objecten. Minder fout gevoelig.
 
         # Placeholders
         self.project: Optional[ReliabilityProject] = None
@@ -172,11 +158,11 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
     def export_result(self) -> Tuple[List[dict], dict]:
         """
         Split the results from the calculation and convert them to dicts
-        ready to be pickeled.
+        ready to be pickled.
         """
         model_plain = [_design_point_to_plain_live(dp) for dp in self.model_design_points]
         system_plain = _design_point_to_plain_live(self.system_design_point)
-        return (model_plain, system_plain)
+        return model_plain, system_plain
 
     def import_results(self, result: Tuple[List[dict], dict]):
         """

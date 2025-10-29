@@ -1,10 +1,10 @@
-from probabilistic_library import DesignPoint, interface
+from probabilistic_library import DesignPoint
 from geoprob_pipe.calculations.system_calculations.system_base_objects.safe_alpha import SafeAlpha
 
 
 class SafeDesignPoint(DesignPoint):
     """
-    A DesignPoint subclass that is fully interchangeable with the original,
+    A DesignPoint subclass that is fully interchangeable with the original parent,
     but can also exist as a "rebuild" clone purely in python with no c pointers.
     """
 
@@ -18,7 +18,7 @@ class SafeDesignPoint(DesignPoint):
             self._rebuild = False
         else:
             # Create a shell without calling DesignPoint.__init__
-            # because we don't want to allocate a C object.
+            # because we don't want to allocate a C-object.
             self._id = 0
             self._rebuild = True
 
@@ -41,9 +41,7 @@ class SafeDesignPoint(DesignPoint):
         self._total_model_runs_cached = getattr(self, "_total_model_runs_cached", None)
         self._alphas_cached = getattr(self, "_alphas_cached", [])
         self._messages_cached = getattr(self, "_messages_cached", [])
-        self._contributing_design_points_cached = getattr(
-            self, "_contributing_design_points_cached", []
-        )
+        self._contributing_design_points_cached = getattr(self, "_contributing_design_points_cached", [])
 
     # ---------------------------------------------------------------------
     # EXPORT TO PLAIN DICT
@@ -84,9 +82,7 @@ class SafeDesignPoint(DesignPoint):
                 if isinstance(dp, DesignPoint):
                     nested.append(
                         SafeDesignPoint(dp._id).to_plain(
-                            include_nested=True, max_depth=max_depth - 1
-                        )
-                    )
+                            include_nested=True, max_depth=max_depth - 1))
             data["contributing_design_points"] = nested
 
         return data
@@ -108,9 +104,7 @@ class SafeDesignPoint(DesignPoint):
         raw_alphas = data.get("alphas", [])
         dp._alphas_cached = [SafeAlpha.from_plain(a) for a in raw_alphas]
         dp._messages_cached = data.get("messages", [])
-        dp._contributing_design_points_cached = [
-            cls.from_plain(c) for c in data.get("contributing_design_points", [])
-        ]
+        dp._contributing_design_points_cached = [cls.from_plain(c) for c in data.get("contributing_design_points", [])]
         return dp
 
     # ---------------------------------------------------------------------
@@ -192,5 +186,4 @@ class SafeDesignPoint(DesignPoint):
         tag = "[rehydrated]" if getattr(self, "_rebuild", False) else "[live]"
         return (
             f"<SafeDesignPoint {tag} id={getattr(self, '_id', None)} "
-            f"name={self.identifier} β={self.reliability_index} Pf={self.probability_failure}>"
-        )
+            f"name={self.identifier} β={self.reliability_index} Pf={self.probability_failure}>")
