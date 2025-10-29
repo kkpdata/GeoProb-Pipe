@@ -11,16 +11,19 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
-# Worker functie for the paralel processing excecutor.
-# In the worker a single calculation is setup and run based on the inputs.
-# After running the results are split off the calculation,
-# pickeld and send to the main process.
 def _worker(build_input):
-    """Rebuild and run the calculation in the subprocess"""
-    # Split the parameter from the input (Only one argument
-    # can be send to the worker)
+    """
+    Worker function for the paralel preocessing executor.
+    Here a single PipingSystemReliabilityCalculation intance is setup
+    and run. After running the results are split off, converted to a
+    dict and returned to the main process.
+    """
+
+    # Split the parameter from the input
+    # (Only one argument can be send to the worker)
     vak, uittredepunt, ondergrond_scenario, df_settings, df_constants = build_input
     system_builder = PipingSystemBuilder()
+
     # Build the single calculation
     calc: PipingSystemReliabilityCalculation = system_builder.build_single_instance(
         vak=vak,
@@ -30,13 +33,8 @@ def _worker(build_input):
         df_constants=df_constants,
     )
     calc.run()
+    # Convert the results to a dict for pickeling
     result = calc.export_result()
-
-    # Test to make sure al the alpha value are pickeled properly.
-    # To be removed
-    for dp in calc.model_design_points:
-        print(dp.identifier, "live alphas:", len(dp.alphas))
-    print("system live alphas:", len(calc.system_design_point.alphas))
 
     return result
 
@@ -51,7 +49,7 @@ def build_and_run_piping_system_calculations(
 
     system_builder = PipingSystemBuilder()
 
-    # Instead of building full instances here, extract build parameters
+    # extract build parameters to setup single calculation instances
     build_inputs = []
 
     for vak in self.input_data.vakken.values():
@@ -67,11 +65,12 @@ def build_and_run_piping_system_calculations(
             ) as pool:
 
         results = pool.map(_worker, build_inputs)
+
     # Remake the calculation classes for futher use in the code
     calculations = system_builder.build_instances(self.input_data.vakken, df_settings, df_constants)
+
     # Add the results from the worker to the remade calculations
     for result, calculation in zip(results, calculations):
         calculation.import_results(result)
-        print("rehydrated model alphas:", [len(dp.alphas) for dp in calculation.model_design_points])
-        print("rehydrated system alphas:", len(calculation.system_design_point.alphas))
+
     return calculations

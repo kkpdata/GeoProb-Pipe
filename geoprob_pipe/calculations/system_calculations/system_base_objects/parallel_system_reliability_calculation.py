@@ -7,7 +7,7 @@ from geoprob_pipe.calculations.system_calculations.system_base_objects._base_sys
 import logging
 from geoprob_pipe.utils.validation_messages import ValidationMessages
 from typing import Tuple
-from geoprob_pipe.calculations.system_calculations.piping_system.safe_design_point import SafeDesignPoint
+from geoprob_pipe.calculations.system_calculations.system_base_objects.safe_design_point import SafeDesignPoint
 
 
 logger = logging.getLogger("geoprob_pipe_logger")

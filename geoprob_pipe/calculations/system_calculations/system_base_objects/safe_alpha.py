@@ -1,16 +1,12 @@
 import numpy as np
-from probabilistic_library import interface
 from probabilistic_library.reliability import Alpha
-from geoprob_pipe.calculations.system_calculations.piping_system.safe_stochast import SafeStochast
+from geoprob_pipe.calculations.system_calculations.system_base_objects.safe_stochast import SafeStochast
 
 
 def _py(x):
-    # robust cast for numpy types -> Python scalars
-    try:
-        if isinstance(x, (np.floating, np.integer)):
-            return x.item()
-    except Exception:
-        pass
+    """robust cast for numpy types -> Python scalars"""
+    if isinstance(x, (np.floating, np.integer)):
+        return x.item()
     return x
 
 
@@ -18,18 +14,23 @@ class SafeAlpha(Alpha):
     """
     Safe subclass of probabilistic_library.reliability.Alpha
     that can exist in two modes:
-      - Live: full C-backed interface
-      - Rehydrated: pure Python cached data (no C calls)
+      - Live: full C-backed interface as used in probabilistic_library
+      - Rebuild: pure Python cached data which no longer contains any
+        c pointers. Cannot be used to rerun the calculation but can be
+        used in the rest of the code.
+
+    The original Alpha class in probabilistic library cannot be pickeld.
+    Therefore this class functions a "rebuild" clone without any c pointers.
     """
 
-    def __init__(self, *args, _rehydrated=False, **kwargs):
-        if not _rehydrated:
+    def __init__(self, *args, _rebuild=False, **kwargs):
+        if not _rebuild:
             super().__init__(*args, **kwargs)
-            self._rehydrated = False
+            self._rebuild = False
         else:
             # Do not call base __init__ to avoid creating a C object
             self._id = 0
-            self._rehydrated = True
+            self._rebuild = True
             self._variable_cached = None
 
         # Always define all attributes for compatibility
@@ -44,40 +45,24 @@ class SafeAlpha(Alpha):
         self._x_cached = getattr(self, "_x_cached", None)
 
     # -------------------------------------------------------------------------
-    # SAFE DESTRUCTOR
-    # -------------------------------------------------------------------------
-    def __del__(self):
-        try:
-            if getattr(self, "_rehydrated", False):
-                return
-            _id = getattr(self, "_id", 0)
-            if _id:
-                interface.Destroy(_id)
-                self._id = 0
-        except Exception:
-            pass
-
-    # -------------------------------------------------------------------------
     # EXPORT TO PURE PYTHON DICT
     # -------------------------------------------------------------------------
     def to_plain(self) -> dict:
         """Export this Alpha as a pure Python dict (safe for pickling)."""
-        try:
-            var = getattr(self, "variable", None)
-            if var is not None:
-                dist_value = getattr(getattr(var, "distribution", None), "value", None)
-                variable_data = {
-                    "name": getattr(var, "name", None),
-                    "distribution": dist_value,  # <- ensure primitive
-                    "mean": _py(getattr(var, "mean", None)),
-                    "minimum": _py(getattr(var, "minimum", None)),
-                    "maximum": _py(getattr(var, "maximum", None)),
-                    "deviation": _py(getattr(var, "deviation", None)),
-                    "variation": _py(getattr(var, "variation", None)),
-                }
-            else:
-                variable_data = None
-        except Exception:
+
+        var = getattr(self, "variable", None)
+        if var is not None:
+            dist_value = getattr(getattr(var, "distribution", None), "value", None)
+            variable_data = {
+                "name": getattr(var, "name", None),
+                "distribution": dist_value,  # <- ensure primitive
+                "mean": _py(getattr(var, "mean", None)),
+                "minimum": _py(getattr(var, "minimum", None)),
+                "maximum": _py(getattr(var, "maximum", None)),
+                "deviation": _py(getattr(var, "deviation", None)),
+                "variation": _py(getattr(var, "variation", None)),
+            }
+        else:
             variable_data = None
 
         return {
@@ -92,12 +77,12 @@ class SafeAlpha(Alpha):
         }
 
     # -------------------------------------------------------------------------
-    # REHYDRATION FROM PLAIN DICT
+    # REBUILD FROM PLAIN DICT
     # -------------------------------------------------------------------------
     @classmethod
     def from_plain(cls, data: dict):
-        """Rebuild a SafeAlpha from a pure Python dict (no C calls)."""
-        a = cls(_rehydrated=True)
+        """Rebuild a SafeAlpha from a pure Python dict."""
+        a = cls(_rebuild=True)
         a._id = 0
         a._identifier_cached = data.get("identifier")
         a._alpha_cached = data.get("alpha")
@@ -121,50 +106,50 @@ class SafeAlpha(Alpha):
     # -------------------------------------------------------------------------
     @property
     def identifier(self):
-        if getattr(self, "_rehydrated", False):
+        if getattr(self, "_rebuild", False):
             return self._identifier_cached
         return super().identifier
 
     @property
     def alpha(self):
-        if getattr(self, "_rehydrated", False):
+        if getattr(self, "_rebuild", False):
             return self._alpha_cached
         return super().alpha
 
     @property
     def alpha_correlated(self):
-        if getattr(self, "_rehydrated", False):
+        if getattr(self, "_rebuild", False):
             return self._alpha_correlated_cached
         return super().alpha_correlated
 
     @property
     def influence_factor(self):
-        if getattr(self, "_rehydrated", False):
+        if getattr(self, "_rebuild", False):
             return self._influence_factor_cached
         return super().influence_factor
 
     @property
     def index(self):
-        if getattr(self, "_rehydrated", False):
+        if getattr(self, "_rebuild", False):
             return self._index_cached
         return super().index
 
     @property
     def u(self):
-        if getattr(self, "_rehydrated", False):
+        if getattr(self, "_rebuild", False):
             return self._u_cached
         return super().u
 
     @property
     def x(self):
-        if getattr(self, "_rehydrated", False):
+        if getattr(self, "_rebuild", False):
             return self._x_cached
         return super().x
 
     @property
     def variable(self):
-        if getattr(self, "_rehydrated", False):
-            # ✅ Always return a SafeStochast
+        if getattr(self, "_rebuild", False):
+            # Always return a SafeStochast
             var = getattr(self, "_variable_cached", None)
             if isinstance(var, SafeStochast):
                 return var
@@ -181,7 +166,7 @@ class SafeAlpha(Alpha):
         return super().variable
 
     def __repr__(self):
-        tag = "[rehydrated]" if getattr(self, "_rehydrated", False) else "[live]"
+        tag = "[rehydrated]" if getattr(self, "_rebuild", False) else "[live]"
         return (
             f"<SafeAlpha {tag} id={getattr(self, '_id', None)} "
             f"alpha={self.alpha} influence={self.influence_factor}>"

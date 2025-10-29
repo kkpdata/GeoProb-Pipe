@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pandas import DataFrame, concat
-from geoprob_pipe.calculations.system_calculations.piping_system.safe_alpha import SafeAlpha
-from geoprob_pipe.calculations.system_calculations.piping_system.safe_design_point import SafeDesignPoint
+from geoprob_pipe.calculations.system_calculations.system_base_objects.safe_alpha import SafeAlpha
+from geoprob_pipe.calculations.system_calculations.system_base_objects.safe_design_point import SafeDesignPoint
 from geoprob_pipe.calculations.limit_states.piping import z_piping
 from geoprob_pipe.calculations.limit_states.uplift_icw_model4a import z_uplift
 from geoprob_pipe.calculations.limit_states.heave_icw_model4a import z_heave
@@ -13,37 +13,17 @@ if TYPE_CHECKING:
         ParallelSystemReliabilityCalculation)
 
 
-def _extract_physical_values_from_design_point(dp):
-    """
-    Build a dict of {variable_name: physical_value} from the alphas in a (Safe)DesignPoint.
-    """
-    values = {}
-    try:
-        for alpha in getattr(dp, "alphas", []):
-            var = getattr(alpha, "variable", None)
-            if var is None:
-                continue
-
-            var_name = getattr(var, "name", None)
-            var_value = getattr(alpha, "x", None)  # physical realization
-
-            if var_name is not None:
-                values[var_name] = var_value
-    except Exception as e:
-        print(f"Warning: could not extract physical values: {e}")
-
-    return values
-
-
 def _collect_stochast_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
-    """ Collects all Alphas, Influence factors and Physical values of the stochast input parameters. """
+    """
+    Collects all Alphas, Influence factors and Physical values
+    of the stochast input parameters.
+    """
 
     # Create
     def create_df_rows_for_design_point(
             dp: SafeDesignPoint, calc: ParallelSystemReliabilityCalculation
     ) -> List[Dict[str, Union[str, float]]]:
         rows_from_dp = []
-        physical_values = _extract_physical_values_from_design_point(dp)
         for alpha in dp.alphas:
             alpha: SafeAlpha
             rows_from_dp.append({
@@ -56,7 +36,6 @@ def _collect_stochast_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
                 "alpha": alpha.alpha,
                 "influence_factor": alpha.alpha * alpha.alpha,
                 "physical_value": alpha.x,
-                "physical_values": physical_values,
             })
         return rows_from_dp
 
