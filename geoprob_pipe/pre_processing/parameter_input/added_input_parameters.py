@@ -187,7 +187,7 @@ def possibly_initiatie_input_tables_in_db(app_settings: ApplicationSettings):
 
 def load_tables_from_db(app_settings: ApplicationSettings) -> InputParameterTables:
     print(f"{BColors.OKBLUE}load_tables_from_db(){BColors.ENDC}")
-    tables = InputParameterTables(app_settings=app_settings)
+    tables = InputParameterTables(geopackage_filepath=app_settings.geopackage_filepath)
     print(f"{BColors.UNDERLINE}Tables loaded from database{BColors.ENDC}")
     return tables
 
@@ -284,7 +284,7 @@ def export_input_tables_of_db(app_settings: ApplicationSettings, tables: InputPa
     print(f"{BColors.UNDERLINE}Tables exported{BColors.ENDC}")
 
 
-def import_input_tables() -> InputParameterTables:
+def import_input_tables(geopackage_filepath: str) -> InputParameterTables:
     print(f"{BColors.OKBLUE}import_input_tables(){BColors.ENDC}")
 
     filepath: Optional[str] = None
@@ -306,7 +306,7 @@ def import_input_tables() -> InputParameterTables:
 
         filepath_is_valid = True
 
-    tables = InputParameterTables(path_to_excel=filepath)
+    tables = InputParameterTables(path_to_excel=filepath, geopackage_filepath=geopackage_filepath)
     print(f"{BColors.UNDERLINE}Tables imported{BColors.ENDC}")
     return tables
 
@@ -355,7 +355,7 @@ def process_export_input_of_db(app_settings: ApplicationSettings, tables: InputP
 
 
 def process_import_input(app_settings: ApplicationSettings):
-    tables = import_input_tables()
+    tables = import_input_tables(app_settings.geopackage_filepath)
     tables_are_valid = validate_input_tables()
     if tables_are_valid: inquire_if_input_figures_should_be_exported(app_settings=app_settings, tables=tables)
     if tables_are_valid:

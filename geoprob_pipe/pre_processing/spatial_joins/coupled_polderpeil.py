@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 def coupled_polderpeil_to_uittredepunten(app_settings: ApplicationSettings) -> bool:
 
+    # raise NotImplementedError
+
     # Getting necessary GeoDataframes
     gdf_exit_points: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")
     gdf_polderpeil: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="polderpeil")

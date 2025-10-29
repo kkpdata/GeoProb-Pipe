@@ -9,6 +9,8 @@ if TYPE_CHECKING:
 
 
 def coupled_uittredepunten_to_refline(app_settings: ApplicationSettings) -> bool:
+    """ Controleert of de metrering al gekoppeld is aan de uittredepunten. Indien dit niet het geval is, doet deze
+    functie dat automatisch. """
 
     # Read uittredepunten
     gdf_exit_points: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")

@@ -36,6 +36,7 @@ class InputParameterFigures:
 
         # Dataframe parameter invoer
         self.df_parameter_invoer = self.tables.df_parameter_invoer
+        self.df_gis_join_parameter_invoer = self.tables.df_gis_join_parameter_invoer
 
         # Lengte traject
         gpkg_file_path = self.app_settings.geopackage_filepath
@@ -105,7 +106,7 @@ class InputParameterFigures:
         kar95pr_values = []
 
         for index, row in df.iterrows():
-            print(f"{row=}")
+            # print(f"{row=}")
             mean_value = row['mean']
             mean_values.append(mean_value)
             if row['distribution_type'] == 'deterministic':
@@ -130,20 +131,50 @@ class InputParameterFigures:
                 kar95pr_values.append(calc_kar_waarde_normal(mean=mean_value, std=deviation_value, percentiel=0.95))
                 continue
 
-        # mean_values: List[float] = df['mean'].values.tolist()
-        # variation: List = df['variation'].values.tolist()
-        # deviation: List = df['deviation'].values.tolist()
-        #
-        # deviation_values: List[Optional[float]] = []
-        # for mean, var, dev in zip(mean_values, variation, deviation):
-        #     if not np.isnan(dev):
-        #         deviation_values.append(dev)
-        #     elif not np.isnan(var):
-        #         deviation_values.append(mean * var)
-        #     else:
-        #         deviation_values.append(None)
-
         return mean_values, kar5pr_values, kar95pr_values
+
+    def _add_geospatial_level_data(self, fig: go.Figure, parameter_name: str) -> go.Figure:
+        df_filter: DataFrame = self.df_gis_join_parameter_invoer[
+            (self.df_gis_join_parameter_invoer['parameter'] == parameter_name) &
+            (self.df_gis_join_parameter_invoer['scope'] == 'uittredepunt')]
+        show_legend_item_mean = True
+
+        for index, row in df_filter.iterrows():
+            mean, kar_5pr, kar_95pr = self._get_display_values_from_row(row=row)
+            x_value = self.dict_uittredepunten[row['scope_referentie']]['metrering']
+
+            # Add mean
+            fig.add_trace(go.Scatter(
+                x=[x_value],
+                y=[mean],
+                mode='markers',
+                name="Geo-gerefereerd",
+                legendgroup="Geo-gerefereerd",
+                showlegend=show_legend_item_mean,
+                marker=dict(color='rgba(0, 0, 117, 1)', size=10, symbol="circle")))
+            show_legend_item_mean = False
+
+            # Add (possibly) deviation
+            if kar_5pr:
+                fig.add_trace(go.Scatter(
+                    x=[x_value, x_value],
+                    y=[kar_5pr, kar_5pr],
+                    mode='markers',
+                    name="Geo-gerefereerd",
+                    legendgroup="Geo-gerefereerd",
+                    showlegend=False,
+                    marker=dict(color='rgba(0, 0, 117, 1)', size=10, symbol="triangle-up")))
+            if kar_95pr:
+                fig.add_trace(go.Scatter(
+                    x=[x_value, x_value],
+                    y=[kar_95pr, kar_95pr],
+                    mode='markers',
+                    name="Geo-gerefereerd",
+                    legendgroup="Geo-gerefereerd",
+                    showlegend=False,
+                    marker=dict(color='rgba(0, 0, 117, 1)', size=10, symbol="triangle-down")))
+
+        return fig
 
     def _add_traject_level_data(self, fig: go.Figure, parameter_name: str) -> go.Figure:
         df_filter = self.df_parameter_invoer[
@@ -385,13 +416,15 @@ class InputParameterFigures:
 
         # TODO: Overal hovers toepassen
 
-        for parameter_name in self.df_parameter_invoer['parameter'].unique():
+        parameters_to_iterate = self.df_gis_join_parameter_invoer['parameter'].unique().tolist()
+        parameters_to_iterate.extend(self.df_parameter_invoer['parameter'].unique().tolist())
+        for parameter_name in parameters_to_iterate:
 
             # Initiate figure
             fig = go.Figure()
 
             # Add geospatial-level
-            # TODO
+            self._add_geospatial_level_data(fig=fig, parameter_name=parameter_name)
 
             # Add traject-level
             fig = self._add_traject_level_data(fig=fig, parameter_name=parameter_name)
