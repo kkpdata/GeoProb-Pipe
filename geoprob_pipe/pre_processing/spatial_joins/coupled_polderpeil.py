@@ -5,6 +5,8 @@ TODO Nu Must Klein: Voeg laag toe aan GeoPackage met visuele koppeling tussen HR
 from __future__ import annotations
 from geopandas import GeoDataFrame, read_file
 from pathlib import Path
+from pandas import DataFrame
+from geoprob_pipe.pre_processing.spatial_joins.utils import append_to_gis_join_parameter_invoer_table
 from geoprob_pipe.utils.validation_messages import BColors
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -13,7 +15,6 @@ if TYPE_CHECKING:
 
 def coupled_polderpeil_to_uittredepunten(app_settings: ApplicationSettings) -> bool:
 
-    # raise NotImplementedError
 
     # Getting necessary GeoDataframes
     gdf_exit_points: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")
@@ -33,7 +34,16 @@ def coupled_polderpeil_to_uittredepunten(app_settings: ApplicationSettings) -> b
     columns_to_keep.append("polderpeil")
     gdf_new_exit_points = gdf_exit_with_hrd[columns_to_keep]
 
+    # Append to new version of geospatial storage
+    df_to_append: DataFrame = gdf_new_exit_points[["polderpeil", "uittredepunt_id"]]
+    df_to_append = df_to_append.rename(columns={"polderpeil": "mean"})
+    append_to_gis_join_parameter_invoer_table(
+        df_sjoin=df_to_append,
+        parameter_name="polderpeil",
+        geopackage_filepath=app_settings.geopackage_filepath)
+
     # Store back in geopackage
     gdf_new_exit_points.to_file(Path(app_settings.geopackage_filepath), layer="uittredepunten", driver="GPKG")
+    # TODO: Uitfaseren deze oude manier van polderpeil opslaan
     print(BColors.OKBLUE, f"✅  Polderpeil is nu gekoppeld aan de uittredepunten.", BColors.ENDC)
     return True

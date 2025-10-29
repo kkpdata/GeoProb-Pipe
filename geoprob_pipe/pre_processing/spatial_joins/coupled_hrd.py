@@ -35,9 +35,6 @@ def coupled_hrd_to_uittredepunten(app_settings: ApplicationSettings) -> bool:
     append_hrd_to_gis_join_parameter_invoer_table(
         df_sjoin=gdf_new_exit_points[["uittredepunt_id", "hrd_name"]],
         geopackage_filepath=app_settings.geopackage_filepath)
-    print(f"{gdf_new_exit_points.columns=}")
-
-    # raise NotImplementedError
 
     # Store back in geopackage
     gdf_new_exit_points.to_file(Path(app_settings.geopackage_filepath), layer="uittredepunten", driver="GPKG")
