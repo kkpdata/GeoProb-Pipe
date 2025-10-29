@@ -42,6 +42,12 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
         "h_exit": "circle",
         "top_zand": "square"
     }
+    names = {
+        "buitenwaterstand": "Buitenwaterstand",
+        "phi_exit": "Stijghoogte uittredepunt",
+        "h_exit": "Hoogte uittredepunt",
+        "top_zand": "Bovenkant watervoerend pakket"
+    }
 
     # Build one frame per scenario order
     for i, scen_order in enumerate(scenario_orders):
@@ -54,7 +60,7 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
                 x=df_var['M_value'],
                 y=df_var["physical_value"],
                 mode='markers',
-                name=variable,
+                name=names[variable],
                 marker=dict(
                     symbol=symbols[variable],
                     size=5,
@@ -64,6 +70,7 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
             ))
 
         # Button logic
+        # Disapperance of title is a plotly bug
         total_traces = len(scenario_orders) * 4
         vis = [False] * total_traces
         vis[i*4:(i+1)*4] = [True]*4
@@ -73,13 +80,13 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
             method="update",
             args=[
                 {"visible": vis},
-                {"title": f"Phreatic waterline – Scenario {scen_order}"}
+                {"title": f"Phreatic waterline for Scenario {scen_order}"}
             ]
         ))
 
     # Layout and controls
     fig.update_layout(
-        title=f"Phreatic waterline – Scenario {scenario_orders[0]}",
+        title=f"Phreatic waterline for Scenario {scenario_orders[0]}",
         updatemenus=[dict(
             active=0,
             buttons=buttons,
@@ -131,7 +138,7 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
                         x=df_var["M_value"],
                         y=df_var["physical_value"],
                         mode="markers",
-                        name=variable,
+                        name=names[variable],
                         marker=dict(
                             color=colors[variable],
                             symbol=symbols[variable],
@@ -139,7 +146,7 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
                         )
                     ))
                 fig_case.update_layout(
-                    title=f"Phreatic waterline – Scenario {scen_order}",
+                    title=f"Phreatic waterline for Scenario {scen_order}",
                     xaxis_title="Metrering",
                     yaxis_title="Hoogte [m+NAP]",
                     showlegend=True,

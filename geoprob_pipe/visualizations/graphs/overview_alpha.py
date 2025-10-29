@@ -24,6 +24,7 @@ def overview_alpha(geoprob_pipe, export: bool = False):
     )
     scenario_orders = sorted(df["scenario_order"].unique())
 
+    # List of all alphas that can be shown
     parameters = [
         "D_wvp", "L_kwelweg", "L_voorland", "W_voorland", "buitenwaterstand",
         "c_achterland", "c_voorland", "d70", "d_deklaag", "dh_c", "dh_red",
@@ -41,6 +42,7 @@ def overview_alpha(geoprob_pipe, export: bool = False):
         subplot_titles=parameters
     )
 
+    # Add a button for each ondergroundscenario
     buttons = []
 
     # Add scatter plot per scenario
@@ -60,10 +62,14 @@ def overview_alpha(geoprob_pipe, export: bool = False):
                 ),
                 row=row_idx, col=1
             )
-            fig.update_xaxes(showgrid=True, tickangle=90, row=row_idx, col=1)
-            fig.update_yaxes(showgrid=True, title_text=param, row=row_idx, col=1)
+            fig.update_xaxes(showgrid=True, tickangle=90,
+                             row=row_idx, col=1)
+            fig.update_yaxes(showgrid=True, title_text=param,
+                             row=row_idx, col=1)
 
         total_traces = len(scenario_orders) * len(parameters)
+
+        # Determine which scenario is visible
         vis = [False] * total_traces
         vis[i*len(parameters):(i+1)*len(parameters)] = [True] * len(parameters)
 
@@ -76,7 +82,7 @@ def overview_alpha(geoprob_pipe, export: bool = False):
             ]
         ))
 
-    # Layout
+    # Layout and button
     fig.update_layout(
         height=300*len(parameters),
         showlegend=False,
