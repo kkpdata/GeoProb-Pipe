@@ -31,9 +31,18 @@ def _background_graph(
         x_line = np.linspace(df_for_graph['M_van'].min()-10,
                              df_for_graph['M_tot'].max()+10)
 
+    i = 1
     for vak in geoprob_pipe.input_data.vakken:
-        fig.add_vline(x=vak.M_van)
-        fig.add_vline(x=vak.M_tot)
+        fig.add_vline(x=vak.M_van, line_color="black", line_width=1)
+        fig.add_vline(x=vak.M_tot, line_color="black", line_width=1)
+        fig.add_annotation(
+            x=(vak.M_van + vak.M_tot) / 2, y=np.log10(2),
+            text=(f"Vak: {i}"),
+            showarrow=False,
+            xanchor="center",
+            yanchor="bottom",
+            font=dict(color="black"))
+        i += 1
 
     for i, grens in enumerate(cg):
 
@@ -46,7 +55,7 @@ def _background_graph(
             y=[cg[grens][0]] * len(x_line),
             name=grens,
             mode="lines",
-            line=dict(color="black", width=1.5),
+            line=dict(color="black", width=0.5),
             hoverinfo="skip",
             showlegend=False,
         ))
@@ -100,26 +109,26 @@ def beta_scenarios_graph(
 
     # Plot data
     fig = go.Figure()
+    # Background
+    fig = _background_graph(geoprob_pipe, fig, df_for_graph)
+
     fig.add_trace(
         go.Scatter(
             x=df_for_graph['M_value'],
             y=df_for_graph["beta"],
             mode='markers',
-            marker=dict(symbol='diamond', size=3, color='grey'),
+            marker=dict(symbol='diamond', size=3, color='black'),
             name='Beta scenarios',
             showlegend=True
         )
     )
-
-    # Background
-    fig = _background_graph(geoprob_pipe, fig, df_for_graph)
 
     # Layout
     fig.update_layout(
         title="Betrouwbaarheidsindex STPH scenarioberekeningen",
         xaxis=dict(title="Metrering",
                    type='linear',
-                   range=[df_for_graph['M_value'].min()-10,
+                   range=[0,
                           df_for_graph['M_value'].max()+10],
                    showgrid=True,
                    gridwidth=0.5,
@@ -131,10 +140,9 @@ def beta_scenarios_graph(
                    showgrid=True,
                    gridwidth=0.5,
                    gridcolor="gray",
-                   minor=dict(
-                       showgrid=True,
-                       dtick=1
-                       )
+                   tickmode="array",
+                   tickvals=[2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20],
+                   ticktext=[2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20]
                    ),
         showlegend=False,
         )
@@ -149,7 +157,7 @@ def beta_scenarios_graph(
         if geoprob_pipe.software_requirements.chrome_is_installed:
             fig.write_image(os.path.join(export_dir,
                                          "beta_scenarios.png"),
-                            scale=5, format="png",)
+                            scale=5, width=1400, format="png",)
 
     return fig
 
@@ -174,6 +182,8 @@ def beta_uittredepunten_graph(
     )
     # Plot data
     fig = go.Figure()
+    # Background
+    fig = _background_graph(geoprob_pipe, fig, df_for_graph)
 
     fig.add_trace(
         go.Scatter(
@@ -186,15 +196,12 @@ def beta_uittredepunten_graph(
         )
     )
 
-    # Background
-    fig = _background_graph(geoprob_pipe, fig, df_for_graph)
-
     # Layout
     fig.update_layout(
         title="Betrouwbaarheidsindex STPH per uittredepunt",
         xaxis=dict(title="Metrering",
                    type='linear',
-                   range=[df_for_graph['M_value'].min()-10,
+                   range=[0,
                           df_for_graph['M_value'].max()+10],
                    showgrid=True,
                    gridwidth=0.5,
@@ -206,10 +213,9 @@ def beta_uittredepunten_graph(
                    showgrid=True,
                    gridwidth=0.5,
                    gridcolor="gray",
-                   minor=dict(
-                       showgrid=True,
-                       dtick=1
-                       )
+                   tickmode="array",
+                   tickvals=[2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20],
+                   ticktext=[2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20]
                    ),
         showlegend=False,
         )
@@ -224,7 +230,7 @@ def beta_uittredepunten_graph(
         if geoprob_pipe.software_requirements.chrome_is_installed:
             fig.write_image(os.path.join(export_dir,
                                          "beta_uittredepunten.png"),
-                            format="png", scale=5)
+                            format="png", width=1400, scale=5)
 
     return fig
 
@@ -250,30 +256,21 @@ def beta_vakken_graph(
 
     # Plot data
     fig = go.Figure()
+    # Background
+    fig = _background_graph(geoprob_pipe, fig, df_for_graph)
+
     for index, row in df_for_graph.iterrows():
         fig.add_shape(type="line",
                       x0=row["M_van"], x1=row["M_tot"],
                       y0=row["beta"], y1=row["beta"],
                       line=dict(color="black", width=2.5))
 
-        fig.add_annotation(
-            x=(row["M_van"] + row["M_tot"]) / 2, y=np.log10(row["beta"]),
-            text=(f"Vak: {int(row["vak_id"]) + 1}"
-                  + f"<br>β = {row["beta"].round(3)}"),
-            showarrow=False,
-            xanchor="center",
-            yanchor="top",
-            font=dict(color="black"))
-
-    # Background
-    fig = _background_graph(geoprob_pipe, fig, df_for_graph)
-
     # Layout
     fig.update_layout(
         title="Betrouwbaarheidsindex STPH per vak",
         xaxis=dict(title="Metrering",
                    type='linear',
-                   range=[df_for_graph['M_van'].min()-10,
+                   range=[0,
                           df_for_graph['M_tot'].max()+10],
                    showgrid=True,
                    gridwidth=0.5,
@@ -285,10 +282,9 @@ def beta_vakken_graph(
                    showgrid=True,
                    gridwidth=0.5,
                    gridcolor="gray",
-                   minor=dict(
-                       showgrid=True,
-                       dtick=1
-                       )
+                   tickmode="array",
+                   tickvals=[2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20],
+                   ticktext=[2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20]
                    )
         )
 
@@ -301,7 +297,7 @@ def beta_vakken_graph(
         os.makedirs(export_dir, exist_ok=True)
         if geoprob_pipe.software_requirements.chrome_is_installed:
             fig.write_image(os.path.join(export_dir, "beta_vakken.png"),
-                            format="png", scale=5)
+                            format="png", scale=5,  width=1400)
 
     return fig
 
@@ -318,10 +314,10 @@ class GraphBetaValuesSingleInteractive:
         self.M_van = df_uittredepunten['M_value'].min()-10
         self.M_tot = df_uittredepunten['M_value'].max()+10
 
+        self._add_backgrond()
         self._add_beta_per_vak()
         self._add_beta_per_scenario()
         self._add_beta_per_uittredepunt()
-        self._add_backgrond()
         self._update_layout()
         self._optionally_export(export=export)
 
@@ -341,16 +337,6 @@ class GraphBetaValuesSingleInteractive:
                                y0=row["beta"], y1=row["beta"],
                                line=dict(color="grey", width=2.5),
                                )
-
-            self.fig.add_annotation(
-                x=(row["M_van"] + row["M_tot"]) / 2, y=np.log10(row["beta"]),
-                text=(f"Vak: {int(row["vak_id"]) + 1}"
-                      + f"<br>β = {row["beta"].round(3)}"),
-                showarrow=False,
-                xanchor="center",
-                yanchor="top",
-                font=dict(color="black"),
-            )
 
     def _add_beta_per_scenario(self):
 
@@ -411,9 +397,19 @@ class GraphBetaValuesSingleInteractive:
 
         x_line = np.linspace(self.M_van, self.M_tot)
 
+        i = 1
         for vak in self.geoprob_pipe.input_data.vakken:
-            self.fig.add_vline(x=vak.M_van)
-            self.fig.add_vline(x=vak.M_tot)
+            self.fig.add_vline(x=vak.M_van, line_color="black", line_width=1)
+            self.fig.add_vline(x=vak.M_tot, line_color="black", line_width=1)
+            self.fig.add_annotation(
+                x=(vak.M_van + vak.M_tot) / 2, y=np.log10(2),
+                text=(f"Vak: {i}"),
+                showarrow=False,
+                xanchor="center",
+                yanchor="bottom",
+                font=dict(color="black")
+                )
+            i += 1
 
         for i, grens in enumerate(cg):
 
@@ -427,7 +423,7 @@ class GraphBetaValuesSingleInteractive:
                     y=[cg[grens][0]] * len(x_line),
                     name=grens,
                     mode="lines",
-                    line=dict(color="black", width=1.5),
+                    line=dict(color="black", width=0.5),
                     hoverinfo="skip",
                     showlegend=False,
                 )
@@ -464,7 +460,7 @@ class GraphBetaValuesSingleInteractive:
             title="Betrouwbaarheidsindex STPH",
             xaxis=dict(title="Metrering",
                        type='linear',
-                       range=[self.M_van, self.M_tot],
+                       range=[0, self.M_tot],
                        showgrid=True,
                        gridwidth=0.5,
                        gridcolor="gray"
@@ -475,10 +471,9 @@ class GraphBetaValuesSingleInteractive:
                        showgrid=True,
                        gridwidth=0.5,
                        gridcolor="gray",
-                       minor=dict(
-                           showgrid=True,
-                           dtick=1
-                           )
+                       tickmode="array",
+                       tickvals=[2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20],
+                       ticktext=[2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20]
                        ),
             legend=dict(
                 yanchor="top",
@@ -508,4 +503,4 @@ class GraphBetaValuesSingleInteractive:
         if self.geoprob_pipe.software_requirements.chrome_is_installed:
             self.fig.write_image(os.path.join(
                 export_dir, f"{timestamp_str}betrouwbaarheidsindex.png"
-                ), format="png", scale=5)
+                ), format="png", scale=5,  width=1400)
