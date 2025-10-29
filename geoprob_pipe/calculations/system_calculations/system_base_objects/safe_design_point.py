@@ -44,50 +44,6 @@ class SafeDesignPoint(DesignPoint):
         self._contributing_design_points_cached = getattr(self, "_contributing_design_points_cached", [])
 
     # ---------------------------------------------------------------------
-    # EXPORT TO PLAIN DICT
-    # ---------------------------------------------------------------------
-    def to_plain(self, include_nested=False, max_depth=1) -> dict:
-        """Export this SafeDesignPoint and its alphas as pure Python data."""
-        data = {}
-
-        data["identifier"] = self.identifier
-        data["reliability_index"] = self.reliability_index
-        data["probability_failure"] = self.probability_failure
-        data["convergence"] = self.convergence
-        data["is_converged"] = self.is_converged
-        data["total_directions"] = self.total_directions
-        data["total_iterations"] = self.total_iterations
-        data["total_model_runs"] = self.total_model_runs
-
-        # ----------------------------------------------------------------------
-        # Export complete alpha (including variable distribution)
-        # ----------------------------------------------------------------------
-        data["alphas"] = []
-
-        for a in getattr(self, "alphas", []):
-            data["alphas"].append(a.to_plain())
-
-        # ----------------------------------------------------------------------
-        # Messages (optional diagnostics)
-        # ----------------------------------------------------------------------
-        data["messages"] = []
-
-        for m in getattr(self, "messages", []):
-            data["messages"].append(str(m))
-
-        if include_nested and max_depth > 0:
-            nested = []
-
-            for dp in getattr(self, "contributing_design_points", []):
-                if isinstance(dp, DesignPoint):
-                    nested.append(
-                        SafeDesignPoint(dp._id).to_plain(
-                            include_nested=True, max_depth=max_depth - 1))
-            data["contributing_design_points"] = nested
-
-        return data
-
-    # ---------------------------------------------------------------------
     # REBUILD FROM DICT
     # ---------------------------------------------------------------------
     @classmethod
@@ -104,7 +60,10 @@ class SafeDesignPoint(DesignPoint):
         raw_alphas = data.get("alphas", [])
         dp._alphas_cached = [SafeAlpha.from_plain(a) for a in raw_alphas]
         dp._messages_cached = data.get("messages", [])
-        dp._contributing_design_points_cached = [cls.from_plain(c) for c in data.get("contributing_design_points", [])]
+        dp._contributing_design_points_cached = [
+            cls.from_plain(c) for c
+            in data.get("contributing_design_points", [])
+            ]
         return dp
 
     # ---------------------------------------------------------------------

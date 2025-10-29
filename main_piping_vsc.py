@@ -4,7 +4,7 @@ Project-object directly outside the repository. """
 import sys
 # add the "scr" directory to the system path
 repo_root = r"C:\Users\vinji\Python\GEOprob-Pipe\GeoProb-Pipe"
-sys.path.append(repo_root) 
+sys.path.append(repo_root)
 
 from geoprob_pipe import GeoProbPipe
 from dotenv import load_dotenv

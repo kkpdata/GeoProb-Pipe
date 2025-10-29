@@ -1,13 +1,5 @@
-import numpy as np
 from probabilistic_library.reliability import Alpha
 from geoprob_pipe.calculations.system_calculations.system_base_objects.safe_stochast import SafeStochast
-
-
-def _py(x):
-    """robust cast for numpy types -> Python scalars"""
-    if isinstance(x, (np.floating, np.integer)):
-        return x.item()
-    return x
 
 
 class SafeAlpha(Alpha):
@@ -43,38 +35,6 @@ class SafeAlpha(Alpha):
         self._index_cached = getattr(self, "_index_cached", None)
         self._u_cached = getattr(self, "_u_cached", None)
         self._x_cached = getattr(self, "_x_cached", None)
-
-    # -------------------------------------------------------------------------
-    # EXPORT TO PURE PYTHON DICT
-    # -------------------------------------------------------------------------
-    def to_plain(self) -> dict:
-        """Export this Alpha as a pure Python dict (safe for pickling)."""
-
-        var = getattr(self, "variable", None)
-        if var is not None:
-            dist_value = getattr(getattr(var, "distribution", None), "value", None)
-            variable_data = {
-                "name": getattr(var, "name", None),
-                "distribution": dist_value,  # <- ensure primitive
-                "mean": _py(getattr(var, "mean", None)),
-                "minimum": _py(getattr(var, "minimum", None)),
-                "maximum": _py(getattr(var, "maximum", None)),
-                "deviation": _py(getattr(var, "deviation", None)),
-                "variation": _py(getattr(var, "variation", None)),
-            }
-        else:
-            variable_data = None
-
-        return {
-            "identifier": getattr(self, "identifier", None),
-            "alpha": _py(getattr(self, "alpha", None)),
-            "alpha_correlated": _py(getattr(self, "alpha_correlated", None)),
-            "influence_factor": _py(getattr(self, "influence_factor", None)),
-            "index": _py(getattr(self, "index", None)),
-            "u": _py(getattr(self, "u", None)),
-            "x": _py(getattr(self, "x", None)),
-            "variable": variable_data,
-        }
 
     # -------------------------------------------------------------------------
     # REBUILD FROM PLAIN DICT

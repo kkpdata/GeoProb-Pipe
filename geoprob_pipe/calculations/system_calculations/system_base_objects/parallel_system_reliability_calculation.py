@@ -8,13 +8,24 @@ import logging
 from geoprob_pipe.utils.validation_messages import ValidationMessages
 from typing import Tuple
 from geoprob_pipe.calculations.system_calculations.system_base_objects.safe_design_point import SafeDesignPoint
-
+import numpy as np
 
 logger = logging.getLogger("geoprob_pipe_logger")
 
 
+def _py(x):
+    """robust cast for numpy types -> Python scalars"""
+    if isinstance(x, (np.floating, np.integer)):
+        return x.item()
+
+    return x
+
+
 def _alpha_to_plain_live(alpha) -> dict:
-    """Read Alpha directly from the live object."""
+    """
+    Read Alpha directly from the live object and
+    covert it to a dict ready to be pickeld.
+    """
     var = getattr(alpha, "variable", None)
     if var is not None:
         var_plain = {
@@ -30,15 +41,6 @@ def _alpha_to_plain_live(alpha) -> dict:
     else:
         var_plain = None
 
-    def _py(x):
-        try:
-            import numpy as np
-            if isinstance(x, (np.floating, np.integer)):
-                return x.item()
-        except Exception:
-            pass
-        return x
-
     return {
         "identifier": getattr(alpha, "identifier", None),
         "alpha": _py(getattr(alpha, "alpha", None)),
@@ -52,15 +54,10 @@ def _alpha_to_plain_live(alpha) -> dict:
 
 
 def _design_point_to_plain_live(dp) -> dict:
-    """Read a DesignPoint directly from the live object, including alphas."""
-    def _py(x):
-        try:
-            import numpy as np
-            if isinstance(x, (np.floating, np.integer)):
-                return x.item()
-        except Exception:
-            pass
-        return x
+    """
+    Read a DesignPoint directly from the live object, including alphas.
+    And covert it to a dict ready to be pickeld incuding the alphas.
+    """
 
     data = {
         "identifier": getattr(dp, "identifier", None),
@@ -76,21 +73,17 @@ def _design_point_to_plain_live(dp) -> dict:
         "contributing_design_points": [],   # add if you need nested
     }
 
-    # ✅ pull live alphas right now
-    try:
-        for a in getattr(dp, "alphas", []):
-            data["alphas"].append(_alpha_to_plain_live(a))
-    except Exception:
-        pass
+    # pull live alphas right now
+
+    for a in getattr(dp, "alphas", []):
+        data["alphas"].append(_alpha_to_plain_live(a))
 
     # optional: messages
-    try:
-        msgs = []
-        for m in getattr(dp, "messages", []):
-            msgs.append(str(m))
-        data["messages"] = msgs
-    except Exception:
-        pass
+
+    msgs = []
+    for m in getattr(dp, "messages", []):
+        msgs.append(str(m))
+    data["messages"] = msgs
 
     return data
 
@@ -166,7 +159,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
 
     def import_results(self, result: Tuple[List[dict], dict]):
         """
-        Add the results into the class after rehydrating.
+        Add the results into the class after rebuilding.
         """
         model_plain_list, system_plain = result
         self.model_design_points = [SafeDesignPoint.from_plain(dp) for dp in model_plain_list]
@@ -263,4 +256,3 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
 
 def _system_variable_keys(self: ParallelSystemReliabilityCalculation) -> List[str]:
     return [item['name'] for item in self.given_system_variable_distributions]
-
