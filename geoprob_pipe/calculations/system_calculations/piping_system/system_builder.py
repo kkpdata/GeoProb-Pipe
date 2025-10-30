@@ -66,6 +66,9 @@ class PipingSystemBuilder(BaseSystemBuilder):
             df_settings: DataFrame,
             df_constants: DataFrame,
             ):
+        """Build a single instance of PipingSystemReliabilityCalculation
+        for use inside of the wworker function.
+        """
         project_settings = self.construct_project_settings(df_settings=df_settings)
         calc = PipingSystemReliabilityCalculation(
                         system_variable_distributions=self.construct_system_variable_distributions(

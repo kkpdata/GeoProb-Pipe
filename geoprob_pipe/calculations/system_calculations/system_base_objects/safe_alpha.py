@@ -40,7 +40,7 @@ class SafeAlpha(Alpha):
     # SAFE DESTRUCTOR
     # -------------------------------------------------------------------------
     def __del__(self):
-        if getattr(self, "_rehydrated", False):
+        if getattr(self, "_rebuild", False):
             return
         _id = getattr(self, "_id", 0)
         if _id:
