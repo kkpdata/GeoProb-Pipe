@@ -7,6 +7,7 @@ from typing import Optional, Dict, Tuple, List
 from geopandas import GeoDataFrame, read_file
 from geoprob_pipe.utils.statistics import calc_kar_waarde_lognormal, calc_kar_waarde_normal
 import plotly.graph_objects as go
+from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
     from geoprob_pipe.pre_processing.parameter_input.input_parameter_tables import InputParameterTables
@@ -469,3 +470,7 @@ class InputParameterFigures:
             if self.export:
                 export_path = os.path.join(export_dir, f"parameter_invoer_{parameter_name}.html")
                 fig.write_html(export_path, include_plotlyjs='cdn')
+
+        if self.export:
+            print(f"{BColors.UNDERLINE}Overzichtsfiguren van de invoertabellen zijn geëxporteerd naar:\n"
+                  f"{export_dir}{BColors.ENDC}")

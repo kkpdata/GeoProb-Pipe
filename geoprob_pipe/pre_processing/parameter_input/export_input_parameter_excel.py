@@ -9,6 +9,7 @@ from datetime import datetime
 import importlib.resources
 from typing import TYPE_CHECKING
 from geoprob_pipe.calculations.system_calculations import SYSTEM_CALCULATION_MAPPER
+from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
     from geoprob_pipe.pre_processing.parameter_input.input_parameter_tables import InputParameterTables
@@ -85,5 +86,5 @@ def export_input_parameter_tables(app_settings: ApplicationSettings, tables: Inp
         df_fragility_values_invoer.to_excel(
             writer, sheet_name="Fragility values", index=False, header=False, startrow=4, startcol=0)
 
-    print(f"Exporteren van invoer Excel compleet:\n"
-          f"{dst_path}")
+    print(f"{BColors.UNDERLINE}Exporteren van invoer tabellen compleet:\n"
+          f"{dst_path}{BColors.ENDC}")

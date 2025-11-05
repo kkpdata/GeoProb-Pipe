@@ -164,7 +164,7 @@ if TYPE_CHECKING:
 
 
 def possibly_initiatie_input_tables_in_db(app_settings: ApplicationSettings):
-    print(f"{BColors.OKBLUE}possibly_initiatie_input_tables_in_db(){BColors.ENDC}")
+    # print(f"{BColors.OKBLUE}possibly_initiatie_input_tables_in_db(){BColors.ENDC}")
 
     # Get table names
     conn = sqlite3.connect(app_settings.geopackage_filepath)
@@ -176,36 +176,32 @@ def possibly_initiatie_input_tables_in_db(app_settings: ApplicationSettings):
     # If already exist
     if ("parameter_invoer" in tables_names and
             "scenario_invoer" in tables_names and "fragility_values_invoer" in tables_names):
-        print(f"{BColors.UNDERLINE}Tables already exist in geopackage{BColors.ENDC}")
+        # print(f"{BColors.UNDERLINE}Tables already exist in geopackage{BColors.ENDC}")
         return
 
     # If it doesn't exist yet
-    print(f"{BColors.UNDERLINE}Tables do not yet exist in geopackage{BColors.ENDC}")
+    # print(f"{BColors.UNDERLINE}Tables do not yet exist in geopackage{BColors.ENDC}")
     initiate_input_excel_tables(app_settings=app_settings)
-    print(f"{BColors.UNDERLINE}Tables initiated in geopackage{BColors.ENDC}")
+    print(f"{BColors.UNDERLINE}Basis invoer tabellen zijn nu geïnitieerd in het GeoProb-Pipe-bestand. Deze kun je naar "
+          f"wens aanpassen in het vervolgproces.{BColors.ENDC}")
 
 
 def load_tables_from_db(app_settings: ApplicationSettings) -> InputParameterTables:
-    print(f"{BColors.OKBLUE}load_tables_from_db(){BColors.ENDC}")
     tables = InputParameterTables(geopackage_filepath=app_settings.geopackage_filepath)
-    print(f"{BColors.UNDERLINE}Tables loaded from database{BColors.ENDC}")
     return tables
 
 
-def validate_input_tables(
+def validate_raw_input_tables(
         # app_settings: ApplicationSettings, tables: InputParameterTables
 ) -> bool:
-    print(f"{BColors.OKBLUE}validate_input_tables(){BColors.ENDC}")
     valid: bool = True  # TODO
     if not valid:
         print(f"Input Excel tables are not valid. Validation messages are exported to \n"
               f"TODO")  # TODO: Specify path to exported validation messages.
-    print(f"{BColors.UNDERLINE}Validation of tables executed: {valid=}{BColors.ENDC}")
     return valid
 
 
 def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSettings, tables: InputParameterTables):
-    print(f"{BColors.OKBLUE}inquire_if_input_figures_should_be_exported(){BColors.ENDC}")
     choices_list = [
         "Ja",
         "Nee",
@@ -221,7 +217,6 @@ def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSetting
 
     if choice == choices_list[0]:
         InputParameterFigures(app_settings=app_settings, tables=tables, export=True)
-        print(f"{BColors.UNDERLINE}Parameter figures exported{BColors.ENDC}")
     elif choice == choices_list[1]:
         pass  # Just continue
     elif choice == choices_list[2]:
@@ -231,45 +226,74 @@ def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSetting
 
 
 def expand_input_tables() -> float:
-    print(f"{BColors.OKBLUE}expand_input_tables(){BColors.ENDC}")
-    print(f"{BColors.UNDERLINE}Tables expanded{BColors.ENDC}")
     return 1.0  # TODO
 
 
-def validate_expanded_input_tables(expanded_tables: float) -> bool:
-    print(f"{BColors.OKBLUE}validate_expanded_input_tables(){BColors.ENDC}")
+def validate_expanded_input_tables() -> bool:
+    # expanded_tables = expand_input_tables()
     valid: bool = True  # TODO
-    print(f"{BColors.UNDERLINE}Expanded validated: {valid=} {expanded_tables}{BColors.ENDC}")
     return valid
 
 
-def inquire_to_import_export_or_continue(
-        app_settings: ApplicationSettings, tables: InputParameterTables, tables_are_valid: bool):
-    print(f"{BColors.OKBLUE}inquire_to_import_export_or_continue(){BColors.ENDC}")
+def inquire_to_import_export_tables_and_figures_or_continue(
+        app_settings: ApplicationSettings, tables: InputParameterTables,
+        validity_raw_tables: bool, validity_extended_tables: bool
+):
 
+    # Determine options
     choices_list = []
-    if tables_are_valid:
-        choices_list = ["Ga door naar volgende stap"]
-
+    if validity_raw_tables and validity_extended_tables:
+        choices_list.append("Invoer tabellen zijn naar wens, ga door naar volgende stap")
+    else:
+        choices_list.append("Invoer tabellen zijn naar wens, ga door naar volgende stap (n.v.t. -> invoer niet valide)")
+    if validity_raw_tables:
+        choices_list.append("Overzichtsfiguren van invoertabellen: Exporteren")
     choices_list.extend([
-        "Invoer tabellen importeren (vanuit Excel)",
-        "Invoer tabellen exporteren (naar Excel)",
+        "Invoer tabellen: Importeren vanuit Excel",
+        "Invoer tabellen: Exporteren naar Excel",
+        "Toelichting per keuze optie",
         "Applicatie afsluiten"])
+
+    # Provide user options
     choice = inquirer.select(
-        message="Wil je de tabellen exporteren (vanuit de GeoPackage)? Of een nieuwe versie importeren?\n"
-                "Na exporteren kun je de invoer naar smaak aanpassen en weer importeren.",
+        message="Maak een keuze voor het gereedmaken van de invoertabellen.",
         choices=choices_list,
         default=choices_list[0],
     ).execute()
 
-    if choice == "Ga door naar volgende stap":
+    if choice == "Invoer tabellen zijn naar wens, ga door naar volgende stap":
         raise NotImplementedError(f"Volgende stap nog te implementeren")
 
-    elif choice == "Invoer tabellen importeren (vanuit Excel)":
+    elif choice == "Invoer tabellen zijn naar wens, ga door naar volgende stap (n.v.t. -> invoer niet valide)":
+        inquire_to_import_export_tables_and_figures_or_continue(
+            app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+            validity_extended_tables=validity_extended_tables)
+
+    elif choice == "Overzichtsfiguren van invoertabellen: Exporteren":
+        InputParameterFigures(app_settings=app_settings, tables=tables, export=True)
+        inquire_to_import_export_tables_and_figures_or_continue(
+            app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+            validity_extended_tables=validity_extended_tables)
+
+    elif choice == "Invoer tabellen: Importeren vanuit Excel":
         process_import_input(app_settings=app_settings)
 
-    elif choice == "Invoer tabellen exporteren (naar Excel)":
-        process_export_input_of_db(app_settings=app_settings, tables=tables, tables_are_valid=tables_are_valid)
+    elif choice == "Invoer tabellen: Exporteren naar Excel":
+        process_export_input_of_db(
+            app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+            validity_extended_tables=validity_extended_tables)
+
+    elif choice == "Toelichting per keuze optie":
+        print("""
+Invoer tabellen zijn naar wens, ga door naar volgende stap  ->  Indien je deze keuzemogelijkheid krijgt zijn de invoertabellen valide en kun je door naar de volgende stap.
+                                                                Je zegt daarmee eveneens dat de invoertabellen naar wens zijn. 
+Overzichtsfiguren van invoertabellen: Exporteren            ->  Deze interactive HTML-figuren geven je per parameter een snel visueel overzicht van de invoer in het GeoProb-Pipe-bestand. 
+Invoer tabellen: Importeren vanuit Excel                    ->  Importeer vanuit Excel de invoertabellen om ze te laten valideren, visualiseren en/of op te slaan in het GeoProb-Pipe-bestand. 
+Invoer tabellen: Exporteren naar Excel                      ->  Exporteer vanuit het GeoProb-Pipe-bestand de invoertabellen om ze in Excel te bekijken en/of verder aan te vullen. 
+        """)
+        inquire_to_import_export_tables_and_figures_or_continue(
+            app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+            validity_extended_tables=validity_extended_tables)
 
     elif choice == "Applicatie afsluiten":
         sys.exit(f"Applicatie is afgesloten.")
@@ -279,13 +303,10 @@ def inquire_to_import_export_or_continue(
 
 
 def export_input_tables_of_db(app_settings: ApplicationSettings, tables: InputParameterTables):
-    print(f"{BColors.OKBLUE}export_input_tables_of_db(){BColors.ENDC}")
     export_input_parameter_tables(app_settings=app_settings, tables=tables)
-    print(f"{BColors.UNDERLINE}Tables exported{BColors.ENDC}")
 
 
 def import_input_tables(geopackage_filepath: str) -> InputParameterTables:
-    print(f"{BColors.OKBLUE}import_input_tables(){BColors.ENDC}")
 
     filepath: Optional[str] = None
     filepath_is_valid = False
@@ -307,12 +328,12 @@ def import_input_tables(geopackage_filepath: str) -> InputParameterTables:
         filepath_is_valid = True
 
     tables = InputParameterTables(path_to_excel=filepath, geopackage_filepath=geopackage_filepath)
-    print(f"{BColors.UNDERLINE}Tables imported{BColors.ENDC}")
+    print(f"{BColors.UNDERLINE}Tabellen zijn nu geïmporteerd.{BColors.ENDC}")
     return tables
 
 
-def inquire_to_store_input_tables_to_db(app_settings: ApplicationSettings, tables: InputParameterTables):
-    print(f"{BColors.OKBLUE}inquire_to_store_input_tables_to_db(){BColors.ENDC}")
+def inquire_to_store_input_tables_to_db(
+        app_settings: ApplicationSettings, tables: InputParameterTables):
 
     choices_list = ["Ja", "Nee"]
     choice = inquirer.select(
@@ -321,15 +342,17 @@ def inquire_to_store_input_tables_to_db(app_settings: ApplicationSettings, table
         default=choices_list[0],
     ).execute()
 
-    if choice == choices_list[0]:
+    if choice == "Ja":
         conn = sqlite3.connect(app_settings.geopackage_filepath)
         tables.df_scenario_invoer.to_sql("scenario_invoer", conn, if_exists="replace", index=False)
         tables.df_parameter_invoer.to_sql("parameter_invoer", conn, if_exists="replace", index=False)
         tables.df_fragility_values_invoer.to_sql("fragility_values_invoer", conn, if_exists="replace", index=False)
         conn.close()
-        print(f"{BColors.UNDERLINE}Tables stored in GeoProb-Pipe-file.{BColors.ENDC}")
-    elif choice == choices_list[1]:
+        print(f"{BColors.UNDERLINE}Tabellen zijn nu opgeslagen in het GeoProb-Pipe-file.{BColors.ENDC}")
+
+    elif choice == "Nee":
         pass  # Just continue
+
     else:
         raise ValueError
 
@@ -337,33 +360,49 @@ def inquire_to_store_input_tables_to_db(app_settings: ApplicationSettings, table
 def process_input_exist_in_db(app_settings: ApplicationSettings):
     possibly_initiatie_input_tables_in_db(app_settings=app_settings)
     tables: InputParameterTables = load_tables_from_db(app_settings=app_settings)
-    tables_are_valid = validate_input_tables()
-    if tables_are_valid: inquire_if_input_figures_should_be_exported(app_settings=app_settings, tables=tables)
-    if tables_are_valid:
-        expanded_tables = expand_input_tables()
-        tables_are_valid = validate_expanded_input_tables(expanded_tables=expanded_tables)
-    inquire_to_import_export_or_continue(
-        app_settings=app_settings, tables=tables, tables_are_valid=tables_are_valid)
+
+    # Validate raw tables
+    validity_raw_tables = validate_raw_input_tables()
+
+    # Validate expanded tables
+    validity_extended_tables: Optional[bool] = None
+    if validity_raw_tables: validity_extended_tables = validate_expanded_input_tables()
+
+    # Provide user with follow-up options
+    inquire_to_import_export_tables_and_figures_or_continue(
+        app_settings=app_settings, tables=tables,
+        validity_raw_tables=validity_raw_tables, validity_extended_tables=validity_extended_tables)
     # -> Redirects also to new process loop
 
 
-def process_export_input_of_db(app_settings: ApplicationSettings, tables: InputParameterTables, tables_are_valid: bool):
+def process_export_input_of_db(
+        app_settings: ApplicationSettings, tables: InputParameterTables,
+        validity_raw_tables: bool, validity_extended_tables: bool):
     export_input_tables_of_db(app_settings=app_settings, tables=tables)
-    inquire_to_import_export_or_continue(
-        app_settings=app_settings, tables=tables, tables_are_valid=tables_are_valid)
+    inquire_to_import_export_tables_and_figures_or_continue(
+        app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+        validity_extended_tables=validity_extended_tables)
     # -> Redirects also to new process loop
 
 
 def process_import_input(app_settings: ApplicationSettings):
-    tables = import_input_tables(app_settings.geopackage_filepath)
-    tables_are_valid = validate_input_tables()
-    if tables_are_valid: inquire_if_input_figures_should_be_exported(app_settings=app_settings, tables=tables)
-    if tables_are_valid:
-        expanded_tables = expand_input_tables()
-        tables_are_valid = validate_expanded_input_tables(expanded_tables=expanded_tables)
+    tables = import_input_tables(app_settings.geopackage_filepath)  # Asks user for path to input-file
+
+    # Validate raw tables
+    validity_raw_tables = validate_raw_input_tables()
+
+    # Ask to export overview pictures
+    if validity_raw_tables: inquire_if_input_figures_should_be_exported(app_settings=app_settings, tables=tables)
+
+    # Validate expanded tables
+    validity_extended_tables: Optional[bool] = None
+    if validity_extended_tables: validity_extended_tables = validate_expanded_input_tables()
+
+    # Provide user with follow-up options
     inquire_to_store_input_tables_to_db(app_settings=app_settings, tables=tables)
-    inquire_to_import_export_or_continue(
-        app_settings=app_settings, tables=tables, tables_are_valid=tables_are_valid)
+    inquire_to_import_export_tables_and_figures_or_continue(
+        app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+        validity_extended_tables=validity_extended_tables)
     # -> Redirects also to new process loop
 
 

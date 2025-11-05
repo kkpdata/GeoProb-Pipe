@@ -109,7 +109,8 @@ def _gather_required_input_parameters(geopackage_filepath: str) -> List[str]:
     #     if param.default == inspect.Parameter.empty and param.kind in (param.POSITIONAL_OR_KEYWORD, param.KEYWORD_ONLY)
     # ]
 
-    return ["mv_exit", "gamma_sat_deklaag"]  # TODO
+    # return ["mv_exit", "gamma_sat_deklaag"]  # TODO
+    return ["gamma_sat_deklaag"]  # TODO
 
 
 def _expand(df_parameter_invoer_combined: DataFrame, df_identifiers: DataFrame, geopackage_filepath: str) -> Dict[str, DataFrame]:
@@ -163,9 +164,11 @@ def _expand(df_parameter_invoer_combined: DataFrame, df_identifiers: DataFrame, 
             (df_parameter_invoer_combined['parameter'] == parameter_name) &
             (df_parameter_invoer_combined['scope'] == 'gis_uittredepunt')]
         df_gather = df_gather[["scope_referentie", "parameter_input"]]
-        df = df_identifiers.copy(deep=True).merge(
-            df_gather, how="left", left_on="uittredepunt_id", right_on="scope_referentie")
-        df = df.drop(columns=["scope_referentie"])
+        df['parameter_input'] = df['parameter_input'].combine_first(
+            df_identifiers.copy(deep=True).merge(df_gather, on=["uittredepunt_id"], how="left")['parameter_input'])
+        # df = df_identifiers.copy(deep=True).merge(
+        #     df_gather, how="left", left_on="uittredepunt_id", right_on="scope_referentie")
+        # df = df.drop(columns=["scope_referentie"])
 
         # Add to collection
         collection_of_dfs[parameter_name] = df
@@ -188,9 +191,7 @@ df_parameter_invoer_combined = _add_fragility_values_to_combined_parameter_invoe
 df_parameter_invoer_combined = _collect_right_columns_combined_parameter_invoer(
     df_parameter_invoer_combined=df_parameter_invoer_combined)
 
-df_tmp = df_parameter_invoer_combined[df_parameter_invoer_combined["parameter"] == "mv_exit"].copy(deep=True)
-
-##
+df_tmp = df_parameter_invoer_combined[df_parameter_invoer_combined["parameter"] == "gamma_sat_deklaag"].copy(deep=True)
 
 # Expand
 collection: Dict[str, DataFrame] = _expand(
@@ -199,5 +200,3 @@ collection: Dict[str, DataFrame] = _expand(
     geopackage_filepath=geopackage_filepath)
 
     # return DataFrame()  # TODO: Merge collection retrieved from the above expansion
-
-
