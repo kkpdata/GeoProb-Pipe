@@ -7,7 +7,9 @@ from geoprob_pipe.calculations.system_calculations import SYSTEM_CALCULATION_MAP
 from geoprob_pipe.pre_processing.parameter_input.input_parameter_tables import InputParameterTables
 
 
-def _combine_parameter_invoer_sources(tables: InputParameterTables):
+def _combine_parameter_invoer_sources(tables: InputParameterTables) -> DataFrame:
+    """ Combineert de geo-gerefereerde parameter invoer met de handmatige invoer die oorspronkelijk uit de Excel kwam.
+    Zodoende kan vanuit één dataframe de invoer geëxplodeerd worden naar invoer per uittredepunt. """
 
     # Gather raw data
     df_gis_join_parameter_invoer = tables.df_gis_join_parameter_invoer
@@ -18,12 +20,15 @@ def _combine_parameter_invoer_sources(tables: InputParameterTables):
     import warnings
     with warnings.catch_warnings():
         warnings.simplefilter(action='ignore', category=FutureWarning)
-        df_parameter_invoer_combined = concat([df_gis_join_parameter_invoer, df_parameter_invoer], ignore_index=True)
+        df_parameter_invoer_combined = concat(
+            [df_gis_join_parameter_invoer, df_parameter_invoer], ignore_index=True)
 
     return df_parameter_invoer_combined
 
 
 def _add_fragility_values_to_combined_parameter_invoer(df_parameter_invoer_combined: DataFrame) -> DataFrame:
+    """ Haalt uit de fragility values Excel de arrays op en vervang in de df_parameter_invoer_combined de referentie
+    met de daadwerkelijke fragility values. """
 
     df = df_parameter_invoer_combined.copy(deep=True)
 
@@ -48,7 +53,8 @@ def _add_fragility_values_to_combined_parameter_invoer(df_parameter_invoer_combi
 
 
 def _collect_right_columns_combined_parameter_invoer(df_parameter_invoer_combined: DataFrame) -> DataFrame:
-    """ Parameter tabel omzetten naar juiste kolom onderdelen """
+    """ Parameter tabel omzetten naar juiste kolommen. Enkel per uittredepunt, scenario en parameter de
+    parameterinvoer. """
 
     # Add parameter invoer: op uittredepunten niveau
     df_parameter_invoer_combined = df_parameter_invoer_combined.drop(columns=["bronnen", "opmerking"])
@@ -92,8 +98,8 @@ def _gather_required_input_parameters(geopackage_filepath: str) -> List[str]:
     df_dummy_data = DataFrame(SYSTEM_CALCULATION_MAPPER[model_string]['dummy_invoer'])
 
     _ = df_dummy_data.sort_values(by=["name"])
-    # df_dummy_data = df_dummy_data.sort_values(by=["name"])
-    # return df_dummy_data['name'].unique().tolist()
+    df_dummy_data = df_dummy_data.sort_values(by=["name"])
+    return df_dummy_data['name'].unique().tolist()
     # TODO: Return this to use in iteration to retrieve data
 
     # Method to use the system_function. Not necessary because of the dummy input. But for now kept.
@@ -110,7 +116,7 @@ def _gather_required_input_parameters(geopackage_filepath: str) -> List[str]:
     # ]
 
     # return ["mv_exit", "gamma_sat_deklaag"]  # TODO
-    return ["gamma_sat_deklaag"]  # TODO
+    # return ["gamma_sat_deklaag"]  # TODO
 
 
 def _expand(df_parameter_invoer_combined: DataFrame, df_identifiers: DataFrame, geopackage_filepath: str) -> Dict[str, DataFrame]:
@@ -162,8 +168,9 @@ def _expand(df_parameter_invoer_combined: DataFrame, df_identifiers: DataFrame, 
         # GIS spatial joins
         df_gather = df_parameter_invoer_combined[
             (df_parameter_invoer_combined['parameter'] == parameter_name) &
-            (df_parameter_invoer_combined['scope'] == 'gis_uittredepunt')]
+            (df_parameter_invoer_combined['scope'] == 'gis_uittredepunt')].copy(deep=True)
         df_gather = df_gather[["scope_referentie", "parameter_input"]]
+        df_gather = df_gather.rename(columns={"scope_referentie": "uittredepunt_id"})
         df['parameter_input'] = df['parameter_input'].combine_first(
             df_identifiers.copy(deep=True).merge(df_gather, on=["uittredepunt_id"], how="left")['parameter_input'])
         # df = df_identifiers.copy(deep=True).merge(
@@ -175,6 +182,13 @@ def _expand(df_parameter_invoer_combined: DataFrame, df_identifiers: DataFrame, 
 
     return collection_of_dfs
 
+
+def _concat_collection(collection: Dict[str, DataFrame]):
+    for parameter_name, df in collection.items():
+        collection[parameter_name]['parameter_name'] = parameter_name
+    return_df = concat([df for _, df in collection.items()], ignore_index=True)
+    return_df = return_df.rename(columns={"naam": "ondergrondscenario_naam"})
+    return return_df[["parameter_name", "uittredepunt_id", "ondergrondscenario_naam", "parameter_input"]]
 
 
 geopackage_filepath = r"C:\Users\CP\Downloads\C_Analyse_corr\16-1\TestGISInvoer5.geoprob_pipe.gpkg"
@@ -199,4 +213,12 @@ collection: Dict[str, DataFrame] = _expand(
     df_identifiers=df_identifiers,
     geopackage_filepath=geopackage_filepath)
 
+df_collection = _concat_collection(collection=collection)
+
     # return DataFrame()  # TODO: Merge collection retrieved from the above expansion
+
+
+df_filter = df_collection[
+    (df_collection["uittredepunt_id"] == 56) &
+    (df_collection["ondergrondscenario_naam"] == "PL")
+]
