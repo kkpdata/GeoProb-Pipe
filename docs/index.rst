@@ -17,8 +17,8 @@ voor het gebruik van GeoProb-Pipe, de achtergronden van de methode, API-referent
    :caption: Contents:
 
    gebruik_GeoProb-Pipe
-   Uittredepuntenmethode
    Rekenmethodiek
+   Uittredepuntenmethode
    Relatie_beslisraamwerk_piping
    references
 

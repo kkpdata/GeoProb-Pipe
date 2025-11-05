@@ -23,8 +23,8 @@ De rekenmethodiek is modulair opgebouwd en bestaat uit drie samenhangende onderd
    Het stijghoogtemodel bepaalt de stijghoogte in het uittredepunt (:math:`\phi_{exit}`) en vormt daarmee de koppeling tussen
    de hydraulische belasting (buitenwaterstand, polderpeil) en de ondergrondrespons.  
    `GeoProb-Pipe` ondersteunt meerdere typen stijghoogtemodellen:
-   - het analytische grondwatermodel **4A** op doorsnedeniveau;
-   - numerieke rastermodellen zoals **MORIA**;
+   - het analytische grondwatermodel *4A* op doorsnedeniveau;
+   - numerieke rastermodellen zoals *MORIA*;
    - en toekomstige uitbreidingen (bijv. TTIM) die via dezelfde interface kunnen worden toegevoegd.
 
 Elke implementatie van een stijghoogtemodel wordt aangeroepen via een eigen functie in het pakket ``geoprob_pipe.calculations``
@@ -189,7 +189,7 @@ waarin:
 - :math:`g` de zwaartekrachtversnelling [m/s²]. Standaardwaarde is 9.81 m/s²
 - :math:`D_{wvp}` de dikte van de watervoerende zandlaag [m]
 
-
+.. _stijghoogtemodellen-geoprob:
 Stijghoogtemodellen in GeoProb-Pipe
 -------------------
 De berekening van de stijghoogte :math:`\phi_{exit}` wordt uitgevoerd binnen de limit-state functies,
@@ -201,10 +201,10 @@ waarbij elke functie een specifiek type stijghoogtemodel aanroept:
 
 De rekenmethodiek is zodanig opgezet dat in de toekomst ook andere stijghoogtemodellen kunnen worden toegevoegd.
 
-
+.. _model4a:
 Analytische stijghoogtemodel 4A
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Het analytische grondwatermodel **4A** vormt één van de mogelijke implementaties van het stijghoogtemodel
+Het analytische grondwatermodel *4A* vormt één van de mogelijke implementaties van het stijghoogtemodel
 (*stap 3* van de rekenmethodiek).  
 Dit model beschrijft de stroming van grondwater door de zandlaag onder een dijk op basis van stationaire,
 lineaire stroming in doorsnedeniveau.  

@@ -96,9 +96,9 @@ een vinkje hebben voor elk onderdeel.
 
 
 De gebruiker kiest welk belastingmodel gebruikt wordt. Momenteel zijn dit of model4a of de stijghoogte o.b.v. respons.
-Paragraaf <<verwijzing aanmaken>> gaat hier verder op in. Daarnaast kan de gebruiker kiezen welke verschalingsfactoren
+Paragraaf :ref:`Stijghoogtemodellen in GeoProb-Pipe <stijghoogtemodellen-geoprob>` gaat hier verder op in. Daarnaast kan de gebruiker kiezen welke verschalingsfactoren
 worden toegepast. Dit zijn onder andere de getijdezandfactor en 3D verschaling. Dit is toegelicht in paragraaf
-<<verwijzing aanmaken>>.
+:ref:`Relatie beslissingsondersteunend raamwerk piping <BRP>`.
 
 In het onderdeel 'GIS lagen' wordt de gebruiker gevraagd de geografische data in te laden. Dit zijn onder andere het
 dijktraject, de vakindeling en de intredelijn. Omdat de gebruiker vaak zijn invoer al geografisch gekoppeld heeft is
@@ -119,7 +119,8 @@ Rekenmodel
 
 Er zijn enkele algemene instellingen, dit is hoofdzakelijk de systeem keuze. Momenteel is enkel `Piping`` een keuze.
 Later wordt dit uitgewerkt naar onder andere de keuzes ``model4a`` en deze i.c.m. Moria en/of het toepassen van
-respons.
+respons. 
+:ref:`Rekenmethodiek <rekenmethodiek>`
 
 Verschalingsfactoren
 ~~~~~~~~~~~~~~~~~~~~
