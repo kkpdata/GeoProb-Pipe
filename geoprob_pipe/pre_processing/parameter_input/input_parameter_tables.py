@@ -2,7 +2,7 @@ from __future__ import annotations
 from pandas import DataFrame
 import sqlite3
 from pandas import read_sql, read_excel
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 
 class InputParameterTables:

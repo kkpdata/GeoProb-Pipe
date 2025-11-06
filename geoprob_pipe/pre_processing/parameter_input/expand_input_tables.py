@@ -26,18 +26,6 @@ def _combine_parameter_invoer_sources(tables: InputParameterTables) -> DataFrame
     return df_parameter_invoer_combined
 
 
-# def _gather_frag_line_from_hrd(hrd_file_path: str, ref: str):
-#     import warnings
-#     hrd = pydra.HRDatabase(hrd_file_path)
-#     fl = pydra.ExceedanceFrequencyLine("h")
-#     with warnings.catch_warnings():
-#         warnings.simplefilter(action='ignore', category=FutureWarning)
-#         settings = hrd.get_settings(ref)
-#         location = hrd.create_location(settings)
-#         frequency_line = fl.calculate(location)
-#     return {"waarde": frequency_line.level, "kans": frequency_line.exceedance_frequency}
-
-
 def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
     # Read database
     conn = sqlite3.connect(geopackage_filepath)
@@ -239,10 +227,6 @@ def _concat_collection(collection: Dict[str, DataFrame]):
     return return_df[["parameter_name", "uittredepunt_id", "ondergrondscenario_naam", "parameter_input"]]
 
 
-# geopackage_filepath = r "C:\Users\CP\Downloads\C_Analyse_corr\16-1\TestGISInvoer6.geoprob_pipe.gpkg"
-# hrd_file_path = r"C:\Users\CP\Downloads\C_Analyse_corr\16-1\hrd_files\WBI2017_Benedenrijn_16-1_v04.sqlite"
-
-
 def run_expand_input_tables(geopackage_filepath: str) -> DataFrame:
     tables = InputParameterTables(geopackage_filepath=geopackage_filepath)
     df_identifiers = _construct_df_identifiers(geopackage_filepath=geopackage_filepath, tables=tables)
@@ -262,42 +246,3 @@ def run_expand_input_tables(geopackage_filepath: str) -> DataFrame:
         geopackage_filepath=geopackage_filepath)
 
     return _concat_collection(collection=collection)
-
-
-##
-# df_filter = df_collection[
-#     (df_collection["parameter_name"] == "D_wvp")
-# ]
-
-##
-# df_collection: DataFrame
-##
-
-
-
-
-
-##
-
-##
-
-# return_array = []
-#
-# hrd = pydra.HRDatabase(hrd_file_path)
-#
-# fl = pydra.ExceedanceFrequencyLine("h")
-#
-# with warnings.catch_warnings():
-#     warnings.simplefilter(action='ignore', category=FutureWarning)
-#
-#     settings = hrd.get_settings("016-01_0147_9_BO_km0954")
-#     location = hrd.create_location(settings)
-#     frequency_line = fl.calculate(location)
-#     return_array.append({
-#         "fragility_values_ref": "016-01_0147_9_BO_km0954",
-#         "fragility_values": {"waarde": frequency_line.level, "kans": frequency_line.exceedance_frequency}})
-#
-#
-# ##
-#
-# my_list = ["item"] * 5
