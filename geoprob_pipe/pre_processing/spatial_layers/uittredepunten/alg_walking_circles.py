@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 def create_buffer_binnendijks(
     app_settings: ApplicationSettings,
-    buffer_distance: int = 100
+    buffer_distance: int = 200
 ) -> Polygon:
 
     # Load data from geopackage
@@ -106,7 +106,7 @@ def search_lowes(app_settings: ApplicationSettings, buffer_binnendijks: Polygon,
         next_report_time = elapsed_time + interval_time
 
         walk_id = 0
-        while to_search_buffer.area / buffer_binnendijks.area > 0.05 and walk_id <= 999:
+        while to_search_buffer.area / buffer_binnendijks.area > 0.05 and walk_id <= 9999:
 
             walk_id += 1
 
@@ -136,7 +136,8 @@ def search_lowes(app_settings: ApplicationSettings, buffer_binnendijks: Polygon,
     progress_in_percentage = 100 - round((to_search_buffer.area / buffer_binnendijks.area) * 100, 0)
     print(f"Completed walking buffer in {elapsed_time:.2f} seconds. "
           f"Total of {walk_id} walks. "
-          f"Covered {progress_in_percentage}% of buffer. Remainder is considered irrelevant.")
+          f"Covered {progress_in_percentage}% of buffer. "
+          f"Remainder is considered irrelevant.")
 
     gdf_circle_lowests = GeoDataFrame(rows_circle_lowest, crs='EPSG:28992')
     gdf_proposed_uittredepunten: GeoDataFrame = gdf_circle_lowests[gdf_circle_lowests['final_iteration'] == True]
@@ -152,6 +153,7 @@ def search_lowes(app_settings: ApplicationSettings, buffer_binnendijks: Polygon,
     gdf_proposed_uittredepunten = gdf_proposed_uittredepunten[gdf_proposed_uittredepunten.index.isin(indices_to_keep)]
 
     gdf_proposed_uittredepunten: GeoDataFrame = gdf_proposed_uittredepunten[["walk_id", "min_val", "geometry"]]
+    print(f"Found {gdf_proposed_uittredepunten.__len__()} proposed exit points.")
 
     return gdf_proposed_uittredepunten
 

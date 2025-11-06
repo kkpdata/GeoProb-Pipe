@@ -14,9 +14,7 @@ def created_model(app_settings: ApplicationSettings) -> bool:
     df: DataFrame = read_file(app_settings.geopackage_filepath, layer="geoprob_pipe_metadata")
 
     # Check if no model specified yet
-    print(f"{df['metadata_type'].values.tolist()=}")
     metadata_types = [str(value) for value in df['metadata_type'].values.tolist()]
-    print("geohydrologisch_model" not in metadata_types)
     if "geohydrologisch_model" not in metadata_types:
         specify_model_to_use(app_settings, update_record=False)
         return True

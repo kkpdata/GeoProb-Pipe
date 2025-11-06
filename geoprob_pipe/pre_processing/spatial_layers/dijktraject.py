@@ -64,6 +64,11 @@ def request_trajectory_filepath(app_settings: ApplicationSettings):
 
     if filepath.endswith(".gdb"):
         specify_geodatabase_layer(app_settings, filepath)
+    elif filepath.endswith(".shp"):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
+            gdf: GeoDataFrame = read_file(filepath)
+        specify_column_with_trajectory_name(app_settings, gdf=gdf)
     else:
         raise NotImplementedError(f"File with extension {filepath.split(sep='.')[-1]} is not yet supported. "
                                   f"Please make a request.")
