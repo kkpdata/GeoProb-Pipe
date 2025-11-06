@@ -1,11 +1,10 @@
 from typing import Dict, List
-from pandas import DataFrame, isna, notna, concat
+from pandas import DataFrame, isna, notna, concat, read_sql
 import sqlite3
 import numpy as np
 from geopandas import GeoDataFrame, read_file
 from geoprob_pipe.calculations.system_calculations import SYSTEM_CALCULATION_MAPPER
 from geoprob_pipe.pre_processing.parameter_input.input_parameter_tables import InputParameterTables
-import pydra_core as pydra
 
 
 def _combine_parameter_invoer_sources(tables: InputParameterTables) -> DataFrame:
@@ -27,20 +26,37 @@ def _combine_parameter_invoer_sources(tables: InputParameterTables) -> DataFrame
     return df_parameter_invoer_combined
 
 
-def _gather_frag_line_from_hrd(hrd_file_path: str, ref: str):
-    # TODO: Dit duurt veel te lang. Importeren van frag lines al gewoon bij het importeren van de database in de geopackage doen?
-    import warnings
-    hrd = pydra.HRDatabase(hrd_file_path)
-    fl = pydra.ExceedanceFrequencyLine("h")
-    with warnings.catch_warnings():
-        warnings.simplefilter(action='ignore', category=FutureWarning)
-        settings = hrd.get_settings(ref)
-        location = hrd.create_location(settings)
-        frequency_line = fl.calculate(location)
-    return {"waarde": frequency_line.level, "kans": frequency_line.exceedance_frequency}
+# def _gather_frag_line_from_hrd(hrd_file_path: str, ref: str):
+#     import warnings
+#     hrd = pydra.HRDatabase(hrd_file_path)
+#     fl = pydra.ExceedanceFrequencyLine("h")
+#     with warnings.catch_warnings():
+#         warnings.simplefilter(action='ignore', category=FutureWarning)
+#         settings = hrd.get_settings(ref)
+#         location = hrd.create_location(settings)
+#         frequency_line = fl.calculate(location)
+#     return {"waarde": frequency_line.level, "kans": frequency_line.exceedance_frequency}
 
 
-def _collect_fragility_values(tables: InputParameterTables, fragility_refs: List[str], hrd_file_path: str) -> DataFrame:
+def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
+    # Read database
+    conn = sqlite3.connect(geopackage_filepath)
+    df_frag_line = read_sql(
+        f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}';",
+        conn)
+    conn.close()
+
+    # Validate
+    assert df_frag_line.__len__() > 2
+    # It should be validated beforehand that all added fragility lines are at least 3 points. So if this assert triggers
+    # something should be improved earlier in validation.
+
+    # Return values
+    df_frag_line = df_frag_line.sort_values(by=["waarde"])
+    return {"waarde": df_frag_line["waarde"].values.tolist(), "kans": df_frag_line["kans"].values.tolist()}
+
+
+def _collect_fragility_values(tables: InputParameterTables, fragility_refs: List[str], geopackage_filepath: str) -> DataFrame:
     df_frag_invoer = tables.df_fragility_values_invoer
     available_frag_invoer_refs = df_frag_invoer['fragility_values_ref'].unique()
     return_array = []
@@ -48,13 +64,15 @@ def _collect_fragility_values(tables: InputParameterTables, fragility_refs: List
         if fragility_ref not in available_frag_invoer_refs:
             return_array.append({
                 "fragility_values_ref": fragility_ref,
-                "fragility_values": _gather_frag_line_from_hrd(hrd_file_path=hrd_file_path, ref=fragility_ref)})
+                "fragility_values": _gather_hrd_frag_line_from_geopackage(
+                    ref=fragility_ref, geopackage_filepath=geopackage_filepath)})
         else:
             raise NotImplementedError(f"Should now retrieve it from the df_frag_invoer.")  # TODO
     return DataFrame(return_array)
 
 
-def _add_fragility_values_to_combined_parameter_invoer(df_parameter_invoer_combined: DataFrame) -> DataFrame:
+def _add_fragility_values_to_combined_parameter_invoer(
+        df_parameter_invoer_combined: DataFrame, tables: InputParameterTables, geopackage_filepath: str) -> DataFrame:
     """ Haalt uit de fragility values Excel de arrays op en vervang in de df_parameter_invoer_combined de referentie
     met de daadwerkelijke fragility values. """
 
@@ -71,7 +89,8 @@ def _add_fragility_values_to_combined_parameter_invoer(df_parameter_invoer_combi
     # df_frag_lines = DataFrame(
     #     data={"fragility_values_ref": fragility_refs, "fragility_values": ["TODO"] * fragility_refs.__len__()})
     # TODO: Collecting should still be done. This is just a temporary value of 'TODO'
-    df_frag_lines = _collect_fragility_values(tables=tables, fragility_refs=fragility_refs, hrd_file_path=hrd_file_path)
+    df_frag_lines = _collect_fragility_values(
+        tables=tables, fragility_refs=fragility_refs, geopackage_filepath=geopackage_filepath)
 
     # Attach to parameter invoer df
     df = df.merge(
@@ -220,57 +239,65 @@ def _concat_collection(collection: Dict[str, DataFrame]):
     return return_df[["parameter_name", "uittredepunt_id", "ondergrondscenario_naam", "parameter_input"]]
 
 
-geopackage_filepath = r"C:\Users\CP\Downloads\C_Analyse_corr\16-1\TestGISInvoer5.geoprob_pipe.gpkg"
-hrd_file_path = r"C:\Users\CP\Downloads\C_Analyse_corr\16-1\hrd_files\WBI2017_Benedenrijn_16-1_v04.sqlite"
-
-# def run_expand_input_tables(geopackage_filepath: str) -> DataFrame:
-tables = InputParameterTables(geopackage_filepath=geopackage_filepath)
-df_identifiers = _construct_df_identifiers(geopackage_filepath=geopackage_filepath, tables=tables)
-
-# Construct df_parameter_invoer_combined
-df_parameter_invoer_combined1 = _combine_parameter_invoer_sources(tables=tables)
-df_parameter_invoer_combined2 = _add_fragility_values_to_combined_parameter_invoer(
-    df_parameter_invoer_combined=df_parameter_invoer_combined1)
-df_parameter_invoer_combined3 = _collect_right_columns_combined_parameter_invoer(
-    df_parameter_invoer_combined=df_parameter_invoer_combined2)
-
-# Expand
-collection: Dict[str, DataFrame] = _expand(
-    df_parameter_invoer_combined=df_parameter_invoer_combined3,
-    df_identifiers=df_identifiers,
-    geopackage_filepath=geopackage_filepath)
-
-df_collection = _concat_collection(collection=collection)
-
-    # return DataFrame()  # TODO: Merge collection retrieved from the above expansion
+# geopackage_filepath = r "C:\Users\CP\Downloads\C_Analyse_corr\16-1\TestGISInvoer6.geoprob_pipe.gpkg"
+# hrd_file_path = r"C:\Users\CP\Downloads\C_Analyse_corr\16-1\hrd_files\WBI2017_Benedenrijn_16-1_v04.sqlite"
 
 
-df_filter = df_collection[
-    (df_collection["uittredepunt_id"] == 56) &
-    (df_collection["ondergrondscenario_naam"] == "PL")
-]
+def run_expand_input_tables(geopackage_filepath: str) -> DataFrame:
+    tables = InputParameterTables(geopackage_filepath=geopackage_filepath)
+    df_identifiers = _construct_df_identifiers(geopackage_filepath=geopackage_filepath, tables=tables)
+
+    # Construct df_parameter_invoer_combined
+    df_parameter_invoer_combined1 = _combine_parameter_invoer_sources(tables=tables)
+    df_parameter_invoer_combined2 = _add_fragility_values_to_combined_parameter_invoer(
+        df_parameter_invoer_combined=df_parameter_invoer_combined1, tables=tables,
+        geopackage_filepath=geopackage_filepath)
+    df_parameter_invoer_combined3 = _collect_right_columns_combined_parameter_invoer(
+        df_parameter_invoer_combined=df_parameter_invoer_combined2)
+
+    # Expand
+    collection: Dict[str, DataFrame] = _expand(
+        df_parameter_invoer_combined=df_parameter_invoer_combined3,
+        df_identifiers=df_identifiers,
+        geopackage_filepath=geopackage_filepath)
+
+    return _concat_collection(collection=collection)
+
+
+##
+# df_filter = df_collection[
+#     (df_collection["parameter_name"] == "D_wvp")
+# ]
+
+##
+# df_collection: DataFrame
+##
+
+
+
+
 
 ##
 
 ##
 
-return_array = []
-
-hrd = pydra.HRDatabase(hrd_file_path)
-
-fl = pydra.ExceedanceFrequencyLine("h")
-
-with warnings.catch_warnings():
-    warnings.simplefilter(action='ignore', category=FutureWarning)
-
-    settings = hrd.get_settings("016-01_0147_9_BO_km0954")
-    location = hrd.create_location(settings)
-    frequency_line = fl.calculate(location)
-    return_array.append({
-        "fragility_values_ref": "016-01_0147_9_BO_km0954",
-        "fragility_values": {"waarde": frequency_line.level, "kans": frequency_line.exceedance_frequency}})
-
-
-##
-
-my_list = ["item"] * 5
+# return_array = []
+#
+# hrd = pydra.HRDatabase(hrd_file_path)
+#
+# fl = pydra.ExceedanceFrequencyLine("h")
+#
+# with warnings.catch_warnings():
+#     warnings.simplefilter(action='ignore', category=FutureWarning)
+#
+#     settings = hrd.get_settings("016-01_0147_9_BO_km0954")
+#     location = hrd.create_location(settings)
+#     frequency_line = fl.calculate(location)
+#     return_array.append({
+#         "fragility_values_ref": "016-01_0147_9_BO_km0954",
+#         "fragility_values": {"waarde": frequency_line.level, "kans": frequency_line.exceedance_frequency}})
+#
+#
+# ##
+#
+# my_list = ["item"] * 5

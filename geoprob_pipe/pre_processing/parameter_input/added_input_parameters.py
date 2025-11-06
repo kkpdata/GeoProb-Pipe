@@ -1,6 +1,8 @@
 from __future__ import annotations
 from InquirerPy import inquirer
 import sqlite3
+
+from geoprob_pipe.pre_processing.parameter_input.expand_input_tables import run_expand_input_tables
 from geoprob_pipe.pre_processing.parameter_input.initiate_input_excel_tables import initiate_input_excel_tables
 from geoprob_pipe.pre_processing.parameter_input.input_parameter_figures import InputParameterFigures
 from geoprob_pipe.pre_processing.parameter_input.export_input_parameter_excel import export_input_parameter_tables
@@ -224,14 +226,33 @@ def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSetting
         raise ValueError
 
 
-def expand_input_tables() -> float:
-    return 1.0  # TODO
+# def expand_input_tables() -> float:
+#     return 1.0  # TODO
 
 
-def validate_expanded_input_tables() -> bool:
-    # expanded_tables = expand_input_tables()
-    valid: bool = True  # TODO
-    return valid
+def validate_expanded_input_tables(geopackage_filepath: str) -> bool:
+    df_expanded = run_expand_input_tables(geopackage_filepath=geopackage_filepath)
+    df_nans = df_expanded[df_expanded['parameter_input'].isna()]
+
+    # No issues?
+    if df_nans.__len__() == 0:
+        return True
+
+    # Report issues back
+    export_dir = os.path.join(os.path.dirname(geopackage_filepath), "parameter_input_process")
+    os.makedirs(export_dir, exist_ok=True)
+    export_path = os.path.join(export_dir, "validation_missing_parameter_input.xlsx")
+    print(f"{export_path=}")
+    if os.path.exists(export_path):
+        os.remove(export_path)
+    df_nans.to_excel(export_path)
+    print(f"{BColors.WARNING}Er mist parameter invoer voor {df_nans.__len__()} berekeningen.\n"
+          f"Dit is voor {df_nans['parameter_name'].unique().__len__()} unieke parameters, "
+          f"{df_nans['uittredepunt_id'].unique().__len__()} unieke uittredepunten en "
+          f"{df_nans['ondergrondscenario_naam'].unique().__len__()} unieke ondergrondscenarios.\n"
+          f"De gedetailleerde lijst is geëxporteerd naar\n"
+          f"{export_path}{BColors.ENDC}")
+    return False
 
 
 def inquire_to_import_export_tables_and_figures_or_continue(
@@ -365,7 +386,8 @@ def process_input_exist_in_db(app_settings: ApplicationSettings):
 
     # Validate expanded tables
     validity_extended_tables: Optional[bool] = None
-    if validity_raw_tables: validity_extended_tables = validate_expanded_input_tables()
+    if validity_raw_tables: validity_extended_tables = validate_expanded_input_tables(
+        geopackage_filepath=app_settings.geopackage_filepath)
 
     # Provide user with follow-up options
     inquire_to_import_export_tables_and_figures_or_continue(
@@ -395,7 +417,8 @@ def process_import_input(app_settings: ApplicationSettings):
 
     # Validate expanded tables
     validity_extended_tables: Optional[bool] = None
-    if validity_extended_tables: validity_extended_tables = validate_expanded_input_tables()
+    if validity_extended_tables: validity_extended_tables = validate_expanded_input_tables(
+        geopackage_filepath=app_settings.geopackage_filepath)
 
     # Provide user with follow-up options
     inquire_to_store_input_tables_to_db(app_settings=app_settings, tables=tables)
