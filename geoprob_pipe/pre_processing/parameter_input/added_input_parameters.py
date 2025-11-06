@@ -164,7 +164,6 @@ if TYPE_CHECKING:
 
 
 def possibly_initiatie_input_tables_in_db(app_settings: ApplicationSettings):
-    # print(f"{BColors.OKBLUE}possibly_initiatie_input_tables_in_db(){BColors.ENDC}")
 
     # Get table names
     conn = sqlite3.connect(app_settings.geopackage_filepath)

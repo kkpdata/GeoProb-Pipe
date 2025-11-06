@@ -1,15 +1,18 @@
 from __future__ import annotations
-import pydra_core as pydra
-import warnings
 from InquirerPy import inquirer
 from pathlib import Path
 from typing import TYPE_CHECKING
 from geopandas import GeoDataFrame
 from shapely import Point
 import os
+import sqlite3
 from geoprob_pipe.utils.validation_messages import BColors
 import fiona
-
+import warnings
+import time
+import pydra_core as pydra
+from pandas import DataFrame, concat
+from typing import List
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
@@ -87,6 +90,7 @@ def check_hrd_locations_added_to_geopackage(app_settings: ApplicationSettings):
     layers = fiona.listlayers(app_settings.geopackage_filepath)
     if "hrd_locaties" in layers:
         print(BColors.OKBLUE, f"✔  HRD-locatie punten al uitgelezen.", BColors.ENDC)
+        check_hrd_frag_lines_added_to_geopackage(app_settings=app_settings)
         return
 
     # Add HRD locations to GeoPackage
@@ -105,3 +109,64 @@ def check_hrd_locations_added_to_geopackage(app_settings: ApplicationSettings):
     gdf = GeoDataFrame(hrd_location_rows, crs='EPSG:28992')
     gdf.to_file(Path(app_settings.geopackage_filepath), layer="hrd_locaties", driver="GPKG")
     print(BColors.OKBLUE, f"✅  HRD-locatie punten toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
+
+    check_hrd_frag_lines_added_to_geopackage(app_settings=app_settings)
+
+
+def check_hrd_frag_lines_added_to_geopackage(app_settings: ApplicationSettings):
+
+    conn = sqlite3.connect(app_settings.geopackage_filepath)
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables_names = [row[0] for row in cursor.fetchall()]
+    conn.close()
+
+    # If already exist
+    if "fragility_values_invoer_hrd" in tables_names:
+        print(BColors.OKBLUE, f"✔  HRD-fragility lines al uitgelezen.", BColors.ENDC)
+        return
+
+    # Check if already added
+    # layers = fiona.listlayers(app_settings.geopackage_filepath)
+    # if "fragility_values_invoer_hrd" in layers:
+    #     print(BColors.OKBLUE, f"✔  HRD-fragility lines al uitgelezen.", BColors.ENDC)
+    #     return
+
+    # Add frag lines to geopackage
+    print(f"{BColors.UNDERLINE}HRD-fragility lines worden nu toegevoegd aan de GeoProb-Pipe GeoPackage.{BColors.ENDC}")
+    hrd = pydra.HRDatabase(hrd_file_path(app_settings=app_settings))
+    location_names = hrd.get_location_names()
+    fl = pydra.ExceedanceFrequencyLine("h")
+    dfs: List[DataFrame] = []
+    start_time = time.time()
+    last_report = start_time
+
+    for index, location_name in enumerate(location_names):
+
+        # Status report
+        if time.time() - last_report >= 10:
+            print(f"Bezig met locatie {index+1} ({location_name}) van in totaal {location_names.__len__()} locaties.")
+            last_report = time.time()
+
+        # TODO:
+        #  - Dit proces kan vrij lang duren. Daarom is het beter om per locatie de fragility values in de GeoPackage
+        #    te zetten. Dan kan de gebruiker tussentijds afsluiten en later vanaf hetzelfde moment weer oppakken,
+        #    indien gewenst.
+        #  - Nice to have: In status bericht tijdsindicatie geven wanneer klaar.
+
+        # Continue collecting fragility values
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter(action='ignore', category=FutureWarning)
+            location = hrd.get_location(location_name)
+        frequency_line = fl.calculate(location)
+        dfs.append(DataFrame({
+            "fragility_values_ref": [location_name] * frequency_line.level.__len__(),
+            "waarde": frequency_line.level,
+            "kans": frequency_line.exceedance_frequency}))
+    df = concat(dfs, ignore_index=True)
+    conn = sqlite3.connect(app_settings.geopackage_filepath)
+    df.to_sql("fragility_values_invoer_hrd", conn, if_exists="replace", index=False)
+    conn.close()
+
+    print(BColors.OKBLUE, f"✅  HRD-fragility lines toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
