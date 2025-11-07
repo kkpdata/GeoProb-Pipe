@@ -1,6 +1,5 @@
 from probabilistic_library import DistributionType
 
-
 DUMMY_INPUT = [
     {
         "name": "L_achterland",
@@ -27,13 +26,13 @@ DUMMY_INPUT = [
         "remark": "",
         "unit": "dagen",
         "distribution_type": DistributionType.log_normal,
-        "mean": 50.0,
+        "mean": 150.0,
         "variation": 0.1,
         "source": "excel",
     },
     {
         "name": "L_intrede",
-        "description": "Afstand van uittredepunten tot geometrische intredelijn.",
+        "description": "Afstand van uittredepunt tot geometrische intredelijn.",
         "remark": "",
         "unit": "m",
         "distribution_type": DistributionType.deterministic,
@@ -70,7 +69,7 @@ DUMMY_INPUT = [
     {
         "name": "buitenwaterstand",
         "description": "Buitenwaterstand. Indien keuze voor 'cdf_curve' als distributie type, dan wordt er een "
-                       "een overschrijdingsfrequentielijn berekend met de Hydra-NL Python wrapper Pydra.",
+        "een overschrijdingsfrequentielijn berekend met de Hydra-NL Python wrapper Pydra.",
         "remark": "",
         "unit": "m+NAP",
         "distribution_type": DistributionType.deterministic,
@@ -122,7 +121,7 @@ DUMMY_INPUT = [
         "remark": "",
         "unit": "[-]",
         "distribution_type": DistributionType.log_normal,
-        "mean": 0.7,
+        "mean": 0.5,
         "variation": 0.15,
         "source": "excel",
     },
@@ -161,7 +160,7 @@ DUMMY_INPUT = [
         "remark": "",
         "unit": "kN/m³",
         "distribution_type": DistributionType.log_normal,
-        "mean": 13.9,
+        "mean": 15.5,
         "variation": 0.05,
         "source": "excel",
     },
@@ -172,7 +171,7 @@ DUMMY_INPUT = [
         "unit": "[-]",
         "distribution_type": DistributionType.log_normal,
         "mean": 1.0,
-        "variation": 0.1,
+        "variation": 0.12,
         "source": "excel",
     },
     {
@@ -181,7 +180,7 @@ DUMMY_INPUT = [
         "remark": "",
         "unit": "m",
         "distribution_type": DistributionType.log_normal,
-        "mean": 2.8e-4,
+        "mean": 3.5e-4,
         "variation": 0.15,
         "source": "excel",
     },
@@ -236,7 +235,7 @@ DUMMY_INPUT = [
         "remark": "",
         "unit": "kN/m³",
         "distribution_type": DistributionType.deterministic,
-        "mean": 16.5,
+        "mean": 26.0,
         "source": "excel",
     },
     {
@@ -244,8 +243,9 @@ DUMMY_INPUT = [
         "description": "Reductie constante van het verval over de deklaag.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.deterministic,
-        "mean": 0.3,
+        "distribution_type": DistributionType.log_normal,
+        "mean": 0.5,
+        "variation": 0.15,
         "source": "excel",
     },
 ]
