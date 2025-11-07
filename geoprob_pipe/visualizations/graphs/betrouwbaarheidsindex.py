@@ -16,13 +16,21 @@ def _background_graph(
         df_for_graph: pd.DataFrame
         ) -> go.Figure:
     # Categorie kleuren
-    cg = geoprob_pipe.input_data.traject_normering.beta_categorie_grenzen
-    colors = ["rgba(0,128,0,0.4)", "rgba(144,238,144,0.4)",
-              "rgba(255,255,0,0.4)", "rgba(255,165,0,0.4)",
-              "rgba(255,0,0,0.4)", "rgba(128,0,128,0.4)"]
-    labels = ["β<sub>eis;sig;dsn / 30</sub>", "β<sub>eis;sig;dsn</sub>",
-              "β<sub>eis;ond;dsn</sub>",
-              "β<sub>eis;ond</sub>", "β<sub>eis;ond * 30</sub>", ""]
+    # # Oude catogerie grenzen en kleuren
+    # cg = geoprob_pipe.input_data.traject_normering.beta_categorie_grenzen
+    # colors = ["rgba(0,128,0,0.4)", "rgba(144,238,144,0.4)",
+    #           "rgba(255,255,0,0.4)", "rgba(255,165,0,0.4)",
+    #           "rgba(255,0,0,0.4)", "rgba(128,0,128,0.4)"]
+    # labels = ["β<sub>eis;sig;dsn / 30</sub>", "β<sub>eis;sig;dsn</sub>",
+    #           "β<sub>eis;ond;dsn</sub>",
+    #           "β<sub>eis;ond</sub>", "β<sub>eis;ond * 30</sub>", ""]
+
+    cg = geoprob_pipe.input_data.traject_normering.riskeer_categorie_grenzen
+    colors = ["rgba(30,141,41,0.6)", "rgba(146,206,90,0.6)",
+              "rgba(198,226,176,0.6)", "rgba(255,255,0,0.6)",
+              "rgba(254,165,3,0.6)", "rgba(255,0,0,0.6)",
+              "rgba(177,33,38,0.6)"]
+    labels = ["+III", "+II", "+I", "0", "-I", "-II", "-III"]
 
     if "M_value" in df_for_graph.columns:
         x_line = np.linspace(df_for_graph['M_value'].min()-10,
