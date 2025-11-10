@@ -3,6 +3,8 @@ def test_calculation():
     #  Is het daarvoor te complex?
 
     ##
+    from typing import Dict, cast
+
     from probabilistic_library import Alpha
 
     from geoprob_pipe.calculations.system_calculations.piping_system.dummy_input import (
@@ -14,10 +16,14 @@ def test_calculation():
     from geoprob_pipe.deterministic.system import DeterministicSystemCalculation
 
     obj = PipingSystemReliabilityCalculation(system_variable_distributions=DUMMY_INPUT)
-
     # Run Model with mean values (deterministic):
     det_obj = DeterministicSystemCalculation(input_object=obj)
     print(det_obj.limit_state_results)
+
+    assert det_obj.limit_state_results["d70"] == 3.5e-4
+    assert det_obj.limit_state_results["c_voorland"] == 10.0
+    assert det_obj.limit_state_results["r_exit"] == 0.7
+    assert det_obj.limit_state_results["r_exit"] == 0.7
 
     # Run prob system
     obj.run()
