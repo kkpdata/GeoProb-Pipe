@@ -15,6 +15,8 @@ def test_pre_processing():
     app_settings.workspace_dir = os.path.join(repo_root, "geoprob_pipe", "pre_processing", "test_files")
     app_settings.geopackage_filename = os.path.basename("Analyse224.geoprob_pipe.gpkg")
 
+    ##
+
     # Perform test
     pre_processing_questionnaire(app_settings=app_settings)
 

@@ -5,6 +5,7 @@ import numpy as np
 from geopandas import GeoDataFrame, read_file
 from geoprob_pipe.calculations.system_calculations import SYSTEM_CALCULATION_MAPPER
 from geoprob_pipe.pre_processing.parameter_input.input_parameter_tables import InputParameterTables
+from probabilistic_library import FragilityValue
 
 
 def _combine_parameter_invoer_sources(tables: InputParameterTables) -> DataFrame:
@@ -39,9 +40,16 @@ def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
     # It should be validated beforehand that all added fragility lines are at least 3 points. So if this assert triggers
     # something should be improved earlier in validation.
 
-    # Return values
+    # Construct Fragility Values
     df_frag_line = df_frag_line.sort_values(by=["waarde"])
-    return {"waarde": df_frag_line["waarde"].values.tolist(), "kans": df_frag_line["kans"].values.tolist()}
+    frag_points = []
+    for index, row in df_frag_line.iterrows():
+        fc = FragilityValue()
+        fc.x = row["waarde"]
+        fc.probability_of_failure = row["kans"]
+        frag_points.append(fc)
+    return frag_points
+    # return {"waarde": df_frag_line["waarde"].values.tolist(), "kans": df_frag_line["kans"].values.tolist()}
 
 
 def _collect_fragility_values(tables: InputParameterTables, fragility_refs: List[str], geopackage_filepath: str) -> DataFrame:
@@ -96,8 +104,9 @@ def _collect_right_columns_combined_parameter_invoer(df_parameter_invoer_combine
     df_parameter_invoer_combined = df_parameter_invoer_combined.drop(columns=["bronnen", "opmerking"])
     parameter_description_columns = [
         "distribution_type", "mean", "variation", "deviation", "minimum", "maximum", "fragility_values"]
+    # df_parameter_invoer_combined.to_excel("df_parameter_invoer_combined.xlsx")
     df_parameter_invoer_combined['parameter_input'] = df_parameter_invoer_combined.apply(lambda row: {
-        k: row[k] for k in parameter_description_columns if notna(row[k])
+        k: row[k] for k in parameter_description_columns if isinstance(row[k], list) or notna(row[k])
     }, axis=1)
     df_parameter_invoer_combined = df_parameter_invoer_combined.drop(columns=parameter_description_columns)
     return df_parameter_invoer_combined

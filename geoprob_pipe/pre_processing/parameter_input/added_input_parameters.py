@@ -10,6 +10,8 @@ from geoprob_pipe.pre_processing.parameter_input.input_parameter_tables import I
 from typing import TYPE_CHECKING, Optional
 import os
 import sys
+
+from geoprob_pipe.pre_processing.run_calculations.run import run_calculations
 from geoprob_pipe.utils.loggers import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
@@ -128,7 +130,7 @@ def inquire_to_import_export_tables_and_figures_or_continue(
     ).execute()
 
     if choice == "Invoer tabellen zijn naar wens, ga door naar volgende stap":
-        raise NotImplementedError(f"Volgende stap nog te implementeren")
+        run_calculations(geopackage_filepath=app_settings.geopackage_filepath)
 
     elif choice == "Invoer tabellen zijn naar wens, ga door naar volgende stap (n.v.t. -> invoer niet valide)":
         inquire_to_import_export_tables_and_figures_or_continue(

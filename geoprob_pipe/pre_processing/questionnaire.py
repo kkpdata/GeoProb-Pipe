@@ -46,5 +46,3 @@ def pre_processing_questionnaire(app_settings: ApplicationSettings):
 
     print(f"\nPARAMETER INVOER")
     if not added_input_parameter_data(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
-    # if not expanded_input_parameter_data(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
-    # if not input_parameter_data_covers_all(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)

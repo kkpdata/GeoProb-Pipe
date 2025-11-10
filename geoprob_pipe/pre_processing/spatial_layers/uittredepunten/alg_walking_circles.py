@@ -5,21 +5,49 @@ from geoprob_pipe.pre_processing.utils.spatial import load_dijktraject_linestrin
 from shapely import LineString, MultiPoint, Polygon, MultiPolygon, Point, unary_union
 from shapely.geometry import mapping
 import numpy as np
+import os
 import rasterio.mask
 import time
 import random
 from geopandas import GeoDataFrame
 from copy import deepcopy
 from geoprob_pipe.utils.validation_messages import BColors
+from InquirerPy import inquirer
 
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
 
+def request_buffer_distance() -> int:
+    int_distance = 50
+    distance_is_valid = False
+    while distance_is_valid is False:
+        str_distance: str = inquirer.text(
+            message="Specificeer de afstand (in meters) waarbinnen gezocht moet worden aan binnendijkse zijde.\n"
+                    "Zorg er voor dat deze afstand volledig binnen het toegevoegde raster valt. ",
+        ).execute()
+
+        # Validate
+        try: int_distance = int(str_distance)
+        except ValueError:
+            print(f"{BColors.WARNING}Het lukte niet om de invoer om te zetten naar een integer (geheel getal). Weet je "
+                  f"zeker dat de invoer correct is? Probeer het opnieuw.{BColors.ENDC}")
+            continue
+        if int_distance < 50:
+            print(f"{BColors.WARNING}De opgegeven afstand moet ten minste 50 meter zijn. "
+                  f"Vul opnieuw een waarde in. {BColors.ENDC}")
+            continue
+
+        # Valid
+        distance_is_valid = True
+    return int_distance
+
+
 def create_buffer_binnendijks(
     app_settings: ApplicationSettings,
-    buffer_distance: int = 200
 ) -> Polygon:
+
+    buffer_distance = request_buffer_distance()
 
     # Load data from geopackage
     ls_dijktraject: LineString = load_dijktraject_linestring(app_settings=app_settings)

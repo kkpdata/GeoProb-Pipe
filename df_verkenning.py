@@ -1,12 +1,51 @@
-from geoprob_pipe.pre_processing.parameter_input.input_parameter_tables import InputParameterTables
+from geoprob_pipe.pre_processing.parameter_input.expand_input_tables import run_expand_input_tables
 
-tables = InputParameterTables(r"C:\Users\CP\Downloads\C_Analyse_corr\16-1\TestGISInvoer4.geoprob_pipe.gpkg")
+# from geoprob_pipe.pre_processing.parameter_input.input_parameter_tables import InputParameterTables
+#
+# tables = InputParameterTables(r"C:\Users\CP\Downloads\C_Analyse_corr\16-1\TestGISInvoer4.geoprob_pipe.gpkg")
+#
+# df_parameter_invoer = tables.df_parameter_invoer
+# df_gis_join_parameter_invoer = tables.df_gis_join_parameter_invoer
+#
 
-df_parameter_invoer = tables.df_parameter_invoer
-df_gis_join_parameter_invoer = tables.df_gis_join_parameter_invoer
+geopackage_filepath = r"C:\Users\CP\Downloads\C_Analyse_corr\224\Analyse224.geoprob_pipe.gpkg"
+df_expanded = run_expand_input_tables(geopackage_filepath=geopackage_filepath)
+# df_expanded.to_excel(f"df_expanded.xlsx")
+
+##
+
+from pandas import DataFrame
+df_unique_combos: DataFrame = df_expanded[["uittredepunt_id", "ondergrondscenario_naam"]].drop_duplicates()
+
+for index, row in df_unique_combos.iterrows():
+    df_filter = df_expanded[
+        (df_expanded["uittredepunt_id"] == row["uittredepunt_id"]) &
+        (df_expanded["ondergrondscenario_naam"] == row["ondergrondscenario_naam"])
+    ]
+    break
 
 
 
+##
+
+from geoprob_pipe.calculations.system_calculations.piping_moria.reliability_calculation import  (
+    PipingMORIASystemReliabilityCalculation)
+
+
+df = df_filter.copy(deep=True)
+
+
+# For now change buitenwaterstand  # TODO
+# new_dict = {'distribution_type': 'deterministic', 'mean': 6.0, 'name': 'buitenwaterstand'}
+# df.loc[df['parameter_name'] == 'buitenwaterstand', 'parameter_input'] = [new_dict] * df[df['parameter_name'] == 'buitenwaterstand'].shape[0]
+
+df['parameter_input'] = df.apply(
+    lambda row: {**row['parameter_input'], 'name': row['parameter_name']},
+    axis=1
+)
+calculation_input = df['parameter_input'].values.tolist()
+
+obj = PipingMORIASystemReliabilityCalculation(system_variable_distributions=calculation_input)
 
 
 # from geopandas import GeoDataFrame, read_file
