@@ -21,10 +21,13 @@ def test_calculation():
     ##
 
     # TODO: Dit is denk ik verkeerd geïnterpreteerd en werkt zo niet. Zo even bij praten? Groet Chris
-    assert det_obj.limit_state_results["d70"] == 3.5e-4
-    assert det_obj.limit_state_results["c_voorland"] == 10.0
-    assert det_obj.limit_state_results["r_exit"] == 0.7
-    assert det_obj.limit_state_results["r_exit"] == 0.7
+    assert det_obj.system_variable_setup_result[4] == 0.5  # h_exit
+
+    ##
+    assert det_obj.system_variable_setup_result[5] == ...  # r_exit
+    assert det_obj.system_variable_setup_result[6] == ...  # phi_exit
+
+    ##
 
     # Run prob system
     obj.run()
