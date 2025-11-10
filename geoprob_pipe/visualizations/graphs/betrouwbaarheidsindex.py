@@ -16,6 +16,7 @@ def _background_graph(
         df_for_graph: pd.DataFrame
         ) -> go.Figure:
     # Categorie kleuren
+
     # # Oude catogerie grenzen en kleuren
     # cg = geoprob_pipe.input_data.traject_normering.beta_categorie_grenzen
     # colors = ["rgba(0,128,0,0.4)", "rgba(144,238,144,0.4)",
@@ -84,7 +85,7 @@ def _background_graph(
         # Labels bij de ondergrens
         fig.add_annotation(
             x=x_line.max(),
-            y=np.log10(cg[grens][0]),
+            y=(np.log10(cg[grens][0]) + np.log10(cg[grens][1])) / 2,
             text=labels[i % len(labels)],
             showarrow=False,
             xanchor="left",
@@ -392,16 +393,24 @@ class GraphBetaValuesSingleInteractive:
         )
 
     def _add_backgrond(self):
+        # Oude categorie grenzen
+        # cg = (self.geoprob_pipe.input_data.traject_normering
+        #       .beta_categorie_grenzen)
+        # colors = ["rgba(0,128,0,0.4)", "rgba(144,238,144,0.4)",
+        #           "rgba(255,255,0,0.4)", "rgba(255,165,0,0.4)",
+        #           "rgba(255,0,0,0.4)", "rgba(128,0,128,0.4)"]
 
+        # labels = ["β<sub>eis;sig;dsn / 30</sub>", "β<sub>eis;sig;dsn</sub>",
+        #           "β<sub>eis;ond;dsn</sub>", "β<sub>eis;ond</sub>",
+        #           "β<sub>eis;ond * 30</sub>", ""]
+        
         cg = (self.geoprob_pipe.input_data.traject_normering
-              .beta_categorie_grenzen)
-        colors = ["rgba(0,128,0,0.4)", "rgba(144,238,144,0.4)",
-                  "rgba(255,255,0,0.4)", "rgba(255,165,0,0.4)",
-                  "rgba(255,0,0,0.4)", "rgba(128,0,128,0.4)"]
-
-        labels = ["β<sub>eis;sig;dsn / 30</sub>", "β<sub>eis;sig;dsn</sub>",
-                  "β<sub>eis;ond;dsn</sub>", "β<sub>eis;ond</sub>",
-                  "β<sub>eis;ond * 30</sub>", ""]
+              .riskeer_categorie_grenzen)
+        colors = ["rgba(30,141,41,0.6)", "rgba(146,206,90,0.6)",
+                  "rgba(198,226,176,0.6)", "rgba(255,255,0,0.6)",
+                  "rgba(254,165,3,0.6)", "rgba(255,0,0,0.6)",
+                  "rgba(177,33,38,0.6)"]
+        labels = ["+III", "+II", "+I", "0", "-I", "-II", "-III"]
 
         x_line = np.linspace(self.M_van, self.M_tot)
 
@@ -453,7 +462,7 @@ class GraphBetaValuesSingleInteractive:
             # Labels bij de ondergrens
             self.fig.add_annotation(
                 x=x_line.max(),
-                y=np.log10(cg[grens][0]),
+                y=(np.log10(cg[grens][0]) + np.log10(cg[grens][1])) / 2,
                 text=labels[i % len(labels)],
                 showarrow=False,
                 xanchor="left",
