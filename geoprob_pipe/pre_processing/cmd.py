@@ -26,6 +26,17 @@ class ApplicationSettings:
         return path_to_hrd_dir
 
     @property
+    def hrd_file_path(self) -> str:
+        for file in os.listdir(self.hrd_dir):
+            filename = os.fsdecode(file)
+            if filename.endswith(".config.sqlite"):
+                continue
+            if filename.endswith("hlcd.sqlite"):
+                continue
+            return os.path.join(self.hrd_dir, filename)
+        raise ValueError
+
+    @property
     def ahn_filepath(self) -> str:
         return os.path.join(self.workspace_dir, "ahn", "ahn.tif")
 

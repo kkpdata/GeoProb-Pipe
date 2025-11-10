@@ -1,6 +1,9 @@
 import os
 from datetime import datetime
 from pandas import DataFrame
+
+from geoprob_pipe.input_data import InputData
+
 try:
     import probabilistic_library
 except ModuleNotFoundError:
@@ -34,13 +37,12 @@ class GeoProbPipe:
             category=FutureWarning)  # Preferably address FutureWarnings: part of pydra-core
 
         logger.info("Initiating project.")
-        self.app_settings = app_settings
         self.time_start = datetime.now()
 
         # self.workspace = Workspace(path_to_workspace)
         self.software_requirements = SoftwareRequirements(self)
 
-        # self.input_data = InputData(self.workspace)  # TODO: Alter with new option
+        self.input_data = InputData(app_settings)  # TODO: Alter with new option
 
         # Read calculation settings
         # self._read_calculation_settings()  # TODO: Not part of new version

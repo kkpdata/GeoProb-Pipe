@@ -74,12 +74,13 @@ class MoriaSystemBuilder(BaseSystemBuilder):
         df_unique_combos: DataFrame = df_expanded[["uittredepunt_id", "ondergrondscenario_naam"]].drop_duplicates()
 
         # Iterate over calculation (unique combos)
+        list_calculations = []
         for index, row in df_unique_combos.iterrows():
 
             # General information
             uittredepunt_id = row["uittredepunt_id"]
-            vak_id =
-
+            ondergrondscenario_naam = row["ondergrondscenario_naam"]
+            vak_id = geoprob_pipe.input_data.uittredepunten[uittredepunt_id].vak_id
 
             # Collect input for specific calculation
             df_filter = df_expanded[
@@ -98,43 +99,42 @@ class MoriaSystemBuilder(BaseSystemBuilder):
                 # project_settings=...
             )
             calc.metadata["uittredepunt_id"] = uittredepunt_id
-            calc.metadata["ondergrondscenario_id"] = row["ondergrondscenario_naam"]
-            # calc.metadata["ondergrondscenario"] = ondergrond_scenario
-            calc.metadata["vak_id"] = geoprob_pipe.input_data.uittredepunten[uittredepunt_id].vak_id
+            calc.metadata["ondergrondscenario_naam"] = ondergrondscenario_naam
+            calc.metadata["vak_id"] = vak_id
             metadata_summary = {
                 "uittredepunt_id": uittredepunt_id,
-                "ondergrondscenario_id": row["ondergrondscenario_naam"],
-                "vak_id": vak.id}
+                "ondergrondscenario_naam": ondergrondscenario_naam,
+                "vak_id": vak_id}
             calc.validation_messages.about = f"Calculation {metadata_summary}"
 
             list_calculations.append(calc)
 
-        list_calculations = []
-        for vak in vak_collection.values():
-            for uittredepunt in vak.uittredepunten:
-                for ondergrond_scenario in vak.ondergrond_scenarios:
-                    calc = PipingMORIASystemReliabilityCalculation(system_variable_distributions=...)
-                    # calc = PipingSystemReliabilityCalculation(
-                    #     system_variable_distributions=self.construct_system_variable_distributions(
-                    #         vak=vak,
-                    #         uittredepunt=uittredepunt,
-                    #         ondergrond_scenario=ondergrond_scenario,
-                    #         df_constants=df_constants,
-                    #     ),
-                    #     project_settings=project_settings
-                    # )
-                    calc.metadata["uittredepunt_id"] = uittredepunt.id
-                    calc.metadata["ondergrondscenario_id"] = ondergrond_scenario.id
-                    calc.metadata["ondergrondscenario"] = ondergrond_scenario
-                    calc.metadata["vak_id"] = vak.id
-
-                    metadata_summary = {
-                        "uittredepunt_id": uittredepunt.id,
-                        "ondergrondscenario_id": ondergrond_scenario.id,
-                        "vak_id": vak.id}
-                    calc.validation_messages.about = f"Calculation {metadata_summary}"
-
-                    list_calculations.append(calc)
+        # list_calculations = []
+        # for vak in vak_collection.values():
+        #     for uittredepunt in vak.uittredepunten:
+        #         for ondergrond_scenario in vak.ondergrond_scenarios:
+        #             calc = PipingMORIASystemReliabilityCalculation(system_variable_distributions=...)
+        #             # calc = PipingSystemReliabilityCalculation(
+        #             #     system_variable_distributions=self.construct_system_variable_distributions(
+        #             #         vak=vak,
+        #             #         uittredepunt=uittredepunt,
+        #             #         ondergrond_scenario=ondergrond_scenario,
+        #             #         df_constants=df_constants,
+        #             #     ),
+        #             #     project_settings=project_settings
+        #             # )
+        #             calc.metadata["uittredepunt_id"] = uittredepunt.id
+        #             calc.metadata["ondergrondscenario_id"] = ondergrond_scenario.id
+        #             calc.metadata["ondergrondscenario"] = ondergrond_scenario
+        #             calc.metadata["vak_id"] = vak.id
+        #
+        #             metadata_summary = {
+        #                 "uittredepunt_id": uittredepunt.id,
+        #                 "ondergrondscenario_id": ondergrond_scenario.id,
+        #                 "vak_id": vak.id}
+        #             calc.validation_messages.about = f"Calculation {metadata_summary}"
+        #
+        #             list_calculations.append(calc)
         return list_calculations
 
     @staticmethod

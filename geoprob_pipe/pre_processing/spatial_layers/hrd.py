@@ -37,17 +37,6 @@ def folder_contains_hrd_db(app_settings: ApplicationSettings) -> bool:
     return False
 
 
-def hrd_file_path(app_settings: ApplicationSettings) -> str:
-    for file in os.listdir(app_settings.hrd_dir):
-        filename = os.fsdecode(file)
-        if filename.endswith(".config.sqlite"):
-            continue
-        if filename.endswith("hlcd.sqlite"):
-            continue
-        return os.path.join(app_settings.hrd_dir, filename)
-    raise ValueError
-
-
 def added_hrd(app_settings: ApplicationSettings) -> bool:
     hrd_files_are_provided: bool = folder_contains_hrd_db(app_settings=app_settings)
     if hrd_files_are_provided:
