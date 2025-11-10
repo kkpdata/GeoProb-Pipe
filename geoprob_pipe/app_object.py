@@ -1,7 +1,6 @@
 import os
-from pathlib import Path
 from datetime import datetime
-from pandas import DataFrame, read_excel, concat
+from pandas import DataFrame
 try:
     import probabilistic_library
 except ModuleNotFoundError:
@@ -11,28 +10,22 @@ except ModuleNotFoundError:
         "not commit the wheel-file into the repository.")
 # noinspection PyPep8Naming
 from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
-from geoprob_pipe.utils.workspace import Workspace
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
 from geoprob_pipe.results import Results
 from geoprob_pipe.spatial import Spatial
-from geoprob_pipe.input_data import InputData
 from geoprob_pipe.visualizations import Visualizations
-import time
-from typing import List, Optional
-from geoprob_pipe.calculations.system_calculations.piping_system.build_and_run import (
-    build_and_run_piping_system_calculations)
+from typing import List, Optional, TYPE_CHECKING
 from geoprob_pipe.software_requirements import SoftwareRequirements
+if TYPE_CHECKING:
+    from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
 
 class GeoProbPipe:
     """ GeoProb-Pipe application object. """
     # TODO Later Could Groot: Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze.
 
-    def __init__(
-            self,
-            path_to_workspace: str|Path
-    ) -> None:
+    def __init__(self, app_settings: ApplicationSettings) -> None:
 
         # Miscellaneous
         import warnings
@@ -41,18 +34,19 @@ class GeoProbPipe:
             category=FutureWarning)  # Preferably address FutureWarnings: part of pydra-core
 
         logger.info("Initiating project.")
+        self.app_settings = app_settings
         self.time_start = datetime.now()
 
-        self.workspace = Workspace(path_to_workspace)
+        # self.workspace = Workspace(path_to_workspace)
         self.software_requirements = SoftwareRequirements(self)
 
-        self.input_data = InputData(self.workspace)
+        # self.input_data = InputData(self.workspace)  # TODO: Alter with new option
 
         # Read calculation settings
-        self._read_calculation_settings()
+        # self._read_calculation_settings()  # TODO: Not part of new version
         # TODO: Unsure if the single statement belongs here. Wouldn't it be part of input data?
 
-        self.calculations: List[ParallelSystemReliabilityCalculation] = build_and_run_piping_system_calculations(self)
+        self.calculations: List[ParallelSystemReliabilityCalculation] = build_and_run_system_calculations(self)
         self.results = Results(self)
 
         # Log finish
@@ -64,11 +58,11 @@ class GeoProbPipe:
         self.visualizations = Visualizations(self)
         self.spatial = Spatial(self)
 
-    def _read_calculation_settings(self):
-        """ Read calculation settings from Excel file. """
-        self.df_settings = read_excel(self.workspace.path_input_excel, sheet_name="Settings", index_col=0, header=0)
-        logger.info(f"Settings successfully loaded from `{self.workspace.path_input_excel.name}`.")
-        time.sleep(1)  # Some time to make sure the print below, is printed after the logger print.
+    # def _read_calculation_settings(self):  # TODO: Not (yet) part of new version
+    #     """ Read calculation settings from Excel file. """
+    #     self.df_settings = read_excel(self.workspace.path_input_excel, sheet_name="Settings", index_col=0, header=0)
+    #     logger.info(f"Settings successfully loaded from `{self.workspace.path_input_excel.name}`.")
+    #     time.sleep(1)  # Some time to make sure the print below, is printed after the logger print.
 
     def _export_validation_messages(self):
 
