@@ -7,19 +7,20 @@ def test_calculation():
 
     from probabilistic_library import Alpha
 
-    from geoprob_pipe.calculations.system_calculations.piping_system.dummy_input import (
-        DUMMY_INPUT,
-    )
+    from geoprob_pipe.calculations.system_calculations.piping_system.dummy_input import DUMMY_INPUT
     from geoprob_pipe.calculations.system_calculations.piping_system.reliability_calculation import (
-        PipingSystemReliabilityCalculation,
-    )
+        PipingSystemReliabilityCalculation)
     from geoprob_pipe.deterministic.system import DeterministicSystemCalculation
 
     obj = PipingSystemReliabilityCalculation(system_variable_distributions=DUMMY_INPUT)
     # Run Model with mean values (deterministic):
     det_obj = DeterministicSystemCalculation(input_object=obj)
     print(det_obj.limit_state_results)
+    print(det_obj.system_variable_setup_result)  # TODO <-- Tussenliggende resultaten incl. Z-waarden
 
+    ##
+
+    # TODO: Dit is denk ik verkeerd geïnterpreteerd en werkt zo niet. Zo even bij praten? Groet Chris
     assert det_obj.limit_state_results["d70"] == 3.5e-4
     assert det_obj.limit_state_results["c_voorland"] == 10.0
     assert det_obj.limit_state_results["r_exit"] == 0.7

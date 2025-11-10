@@ -203,7 +203,6 @@ def limit_state_model4a(
     eta: float,
     g: float,
     gamma_water: float,
-    **_,
 ) -> Tuple[
     float,
     float,
@@ -303,24 +302,8 @@ def limit_state_model4a(
     # z_combin
     z_combin = max(z_u, z_h, z_p)
 
-    return (
-        z_u,
-        z_h,
-        z_p,
-        z_combin,
-        h_exit,
-        r_exit,
-        phi_exit,
-        d_deklaag,
-        dphi_c_u,
-        i_exit,
-        L_voorland,
-        lambda_voorland,
-        W_voorland,
-        L_kwelweg,
-        dh_c,
-        dh_red,
-    )
+    return (z_u, z_h, z_p, z_combin, h_exit, r_exit, phi_exit, d_deklaag, dphi_c_u, i_exit, L_voorland, lambda_voorland,
+            W_voorland, L_kwelweg, dh_c, dh_red)
 
 
 # noinspection PyPep8Naming
