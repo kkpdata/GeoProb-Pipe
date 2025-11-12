@@ -15,10 +15,10 @@ def physical_values_buitenwaterstand_and_top_zand(geoprob_pipe: GeoProbPipe, exp
     df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id", "variable", "distribution_type", "physical_value"]]
 
     # Attach measure
-    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df = merge(
         left=df,
-        right=df_uittredepunten[["uittredepunt_id", "M_value"]],
+        right=gdf_uittredepunten[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id",
         how="left")
 
@@ -27,7 +27,7 @@ def physical_values_buitenwaterstand_and_top_zand(geoprob_pipe: GeoProbPipe, exp
     df_filtered = df[df['variable'] == "buitenwaterstand"]
     fig.add_trace(
         Scatter(
-            x=df_filtered['M_value'],
+            x=df_filtered['metrering'],
             y=df_filtered["physical_value"],
             name="Buitenwaterstand",
             mode='markers',
@@ -35,7 +35,7 @@ def physical_values_buitenwaterstand_and_top_zand(geoprob_pipe: GeoProbPipe, exp
     df_filtered = df[df['variable'] == "top_zand"]
     fig.add_trace(
         Scatter(
-            x=df_filtered['M_value'],
+            x=df_filtered['metrering'],
             y=df_filtered["physical_value"],
             mode='markers',
             name="Top zand",
@@ -43,8 +43,8 @@ def physical_values_buitenwaterstand_and_top_zand(geoprob_pipe: GeoProbPipe, exp
 
     fig.update_layout(
         xaxis=dict(
-            title=f"Metrering", type='linear', range=[df['M_value'].min()-10, df['M_value'].max()+10], showgrid=True,
-            gridwidth=0.5, gridcolor="gray"),
+            title=f"Metrering", type='linear', range=[df['metrering'].min()-10, df['metrering'].max()+10],
+            showgrid=True, gridwidth=0.5, gridcolor="gray"),
         yaxis=dict(
             title=f"Buitenwaterstand en top zand [m+NAP]", showgrid=True, gridwidth=0.5, gridcolor="gray",
             minor=dict(showgrid=True, dtick=1))

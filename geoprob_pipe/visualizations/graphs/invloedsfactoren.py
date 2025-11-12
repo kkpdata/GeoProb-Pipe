@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 import os
 from pandas import DataFrame, merge
+from geopandas import GeoDataFrame, read_file
 from geoprob_pipe.globals import DISTINCTIVE_COLORS
 from plotly.graph_objects import Figure, Bar
 if TYPE_CHECKING:
@@ -64,7 +65,10 @@ def invloedsfactoren(geoprob_pipe: GeoProbPipe, export: bool = False) -> Figure:
 
     # Plot data
     fig = Figure()
-    vakken = {row['vak_id']: row['vak_naam'] for index, row in geoprob_pipe.input_data.vakken.df.iterrows()}
+    # vakken = {row['vak_id']: row['vak_naam'] for index, row in geoprob_pipe.input_data.vakken.df.iterrows()}
+    gdf_vakindeling: GeoDataFrame = read_file(
+        geoprob_pipe.input_data.app_settings.geopackage_filepath, layer="vakindeling")
+    vakken = {row['vak_id']: row["naam"] for index, row in gdf_vakindeling.iterrows()}
     picked_colors = {}
     added_to_legend = []
     for vak_id, vak_naam in vakken.items():
@@ -76,6 +80,7 @@ def invloedsfactoren(geoprob_pipe: GeoProbPipe, export: bool = False) -> Figure:
         if df_factoren is None:
             color = f"rgb{DISTINCTIVE_COLORS[0]}"
             # Add dummy zero value to visualize no results in vak
+            # noinspection PyTypeChecker
             fig.add_trace(Bar(
                 x=[vak_naam],
                 y=[0],

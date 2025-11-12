@@ -1,8 +1,7 @@
 import os
 from datetime import datetime
 from pandas import DataFrame
-
-from geoprob_pipe.input_data import InputData
+from typing import List, Optional, TYPE_CHECKING
 
 try:
     import probabilistic_library
@@ -11,15 +10,18 @@ except ModuleNotFoundError:
         "No module named 'probabilistic_library'. This package is not publicly available or part of the repository. \n"
         "Please request the wheel-file through the developer and install it manually. Due to copyright reasons, do \n"
         "not commit the wheel-file into the repository.")
+
 # noinspection PyPep8Naming
 from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
+from geoprob_pipe.input_data import InputData
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
 from geoprob_pipe.results import Results
 from geoprob_pipe.spatial import Spatial
 from geoprob_pipe.visualizations import Visualizations
-from typing import List, Optional, TYPE_CHECKING
+from geoprob_pipe.calculations.system_calculations.build_and_run import build_and_run_system_calculations
 from geoprob_pipe.software_requirements import SoftwareRequirements
+
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
@@ -77,7 +79,7 @@ class GeoProbPipe:
 
         # Export dataframe with validation messages
         if df is not None:
-            export_path = os.path.join(self.workspace.path_output_folder.folderpath, "validation_messages.xlsx")
+            export_path = os.path.join(self.input_data.app_settings.workspace_dir, "validation_messages.xlsx")
             df.to_excel(export_path)
 
     def export_archive(self):

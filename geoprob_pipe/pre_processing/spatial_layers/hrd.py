@@ -83,7 +83,7 @@ def check_hrd_locations_added_to_geopackage(app_settings: ApplicationSettings):
         return
 
     # Add HRD locations to GeoPackage
-    hrd_path = hrd_file_path(app_settings=app_settings)
+    hrd_path = app_settings.hrd_file_path
     hrd = pydra.HRDatabase(hrd_path)
     location_names = hrd.locationnames
     hrd_location_rows = []
@@ -123,7 +123,7 @@ def check_hrd_frag_lines_added_to_geopackage(app_settings: ApplicationSettings):
 
     # Add frag lines to geopackage
     print(f"{BColors.UNDERLINE}HRD-fragility lines worden nu toegevoegd aan de GeoProb-Pipe GeoPackage.{BColors.ENDC}")
-    hrd = pydra.HRDatabase(hrd_file_path(app_settings=app_settings))
+    hrd = pydra.HRDatabase(app_settings.hrd_file_path)
     location_names = hrd.get_location_names()
     fl = pydra.ExceedanceFrequencyLine("h")
     dfs: List[DataFrame] = []

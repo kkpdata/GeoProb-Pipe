@@ -4,10 +4,8 @@ import matplotlib.pyplot as plt
 from typing import TYPE_CHECKING, List
 import plotly.graph_objects as go
 from datetime import datetime
+from probabilistic_library import FragilityValue
 from pydra_core.core.datamodels.frequency_line import FrequencyLine
-import numpy as np
-
-from geoprob_pipe.input_data.overschrijdingsfrequentielijn import Overschrijdingsfrequentielijn
 
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -22,25 +20,28 @@ def hfreq_graphs_per_location(geoprob_pipe: GeoProbPipe, export: bool = True) ->
     export_dir = os.path.join(geoprob_pipe.visualizations.graphs.export_dir, "grafiek_hfreq")
     os.makedirs(export_dir, exist_ok=True)
     figures = []
-    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
-    for hydra_nl_name in geoprob_pipe.input_data.overschrijdingsfrequentielijnen.keys():
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
+    hydra_nl_names = geoprob_pipe.input_data.hydra_nl_data.gdf_locations['location_name'].values.tolist()
+
+    for hydra_nl_name in hydra_nl_names:
         
         # Collect data for the graph
-        hfreq = geoprob_pipe.input_data.overschrijdingsfrequentielijnen[hydra_nl_name]
-        levels = hfreq.overschrijdingsfrequentielijn.level
-        freq =  hfreq.overschrijdingsfrequentielijn.exceedance_frequency
-        uittredepunten = list(df_uittredepunten[df_uittredepunten['hydra_locatie_id'] == hydra_nl_name]['uittredepunt_id'])
+        fragility_values: List[FragilityValue] = geoprob_pipe.input_data.hrd_fragility_values(ref=hydra_nl_name)
+        levels = [value.x for value in fragility_values]
+        freqs = [value.probability_of_failure for value in fragility_values]
+        uittredepunten = list(gdf_uittredepunten[gdf_uittredepunten['hrd_name'] == hydra_nl_name]['uittredepunt_id'])
 
         # Create the graph
         plt.ioff()
         fig = plt.figure(figsize=(8, 5))
         ax= fig.add_subplot(111)
-        ax.plot(levels, freq, marker='o', linestyle='-', color='blue',markersize=1)
+        ax.plot(levels, freqs, marker='o', linestyle='-', color='blue',markersize=1)
         ax.set_xscale("linear")  # belasting vaak lineair
         ax.set_yscale("log")     # faalkans logaritmisch
         ax.set_xlabel("Waterstand (m+NAP)")
         ax.set_ylabel("Overschrijdingsfrequentie (log-schaal)")
-        ax.set_title("HydraNL locatie: " + hydra_nl_name + "\nbehorend bij uittredepunten: " + ", ".join([str(u) for u in uittredepunten]))
+        ax.set_title(f"HydraNL locatie: {hydra_nl_name}\n"
+                     f"behorend bij uittredepunten: " + ", ".join([str(u) for u in uittredepunten]))
         ax.grid(True, which="both", linestyle='--', linewidth=0.5)
         fig.tight_layout()
         figures.append(fig)
@@ -104,21 +105,21 @@ class GraphHFreqSingleInteractive:
             marker=dict(color='LightSkyBlue', size=10, line=dict(color='black', width=1))))
 
     def _add_overschrijdingsfrequentielijnen(self):
-        hydra_nl_names = list(self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen.keys())
+        hydra_nl_names = self.geoprob_pipe.input_data.hydra_nl_data.gdf_locations['location_name'].values.tolist()
         hydra_nl_names.sort()
         for index, hydra_nl_name in enumerate(hydra_nl_names):
 
             # Collect data for the graph
-            hfreq = self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen[hydra_nl_name]
-            levels: np.ndarray = hfreq.overschrijdingsfrequentielijn.level
-            self.max_level = max(self.max_level, levels.max())
-            self.min_level = min(self.min_level, levels.min())
-            freq = hfreq.overschrijdingsfrequentielijn.exceedance_frequency
-            self.max_p = max(self.max_p, freq.max())
-            self.min_p = min(self.min_p, freq.min())
-            df_uittredepunten = self.geoprob_pipe.input_data.uittredepunten.df
+            fragility_values = self.geoprob_pipe.input_data.hydra_nl_data.hrd_fragility_values(ref=hydra_nl_name)
+            levels = [item.x for item in fragility_values]
+            self.max_level = max(self.max_level, max(levels))
+            self.min_level = min(self.min_level, min(levels))
+            freqs = [item.probability_of_failure for item in fragility_values]
+            self.max_p = max(self.max_p, max(freqs))
+            self.min_p = min(self.min_p, min(freqs))
+            gdf_uittredepunten = self.geoprob_pipe.input_data.uittredepunten.gdf
             uittredepunten = list(
-                df_uittredepunten[df_uittredepunten['hydra_locatie_id'] == hydra_nl_name]['uittredepunt_id'])
+                gdf_uittredepunten[gdf_uittredepunten['hrd_name'] == hydra_nl_name]['uittredepunt_id'])
 
             # Only first overschrijdingsfrequentielijn should be visible at first
             visible = 'legendonly'
@@ -130,7 +131,7 @@ class GraphHFreqSingleInteractive:
                            f"uittredepunten: {', '.join([str(u) for u in uittredepunten])}")
             self.fig.add_trace(go.Scatter(
                 x=levels,
-                y=freq,
+                y=freqs,
                 mode='lines',
                 name=legend_name,
                 legendgroup=legend_name,
@@ -139,14 +140,14 @@ class GraphHFreqSingleInteractive:
                 showlegend=True))
 
     def _add_physical_values(self):
-        hydra_nl_names = list(self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen.keys())
+        hydra_nl_names = self.geoprob_pipe.input_data.hydra_nl_data.gdf_locations['location_name'].values.tolist()
         hydra_nl_names.sort()
         for index, hydra_nl_name in enumerate(hydra_nl_names):
 
             # Collect data for the graph
-            df_uittredepunten = self.geoprob_pipe.input_data.uittredepunten.df
+            gdf_uittredepunten = self.geoprob_pipe.input_data.uittredepunten.gdf
             uittredepunten = list(
-                df_uittredepunten[df_uittredepunten['hydra_locatie_id'] == hydra_nl_name]['uittredepunt_id'])
+                gdf_uittredepunten[gdf_uittredepunten['hrd_name'] == hydra_nl_name]['uittredepunt_id'])
 
             # Only first overschrijdingsfrequentielijn should be visible at first
             visible = 'legendonly'
@@ -163,9 +164,7 @@ class GraphHFreqSingleInteractive:
             levels = df['physical_value'].values
             self.max_level = max(self.max_level, levels.max())
             self.min_level = min(self.min_level, levels.min())
-            freq_line1: Overschrijdingsfrequentielijn = (
-                self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen[hydra_nl_name])
-            freq_line2: FrequencyLine = freq_line1.overschrijdingsfrequentielijn
+            freq_line2: FrequencyLine = self.geoprob_pipe.input_data.hydra_nl_data.hrd_frequency_line(ref=hydra_nl_name)
             frequencies = [freq_line2.interpolate_level(level) for level in levels]
             self.max_p = max(self.max_p, max(frequencies))
             self.min_p = min(self.min_p, min(frequencies))

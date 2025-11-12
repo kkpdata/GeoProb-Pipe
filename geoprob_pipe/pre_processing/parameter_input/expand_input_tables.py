@@ -49,7 +49,6 @@ def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
         fc.probability_of_failure = row["kans"]
         frag_points.append(fc)
     return frag_points
-    # return {"waarde": df_frag_line["waarde"].values.tolist(), "kans": df_frag_line["kans"].values.tolist()}
 
 
 def _collect_fragility_values(tables: InputParameterTables, fragility_refs: List[str], geopackage_filepath: str) -> DataFrame:

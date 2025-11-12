@@ -24,7 +24,7 @@ class Spatial:
 
     @property
     def export_dir(self) -> str:
-        return self.geoprob_pipe.workspace.path_output_folder.folderpath
+        return self.geoprob_pipe.input_data.app_settings.workspace_dir
 
     @property
     def export_path_geopackage(self):

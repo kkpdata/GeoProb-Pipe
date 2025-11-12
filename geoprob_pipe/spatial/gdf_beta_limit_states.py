@@ -1,5 +1,5 @@
 from __future__ import annotations
-from geopandas import GeoDataFrame, points_from_xy
+from geopandas import GeoDataFrame
 from pandas import DataFrame
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -11,16 +11,17 @@ def _get_uittredepunten_gdf_beta_results(
 ) -> GeoDataFrame:
 
     # Gather uittredepunten coord values
-    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
-    df_coords = df_uittredepunten[["uittredepunt_id", "uittredepunt_x_coord", "uittredepunt_y_coord"]]
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
+    gdf_coords = gdf_uittredepunten[["uittredepunt_id", "geom"]]
 
     # Merge coord values to limit state dataframe
-    df = df_betas.merge(df_coords, left_on="uittredepunt_id", right_on="uittredepunt_id")
+    df_merged = df_betas.merge(gdf_coords, left_on="uittredepunt_id", right_on="uittredepunt_id")
 
     # Create GeoDataFrame
-    gdf = GeoDataFrame(
-        df, geometry=points_from_xy(df['uittredepunt_x_coord'], df['uittredepunt_y_coord']), crs='EPSG:28992')
-    return gdf.drop(columns=['uittredepunt_x_coord', 'uittredepunt_y_coord'])
+    # gdf = GeoDataFrame(
+    #     df, geometry=points_from_xy(df['uittredepunt_x_coord'], df['uittredepunt_y_coord']), crs='EPSG:28992')
+    # return gdf.drop(columns=['uittredepunt_x_coord', 'uittredepunt_y_coord'])
+    return GeoDataFrame(df_merged, geometry="geom", crs=gdf_uittredepunten.crs)
 
 
 def get_gdf_beta_limit_states(geoprob_pipe: GeoProbPipe, export: bool = False) -> GeoDataFrame:

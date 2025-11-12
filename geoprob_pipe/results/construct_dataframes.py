@@ -65,8 +65,8 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
 
     # Add vak id back to it
-    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
-    df_uittredepunten = df_uittredepunten[["uittredepunt_id", "vak_id"]]
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
+    df_uittredepunten = gdf_uittredepunten[["uittredepunt_id", "vak_id"]]
     df = df.merge(df_uittredepunten, left_on="uittredepunt_id", right_on="uittredepunt_id")
 
     return df[["uittredepunt_id", "vak_id", "beta", "failure_probability"]]

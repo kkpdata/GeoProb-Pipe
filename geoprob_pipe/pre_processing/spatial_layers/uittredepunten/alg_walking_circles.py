@@ -5,7 +5,6 @@ from geoprob_pipe.pre_processing.utils.spatial import load_dijktraject_linestrin
 from shapely import LineString, MultiPoint, Polygon, MultiPolygon, Point, unary_union
 from shapely.geometry import mapping
 import numpy as np
-import os
 import rasterio.mask
 import time
 import random

@@ -1,4 +1,3 @@
-from scipy.stats import norm
 import math
 from typing import Optional
 from scipy.stats import lognorm, norm

@@ -7,7 +7,6 @@ from __future__ import annotations
 from InquirerPy import inquirer
 from typing import TYPE_CHECKING, Optional
 import os
-import sys
 from shapely import LineString, MultiLineString
 from geopandas import GeoDataFrame, read_file
 import fiona

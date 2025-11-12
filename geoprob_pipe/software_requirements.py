@@ -23,7 +23,8 @@ class SoftwareRequirements:
             t = np.linspace(0, 10, 100)
             fig = Figure(data=Scatter(x=t, y=np.sin(t), mode='markers'))
             timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
-            file_path = os.path.join(geoprob_pipe.workspace.folderpath, f"{timestamp}_test_chrome_install_figure.png")
+            file_path = os.path.join(
+                geoprob_pipe.input_data.app_settings.workspace, f"{timestamp}_test_chrome_install_figure.png")
             fig.write_image(file_path)
             if os.path.exists(file_path):
                 os.remove(file_path)
