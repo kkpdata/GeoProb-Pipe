@@ -2,7 +2,7 @@ from __future__ import annotations
 from geopandas import GeoDataFrame, read_file
 from typing import TYPE_CHECKING
 import sqlite3
-from geoprob_pipe.calculations.system_calculations import SYSTEM_CALCULATION_MAPPER
+from geoprob_pipe.calculations.system_calculations.dummy_input_mapper import DUMMY_INPUT_MAPPER
 from pandas import DataFrame
 import numpy as np
 if TYPE_CHECKING:
@@ -44,7 +44,7 @@ def push_parameter_invoer_tabel(app_settings: ApplicationSettings):
     conn.close()
 
     # Start base of table
-    df_dummy_data = DataFrame(SYSTEM_CALCULATION_MAPPER[model_string]['dummy_invoer'])
+    df_dummy_data = DataFrame(DUMMY_INPUT_MAPPER[model_string]['dummy_invoer'])
     df_dummy_data = df_dummy_data.sort_values(by=["name"])
     df_parameter_invoer: DataFrame = df_dummy_data[[
         "name", "distribution_type", "mean", "variation", "deviation"]].copy()

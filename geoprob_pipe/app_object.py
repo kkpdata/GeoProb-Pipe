@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from pandas import DataFrame
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional
 
 try:
     import probabilistic_library
@@ -22,8 +22,8 @@ from geoprob_pipe.visualizations import Visualizations
 from geoprob_pipe.calculations.system_calculations.build_and_run import build_and_run_system_calculations
 from geoprob_pipe.software_requirements import SoftwareRequirements
 
-if TYPE_CHECKING:
-    from geoprob_pipe.pre_processing.cmd import ApplicationSettings
+# if TYPE_CHECKING:
+from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
 
 class GeoProbPipe:

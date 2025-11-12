@@ -8,7 +8,7 @@ from geopandas import read_file, GeoDataFrame
 from datetime import datetime
 import importlib.resources
 from typing import TYPE_CHECKING
-from geoprob_pipe.calculations.system_calculations import SYSTEM_CALCULATION_MAPPER
+from geoprob_pipe.calculations.system_calculations.dummy_input_mapper import DUMMY_INPUT_MAPPER
 from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
@@ -50,7 +50,7 @@ def export_input_parameter_tables(app_settings: ApplicationSettings, tables: Inp
         raise ValueError
     model_string = result[0]
     conn.close()
-    df_dummy_data = DataFrame(SYSTEM_CALCULATION_MAPPER[model_string]['dummy_invoer'])
+    df_dummy_data = DataFrame(DUMMY_INPUT_MAPPER[model_string]['dummy_invoer'])
     df_dummy_data = df_dummy_data.sort_values(by=["name"])
     df_model_parameters = df_dummy_data[["name", "description", "remark", "unit"]].copy()
     with ExcelWriter(dst_path, engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
@@ -60,7 +60,7 @@ def export_input_parameter_tables(app_settings: ApplicationSettings, tables: Inp
     # Geohydrologisch model in titel
     wb = load_workbook(dst_path)
     ws = wb["Geohydrologisch model"]
-    ws["A1"] = f"Geohydrologisch model '{SYSTEM_CALCULATION_MAPPER[model_string]['label']}'"
+    ws["A1"] = f"Geohydrologisch model '{DUMMY_INPUT_MAPPER[model_string]['label']}'"
     wb.save(dst_path)
 
     # Fill 'Scenario invoer'

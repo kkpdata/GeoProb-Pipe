@@ -1,7 +1,7 @@
 from probabilistic_library import DistributionType
 
 
-PIPING_DUMMY_INPUT = [
+DUMMY_INPUT = [
     {
         "name": "L_intrede",
         "description": "TODO",  # TODO
