@@ -71,7 +71,7 @@ class Results:
             #  Op dit moment worden ze gewoon gebruikt om de scenario-faalkans te berekenen.
 
         if bool_beta_scenarios:
-            df = self.df_beta_scenarios.drop(columns=['ondergrondscenario', 'system_calculation'])
+            df = self.df_beta_scenarios.drop(columns=['system_calculation'])
             df.to_excel(
                 excel_writer=os.path.join(self.export_dir, "df_beta_scenarios.xlsx"))
 

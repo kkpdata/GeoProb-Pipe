@@ -1,6 +1,6 @@
 from __future__ import annotations
 from geopandas import GeoDataFrame, read_file
-from pandas import read_sql
+from pandas import read_sql, DataFrame
 from probabilistic_library import FragilityValue
 import pydra_core as pydra
 from shapely import Point
@@ -42,9 +42,9 @@ class Uittredepunten:
 class Uittredepunt:
 
     def __init__(
-            self, app_settings: ApplicationSettings, geom: Point, uittredepunt_id: int, vak_id: int, **_):
+            self, app_settings: ApplicationSettings, geometry: Point, uittredepunt_id: int, vak_id: int, **_):
         self.app_settings: ApplicationSettings = app_settings
-        self.geom: Point = geom
+        self.geometry: Point = geometry
         self.uittredepunt_id: int = uittredepunt_id
         self.vak_id: int = vak_id
 
@@ -61,6 +61,27 @@ class Uittredepunt:
     @property
     def vak(self) -> Vak:
         return Vak(app_settings=self.app_settings, vak_id=self.vak_id)
+
+
+class Scenarios:
+
+    def __init__(self, app_settings: ApplicationSettings):
+        self.app_settings: ApplicationSettings = app_settings
+        self.df = self._query_scenarios()
+
+    def _query_scenarios(self) -> DataFrame:
+        conn = sqlite3.connect(self.app_settings.geopackage_filepath)
+        df_scenario_invoer = read_sql("SELECT * FROM scenario_invoer;", conn)
+        df_scenario_invoer = df_scenario_invoer[["vak_id", "naam", "kans"]]
+        conn.close()
+        return df_scenario_invoer
+
+    def scenario_kans(self, vak_id: int, scenario_naam: str) -> float:
+        kans: float = self.df[
+            (self.df['vak_id'] == vak_id) &
+            (self.df['naam'] == scenario_naam)
+        ]['kans'].iloc[0]
+        return kans
 
 
 class HydraNLData:
@@ -97,6 +118,13 @@ class HydraNLData:
         # noinspection PyUnresolvedReferences
         return pydra.core.datamodels.frequency_line.FrequencyLine(
             level=level, exceedance_frequency=exceedance_frequency)
+
+
+class Vakken:
+
+    def __init__(self, app_settings: ApplicationSettings):
+        self.app_settings: ApplicationSettings = app_settings
+        self.gdf: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="vakindeling")
 
 
 class InputData:
@@ -138,6 +166,8 @@ class InputData:
         # logger.info(f"HRD .sqlite file successfully loaded from `{workspace.path_hrd.name}`.")
 
         self.uittredepunten = Uittredepunten(self.app_settings)
+        self.scenarios = Scenarios(self.app_settings)
+        self.vakken = Vakken(self.app_settings)
         self.hydra_nl_data = HydraNLData(self.app_settings)
 
     @property

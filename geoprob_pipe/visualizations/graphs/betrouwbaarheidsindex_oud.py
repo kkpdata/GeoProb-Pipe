@@ -1,7 +1,7 @@
 from __future__ import annotations
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import Figure
-from pandas import merge
+from pandas import merge, DataFrame
 import os
 from matplotlib.ticker import ScalarFormatter
 from typing import TYPE_CHECKING
@@ -80,10 +80,11 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
     ax.axhline(cg["V"][0], color='black', linewidth=1)
 
     # Plot vakken
-    for index, row in geoprob_pipe.input_data.vakken.df.iterrows():
-        ax.axvline(x=row['M_van'], color='black', linewidth=1)
-        m_center = row['M_van'] + (row['M_tot'] - row['M_van']) / 2
-        ax.text(x=m_center, y=2.25, s=f"Vak {row['vak_id']}",
+
+    for index, row in geoprob_pipe.input_data.vakken.gdf.iterrows():
+        ax.axvline(x=row['m_start'], color='black', linewidth=1)
+        m_center = row['m_start'] + (row['m_end'] - row['m_start']) / 2
+        ax.text(x=m_center, y=2.25, s=f"Vak {row['id']}",
                 fontsize=15, verticalalignment='center', horizontalalignment='center')
 
     # Plot normering
@@ -183,10 +184,11 @@ def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) ->
     ax.axhline(cg["V"][0], color='black', linewidth=1)
 
     # Plot vakken
-    for index, row in geoprob_pipe.input_data.vakken.df.iterrows():
-        ax.axvline(x=row['M_van'], color='black', linewidth=1)
-        m_center = row['M_van'] + (row['M_tot'] - row['M_van']) / 2
-        ax.text(x=m_center, y=2.25, s=f"Vak {row['vak_id']}",
+    for index, row in geoprob_pipe.input_data.vakken.gdf.iterrows():
+        # for index, row in geoprob_pipe.input_data.vakken.df.iterrows():
+        ax.axvline(x=row['m_start'], color='black', linewidth=1)
+        m_center = row['m_start'] + (row['m_end'] - row['m_start']) / 2
+        ax.text(x=m_center, y=2.25, s=f"Vak {row['id']}",
                 fontsize=15, verticalalignment='center', horizontalalignment='center')
 
     # Plot normering
@@ -221,11 +223,13 @@ def beta_vakken_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figure:
     de x-as uitgezet tegen de dijkpaal nummering. Op de achtergrond zijn de categoriegrenzen weergegeven. """
 
     # Collect data
-    df_vakken = geoprob_pipe.input_data.vakken.df
+    gdf_vakken = geoprob_pipe.input_data.vakken.gdf
+    df_vakken: DataFrame = gdf_vakken[["id", "m_start", "m_end"]]
+    df_vakken = df_vakken.rename(columns={"id": "vak_id"})
     df_results_vakken = geoprob_pipe.results.df_beta_vakken
     df_for_graph = merge(
         left=df_results_vakken[["vak_id", "beta"]],
-        right=df_vakken[["vak_id", "M_van", "M_tot"]],
+        right=df_vakken,
         on="vak_id",
         how="left"
     )
@@ -242,7 +246,7 @@ def beta_vakken_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figure:
         if plot_legend:
             label = "Betrouwbaarheidsindex"
             plot_legend = False
-        ax.plot([row['M_van'], row['M_tot']], [row['beta'], row['beta']], linestyle='-',
+        ax.plot([row['m_start'], row['m_end']], [row['beta'], row['beta']], linestyle='-',
                 color='black', linewidth = '4', label=label)
 
     # Formatting
@@ -257,7 +261,7 @@ def beta_vakken_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figure:
     ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=False))
     ax.ticklabel_format(style='plain', axis='y')
     ax.set_yticks([2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20])
-    ax.set_xlim(df_for_graph['M_van'].min() - 10, df_for_graph['M_tot'].max() + 10)
+    ax.set_xlim(df_for_graph['m_start'].min() - 10, df_for_graph['m_end'].max() + 10)
     # TODO Nu Must Klein: Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure.
 
     # Categorie kleuren
@@ -291,15 +295,15 @@ def beta_vakken_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figure:
     ax.axhline(cg["V"][0], color='black', linewidth=1)
 
     # Plot vakken
-    for index, row in geoprob_pipe.input_data.vakken.df.iterrows():
-        ax.axvline(x=row['M_van'], color='black', linewidth=1)
-        m_center = row['M_van'] + (row['M_tot'] - row['M_van']) / 2
-        ax.text(x=m_center, y=2.25, s=f"Vak {row['vak_id']}",
+    for index, row in geoprob_pipe.input_data.vakken.gdf.iterrows():
+        ax.axvline(x=row['m_start'], color='black', linewidth=1)
+        m_center = row['m_start'] + (row['m_end'] - row['m_start']) / 2
+        ax.text(x=m_center, y=2.25, s=f"Vak {row['id']}",
                 fontsize=15, verticalalignment='center', horizontalalignment='center')
 
     # Plot normering
-    m_max = df_for_graph['M_tot'].max()
-    m_diff = m_max - df_for_graph['M_van'].min()
+    m_max = df_for_graph['m_end'].max()
+    m_diff = m_max - df_for_graph['m_start'].min()
     m_spacing = m_diff * 0.02
     ax.text(
         m_max + m_spacing, cg["I"][0], '$β_{eis;sig;dsn / 30}$',

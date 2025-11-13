@@ -12,7 +12,7 @@ def _get_uittredepunten_gdf_beta_results(
 
     # Gather uittredepunten coord values
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
-    gdf_coords = gdf_uittredepunten[["uittredepunt_id", "geom"]]
+    gdf_coords = gdf_uittredepunten[["uittredepunt_id", "geometry"]]
 
     # Merge coord values to limit state dataframe
     df_merged = df_betas.merge(gdf_coords, left_on="uittredepunt_id", right_on="uittredepunt_id")
@@ -21,7 +21,7 @@ def _get_uittredepunten_gdf_beta_results(
     # gdf = GeoDataFrame(
     #     df, geometry=points_from_xy(df['uittredepunt_x_coord'], df['uittredepunt_y_coord']), crs='EPSG:28992')
     # return gdf.drop(columns=['uittredepunt_x_coord', 'uittredepunt_y_coord'])
-    return GeoDataFrame(df_merged, geometry="geom", crs=gdf_uittredepunten.crs)
+    return GeoDataFrame(df_merged, geometry="geometry", crs=gdf_uittredepunten.crs)
 
 
 def get_gdf_beta_limit_states(geoprob_pipe: GeoProbPipe, export: bool = False) -> GeoDataFrame:

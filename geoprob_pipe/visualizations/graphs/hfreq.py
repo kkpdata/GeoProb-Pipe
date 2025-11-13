@@ -26,7 +26,8 @@ def hfreq_graphs_per_location(geoprob_pipe: GeoProbPipe, export: bool = True) ->
     for hydra_nl_name in hydra_nl_names:
         
         # Collect data for the graph
-        fragility_values: List[FragilityValue] = geoprob_pipe.input_data.hrd_fragility_values(ref=hydra_nl_name)
+        fragility_values: List[FragilityValue] = geoprob_pipe.input_data.hydra_nl_data.hrd_fragility_values(
+            ref=hydra_nl_name)
         levels = [value.x for value in fragility_values]
         freqs = [value.probability_of_failure for value in fragility_values]
         uittredepunten = list(gdf_uittredepunten[gdf_uittredepunten['hrd_name'] == hydra_nl_name]['uittredepunt_id'])
