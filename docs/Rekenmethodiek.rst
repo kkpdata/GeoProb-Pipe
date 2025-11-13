@@ -1,39 +1,45 @@
 .. _rekenmethodiek:
 
+
+.. contents::
+   :local:
+   :depth: 3
+
+
 Rekenmethodiek
 ==============
 
 Deze pagina beschrijft de rekenmethodiek die `GeoProb-Pipe` gebruikt voor het berekenen van de totale faalkans op piping per uittredepunt.
 
-De rekenmethodiek is modulair opgebouwd en bestaat uit drie samenhangende onderdelen:
+Implementatie
+-------------
+
+De implementatie van de rekenmethodiek is modulair opgebouwd en bestaat uit drie samenhangende onderdelen:
 
 1. **Fysische componenten**  
    In deze stap worden de geohydrologische en geotechnische componenten berekend die de fysieke toestand van het systeem beschrijven,
    zoals de deklaagdikte, heave-gradiënt, kwelweglengte en het kritieke verval volgens Sellmeijer.
    Deze berekeningen zijn geïmplementeerd in het subpakket ``geoprob_pipe.calculations.physical_components.piping``  
-   en vormen de bouwstenen voor de grenstoestandsfuncties.Ze zijn onafhankelijk van het gekozen stijghoogtemodel: ongeacht of de stijghoogte wordt bepaald met het analytische model 4A of een numeriek model worden dezelfde fysische componenten toegepast.
+   De fysische componenten vormen de bouwstenen voor de grenstoestandsfuncties.
+   Ze zijn onafhankelijk van het gekozen stijghoogtemodel: ongeacht of de stijghoogte wordt bepaald met het analytische model 4A of een numeriek model worden dezelfde fysische componenten toegepast.
 
 2. **Grenstoestandsfuncties**  
    De grenstoestandfuncties beschrijven de drie deelmechanismen die leiden tot piping:
    *opbarsten*, *heave* en *terugschrijdende erosie*.  
-   Voor elk mechanisme wordt een aparte grenstoestandsfunctie berekend, waarna de gecombineerde toestand wordt bepaald.
-   De functies zijn identiek voor alle stijghoogtemodellen en maken gebruik van de fysische componenten uit stap 1.
+   Voor elk mechanisme wordt een aparte grenstoestandsfunctie berekend, waarna de gecombineerde toestand wordt bepaald. 
+   In de implementatie is dit voor elk stijghoogtemodel één functie. Deze functie geeft als resultaat alle grenstoestandfuncties, ook de gecombineerde.
+   De grenstoestandsfuncties maken gebruik van de fysische componenten uit stap 1.
+   Elke implementatie van een stijghoogtemodel wordt aangeroepen via een eigen functie in het pakket ``geoprob_pipe.calculations`` (bijvoorbeeld ``limit_state_model4a`` of ``limit_state_moria``).  
+   Deze functies combineren de fysische componenten en grenstoestandsfuncties tot één consistente berekening van de faalkans per uittredepunt.
 
 3. **Stijghoogtemodellen**  
    Het stijghoogtemodel bepaalt de stijghoogte in het uittredepunt (:math:`\phi_{exit}`) en vormt daarmee de koppeling tussen
    de hydraulische belasting (buitenwaterstand, polderpeil) en de ondergrondrespons.  
    `GeoProb-Pipe` ondersteunt meerdere typen stijghoogtemodellen:
+   - de WBI-formulering van de stijghoogte met een vaste responsfactor en kwelweglengte;
    - het analytische grondwatermodel *4A* op doorsnedeniveau;
-   - numerieke rastermodellen zoals *MORIA*;
+   - resultaten van numerieke rastermodellen zoals *MORIA*;
    - en toekomstige uitbreidingen (bijv. TTIM) die via dezelfde interface kunnen worden toegevoegd.
-
-Elke implementatie van een stijghoogtemodel wordt aangeroepen via een eigen functie in het pakket ``geoprob_pipe.calculations``
-(bijvoorbeeld ``limit_state_model4a`` of ``limit_state_moria``).  
-Deze functies combineren de fysische componenten en grenstoestandsfuncties tot één consistente berekening van de faalkans per uittredepunt.
-
-.. contents::
-   :local:
-   :depth: 3
 
 
 Faalpad en foutenboom piping
@@ -55,13 +61,13 @@ In de schematiseringshandleiding piping :cite:`sh_piping_2021` zijn de bijbehore
 .. TODO: Foutenboom toevoegen als plaatje?
 
 Basis grenstoestandfuncties BOI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 De onderstaande grenstoestandsfuncties vormen de kern van de berekening in `GeoProb-Pipe`.
 Ze worden identiek toegepast in elk stijghoogtemodel (`limit_state_wbi`, `limit_state_model4a`, `limit_state_moria`).
 De verschillen tussen de modellen zitten uitsluitend in de berekening van de stijghoogte :math:`\phi_{exit}` en bijbehorende parameters.
 
 Opbarsten
-^^^^^^^^^^
+^^^^^^^^^
 
 De grenstoestandfunctie van **opbarsten** :math:`Z_{u}` is in :cite:`sh_piping_2021` als volgt gedefinieerd:
 
@@ -119,7 +125,7 @@ waarin:
 
 
 Heave
-^^^^^^^^^^
+^^^^^
 
 De grenstoestandfunctie van **heave** :math:`Z_{h}` is in :cite:`sh_piping_2021` als volgt gedefinieerd:
 
@@ -191,7 +197,8 @@ waarin:
 
 .. _stijghoogtemodellen-geoprob:
 Stijghoogtemodellen in GeoProb-Pipe
--------------------
+-----------------------------------
+
 De berekening van de stijghoogte :math:`\phi_{exit}` wordt uitgevoerd binnen de limit-state functies,
 waarbij elke functie een specifiek type stijghoogtemodel aanroept:
 
@@ -203,7 +210,8 @@ De rekenmethodiek is zodanig opgezet dat in de toekomst ook andere stijghoogtemo
 
 .. _model4a:
 Analytische stijghoogtemodel 4A
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Het analytische grondwatermodel *4A* vormt één van de mogelijke implementaties van het stijghoogtemodel
 (*stap 3* van de rekenmethodiek).  
 Dit model beschrijft de stroming van grondwater door de zandlaag onder een dijk op basis van stationaire,
@@ -224,7 +232,7 @@ De respons in het uittredepunt wordt bepaald met:
    r_{exit}(x) = f(x_{exit}, L_1, L_2, L_3, c_{voorland}, c_{achterland}, k, D_{wvp})
 
 Geometrische parameters
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 Geometrische parameters :math:`L_1` en :math:`L_2` zijn omgeschreven naar afstanden ten opzichte van het uittredepunt:
 
 .. math::
@@ -245,7 +253,7 @@ waarin:
 
 
 Effectieve voorlandlengte
-^^^^^^^^^^^^^^^^^^^^^^^^^^  
+^^^^^^^^^^^^^^^^^^^^^^^^^
 De kwelweglengte :math:`L_{kwelweg}` maakt conform de schematiseringshandleiding piping :cite:`sh_piping_2021` gebruik van het principe van de effectieve voorlandlengte. 
 
 .. math::
@@ -262,7 +270,7 @@ waarin:
 - :math:`\lambda_{1}` de spreidingslengte van het voorland is [m]
 
 Overzicht parameters model 4A
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Het berekeningsmodel met het analytische grondwatermodel 4A kent de volgende invoerparameters:
 
@@ -353,7 +361,7 @@ Het berekeningsmodel met het analytische grondwatermodel 4A kent de volgende inv
      - normaal
 
 Numerieke stijghoogtemodellen
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Het numerieke stijghoogtemodel vormt een tweede implementatie van het stijghoogtemodel (*stap 3* van de rekenmethodiek).  
 In dit geval wordt de stijghoogte :math:`\phi_{exit}` niet analytisch berekend, maar afgeleid uit een numeriek grondwatermodel
@@ -415,8 +423,8 @@ Grenstoestandfunctie terugschrijdende erosie:
 
 
 Correlatie tussen variabelen
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-De beschrijving van het geohydrologische systeem met deze variabelen betekent ook dat de onderlinge correlatie van de variabelen apart moet worden gedefinieerd. Dit betreft met name de correlatie tussen de spreidingslengte van het voorland :math:`\lambda_{1}` en de transmissiviteit van het watervoerende zandpakket :math:`kD` en in mindere mate de correlatie tussen de respons in het uittredepunt :math:`r_{exit}` en de transmissiviteit van het watervoerende zandpakket :math:`kD`. In het model 4A zijn deze correlaties modelmatig beschreven.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+De beschrijving van het geohydrologische systeem met de variabelen betekent ook dat de onderlinge correlatie van de variabelen apart moet worden gedefinieerd. Dit betreft met name de correlatie tussen de spreidingslengte van het voorland :math:`\lambda_{1}` en de transmissiviteit van het watervoerende zandpakket :math:`kD` en in mindere mate de correlatie tussen de respons in het uittredepunt :math:`r_{exit}` en de transmissiviteit van het watervoerende zandpakket :math:`kD`. In het model 4A zijn deze correlaties modelmatig beschreven.
 
 In het geval van een numeriek stijghoogtemodel is de correlatie tussen de spreidingslengte van het voorland en de transmissiviteit van het watervoerende zandpakket plaatsafhankelijk en wordt beschreven door het geohydrologische model. 
 
@@ -432,7 +440,9 @@ Op basis van het model 4A is de correlatie tussen de transmissiviteit van het wa
 
 Overzicht van implementaties in de code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+.. TODO: uiteindelijke implementatie controleren en tekst hierop aanpassen. 
+.. TODO: misschien de theorie (beschrijving grenstoestandsfuncties) en de implementatie (overzicht functies) beter scheiden?
+ 
 In onderstaande tabel zijn de huidige implementaties van de stijghoogtemodellen binnen `GeoProb-Pipe` samengevat.
 Elke implementatie volgt dezelfde structuur: eerst worden de fysische componenten berekend,
 vervolgens de grenstoestandsfuncties, en tenslotte de gecombineerde limiettoestand.
