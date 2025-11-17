@@ -14,7 +14,12 @@ class Visualizations:
 
     @property
     def export_dir(self) -> str:
-        path = os.path.join(self.geoprob_pipe.input_data.app_settings.workspace_dir, "visualizations")
+        path = os.path.join(
+            self.geoprob_pipe.input_data.app_settings.workspace_dir,
+            "exports",
+            self.geoprob_pipe.datetime_stamp,
+            "visualizations"
+        )
         os.makedirs(path, exist_ok=True)
         return path
 

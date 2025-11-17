@@ -46,8 +46,11 @@ class Results:
 
     @property
     def export_dir(self) -> str:
-        # TODO Later Could Klein: Elk sub-object heeft een export_dir-method. Kan dit handiger?
-        path = os.path.join(self.geoprob_pipe.input_data.app_settings.workspace_dir, "results")
+        path = os.path.join(
+            self.geoprob_pipe.input_data.app_settings.workspace_dir,
+            "exports",
+            self.geoprob_pipe.datetime_stamp,
+            "results")
         os.makedirs(path, exist_ok=True)
         return path
 
