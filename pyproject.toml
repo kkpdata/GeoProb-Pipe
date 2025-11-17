@@ -1,7 +1,7 @@
 
 [project]
 name = "geoprob_pipe"
-version = "1.0.0"
+version = "1.0.3"
 description = "Execute probabilistic piping calculations using a Deltares probabilic library"
 requires-python = ">=3.12"
 license = "GPL-3.0-or-later"
@@ -28,3 +28,4 @@ rasterio = "^1.4.3"
 
 [tool.poetry.scripts]
 geoprob_pipe = "geoprob_pipe.pre_processing.cmd:app"
+geoprob-pipe = "geoprob_pipe.pre_processing.cmd:app"

@@ -33,7 +33,8 @@ def question_trajectory_source(app_settings: ApplicationSettings):
     ).execute()
 
     if choice == choices_list[0]:
-        with importlib.resources.path('geoprob_pipe.misc.dijktrajecten', 'dijktrajecten.shp') as shp_path:
+        with importlib.resources.path(
+                'geoprob_pipe.misc.dijktrajecten', 'dijktrajecten.shp') as shp_path:
             gdf: GeoDataFrame = read_file(shp_path)
         specify_single_trajectory(app_settings, gdf=gdf, column_name="TRAJECT_ID")
     elif choice == choices_list[1]:
@@ -64,6 +65,8 @@ def request_trajectory_filepath(app_settings: ApplicationSettings):
 
     if filepath.endswith(".gdb"):
         specify_geodatabase_layer(app_settings, filepath)
+    elif filepath.endswith(".gpkg"):
+        specify_geopackage_layer(app_settings, filepath)
     elif filepath.endswith(".shp"):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
@@ -100,6 +103,33 @@ def specify_geodatabase_layer(app_settings: ApplicationSettings, filepath: str):
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
         gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
+    specify_column_with_trajectory_name(app_settings, gdf)
+
+
+def specify_geopackage_layer(app_settings: ApplicationSettings, filepath: str):
+    layer_name: Optional[str] = None
+    layer_name_is_valid = False
+    while layer_name_is_valid is False:
+        layer_name: str = inquirer.text(
+            message="Specificeer de layer waarin met de referentielijn van het dijktraject. Type 'listlayers' om "
+                    "een overzicht te krijgen van de geopackage-layers. ",
+        ).execute()
+
+        layer_names = fiona.listlayers(filepath)
+        layer_names.sort()
+        layers_str = ", ".join(layer_names)
+        if layer_name == "listlayers":
+            print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geopackage: {layers_str}", BColors.ENDC)
+            continue
+        elif layer_name not in layer_names:
+            print(BColors.OKBLUE, f"De layer name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
+                                  f"de geopackage: {layers_str}", BColors.ENDC)
+            continue
+        # TODO Later Must Klein: Check dat een LineString-laag wordt opgegeven.
+
+        layer_name_is_valid = True
+
+    gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
     specify_column_with_trajectory_name(app_settings, gdf)
 
 
