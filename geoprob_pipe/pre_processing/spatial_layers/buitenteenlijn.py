@@ -7,6 +7,7 @@ from __future__ import annotations
 from InquirerPy import inquirer
 from typing import TYPE_CHECKING, Optional
 import os
+import warnings
 from shapely import LineString, MultiLineString
 from geopandas import GeoDataFrame, read_file
 import fiona
@@ -55,7 +56,9 @@ def request_buitenteenlijn_filepath(app_settings: ApplicationSettings):
     elif filepath.endswith(".gpkg"):
         gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
     elif filepath.endswith(".gdb"):
-        gdf: GeoDataFrame = import_from_geodatabase(filepath=filepath)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
+            gdf: GeoDataFrame = import_from_geodatabase(filepath=filepath)
     else:
         raise NotImplementedError(
             f"Applicatie vroegtijdig afgesloten: Een {filepath.split(sep='.')[-1]}-bestand is niet geïmplementeerd.")

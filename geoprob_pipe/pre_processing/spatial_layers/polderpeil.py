@@ -6,6 +6,7 @@ from shapely import Polygon, MultiPolygon
 from geopandas import GeoDataFrame, read_file
 import fiona
 from geoprob_pipe.utils.validation_messages import BColors
+import warnings
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
 
@@ -46,7 +47,9 @@ def request_polderpeil_filepath(app_settings: ApplicationSettings):
 
     # Import data
     if filepath.endswith(".shp"):
-        raise NotImplementedError(f"Applicatie vroegtijdig afgesloten: shp wordt nog niet ondersteund.")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
+            gdf: GeoDataFrame = read_file(filepath)
     elif filepath.endswith(".gpkg"):
         gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
     elif filepath.endswith(".gdb"):

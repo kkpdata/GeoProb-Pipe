@@ -35,3 +35,25 @@ def test_system_moria():
     geoprob_pipe.export_archive()
 
     ##
+
+
+def test_system_moria_deest_bovenleeuwen():
+
+    ##
+
+    # from repo_utils.utils import repository_root_path
+    from geoprob_pipe import GeoProbPipe
+    import os
+    # repo_root = repository_root_path()
+    from geoprob_pipe.pre_processing.cmd import ApplicationSettings
+    app_settings = ApplicationSettings()
+
+    filepath = r"C:\Users\CP\Downloads\Deest_BovenLeeuwen\Deest_BovenLeeuwen_Test.geoprob_pipe.gpkg"
+    # filepath = os.path.join(repo_root, "tests", "systeem_testen", "224", "Traject224_MORIA.geoprob_pipe.gpkg")
+    app_settings.workspace_dir = os.path.dirname(filepath)
+    app_settings.geopackage_filename = os.path.basename(filepath)
+
+    geoprob_pipe = GeoProbPipe(app_settings)
+    geoprob_pipe.export_archive()
+
+    ##

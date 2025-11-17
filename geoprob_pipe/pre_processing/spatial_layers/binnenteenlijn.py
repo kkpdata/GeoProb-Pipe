@@ -13,6 +13,7 @@ import os
 from shapely import LineString, MultiLineString
 from geopandas import GeoDataFrame, read_file
 import fiona
+import warnings
 from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
@@ -58,7 +59,9 @@ def request_binnenteenlijn_filepath(app_settings: ApplicationSettings):
     elif filepath.endswith(".gpkg"):
         gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
     elif filepath.endswith(".gdb"):
-        gdf: GeoDataFrame = import_from_geodatabase(filepath=filepath)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
+            gdf: GeoDataFrame = import_from_geodatabase(filepath=filepath)
     else:
         raise NotImplementedError(
             f"Applicatie vroegtijdig afgesloten: Een {filepath.split(sep='.')[-1]}-bestand is niet geïmplementeerd.")

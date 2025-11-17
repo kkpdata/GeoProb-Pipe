@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from typing import TYPE_CHECKING, List
 import plotly.graph_objects as go
 from datetime import datetime
+from geopandas import GeoDataFrame, read_file
 from probabilistic_library import FragilityValue
 from pydra_core.core.datamodels.frequency_line import FrequencyLine
 
@@ -21,7 +22,10 @@ def hfreq_graphs_per_location(geoprob_pipe: GeoProbPipe, export: bool = True) ->
     os.makedirs(export_dir, exist_ok=True)
     figures = []
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
-    hydra_nl_names = geoprob_pipe.input_data.hydra_nl_data.gdf_locations['location_name'].values.tolist()
+    # hydra_nl_names = geoprob_pipe.input_data.hydra_nl_data.gdf_locations['location_name'].values.tolist()
+    gdf: GeoDataFrame = read_file(
+        geoprob_pipe.input_data.app_settings.geopackage_filepath, layer="uittredepunten")
+    hydra_nl_names = gdf['hrd_name'].unique().tolist()
 
     for hydra_nl_name in hydra_nl_names:
         
@@ -106,7 +110,10 @@ class GraphHFreqSingleInteractive:
             marker=dict(color='LightSkyBlue', size=10, line=dict(color='black', width=1))))
 
     def _add_overschrijdingsfrequentielijnen(self):
-        hydra_nl_names = self.geoprob_pipe.input_data.hydra_nl_data.gdf_locations['location_name'].values.tolist()
+        # hydra_nl_names = self.geoprob_pipe.input_data.hydra_nl_data.gdf_locations['location_name'].values.tolist()
+        gdf: GeoDataFrame = read_file(
+            self.geoprob_pipe.input_data.app_settings.geopackage_filepath, layer="uittredepunten")
+        hydra_nl_names = gdf['hrd_name'].unique().tolist()
         hydra_nl_names.sort()
         for index, hydra_nl_name in enumerate(hydra_nl_names):
 
@@ -141,7 +148,10 @@ class GraphHFreqSingleInteractive:
                 showlegend=True))
 
     def _add_physical_values(self):
-        hydra_nl_names = self.geoprob_pipe.input_data.hydra_nl_data.gdf_locations['location_name'].values.tolist()
+        gdf: GeoDataFrame = read_file(
+            self.geoprob_pipe.input_data.app_settings.geopackage_filepath, layer="uittredepunten")
+        hydra_nl_names = gdf['hrd_name'].unique().tolist()
+        # hydra_nl_names = self.geoprob_pipe.input_data.hydra_nl_data.gdf_locations['location_name'].values.tolist()
         hydra_nl_names.sort()
         for index, hydra_nl_name in enumerate(hydra_nl_names):
 
@@ -162,6 +172,11 @@ class GraphHFreqSingleInteractive:
                 filter_deterministic=False, filter_derived=True)
             df = df[df['variable'] == 'buitenwaterstand']
             df = df[df['uittredepunt_id'].isin(uittredepunten)]
+
+            # Scenario may have no uittredepunt connections, then no physical values need to be added
+            if df.__len__() == 0:
+                return
+
             levels = df['physical_value'].values
             self.max_level = max(self.max_level, levels.max())
             self.min_level = min(self.min_level, levels.min())
@@ -172,13 +187,8 @@ class GraphHFreqSingleInteractive:
 
             # Add markers
             self.fig.add_trace(go.Scatter(
-                x=levels,
-                y=frequencies,
-                mode='markers',
-                visible=visible,
-                marker=dict(color='LightSkyBlue', size=10, line=dict(color='black', width=1)),
-                showlegend=False,
-                legendgroup=legend_name))
+                x=levels, y=frequencies, mode='markers', visible=visible, showlegend=False, legendgroup=legend_name,
+                marker=dict(color='LightSkyBlue', size=10, line=dict(color='black', width=1))))
 
     def _yticks(self):
         min_range = int(f"{self.min_p:.0e}".split("e")[1])

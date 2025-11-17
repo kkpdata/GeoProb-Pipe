@@ -348,6 +348,7 @@ class InputParameterFigures:
             (self.df_parameter_invoer['scope'] == 'uittredepunt')]
         show_legend_item_mean = True
 
+        # print(f"{df_filter.columns=}")
         for index, row in df_filter.iterrows():
 
             # Skip cdf curve
