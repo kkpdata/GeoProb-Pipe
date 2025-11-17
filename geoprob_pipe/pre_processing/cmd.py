@@ -58,12 +58,11 @@ def startup_geoprob_pipe():
     console = Console()
     console.print(Panel(
         """
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean nec tincidunt arcu. Sed risus metus, pharetra at mi sed, 
-egestas suscipit quam. Ut sed tellus vel justo congue placerat id ac nunc. Suspendisse maximus, ex non lacinia 
-vestibulum, nunc mauris tincidunt urna, nec consectetur sem nunc vel lectus. Vivamus auctor pellentesque mattis. Integer 
-nec scelerisque urna. Aenean sit amet nunc auctor mauris facilisis aliquet. Donec facilisis ipsum in felis sollicitudin 
-mattis.
-        """,
+Welkom bij GeoProb-Pipe! Deze applicatie voert probabilistische pipingberekeningen uit met de uittredepuntenmethode en 
+een geohydrologisch model naar keuze (zoals model4a). GeoProb-Pipe maakt gebruik van de probabilistische bibliotheek 
+van Deltares, die onder de motorkap de PTK-tool aanstuurt. Met de onderstaande interactieve vragenmodule neemt 
+GeoProb-Pipe je stap voor stap mee door het opzetten van de invoer en het uitvoeren van de berekeningen. 
+""",
         title="GeoProb-Pipe".upper(),
         title_align="left",
         border_style="bright_blue",
