@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, now
 from pandas import DataFrame
 from typing import List, Optional
 
@@ -31,6 +31,9 @@ class GeoProbPipe:
     # TODO Later Could Groot: Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze.
 
     def __init__(self, app_settings: ApplicationSettings) -> None:
+        # self.datetime_stamp = ""
+        #
+        # timestamp = datetime.now.strftime("%Y-%m-%d_%H-%M-%S")
 
         # Miscellaneous
         import warnings
