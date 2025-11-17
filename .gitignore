@@ -183,6 +183,9 @@ _work_dir
 !geoprob_pipe/pre_processing/test_files/hrd_files/hlcd.sqlite
 !geoprob_pipe/pre_processing/test_files/hrd_files/WBI2017_Bovenrijn_224_v04.config.sqlite
 !geoprob_pipe/pre_processing/test_files/hrd_files/WBI2017_Bovenrijn_224_v04.sqlite
-#!tests/systeem_testen/224/hrd_files/hlcd.sqlite
-#!tests/systeem_testen/224/hrd_files/WBI2017_Bovenrijn_224_v04.config.sqlite
-#!tests/systeem_testen/224/hrd_files/WBI2017_Bovenrijn_224_v04.sqlite
+!tests/systeem_testen/224/hrd_files/hlcd.sqlite
+!tests/systeem_testen/224/hrd_files/WBI2017_Bovenrijn_224_v04.config.sqlite
+!tests/systeem_testen/224/hrd_files/WBI2017_Bovenrijn_224_v04.sqlite
+#tests/systeem_testen/224/parameter_input_process/
+#tests/systeem_testen/224/results/
+#tests/systeem_testen/224/visualizations/
