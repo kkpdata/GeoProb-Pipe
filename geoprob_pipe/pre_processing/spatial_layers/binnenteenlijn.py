@@ -93,11 +93,11 @@ def import_from_geodatabase(filepath: str) -> GeoDataFrame:
         layer_names.sort()
         layers_str = ", ".join(layer_names)
         if layer_name == "listlayers":
-            print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geodatabase: {layers_str}", BColors.ENDC)
+            print(f"{BColors.OKBLUE}De volgende layers zijn beschikbaar in de geodatabase: {layers_str}{BColors.ENDC}")
             continue
         elif layer_name not in layer_names:
-            print(BColors.OKBLUE, f"De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
-                                  f"de geodatabase: {layers_str}", BColors.ENDC)
+            print(f"{BColors.OKBLUE} De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
+                  f"de geodatabase: {layers_str}{BColors.ENDC}")
             continue
 
         layer_name_is_valid = True

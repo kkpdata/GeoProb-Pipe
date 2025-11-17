@@ -25,7 +25,11 @@ def join_vak_naam(df: DataFrame, app_settings: ApplicationSettings, ) -> DataFra
 def export_input_parameter_tables(app_settings: ApplicationSettings, tables: InputParameterTables):
 
     # Copy template to workspace
-    dst_dir = os.path.join(app_settings.workspace_dir, "parameter_input_process")
+    dst_dir = os.path.join(
+        app_settings.workspace_dir,
+        "exports",
+        app_settings.datetime_stamp,
+        "parameter_input_process")
     os.makedirs(dst_dir, exist_ok=True)
     dst_path = os.path.join(dst_dir, "input_parameters_template.xlsx")
     dst_path = dst_path.replace("_template.xlsx", f".xlsx")

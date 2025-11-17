@@ -46,10 +46,10 @@ class Results:
 
     @property
     def export_dir(self) -> str:
-        path = os.path.join(
+        path: str = os.path.join(
             self.geoprob_pipe.input_data.app_settings.workspace_dir,
             "exports",
-            self.geoprob_pipe.datetime_stamp,
+            str(self.geoprob_pipe.input_data.app_settings.datetime_stamp),
             "results")
         os.makedirs(path, exist_ok=True)
         return path

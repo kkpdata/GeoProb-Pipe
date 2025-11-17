@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from geoprob_pipe.spatial.gdf_beta_limit_states import (
     get_gdf_beta_limit_states, get_gdf_beta_scenarios, get_gdf_beta_uittredepunten)
 from geopandas import GeoDataFrame
-import os
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
@@ -25,10 +24,6 @@ class Spatial:
     @property
     def export_dir(self) -> str:
         return self.geoprob_pipe.input_data.app_settings.workspace_dir
-
-    @property
-    def export_path_geopackage(self):
-        return os.path.join(self.export_dir, "spatial_data.gpkg")
 
     def export_geopackage(self):
         self.get_gdf_beta_limit_states(export=True)

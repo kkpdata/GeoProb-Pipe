@@ -2,6 +2,7 @@ import typer
 from rich.console import Console
 import os
 import platform
+from datetime import datetime
 from rich.panel import Panel
 from geoprob_pipe.pre_processing.questionnaire import start_pre_processing_questionnaire
 from typing import Optional
@@ -14,6 +15,7 @@ class ApplicationSettings:
 
     workspace_dir: Optional[str] = None
     geopackage_filename: Optional[str] = None
+    datetime_stamp: str = datetime.now().strftime("%Y-%m-%d_%H%M")
 
     @property
     def geopackage_filepath(self) -> str:

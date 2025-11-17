@@ -78,8 +78,8 @@ def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSetting
         raise ValueError
 
 
-def validate_expanded_input_tables(geopackage_filepath: str) -> bool:
-    df_expanded = run_expand_input_tables(geopackage_filepath=geopackage_filepath)
+def validate_expanded_input_tables(app_settings: ApplicationSettings) -> bool:
+    df_expanded = run_expand_input_tables(geopackage_filepath=app_settings.geopackage_filepath)
     df_nans = df_expanded[df_expanded['parameter_input'].isna()]
 
     # No issues?
@@ -87,7 +87,11 @@ def validate_expanded_input_tables(geopackage_filepath: str) -> bool:
         return True
 
     # Report issues back
-    export_dir = os.path.join(os.path.dirname(geopackage_filepath), "parameter_input_process")
+    export_dir = os.path.join(
+        os.path.dirname(app_settings.geopackage_filepath),
+        "exports",
+        str(app_settings.datetime_stamp),
+        "parameter_input_process")
     os.makedirs(export_dir, exist_ok=True)
     export_path = os.path.join(export_dir, "validation_missing_parameter_input.xlsx")
     print(f"{export_path=}")
@@ -234,8 +238,7 @@ def process_input_exist_in_db(app_settings: ApplicationSettings):
 
     # Validate expanded tables
     validity_extended_tables: Optional[bool] = None
-    if validity_raw_tables: validity_extended_tables = validate_expanded_input_tables(
-        geopackage_filepath=app_settings.geopackage_filepath)
+    if validity_raw_tables: validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings)
 
     # Provide user with follow-up options
     inquire_to_import_export_tables_and_figures_or_continue(
@@ -265,8 +268,7 @@ def process_import_input(app_settings: ApplicationSettings):
 
     # Validate expanded tables
     validity_extended_tables: Optional[bool] = None
-    if validity_extended_tables: validity_extended_tables = validate_expanded_input_tables(
-        geopackage_filepath=app_settings.geopackage_filepath)
+    if validity_extended_tables: validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings)
 
     # Provide user with follow-up options
     inquire_to_store_input_tables_to_db(app_settings=app_settings, tables=tables)

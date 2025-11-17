@@ -430,7 +430,11 @@ class InputParameterFigures:
         return fig
 
     def _create_figures(self):
-        export_dir = os.path.join(self.app_settings.workspace_dir, "parameter_input_process")
+        export_dir = os.path.join(
+            self.app_settings.workspace_dir,
+            "exports",
+            self.app_settings.datetime_stamp,
+            "parameter_input_process")
         os.makedirs(export_dir, exist_ok=True)
 
         # TODO: Overal hovers toepassen
