@@ -8,6 +8,7 @@ from geoprob_pipe.pre_processing.spatial_joins import (
     coupled_uittredepunten_to_refline, coupled_uittredepunten_to_vakken, coupled_mv_exit_to_gis_parameter_invoer_table)
 from geoprob_pipe.pre_processing.parameter_input.added_input_parameters import added_input_parameter_data
 from typing import TYPE_CHECKING
+from geoprob_pipe.pre_processing.run_calculations.run import run_calculations
 import sys
 if TYPE_CHECKING:
     from geoprob_pipe.pre_processing.cmd import ApplicationSettings
@@ -46,3 +47,6 @@ def pre_processing_questionnaire(app_settings: ApplicationSettings):
 
     print(f"\nPARAMETER INVOER")
     if not added_input_parameter_data(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+
+    print(f"\nBEREKENINGEN UITVOEREN")
+    if not run_calculations(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
