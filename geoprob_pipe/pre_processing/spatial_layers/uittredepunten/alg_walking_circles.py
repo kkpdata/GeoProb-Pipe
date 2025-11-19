@@ -59,7 +59,7 @@ def create_buffer_binnendijks(
 
     # Determine which side is binnendijks
     buffer_binnendijks = buffer_single_side
-    if not mp_hydra_nl_locaties.intersects(buffer_binnendijks):
+    if mp_hydra_nl_locaties.intersects(buffer_binnendijks):
         buffer_binnendijks = buffer_other_side
 
     return buffer_binnendijks
