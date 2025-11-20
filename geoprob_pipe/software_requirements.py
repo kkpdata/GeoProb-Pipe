@@ -7,7 +7,7 @@ from datetime import datetime
 from geoprob_pipe.utils.validation_messages import ValidationMessages
 import numpy as np
 if TYPE_CHECKING:
-    from geoprob_pipe.pre_processing.cmd import ApplicationSettings
+    from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
 
 class SoftwareRequirements:

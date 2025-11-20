@@ -24,7 +24,7 @@ from geoprob_pipe.calculations.system_calculations.build_and_run import build_an
 from geoprob_pipe.software_requirements import SoftwareRequirements
 
 if TYPE_CHECKING:
-    from geoprob_pipe.pre_processing.cmd import ApplicationSettings
+    from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
 
 class GeoProbPipe:

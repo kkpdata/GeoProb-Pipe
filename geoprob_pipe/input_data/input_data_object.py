@@ -16,7 +16,7 @@ from typing import Optional, TYPE_CHECKING, List
 import sqlite3
 from geoprob_pipe.misc.traject_normering import TrajectNormering
 if TYPE_CHECKING:
-    from geoprob_pipe.pre_processing.cmd import ApplicationSettings
+    from geoprob_pipe.questionnaire.cmd import ApplicationSettings
     # from geoprob_pipe import GeoProbPipe
 
 

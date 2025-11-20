@@ -3,7 +3,7 @@ from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_
     ParallelSystemReliabilityCalculation)
 from typing import List, TYPE_CHECKING
 from pandas import DataFrame
-from geoprob_pipe.pre_processing.parameter_input.expand_input_tables import run_expand_input_tables
+from geoprob_pipe.questionnaire.parameter_input.expand_input_tables import run_expand_input_tables
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
