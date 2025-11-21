@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 from importlib.metadata import distributions
 from geopandas import GeoDataFrame
+from geoprob_pipe.questionnaire.utils.misc import get_geoprob_pipe_version_number
 from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
@@ -113,7 +114,7 @@ def create_geopackage_file(app_settings: ApplicationSettings):
         "values": [
             os.getenv("USERNAME"),
             datetime.now(),
-            "TODO GEOPROB_PIPE VERSION",  # TODO
+            get_geoprob_pipe_version_number(),
             f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
             {dist.metadata["Name"]: dist.version for dist in distributions()},
         ]

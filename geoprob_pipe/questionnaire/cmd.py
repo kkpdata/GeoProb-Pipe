@@ -6,6 +6,7 @@ from datetime import datetime
 from rich.panel import Panel
 from geoprob_pipe.questionnaire.questionnaire import start_questionnaire
 from typing import Optional, List
+from geoprob_pipe.questionnaire.utils.misc import get_geoprob_pipe_version_number
 
 
 app = typer.Typer(help="GeoProb-Pipe - CLI applicatie voor probabilistische piping berekeningen.")
@@ -72,7 +73,7 @@ een geohydrologisch model naar keuze (zoals model4a). GeoProb-Pipe maakt gebruik
 van Deltares, die onder de motorkap de PTK-tool aanstuurt. Met de onderstaande interactieve vragenmodule neemt 
 GeoProb-Pipe je stap voor stap mee door het opzetten van de invoer en het uitvoeren van de berekeningen. 
 """,
-        title="GeoProb-Pipe".upper(),
+        title=f"GeoProb-Pipe ({get_geoprob_pipe_version_number()})".upper(),
         title_align="left",
         border_style="bright_blue",
         padding=(0, 2),
