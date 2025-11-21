@@ -1,9 +1,11 @@
+import pytest
+
+
 def test_calculation():
     # TODO Later Should Klein: Nadenken hoe we binnen een half uur een quick scan piping kunnen uitvoeren met het object.
     #  Is het daarvoor te complex?
 
     ##
-    from typing import Dict, cast
 
     from probabilistic_library import Alpha
 
@@ -26,19 +28,25 @@ def test_calculation():
     ##
 
     # Assert deterministic setup values
+    assert det_obj.system_variable_setup_result[0] == pytest.approx(
+        -1.41805, abs=0.001
+    )  # z_u
+    assert det_obj.system_variable_setup_result[1] == pytest.approx(
+        -0.48518, abs=0.001
+    )  # z_h
+    assert det_obj.system_variable_setup_result[2] == pytest.approx(
+        3.69517, abs=0.001
+    )  # z_p
+    assert det_obj.system_variable_setup_result[3] == pytest.approx(
+        3.69517, abs=0.001
+    )  # z_combin
     assert det_obj.system_variable_setup_result[4] == 0.5  # h_exit
-
-    ##
-    # assert det_obj.system_variable_setup_result[5] == ...  # r_exit
-    # assert det_obj.system_variable_setup_result[6] == ...  # phi_exit
-
-    ##
 
     # Run prob system
     obj.run()
 
     # Model resultaten
-    print(f"\nModellen:")
+    print("\nModellen:")
     for design_point in obj.model_design_points:
         print(f"{design_point.identifier=}")
         print(f"  {design_point.is_converged=}")
@@ -51,12 +59,12 @@ def test_calculation():
         alphas_values = [alpha.alpha for alpha in design_point.alphas]
         invloedsfactoren = [value * value for value in alphas_values]
         sum_invloedsfactoren = round(sum(invloedsfactoren), 2)
-        assert (
-            sum_invloedsfactoren == 1.00
-        ), f"De som van de invloedsfactoren ({sum_invloedsfactoren=}) is niet gelijk aan aan 1.00."
+        assert sum_invloedsfactoren == 1.00, (
+            f"De som van de invloedsfactoren ({sum_invloedsfactoren=}) is niet gelijk aan aan 1.00."
+        )
 
     # Systeem resultaten
-    print(f"\nSysteem:")
+    print("\nSysteem:")
     beta = obj.system_design_point.reliability_index
     print(f"  {beta=}")
     for alpha in obj.system_design_point.alphas:
@@ -65,12 +73,12 @@ def test_calculation():
     alphas_values = [alpha.alpha for alpha in obj.system_design_point.alphas]
     invloedsfactoren = [value * value for value in alphas_values]
     sum_invloedsfactoren = round(sum(invloedsfactoren), 2)
-    assert (
-        sum_invloedsfactoren == 1.00
-    ), f"De som van de invloedsfactoren ({sum_invloedsfactoren=}) is niet gelijk aan aan 1.00."
-    assert (
-        beta == 3.3269854650232067
-    ), f"De systeembreed betrouwbaarheidindex is niet correct berekend: {beta=}"
+    assert sum_invloedsfactoren == 1.00, (
+        f"De som van de invloedsfactoren ({sum_invloedsfactoren=}) is niet gelijk aan aan 1.00."
+    )
+    assert beta == 3.3269854650232067, (
+        f"De systeembreed betrouwbaarheidindex is niet correct berekend: {beta=}"
+    )
 
     # TODO Nu Must Middel: Optie toevoegen dat ParallelSystemReliabilityCalculation ook deterministisch word uitgerekend
     #  Dit doen door gemiddelde waarden te gebruiken.
