@@ -1,15 +1,38 @@
-from geoprob_pipe.pre_processing.parameter_input.expand_input_tables import run_expand_input_tables
+from geoprob_pipe.questionnaire.parameter_input.expand_input_tables import run_expand_input_tables, \
+    _construct_df_identifiers, _combine_parameter_invoer_sources, _add_fragility_values_to_combined_parameter_invoer, \
+    _collect_right_columns_combined_parameter_invoer, _expand, _concat_collection
+from typing import Dict, List
+from pandas import DataFrame, isna, notna, concat, read_sql
+import sqlite3
+import numpy as np
+from geopandas import GeoDataFrame, read_file
+from geoprob_pipe.calculations.system_calculations.dummy_input_mapper import DUMMY_INPUT_MAPPER
+from geoprob_pipe.questionnaire.parameter_input.input_parameter_tables import InputParameterTables
+from probabilistic_library import FragilityValue
 
-# from geoprob_pipe.pre_processing.parameter_input.input_parameter_tables import InputParameterTables
-#
-# tables = InputParameterTables(r"C:\Users\CP\Downloads\C_Analyse_corr\16-1\TestGISInvoer4.geoprob_pipe.gpkg")
-#
-# df_parameter_invoer = tables.df_parameter_invoer
-# df_gis_join_parameter_invoer = tables.df_gis_join_parameter_invoer
-#
 
-geopackage_filepath = r"C:\Users\CP\Downloads\C_Analyse_corr\224\Analyse224.geoprob_pipe.gpkg"
-df_expanded = run_expand_input_tables(geopackage_filepath=geopackage_filepath)
+geopackage_filepath = r"C:\Users\CP\Downloads\C_Analyse_corr\16-1_V2\Analyse16-1_V2test.geoprob_pipe.gpkg"
+# df_expanded = run_expand_input_tables(geopackage_filepath=geopackage_filepath)
+
+tables = InputParameterTables(geopackage_filepath=geopackage_filepath)
+df_identifiers = _construct_df_identifiers(geopackage_filepath=geopackage_filepath, tables=tables)
+
+# Construct df_parameter_invoer_combined
+df_parameter_invoer_combined1 = _combine_parameter_invoer_sources(tables=tables)
+df_parameter_invoer_combined2 = _add_fragility_values_to_combined_parameter_invoer(
+    df_parameter_invoer_combined=df_parameter_invoer_combined1, tables=tables,
+    geopackage_filepath=geopackage_filepath)
+df_parameter_invoer_combined3 = _collect_right_columns_combined_parameter_invoer(
+    df_parameter_invoer_combined=df_parameter_invoer_combined2)
+
+# Expand
+collection: Dict[str, DataFrame] = _expand(
+    df_parameter_invoer_combined=df_parameter_invoer_combined3,
+    df_identifiers=df_identifiers,
+    geopackage_filepath=geopackage_filepath)
+
+df_expanded = _concat_collection(collection=collection)
+
 # df_expanded.to_excel(f"df_expanded.xlsx")
 
 ##

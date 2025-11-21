@@ -5,7 +5,7 @@ import platform
 from datetime import datetime
 from rich.panel import Panel
 from geoprob_pipe.questionnaire.questionnaire import start_questionnaire
-from typing import Optional
+from typing import Optional, List
 
 
 app = typer.Typer(help="GeoProb-Pipe - CLI applicatie voor probabilistische piping berekeningen.")
@@ -16,6 +16,8 @@ class ApplicationSettings:
     workspace_dir: Optional[str] = None
     geopackage_filename: Optional[str] = None
     datetime_stamp: str = datetime.now().strftime("%Y-%m-%d_%H%M")
+    to_run = "all"
+    # -> or vakken:1,2,3,4,5
 
     @property
     def geopackage_filepath(self) -> str:
@@ -41,6 +43,13 @@ class ApplicationSettings:
     @property
     def ahn_filepath(self) -> str:
         return os.path.join(self.workspace_dir, "ahn", "ahn.tif")
+
+    @property
+    def to_run_vakken_ids(self) -> Optional[List[int]]:
+        if self.to_run == "all":
+            return None
+        vak_ids_str: List[str] = self.to_run.replace("vakken:", "").split(sep=",")
+        return [int(vak_id_str) for vak_id_str in vak_ids_str]
 
 
 def clear_terminal():
