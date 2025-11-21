@@ -21,6 +21,13 @@ class BaseSystemBuilder:
         # Gather input
         df_expanded = run_expand_input_tables(
             geopackage_filepath=self.geoprob_pipe.input_data.app_settings.geopackage_filepath)
+
+        # Filter vakken (optional)
+        to_run_vakken_ids = self.geoprob_pipe.input_data.app_settings.to_run_vakken_ids
+        if to_run_vakken_ids is not None:
+            df_expanded = df_expanded[df_expanded['vak_id'].isin(to_run_vakken_ids)]
+
+        # Iteration dataframe
         df_unique_combos: DataFrame = df_expanded[["uittredepunt_id", "ondergrondscenario_naam"]].drop_duplicates()
 
         # Iterate over calculation (unique combos)

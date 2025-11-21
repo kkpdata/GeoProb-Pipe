@@ -217,9 +217,6 @@ def _expand(df_parameter_invoer_combined: DataFrame, df_identifiers: DataFrame, 
         df_gather = df_gather.rename(columns={"scope_referentie": "uittredepunt_id"})
         df['parameter_input'] = df['parameter_input'].combine_first(
             df_identifiers.copy(deep=True).merge(df_gather, on=["uittredepunt_id"], how="left")['parameter_input'])
-        # df = df_identifiers.copy(deep=True).merge(
-        #     df_gather, how="left", left_on="uittredepunt_id", right_on="scope_referentie")
-        # df = df.drop(columns=["scope_referentie"])
 
         # Add to collection
         collection_of_dfs[parameter_name] = df
@@ -232,7 +229,7 @@ def _concat_collection(collection: Dict[str, DataFrame]):
         collection[parameter_name]['parameter_name'] = parameter_name
     return_df = concat([df for _, df in collection.items()], ignore_index=True)
     return_df = return_df.rename(columns={"naam": "ondergrondscenario_naam"})
-    return return_df[["parameter_name", "uittredepunt_id", "ondergrondscenario_naam", "parameter_input"]]
+    return return_df[["parameter_name", "vak_id", "uittredepunt_id", "ondergrondscenario_naam", "parameter_input"]]
 
 
 def run_expand_input_tables(geopackage_filepath: str) -> DataFrame:

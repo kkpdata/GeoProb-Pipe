@@ -114,9 +114,10 @@ def inquire_to_import_export_tables_and_figures_or_continue(
     # Determine options
     choices_list = []
     if validity_raw_tables and validity_extended_tables:
-        choices_list.append("Invoer tabellen zijn naar wens, ga door naar volgende stap")
+        choices_list.append("Zijn de invoer tabellen zijn naar wens? Ga door naar volgende stap")
     else:
-        choices_list.append("Invoer tabellen zijn naar wens, ga door naar volgende stap (n.v.t. -> invoer niet valide)")
+        choices_list.append(
+            "Zijn de invoer tabellen zijn naar wens? Ga door naar volgende stap (n.v.t. -> invoer niet valide)")
     if validity_raw_tables:
         choices_list.append("Overzichtsfiguren van invoertabellen: Exporteren")
     choices_list.extend([
@@ -132,12 +133,12 @@ def inquire_to_import_export_tables_and_figures_or_continue(
         default=choices_list[0],
     ).execute()
 
-    if choice == "Invoer tabellen zijn naar wens, ga door naar volgende stap":
+    if choice == "Zijn de invoer tabellen zijn naar wens? Ga door naar volgende stap":
         # run_calculations(geopackage_filepath=app_settings.geopackage_filepath)
         print(BColors.OKBLUE, f"✔  Parameter invoer afgerond.", BColors.ENDC)
         return
 
-    elif choice == "Invoer tabellen zijn naar wens, ga door naar volgende stap (n.v.t. -> invoer niet valide)":
+    elif choice == "Zijn de invoer tabellen zijn naar wens? Ga door naar volgende stap (n.v.t. -> invoer niet valide)":
         inquire_to_import_export_tables_and_figures_or_continue(
             app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
             validity_extended_tables=validity_extended_tables)
