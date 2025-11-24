@@ -46,7 +46,9 @@ def run_calculations(app_settings: ApplicationSettings) -> bool:
         "Nee (applicatie sluit af)"
     ]
     choice = inquirer.select(
-        message="Wil je de berekeningen uitvoeren? ", choices=choices_list, default=choices_list[0],
+        message="Wil je de berekeningen uitvoeren? \n"
+                "Let op: Indien je al rekenresultaten hebt, zullen deze verwijderd worden, alvorens de nieuwe "
+                "resultaten worden opgeslagen. ", choices=choices_list, default=choices_list[0],
     ).execute()
 
     if choice == choices_list[0]:

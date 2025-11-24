@@ -1,7 +1,8 @@
 from typing import Dict, List
-from pandas import DataFrame, isna, notna, concat, read_sql
+from pandas import DataFrame, isna, notna, concat, read_sql, read_csv
 import sqlite3
 import numpy as np
+import os
 from geopandas import GeoDataFrame, read_file
 from geoprob_pipe.calculations.system_calculations.dummy_input_mapper import DUMMY_INPUT_MAPPER
 from geoprob_pipe.questionnaire.parameter_input.input_parameter_tables import InputParameterTables
@@ -48,21 +49,64 @@ def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
         fc.x = row["waarde"]
         fc.probability_of_failure = row["kans"]
         frag_points.append(fc)
+
     return frag_points
 
 
-def _collect_fragility_values(tables: InputParameterTables, fragility_refs: List[str], geopackage_filepath: str) -> DataFrame:
+def _gather_frag_line_from_csv(csv_file_name: str, geopackage_filepath: str):
+
+    # Read csv-file
+    csv_dir = os.path.join(os.path.dirname(geopackage_filepath), "frag_csv_files")
+    path_to_csv = os.path.join(csv_dir, csv_file_name)
+    if not os.path.exists(path_to_csv):
+        raise FileNotFoundError(
+            f"CSV-file with fragility curve not found for reference '{csv_file_name}'. Please make sure to place your "
+            f"csv-files at the following location: \n{csv_dir}")
+    df_frag_line = read_csv(path_to_csv, sep=",")
+
+    # Validate
+    assert df_frag_line.__len__() > 2
+    # It should be validated beforehand that all added fragility lines are at least 3 points. So if this assert triggers
+    # something should be improved earlier in validation.
+
+    # Construct Fragility Values
+    df_frag_line = df_frag_line.sort_values(by=["waarde"])
+    frag_points = []
+    for index, row in df_frag_line.iterrows():
+        fc = FragilityValue()
+        fc.x = row["waarde"]
+        fc.probability_of_failure = row["kans"]
+        frag_points.append(fc)
+
+    return frag_points
+
+
+def _collect_fragility_values(
+        tables: InputParameterTables, fragility_refs: List[str], geopackage_filepath: str
+) -> DataFrame:
     df_frag_invoer = tables.df_fragility_values_invoer
     available_frag_invoer_refs = df_frag_invoer['fragility_values_ref'].unique()
     return_array = []
     for fragility_ref in fragility_refs:
-        if fragility_ref not in available_frag_invoer_refs:
+
+        # From .csv-file (not stored in GeoPackage)
+        if fragility_ref.endswith(".csv"):
+            return_array.append({
+                "fragility_values_ref": fragility_ref,
+                "fragility_values": _gather_frag_line_from_csv(
+                    csv_file_name=fragility_ref, geopackage_filepath=geopackage_filepath)})
+
+        # From HRD-database (previously stored in GeoPackage)
+        elif fragility_ref not in available_frag_invoer_refs:
             return_array.append({
                 "fragility_values_ref": fragility_ref,
                 "fragility_values": _gather_hrd_frag_line_from_geopackage(
                     ref=fragility_ref, geopackage_filepath=geopackage_filepath)})
+
+        # Otherwise, retrieve custom curve from Excel (previously stored in GeoPackage)
         else:
             raise NotImplementedError(f"Should now retrieve it from the df_frag_invoer.")  # TODO
+
     return DataFrame(return_array)
 
 
@@ -81,9 +125,6 @@ def _add_fragility_values_to_combined_parameter_invoer(
     fragility_refs = df['fragility_values_ref'].dropna().unique()
 
     # Collect fragility lines
-    # df_frag_lines = DataFrame(
-    #     data={"fragility_values_ref": fragility_refs, "fragility_values": ["TODO"] * fragility_refs.__len__()})
-    # TODO: Collecting should still be done. This is just a temporary value of 'TODO'
     df_frag_lines = _collect_fragility_values(
         tables=tables, fragility_refs=fragility_refs, geopackage_filepath=geopackage_filepath)
 
