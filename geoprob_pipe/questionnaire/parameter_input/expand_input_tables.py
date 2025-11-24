@@ -82,8 +82,17 @@ def _gather_frag_line_from_csv(csv_file_name: str, geopackage_filepath: str):
 
 
 def _collect_fragility_values(
-        tables: InputParameterTables, fragility_refs: List[str], geopackage_filepath: str
+        tables: InputParameterTables, fragility_refs: List[str], geopackage_filepath: str,
 ) -> DataFrame:
+    """ Collects the fragility values from the different sources. The sources are (a) the HRD-file, (b) the Excel input
+    file, and (c) the csv folder.
+
+    :param tables:
+    :param fragility_refs:
+    :param geopackage_filepath:
+    :return: Returns a dataframe with columns fragility_values_ref and fragility_values.
+    """
+
     df_frag_invoer = tables.df_fragility_values_invoer
     available_frag_invoer_refs = df_frag_invoer['fragility_values_ref'].unique()
     return_array = []
@@ -111,7 +120,7 @@ def _collect_fragility_values(
 
 
 def _add_fragility_values_to_combined_parameter_invoer(
-        df_parameter_invoer_combined: DataFrame, tables: InputParameterTables, geopackage_filepath: str) -> DataFrame:
+        df_parameter_invoer_combined: DataFrame, tables: InputParameterTables, geopackage_filepath: str, drop_ref: bool = True) -> DataFrame:
     """ Haalt uit de fragility values Excel de arrays op en vervang in de df_parameter_invoer_combined de referentie
     met de daadwerkelijke fragility values. """
 
@@ -131,7 +140,9 @@ def _add_fragility_values_to_combined_parameter_invoer(
     # Attach to parameter invoer df
     df = df.merge(
         df_frag_lines, left_on="fragility_values_ref", right_on="fragility_values_ref", how="left")
-    df = df.drop(columns=["fragility_values_ref"])
+
+    if drop_ref:
+        df = df.drop(columns=["fragility_values_ref"])
 
     return df
 
@@ -144,7 +155,8 @@ def _collect_right_columns_combined_parameter_invoer(df_parameter_invoer_combine
     df_parameter_invoer_combined = df_parameter_invoer_combined.drop(columns=["bronnen", "opmerking"])
     parameter_description_columns = [
         "distribution_type", "mean", "variation", "deviation", "minimum", "maximum", "fragility_values"]
-    # df_parameter_invoer_combined.to_excel("df_parameter_invoer_combined.xlsx")
+    if "fragility_values_ref" in df_parameter_invoer_combined.columns:
+        parameter_description_columns.append("fragility_values_ref")
     df_parameter_invoer_combined['parameter_input'] = df_parameter_invoer_combined.apply(lambda row: {
         k: row[k] for k in parameter_description_columns if isinstance(row[k], list) or notna(row[k])
     }, axis=1)
@@ -273,7 +285,14 @@ def _concat_collection(collection: Dict[str, DataFrame]):
     return return_df[["parameter_name", "vak_id", "uittredepunt_id", "ondergrondscenario_naam", "parameter_input"]]
 
 
-def run_expand_input_tables(geopackage_filepath: str) -> DataFrame:
+def run_expand_input_tables(geopackage_filepath: str, add_frag_ref: bool = False) -> DataFrame:
+    """
+
+    :param geopackage_filepath:
+    :param add_frag_ref: Indien True, dan wordt voor parameter input met een distribution_type 'cdf_curve' de referentie
+        naar de invoer behouden. Deze is niet nodig voor de berekeningen, maar wordt wel gebruikt voor de visualisaties.
+    :return:
+    """
     tables = InputParameterTables(geopackage_filepath=geopackage_filepath)
     df_identifiers = _construct_df_identifiers(geopackage_filepath=geopackage_filepath, tables=tables)
 
@@ -281,7 +300,7 @@ def run_expand_input_tables(geopackage_filepath: str) -> DataFrame:
     df_parameter_invoer_combined1 = _combine_parameter_invoer_sources(tables=tables)
     df_parameter_invoer_combined2 = _add_fragility_values_to_combined_parameter_invoer(
         df_parameter_invoer_combined=df_parameter_invoer_combined1, tables=tables,
-        geopackage_filepath=geopackage_filepath)
+        geopackage_filepath=geopackage_filepath, drop_ref=add_frag_ref==False)
     df_parameter_invoer_combined3 = _collect_right_columns_combined_parameter_invoer(
         df_parameter_invoer_combined=df_parameter_invoer_combined2)
 
