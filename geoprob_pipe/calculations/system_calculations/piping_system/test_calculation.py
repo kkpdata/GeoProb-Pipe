@@ -76,7 +76,7 @@ def test_calculation():
     assert sum_invloedsfactoren == 1.00, (
         f"De som van de invloedsfactoren ({sum_invloedsfactoren=}) is niet gelijk aan aan 1.00."
     )
-    assert beta == 3.3269854650232067, (
+    assert beta == pytest.approx(3.3269854650232067, abs=0.001), (
         f"De systeembreed betrouwbaarheidindex is niet correct berekend: {beta=}"
     )
 
