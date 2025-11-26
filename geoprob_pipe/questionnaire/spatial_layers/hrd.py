@@ -90,11 +90,23 @@ def check_hrd_locations_added_to_geopackage(app_settings: ApplicationSettings):
     for location_name in location_names:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=FutureWarning)
-            hrd_location = hrd.get_location(location_name)
+            try:
+                hrd_location = hrd.get_location(location_name)
+            except NotImplementedError as e:
+                print(f"{BColors.WARNING}Failed adding Hydra-NL location '{location_name}'. "
+                      f"Code continues without adding location. "
+                      f"Using fragility curve for this location is not possible. "
+                      f"Error is: {e}")
+                continue
         hrd_location_rows.append({
             "location_name": location_name,
             "geometry": Point(hrd_location.settings.x_coordinate, hrd_location.settings.y_coordinate)
         })
+
+    # Anticipate no locations added
+    if hrd_location_rows.__len__() == 0:
+        return
+
     gdf = GeoDataFrame(hrd_location_rows, crs='EPSG:28992')
     gdf.to_file(Path(app_settings.geopackage_filepath), layer="hrd_locaties", driver="GPKG")
     print(BColors.OKBLUE, f"✅  HRD-locatie punten toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
