@@ -2,7 +2,7 @@ from __future__ import annotations
 from InquirerPy import inquirer
 from pathlib import Path
 from typing import TYPE_CHECKING
-from geopandas import GeoDataFrame
+from geopandas import GeoDataFrame, read_file
 from shapely import Point
 import os
 import sqlite3
@@ -96,7 +96,7 @@ def check_hrd_locations_added_to_geopackage(app_settings: ApplicationSettings):
                 print(f"{BColors.WARNING}Failed adding Hydra-NL location '{location_name}'. "
                       f"Code continues without adding location. "
                       f"Using fragility curve for this location is not possible. "
-                      f"Error is: {e}")
+                      f"Error is: {e}{BColors.ENDC}")
                 continue
         hrd_location_rows.append({
             "location_name": location_name,
@@ -104,10 +104,10 @@ def check_hrd_locations_added_to_geopackage(app_settings: ApplicationSettings):
         })
 
     # Anticipate no locations added
-    if hrd_location_rows.__len__() == 0:
-        return
+    # if hrd_location_rows.__len__() == 0:
+    #     return
 
-    gdf = GeoDataFrame(hrd_location_rows, crs='EPSG:28992')
+    gdf = GeoDataFrame(hrd_location_rows, columns=['location_name', 'geometry'], crs='EPSG:28992')
     gdf.to_file(Path(app_settings.geopackage_filepath), layer="hrd_locaties", driver="GPKG")
     print(BColors.OKBLUE, f"✅  HRD-locatie punten toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
 
@@ -136,7 +136,9 @@ def check_hrd_frag_lines_added_to_geopackage(app_settings: ApplicationSettings):
     # Add frag lines to geopackage
     print(f"{BColors.UNDERLINE}HRD-fragility lines worden nu toegevoegd aan de GeoProb-Pipe GeoPackage.{BColors.ENDC}")
     hrd = pydra.HRDatabase(app_settings.hrd_file_path)
-    location_names = hrd.get_location_names()
+    gdf_locations: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="hrd_locaties")
+    location_names = gdf_locations['location_name'].unique().tolist()
+    # location_names = hrd.get_location_names()
     fl = pydra.ExceedanceFrequencyLine("h")
     dfs: List[DataFrame] = []
     start_time = time.time()
@@ -165,7 +167,11 @@ def check_hrd_frag_lines_added_to_geopackage(app_settings: ApplicationSettings):
             "fragility_values_ref": [location_name] * frequency_line.level.__len__(),
             "waarde": frequency_line.level,
             "kans": frequency_line.exceedance_frequency}))
-    df = concat(dfs, ignore_index=True)
+
+    # Combine data and push
+    df = DataFrame(data=[], columns=["fragility_values_ref", "waarde", "kans"])
+    if dfs.__len__() > 0:
+        df = concat(dfs, ignore_index=True)
     conn = sqlite3.connect(app_settings.geopackage_filepath)
     df.to_sql("fragility_values_invoer_hrd", conn, if_exists="replace", index=False)
     conn.close()
