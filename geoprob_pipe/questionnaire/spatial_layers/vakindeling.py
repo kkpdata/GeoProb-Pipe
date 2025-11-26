@@ -100,13 +100,19 @@ def request_vakindeling_filepath(app_settings: ApplicationSettings):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
             gdf: GeoDataFrame = read_file(filepath)
-        specify_column_with_vaknaam(app_settings, gdf=gdf)
+        validate_vakindeling(app_settings, gdf=gdf)
     elif filepath.endswith(".gpkg"):
         gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
-        specify_column_with_vaknaam(app_settings, gdf=gdf)
+        validate_vakindeling(app_settings, gdf=gdf)
     else:
         raise NotImplementedError(f"File with extension {filepath.split(sep='.')[-1]} is not yet supported. "
                                   f"Please make a request.")
+
+
+def validate_vakindeling(app_settings: ApplicationSettings, gdf: GeoDataFrame):
+    assert gdf.geometry.apply(lambda geom: isinstance(geom, LineString)).all(), \
+        "De opgegeven vakindeling heeft niet voor elk vak een geometry. De applicatie sluit nu af."
+    specify_column_with_vaknaam(app_settings, gdf=gdf)
 
 
 def specify_column_with_vaknaam(app_settings: ApplicationSettings, gdf: GeoDataFrame):
