@@ -2,9 +2,6 @@ import pytest
 
 
 def test_calculation():
-    # TODO Later Should Klein: Nadenken hoe we binnen een half uur een quick scan piping kunnen uitvoeren met het object.
-    #  Is het daarvoor te complex?
-
     ##
 
     from probabilistic_library import Alpha
@@ -21,11 +18,7 @@ def test_calculation():
     # Run Model with mean values (deterministic):
     det_obj = DeterministicSystemCalculation(input_object=obj)
     print(det_obj.limit_state_results)
-    print(
-        det_obj.system_variable_setup_result
-    )  # TODO <-- Tussenliggende resultaten incl. Z-waarden
-
-    ##
+    print(det_obj.system_variable_setup_result)
 
     # Assert deterministic setup values
     assert det_obj.system_variable_setup_result[0] == pytest.approx(
@@ -44,6 +37,7 @@ def test_calculation():
 
     # Run prob system
     obj.run()
+    assert obj.validation_messages.cnt == 0
 
     # Model resultaten
     print("\nModellen:")
@@ -79,9 +73,5 @@ def test_calculation():
     assert beta == pytest.approx(3.3269854650232067, abs=0.001), (
         f"De systeembreed betrouwbaarheidindex is niet correct berekend: {beta=}"
     )
-
-    # TODO Nu Must Middel: Optie toevoegen dat ParallelSystemReliabilityCalculation ook deterministisch word uitgerekend
-    #  Dit doen door gemiddelde waarden te gebruiken.
-    # TODO Nu Must Middel: Assert toevoegen die piping resultaat unit test
 
     ##

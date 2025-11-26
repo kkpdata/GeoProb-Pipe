@@ -41,7 +41,7 @@ DUMMY_INPUT = [
     },
     {
         "name": "L_but",
-        "description": "Afstand van uittredepunten tot buitenteenlijn.",
+        "description": "Afstand van uittredepunten tot de geschematiseerde buitenteenlijn.",
         "remark": "",
         "unit": "m",
         "distribution_type": DistributionType.deterministic,
@@ -117,7 +117,7 @@ DUMMY_INPUT = [
     },
     {
         "name": "modelfactor_ff",
-        "description": "",
+        "description": "Modelfactor voor fijne fractie.",
         "remark": "",
         "unit": "[-]",
         "distribution_type": DistributionType.log_normal,
@@ -127,7 +127,7 @@ DUMMY_INPUT = [
     },
     {
         "name": "modelfactor_3d",
-        "description": "",
+        "description": "Modelfactor voor 3D effecten.",
         "remark": "",
         "unit": "[-]",
         "distribution_type": DistributionType.log_normal,
@@ -137,7 +137,7 @@ DUMMY_INPUT = [
     },
     {
         "name": "modelfactor_aniso",
-        "description": "",
+        "description": "Modelfactor voor anisotropie.",
         "remark": "",
         "unit": "[-]",
         "distribution_type": DistributionType.log_normal,
