@@ -249,7 +249,7 @@ waarin:
 - :math:`L_3` de achterlandlengte [m]
 - :math:`x_{exit}` de afstand van het uittredepunt tot de binnenteen [m]. De aanname is dat uittredepunten altijd binnendijks van een (denkbeeldige) binnenteen liggen.
 - :math:`c_{voorland}` de weerstand van de deklaag in het voorland [dag]
-- :math:`c_{achterland}` dde weerstand van de deklaag in het achterland [dag]
+- :math:`c_{achterland}` de weerstand van de deklaag in het achterland [dag]
 
 
 Effectieve voorlandlengte
@@ -268,6 +268,7 @@ waarin:
 
 - :math:`L_{eff,voorland}` de effectieve voorlandlengte is [m]
 - :math:`\lambda_{1}` de spreidingslengte van het voorland is [m]
+- :math:`\c` is de deklaagdikte gedeeld door de doorlatendheid van de deklaag [dag]
 
 Overzicht parameters model 4A
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
