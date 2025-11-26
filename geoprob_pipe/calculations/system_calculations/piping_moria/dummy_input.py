@@ -64,7 +64,7 @@ PIPING_DUMMY_INPUT = [
         "unit": "m",
         "distribution_type": DistributionType.log_normal,
         "mean": 141.42,
-        "variation": 0.3,
+        "variation": 0.15,
         "source": "spatial",
     },
     {
