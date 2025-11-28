@@ -57,6 +57,7 @@ def _gather_frag_line_from_csv(csv_file_name: str, geopackage_filepath: str):
 
     # Read csv-file
     csv_dir = os.path.join(os.path.dirname(geopackage_filepath), "frag_csv_files")
+    os.makedirs(csv_dir, exist_ok=True)
     path_to_csv = os.path.join(csv_dir, csv_file_name)
     if not os.path.exists(path_to_csv):
         raise FileNotFoundError(
@@ -116,6 +117,10 @@ def _collect_fragility_values(
         else:
             raise NotImplementedError(f"Should now retrieve it from the df_frag_invoer.")  # TODO
 
+    # Build dataframe
+    if return_array.__len__() == 0:
+        df = DataFrame(data=[], columns=["fragility_values_ref", "fragility_values"])
+        return df
     return DataFrame(return_array)
 
 

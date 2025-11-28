@@ -7,8 +7,9 @@ from datetime import datetime
 # from geopandas import GeoDataFrame, read_file
 # from probabilistic_library import FragilityValue
 import pydra_core as pydra
-from pandas import Series, concat, DataFrame
+from pandas import Series, concat, DataFrame, read_sql
 from geoprob_pipe.questionnaire.parameter_input.expand_input_tables import run_expand_input_tables
+import sqlite3
 
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -67,6 +68,15 @@ if TYPE_CHECKING:
 class GraphHFreqSingleInteractive:
 
     def __init__(self, geoprob_pipe: GeoProbPipe, export: bool = False):
+
+        # Check if there are fragility curves referenced:
+        conn = sqlite3.connect(geoprob_pipe.input_data.app_settings.geopackage_filepath)
+        df_parameter_invoer = read_sql("SELECT * FROM parameter_invoer;", conn)
+        fragility_values_refs = df_parameter_invoer['fragility_values_ref'].unique()
+        conn.close()
+        if (fragility_values_refs.__len__() == 0 or
+                (fragility_values_refs.__len__() == 1 and fragility_values_refs[0] == '')):
+            return  # No graphs needed
 
         # Helper parameters
         self.max_level: float = -999

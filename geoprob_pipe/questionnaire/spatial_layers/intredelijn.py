@@ -6,6 +6,7 @@ TODO Later Should Klein: Controleer of de intredelijn ook echt aan de binnenzijd
 from __future__ import annotations
 from InquirerPy import inquirer
 from typing import TYPE_CHECKING, Optional
+import warnings
 import os
 from shapely import LineString, MultiLineString
 from geopandas import GeoDataFrame, read_file
@@ -51,7 +52,9 @@ def request_intredelijn_filepath(app_settings: ApplicationSettings):
 
     # Import data
     if filepath.endswith(".shp"):
-        raise NotImplementedError("Applicatie vroegtijdig afgesloten: shp wordt nog niet ondersteund.")
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
+            gdf: GeoDataFrame = read_file(filepath)
     elif filepath.endswith(".gpkg"):
         gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
     elif filepath.endswith(".gdb"):

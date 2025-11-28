@@ -2,7 +2,7 @@ from geoprob_pipe.questionnaire.parameter_input.expand_input_tables import run_e
     _construct_df_identifiers, _combine_parameter_invoer_sources, _add_fragility_values_to_combined_parameter_invoer, \
     _collect_right_columns_combined_parameter_invoer, _expand, _concat_collection
 from typing import Dict, List
-from pandas import DataFrame, isna, notna, concat, read_sql
+from pandas import DataFrame, isna, notna, concat, read_sql, Series
 import sqlite3
 import numpy as np
 from geopandas import GeoDataFrame, read_file
@@ -11,8 +11,31 @@ from geoprob_pipe.questionnaire.parameter_input.input_parameter_tables import In
 from probabilistic_library import FragilityValue
 
 
-path_to_geopackage = r"C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV2\GeoProb-Pipe\tests\systeem_testen\224\Traject224_model4a_WBN_prob.geoprob_pipe.gpkg"
+from pandas import DataFrame, read_excel
+
+path_to_file = r"C:\Users\CP\Waterschap Rivierenland\Beoordeling Primaire Keringen - LBO2 - Beoordeling per dijktraject\DT 16-1 Gorinchem-Sliedrecht\2_Beoordeling\[A3] Piping en Heave\Werkdocumenten\parameter_input_tabel_MORIA 16-1 V3 - kopie.xlsx"
+df: DataFrame = read_excel(path_to_file, sheet_name="Parameter invoer", header=3)
+
+df = df[df['scope'] == 'vak']
+df_unique_combinations = df[['scope_referentie', 'ondergrondscenario_naam']].drop_duplicates()
+
+
+
+##
+
+
+
+path_to_geopackage = r"C:\Users\CP\Downloads\C_Analyse_corr\20-2\Analyse_20-2_VJ.geoprob_pipe.gpkg"
 df_expanded = run_expand_input_tables(geopackage_filepath=path_to_geopackage, add_frag_ref=True)
+
+df = df_expanded
+df = df[df["parameter_name"] == "buitenwaterstand"]
+print(f"{df.columns=}")
+print(f"{df['parameter_input'].apply(Series)=}")
+df = concat([df.drop(columns=['parameter_input']), df['parameter_input'].apply(Series)], axis=1)
+print(f"{df.columns=}")
+
+##
 
 # df = df_expanded
 #
