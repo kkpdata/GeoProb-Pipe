@@ -2,6 +2,7 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import Figure
 from pandas import merge, DataFrame
+from geopandas import GeoDataFrame
 import os
 from matplotlib.ticker import ScalarFormatter
 from typing import TYPE_CHECKING
@@ -19,10 +20,7 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
     df_results_combined = geoprob_pipe.results.df_beta_scenarios
     df_for_graph = merge(
         left=df_results_combined[["uittredepunt_id", "beta"]],
-        right=gdf_uittredepunten[["uittredepunt_id", "metrering"]],
-        on="uittredepunt_id",
-        how="left"
-    )
+        right=gdf_uittredepunten[["uittredepunt_id", "metrering"]], on="uittredepunt_id", how="left")
 
     # Initial variables
     naam = 'Betrouwbaarheidsindex'
@@ -80,11 +78,13 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
     ax.axhline(cg["V"][0], color='black', linewidth=1)
 
     # Plot vakken
-
-    for index, row in geoprob_pipe.input_data.vakken.gdf.iterrows():
+    gdf_vakken: GeoDataFrame = geoprob_pipe.input_data.vakken.gdf
+    ax.text(x=gdf_vakken['m_start'].min(), y=2.25, s=f"Vak ",
+            fontsize=15, verticalalignment='center', horizontalalignment='right')
+    for index, row in gdf_vakken.iterrows():
         ax.axvline(x=row['m_start'], color='black', linewidth=1)
         m_center = row['m_start'] + (row['m_end'] - row['m_start']) / 2
-        ax.text(x=m_center, y=2.25, s=f"Vak {row['id']}",
+        ax.text(x=m_center, y=2.25, s=f"{int(row['id'])}",
                 fontsize=15, verticalalignment='center', horizontalalignment='center')
 
     # Plot normering
@@ -184,11 +184,14 @@ def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) ->
     ax.axhline(cg["V"][0], color='black', linewidth=1)
 
     # Plot vakken
-    for index, row in geoprob_pipe.input_data.vakken.gdf.iterrows():
+    gdf_vakken: GeoDataFrame = geoprob_pipe.input_data.vakken.gdf
+    ax.text(x=gdf_vakken['m_start'].min(), y=2.25, s=f"Vak ",
+            fontsize=15, verticalalignment='center', horizontalalignment='right')
+    for index, row in gdf_vakken.iterrows():
         # for index, row in geoprob_pipe.input_data.vakken.df.iterrows():
         ax.axvline(x=row['m_start'], color='black', linewidth=1)
         m_center = row['m_start'] + (row['m_end'] - row['m_start']) / 2
-        ax.text(x=m_center, y=2.25, s=f"Vak {row['id']}",
+        ax.text(x=m_center, y=2.25, s=f"{int(row['id'])}",
                 fontsize=15, verticalalignment='center', horizontalalignment='center')
 
     # Plot normering
@@ -295,10 +298,13 @@ def beta_vakken_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figure:
     ax.axhline(cg["V"][0], color='black', linewidth=1)
 
     # Plot vakken
-    for index, row in geoprob_pipe.input_data.vakken.gdf.iterrows():
+    gdf_vakken: GeoDataFrame = geoprob_pipe.input_data.vakken.gdf
+    ax.text(x=gdf_vakken['m_start'].min(), y=2.25, s=f"Vak ",
+            fontsize=15, verticalalignment='center', horizontalalignment='right')
+    for index, row in gdf_vakken.iterrows():
         ax.axvline(x=row['m_start'], color='black', linewidth=1)
         m_center = row['m_start'] + (row['m_end'] - row['m_start']) / 2
-        ax.text(x=m_center, y=2.25, s=f"Vak {row['id']}",
+        ax.text(x=m_center, y=2.25, s=f"{int(row['id'])}",
                 fontsize=15, verticalalignment='center', horizontalalignment='center')
 
     # Plot normering
