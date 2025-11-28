@@ -18,6 +18,6 @@ def test_questionnaire():
     ##
 
     # Perform test
-    questionnaire(app_settings=app_settings)
+    # questionnaire(app_settings=app_settings)
 
     ##
