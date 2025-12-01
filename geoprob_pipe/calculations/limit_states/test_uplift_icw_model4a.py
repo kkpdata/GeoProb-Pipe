@@ -71,7 +71,7 @@ expected_outputs_calc_z_uplift = data_calc_z_uplift[output_key_calc_z_uplift].to
     "inputs, expected", zip(inputs_calc_z_uplift, expected_outputs_calc_z_uplift)
 )
 def test_calc_z_uplift(inputs, expected):
-    """Test calc_dh_c function with multiple test cases from excel file"""
+    """Test calc_dh_c function with multiple test cases from Excel file"""
     result = uplift_icw_model4a.z_uplift(
         L_achterland=inputs["L_achterland"],
         c_voorland=inputs["c_voorland"],

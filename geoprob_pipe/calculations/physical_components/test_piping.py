@@ -169,7 +169,7 @@ expected_outputs_calc_dh_c = data_calc_dh_c[output_key_calc_dh_c].to_dict(
     "inputs, expected", zip(inputs_calc_dh_c, expected_outputs_calc_dh_c)
 )
 def test_calc_dh_c(inputs, expected):
-    """Test calc_dh_c function with multiple test cases from excel file"""
+    """Test calc_dh_c function with multiple test cases from Excel file"""
     result = piping.calc_dh_c(
         d70=inputs["d70"],
         D_wvp=inputs["D_wvp"],
