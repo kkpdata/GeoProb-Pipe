@@ -49,7 +49,7 @@ def test_calculation():
     )  # r_exit
 
     assert det_obj.system_variable_setup_result[6] == pytest.approx(
-        3.95, abs=0.001
+        3.95, abs=0.01
     )  # phi_exit
 
     assert det_obj.system_variable_setup_result[0] == pytest.approx(

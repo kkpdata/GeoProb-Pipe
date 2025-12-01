@@ -1,15 +1,15 @@
 from probabilistic_library import DistributionType
 
-
 PIPING_DUMMY_INPUT = [
     {
         "name": "L_kwelweg",
-        "description": "TODO",  # TODO
+        "description": "Effectieve kwelweglengte.",
         "remark": "",
         "unit": "m",
-        "distribution_type": DistributionType.deterministic,  # TODO
-        "mean": 150.0,  # TODO
-        "source": "spatial",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 141.054954,
+        "variation": 0.15,
+        "source": "spatial",
     },
     {
         "name": "polderpeil",
@@ -23,7 +23,7 @@ PIPING_DUMMY_INPUT = [
     {
         "name": "buitenwaterstand",
         "description": "Buitenwaterstand. Indien keuze voor 'cdf_curve' als distributie type, dan wordt er een "
-                       "een overschrijdingsfrequentielijn berekend met de Hydra-NL Python wrapper Pydra.",
+        "een overschrijdingsfrequentielijn berekend met de Hydra-NL Python wrapper Pydra.",
         "remark": "",
         "unit": "m+NAP",
         "distribution_type": DistributionType.deterministic,
@@ -51,23 +51,23 @@ PIPING_DUMMY_INPUT = [
     },
     {
         "name": "r_exit",
-        "description": "TODO",  # TODO
+        "description": "Respons ter plaatse van het uittredepunt.",
         "remark": "",
-        "unit": "-",  # TODO
-        "distribution_type": DistributionType.normal,  # TODO
-        "mean": -0.5,  # TODO
-        "deviation": 0.05,  # TODO
-        "source": "excel",  # TODO
+        "unit": "-",
+        "distribution_type": DistributionType.log_normal,  # TODO: zorgen dat de respons nooit groter dan 1 kan worden
+        "mean": 0.7896238,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "k_wvp",
-        "description": "",  # TODO
-        "remark": "",  # TODO
-        "unit": "",  # TODO
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 2000.0,  # TODO
-        "variation": 0.35,  # TODO
-        "source": "excel",  # TODO
+        "description": "Doorlatendheid van het watervoerende pakket.",
+        "remark": "",
+        "unit": "m/dag",
+        "distribution_type": DistributionType.log_normal,
+        "mean": 40.0,
+        "variation": 0.35,
+        "source": "excel",
     },
     {
         "name": "modelfactor_h",
@@ -84,40 +84,40 @@ PIPING_DUMMY_INPUT = [
         "description": "Modelfactor voor fijne fractie.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "modelfactor_3d",
         "description": "Modelfactor voor 3D effecten.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "modelfactor_aniso",
         "description": "Modelfactor voor anisotropie.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "modelfactor_ml",
         "description": "Modelfactor voor meerlaagsheid zandpakket.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "i_c_h",
@@ -125,7 +125,7 @@ PIPING_DUMMY_INPUT = [
         "remark": "",
         "unit": "[-]",
         "distribution_type": DistributionType.log_normal,
-        "mean": 0.7,
+        "mean": 0.5,
         "variation": 0.15,
         "source": "excel",
     },
@@ -164,7 +164,7 @@ PIPING_DUMMY_INPUT = [
         "remark": "",
         "unit": "kN/m³",
         "distribution_type": DistributionType.log_normal,
-        "mean": 13.9,
+        "mean": 15.5,
         "variation": 0.05,
         "source": "excel",
     },
@@ -175,7 +175,7 @@ PIPING_DUMMY_INPUT = [
         "unit": "[-]",
         "distribution_type": DistributionType.log_normal,
         "mean": 1.0,
-        "variation": 0.1,
+        "variation": 0.12,
         "source": "excel",
     },
     {
@@ -184,7 +184,7 @@ PIPING_DUMMY_INPUT = [
         "remark": "",
         "unit": "m",
         "distribution_type": DistributionType.log_normal,
-        "mean": 2.8e-4,
+        "mean": 3.5e-4,
         "variation": 0.15,
         "source": "excel",
     },
@@ -239,7 +239,7 @@ PIPING_DUMMY_INPUT = [
         "remark": "",
         "unit": "kN/m³",
         "distribution_type": DistributionType.deterministic,
-        "mean": 16.5,
+        "mean": 26.0,
         "source": "excel",
     },
     {
@@ -247,8 +247,9 @@ PIPING_DUMMY_INPUT = [
         "description": "Reductie constante van het verval over de deklaag.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.deterministic,
-        "mean": 0.3,
+        "distribution_type": DistributionType.log_normal,
+        "mean": 0.5,
+        "variation": 0.15,
         "source": "excel",
     },
 ]

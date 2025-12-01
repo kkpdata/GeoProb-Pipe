@@ -88,17 +88,17 @@ PIPING_DUMMY_INPUT = [
     },
     {
         "name": "r_exit",
-        "description": "Respons ter plaatse van het uittredepunt",
+        "description": "Respons ter plaatse van het uittredepunt.",
         "remark": "",
         "unit": "-",
         "distribution_type": DistributionType.log_normal,  # TODO: zorgen dat de respons nooit groter dan 1 kan worden
-        "mean": 0.79,
+        "mean": 0.7896238,
         "variation": 0.1,
         "source": "excel",
     },
     {
         "name": "k_wvp",
-        "description": "Doorlatendheid van het watervoerende pakket",
+        "description": "Doorlatendheid van het watervoerende pakket.",
         "remark": "",
         "unit": "m/dag",
         "distribution_type": DistributionType.log_normal,
