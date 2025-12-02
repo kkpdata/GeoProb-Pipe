@@ -27,8 +27,8 @@ def test_system():
 
     file_names = [
         "Traject224_MORIA_WBN_det.geoprob_pipe.gpkg",
-        "Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg",
-        "Traject224_model4a_WBN_prob.geoprob_pipe.gpkg",
+        # "Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg",
+        # "Traject224_model4a_WBN_prob.geoprob_pipe.gpkg",
         # "Traject224_WBI_WBN_prob.geoprob_pipe.gpkg",  # TODO
     ]
 
@@ -39,6 +39,7 @@ def test_system():
         app_settings.workspace_dir = os.path.dirname(filepath)
         app_settings.geopackage_filename = os.path.basename(filepath)
         geoprob_pipe = GeoProbPipe(app_settings)
-        geoprob_pipe.export_archive()
+        # geoprob_pipe.export_archive()
+        print(filepath)
 
     ##

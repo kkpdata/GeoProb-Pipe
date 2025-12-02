@@ -21,13 +21,16 @@ def _gather_variable_correlations(geopackage_filepath: str) -> List[Tuple[str, s
     :return:
     """
 
-    conn = sqlite3.connect(geopackage_filepath)
-    cursor = conn.cursor()
-    cursor.execute(f"SELECT parameter_a, parameter_b, correlation FROM correlatie_invoer;")
-    rows = cursor.fetchall()  # This will be a list of tuples
-    conn.close()
+    try:
+        conn = sqlite3.connect(geopackage_filepath)
+        cursor = conn.cursor()
+        cursor.execute(f"SELECT parameter_a, parameter_b, correlation FROM correlatie_invoer;")
+        rows = cursor.fetchall()  # This will be a list of tuples
+        conn.close()
+        return rows
+    except sqlite3.OperationalError:
+        return []
 
-    return rows
 
 
 def _gather_calculation_input(df_expanded: DataFrame, uittredepunt_id: int, ondergrondscenario_naam: str) -> List:

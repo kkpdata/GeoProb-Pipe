@@ -60,6 +60,8 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         # Mutable arguments
         if project_settings is None:
             project_settings = {}
+        if system_variable_correlations is None:
+            system_variable_correlations = []
 
         self.validation_messages = ValidationMessages()
         self.metadata = {}
@@ -86,7 +88,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self.project.settings.maximum_iterations = 100
         self.project.settings.relaxation_factor = 0.75
         self._assign_variables()
-        self._assign_correlations()
+        self._assign_project_correlations()
         self._generate_model_design_points()
         self._generate_system_design_point()
 
@@ -160,7 +162,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
             if 'fragility_values' in item.keys():
                 self.project.variables[name].fragility_values.extend(item['fragility_values'])
 
-    def _assign_correlations(self):
+    def _assign_project_correlations(self):
         for correlation in self.given_system_variable_correlations:
             self.project.correlation_matrix[
                 correlation[0],  # Parameter name A
@@ -170,6 +172,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
     def _generate_model_design_points(self):
         for model_callable in self.given_system_models:
             self.project.model = model_callable
+            self._assign_project_correlations()
             self.project.run()
             design_point = self.project.design_point
             design_point.identifier = model_callable.__name__
@@ -184,7 +187,6 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self.combine_project.run()
         self.combine_project.design_point.identifier = "system"
         self.system_design_point = self.combine_project.design_point
-
 
 
 def _system_variable_keys(self: ParallelSystemReliabilityCalculation) -> List[str]:
