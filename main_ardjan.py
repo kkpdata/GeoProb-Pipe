@@ -20,9 +20,9 @@ inputp = geoprob_pipe.input_data.uittredepunten.df
 inpsc = geoprob_pipe.input_data.ondergrondscenarios.df
 inphfreq = geoprob_pipe.input_data.overschrijdingsfrequentielijnen
 inppar = geoprob_pipe.input_data.df_overview_parameters
-resutp = geoprob_pipe.results.df_beta_uittredepunten
-ressc = geoprob_pipe.results.df_beta_scenarios
-reslim = geoprob_pipe.results.df_beta_limit_states
+resutp = geoprob_pipe.results.gdf_beta_uittredepunten
+ressc = geoprob_pipe.results.gdf_beta_scenarios
+reslim = geoprob_pipe.results.gdf_beta_limit_states
 
 ##
 
