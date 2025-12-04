@@ -3,13 +3,15 @@ Relatie beslissingsondersteunend raamwerk piping
 ================================================
 
 Het Beslissingsondersteunend Raamwerk Piping (BRP) :cite:t:`BRP_2024` beschrijft een aanpak om aspecten te beschouwen die niet expliciet in de rekenregels zijn opgenomen. 
-Voor bepaling van de overstromingskans van het faalmechanisme piping is het belangrijk om ook deze aanvullende aspecten te beschouwen. 
+Voor de bepaling van de overstromingskans van het faalmechanisme piping is het daarom belangrijk om ook deze aanvullende aspecten te beschouwen. 
 
-In het BRP zijn 14 factsheets opgenomen die factoren beschrijven die het optreden van piping beïnvloeden. Daarnaast worden handelingsperspectieven gegeven om met deze factoren om te gaan.
-Deze handleiding beschrijft hoe deze aspecten rekenkundig kunnen worden meegenomen in de overstromingskansberekening met `GeoProb-Pipe`.
-Het kennisniveau van elk aspect bepaalt de mate van implementatie in `GeoProb-Pipe`.
+In het BRP zijn 14 factsheets opgenomen waarin factoren worden beschreven die het optreden van piping beïnvloeden. Daarnaast worden handelingsperspectieven gegeven om met deze factoren om te gaan.
+DDeze documentatie beschrijft hoe deze aspecten rekenkundig kunnen worden meegenomen 
+in de overstromingskansberekening met ``GeoProb-Pipe``. Het kennisniveau van elk aspect 
+bepaalt in welke mate het kan worden geïmplementeerd.
 
 1. Opbarsten: Sterkte deklaag
+-------------------------------
 Het is erg aannemelijk dat de deklaag enige weerstand tegen scheuren biedt.
 Omdat de scheurbestendigheid nog niet kwantitatief kan worden bepaald en er geen gevalideerd model beschikbaar is,
 is dit aspect niet geïmplementeerd in `GeoProb-Pipe`.

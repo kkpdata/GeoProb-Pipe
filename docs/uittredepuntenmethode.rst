@@ -22,4 +22,4 @@ De rekenmethodiek volgt de schematiseringshandleiding :cite:t:`sh_piping_2021` e
 
 
 
-Meer informatie over de rekenmethodiek is te vinden in de :ref:`rekenmethodiek`.
+Meer informatie over de rekenmethodiek is te vinden in de :ref:`Rekenmethodiek <rekenmethodiek>`.
