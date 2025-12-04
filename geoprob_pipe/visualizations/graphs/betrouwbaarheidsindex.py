@@ -17,11 +17,11 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
     plt.ioff()
 
     # Collect data
-    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df_results_combined = geoprob_pipe.results.df_beta_scenarios
     df_for_graph = merge(
         left=df_results_combined[["uittredepunt_id", "beta"]],
-        right=df_uittredepunten[["uittredepunt_id", "M_value"]],
+        right=gdf_uittredepunten[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id",
         how="left"
     )
@@ -35,7 +35,7 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
     fig=go.Figure()
     fig.add_trace(
         go.Scatter(
-            x=df_for_graph['M_value'],
+            x=df_for_graph['metrering'],
             y=df_for_graph["beta"],
             mode='markers',
             marker=dict(symbol='circle', size=3, color='black'),
@@ -156,11 +156,11 @@ def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) ->
     plt.ioff()
 
     # Collect data
-    df_uittredepunten_m = geoprob_pipe.input_data.uittredepunten.df
+    gdf_uittredepunten_m = geoprob_pipe.input_data.uittredepunten.gdf
     df_results_uittredepunten = geoprob_pipe.results.df_beta_uittredepunten
     df_for_graph = merge(
         left=df_results_uittredepunten[["uittredepunt_id", "beta"]],
-        right=df_uittredepunten_m[["uittredepunt_id", "M_value"]],
+        right=gdf_uittredepunten_m[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id",
         how="left"
     )
@@ -172,7 +172,7 @@ def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) ->
     ax.yaxis.set_major_locator(plt.MultipleLocator(0.5))
 
     # Plot data
-    ax.plot(df_for_graph['M_value'], df_for_graph["beta"],'o',
+    ax.plot(df_for_graph['metrering'], df_for_graph["beta"],'o',
             color='black', markersize=3, label='Prob. ontwerpp.')
 
     # Formatting
@@ -187,7 +187,7 @@ def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) ->
     ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=False))
     ax.ticklabel_format(style='plain', axis='y')
     ax.set_yticks([2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20])
-    ax.set_xlim(df_for_graph['M_value'].min()-10, df_for_graph['M_value'].max()+10)
+    ax.set_xlim(df_for_graph['metrering'].min()-10, df_for_graph['metrering'].max()+10)
     # TODO Nu Must Klein: Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure.
 
     # Categorie kleuren
@@ -222,8 +222,8 @@ def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) ->
     ax.axhline(cg["V"][0], color='black', linewidth=1)
 
     # Plot normering
-    m_max = df_for_graph['M_value'].max()
-    m_diff = m_max - df_for_graph['M_value'].min()
+    m_max = df_for_graph['metrering'].max()
+    m_diff = m_max - df_for_graph['metrering'].min()
     m_spacing = m_diff * 0.02
     ax.text(
         m_max + m_spacing, cg["I"][0], '$β_{eis;sig;dsn / 30}$',
@@ -246,9 +246,3 @@ def beta_uittredepunten_graph(geoprob_pipe: GeoProbPipe, export: bool = True) ->
         fig.savefig(export_path, dpi=300)
     
     return fig
-    # # Export figure
-    # timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    # export_dir = r"C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV2\exports"
-    # os.makedirs(export_dir, exist_ok=True)
-    # export_path = os.path.join(export_dir, f"{timestamp}_B_STPH_sc.png")
-    # plt.savefig(export_path, dpi=300)

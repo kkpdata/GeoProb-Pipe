@@ -1,1 +1,1 @@
-from geoprob_pipe.input_data.main_object import InputData
+from geoprob_pipe.input_data.input_data_object import InputData
