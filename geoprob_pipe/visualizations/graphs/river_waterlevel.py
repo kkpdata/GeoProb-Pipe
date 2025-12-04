@@ -1,9 +1,12 @@
 from __future__ import annotations
 import os
 import numpy as np
+import pandas as pd
 import plotly.colors as pc
 from plotly.graph_objects import Figure, Scatter
 from typing import TYPE_CHECKING
+
+from geoprob_pipe.questionnaire.parameter_input.expand_input_tables import run_expand_input_tables
 
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -48,12 +51,18 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
                     for freq in target_freqs}
 
     # Add Hydra lines (grouped per frequency)
-    # TODO: Volgens mij veranderd naar geoprob_pipe.input_data.hydra_nl_data.hrd_frequency_line()
-    #  Maar twijfelachtig of dit werkt met de csv-bestanden.
-    for hydra_nl_name, hfreq in (geoprob_pipe.input_data
-                                 .overschrijdingsfrequentielijnen.items()):
+    df_input: pd.DataFrame = run_expand_input_tables(
+        geoprob_pipe.input_data.app_settings.geopackage_filepath,
+        add_frag_ref=True
+        )
+    df_input = df_input[df_input["parameter_name"] == "buitenwaterstand"]
+    df_input = pd.concat([df_input.drop(columns=['parameter_input']),
+                          df_input['parameter_input'].apply(pd.Series)],
+                         axis=1)
+
+    for _, row in df_input.iterrows():
         df_subset = gdf_uittredepunten[
-            gdf_uittredepunten["hrd_name"] == hydra_nl_name
+            gdf_uittredepunten["vak_id"] == row["vak_id"]
             ]
         if df_subset.empty:
             continue
@@ -62,11 +71,11 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
 
         # Hydra exceedance curve
         freqs = np.array(
-            hfreq.overschrijdingsfrequentielijn.exceedance_frequency,
+            [fv.probability_of_failure for fv in row.loc["fragility_values"]],
             dtype=float
             )
         levels = np.array(
-            hfreq.overschrijdingsfrequentielijn.level,
+            [fv.x for fv in row.loc["fragility_values"]],
             dtype=float
             )
 

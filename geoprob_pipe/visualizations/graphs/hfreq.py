@@ -144,7 +144,6 @@ class GraphHFreqSingleInteractive:
 
         return df['fragility_values_ref'].unique()
 
-
     def _add_ondergrens(self):
         ondergrens = 1 / self.geoprob_pipe.input_data.traject_normering.ondergrens
         self.fig.add_trace(go.Scatter(
