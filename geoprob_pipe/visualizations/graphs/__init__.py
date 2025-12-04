@@ -1,5 +1,6 @@
 from __future__ import annotations
-from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex_oud import (
+from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex import ( 
+    GraphBetaValuesSingleInteractive,
     beta_uittredepunten_graph, beta_scenarios_graph, beta_vakken_graph)
 from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive
 from geoprob_pipe.visualizations.graphs.physical_values_along_levee import physical_values_buitenwaterstand_and_top_zand
@@ -34,19 +35,28 @@ class Graphs:
     def physical_values_buitenwaterstand_and_top_zand(self, export: bool = False) -> PlotlyFigure:
         return physical_values_buitenwaterstand_and_top_zand(self.geoprob_pipe, export=export)
 
-    def beta_scenarios(self) -> MatplotLibFigure:
+    def hfreq_graphs_per_location(self) -> List[MatplotLibFigure]:
+        return hfreq_graphs_per_location(self.geoprob_pipe, export=False)
+    
+    def beta_value_in_single_interactive(self, export: bool = False) -> PlotlyFigure:
+        graph = GraphBetaValuesSingleInteractive(self.geoprob_pipe, export=export)
+        return graph.fig
+    
+    def beta_scenarios(self) -> PlotlyFigure:
         return beta_scenarios_graph(self.geoprob_pipe, export=False)
 
-    def beta_uittredepunten(self) -> MatplotLibFigure:
+    def beta_uittredepunten(self) -> PlotlyFigure:
         return beta_uittredepunten_graph(self.geoprob_pipe, export=False)
 
-    def beta_vakken(self) -> MatplotLibFigure:
+    def beta_vakken(self) -> PlotlyFigure:
         return beta_vakken_graph(self.geoprob_pipe, export=False)
 
     def export_graphs(self):
         GraphHFreqSingleInteractive(self.geoprob_pipe, export=True)
-        beta_scenarios_graph(self.geoprob_pipe, export=True)  # TODO Tijdelijk uitgezet: in progress
-        beta_uittredepunten_graph(self.geoprob_pipe, export=True)  # TODO Tijdelijk uitgezet: in progress
+        hfreq_graphs_per_location(self.geoprob_pipe, export=True)
+        GraphBetaValuesSingleInteractive(self.geoprob_pipe, export=True)
+        beta_scenarios_graph(self.geoprob_pipe, export=True)
+        beta_uittredepunten_graph(self.geoprob_pipe, export=True)
         beta_vakken_graph(self.geoprob_pipe, export=True)
         self.physical_values_buitenwaterstand_and_top_zand(export=True)
         self.invloedsfactoren(export=True)

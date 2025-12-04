@@ -104,3 +104,33 @@ class TrajectNormering:
                 -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 30),
             ],
         }
+        self.riskeer_categorie_grenzen = {
+            "+III": [
+                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 1000),
+                20
+            ],
+            "+II": [
+                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 100),
+                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 1000)
+            ],
+            "+I": [
+                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 10),
+                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 100)
+            ],
+            "0": [
+                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn),
+                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 10)
+            ],
+            "-I": [
+                -1 * sct.norm.ppf(self.faalkanseis_ond_dsn),
+                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn),
+            ],
+            "-II": [
+                -1 * sct.norm.ppf(self.faalkanseis_ond_dsn * 10),
+                -1 * sct.norm.ppf(self.faalkanseis_ond_dsn)
+            ],
+            "-III": [
+                2,
+                -1 * sct.norm.ppf(self.faalkanseis_ond_dsn * 10)
+            ],
+        }
