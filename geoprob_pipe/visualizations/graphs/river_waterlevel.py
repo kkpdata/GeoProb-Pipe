@@ -20,9 +20,9 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
         "variable", "distribution_type", "physical_value"
     ]]
 
-    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df = df.merge(
-        df_uittredepunten[["uittredepunt_id", "M_value", "hydra_locatie_id"]],
+        gdf_uittredepunten[["uittredepunt_id", "metrering", "hrd_name"]],
         on="uittredepunt_id", how="left"
     )
     df_beta = geoprob_pipe.results.df_beta_uittredepunten
@@ -44,19 +44,19 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
     fig = Figure()
 
     # Prepare storage for Hydra curves per frequency
-    hydra_curves = {freq: {"M_value": [], "level": []}
+    hydra_curves = {freq: {"metrering": [], "level": []}
                     for freq in target_freqs}
 
     # Add Hydra lines (grouped per frequency)
     for hydra_nl_name, hfreq in (geoprob_pipe.input_data
                                  .overschrijdingsfrequentielijnen.items()):
-        df_subset = df_uittredepunten[
-            df_uittredepunten["hydra_locatie_id"] == hydra_nl_name
+        df_subset = gdf_uittredepunten[
+            gdf_uittredepunten["hrd_name"] == hydra_nl_name
             ]
         if df_subset.empty:
             continue
 
-        m_values = df_subset["M_value"].to_numpy()
+        m_values = df_subset["metrering"].to_numpy()
 
         # Hydra exceedance curve
         freqs = np.array(
@@ -78,23 +78,23 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
 
         # Store values for each frequency
         for freq, level in zip(target_freqs, interp_levels):
-            hydra_curves[freq]["M_value"].extend(m_values)
+            hydra_curves[freq]["metrering"].extend(m_values)
             hydra_curves[freq]["level"].extend(np.full_like(m_values, level))
 
     # Plot one continuous line per exceedance frequency
     for freq, data in hydra_curves.items():
-        # Sort by M_value for continuous line plotting
-        sort_idx = np.argsort(data["M_value"])
-        M_sorted = np.array(data["M_value"])[sort_idx]
+        # Sort by metrering for continuous line plotting
+        sort_idx = np.argsort(data["metrering"])
+        m_sorted = np.array(data["metrering"])[sort_idx]
         level_sorted = np.array(data["level"])[sort_idx]
 
         fig.add_trace(
             Scatter(
-                x=M_sorted,
+                x=m_sorted,
                 y=level_sorted,
                 mode="lines",
                 line=dict(color=freq_color_map[freq], width=2),
-                name=f"1/{1/freq:,.0f}".replace(",", "."),  # mark thousends
+                name=f"1/{1/freq:,.0f}".replace(",", "."),  # mark thousands
                 showlegend=True,
             )
         )
@@ -111,7 +111,7 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
     beta_colorscale = "RdYlGn"
     fig.add_trace(
         Scatter(
-            x=df_filtered["M_value"],
+            x=df_filtered["metrering"],
             y=df_filtered["physical_value"],
             mode="markers",
             name="Buitenwaterstand",
@@ -136,7 +136,7 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
 
     # Layout
     fig.update_layout(
-        title="Buitenwaterstanden bij herhaaltijd en system designpoints",
+        title="Buitenwaterstanden bij herhaaltijd en system design points",
         xaxis=dict(title="Metrering", showgrid=True,
                    gridwidth=0.5, gridcolor="gray"),
         yaxis=dict(title="Hoogte [m+NAP]", showgrid=True,

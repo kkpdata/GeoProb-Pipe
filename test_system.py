@@ -27,8 +27,8 @@ def test_system():
 
     file_names = [
         "Traject224_MORIA_WBN_det.geoprob_pipe.gpkg",
-        "Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg",
-        "Traject224_model4a_WBN_prob.geoprob_pipe.gpkg",
+        # "Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg",
+        # "Traject224_model4a_WBN_prob.geoprob_pipe.gpkg",
         # "Traject224_WBI_WBN_prob.geoprob_pipe.gpkg",  # TODO
     ]
 

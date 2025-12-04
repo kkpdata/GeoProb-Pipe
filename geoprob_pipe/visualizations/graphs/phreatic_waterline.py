@@ -1,9 +1,13 @@
+from __future__ import annotations
 import os
 import plotly.graph_objects as go
 import pandas as pd
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from geoprob_pipe import GeoProbPipe
 
 
-def phreatic_waterline(geoprob_pipe, export: bool = False):
+def phreatic_waterline(geoprob_pipe: GeoProbPipe, export: bool = False):
     # Prepare data
     df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
         system_only=True, filter_deterministic=False, filter_derived=False
@@ -11,9 +15,9 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
     df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id",
              "variable", "distribution_type", "physical_value"]]
 
-    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df = df.merge(
-        df_uittredepunten[["uittredepunt_id", "M_value"]],
+        gdf_uittredepunten[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id", how="left"
     )
 
@@ -57,7 +61,7 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
         for variable in ["buitenwaterstand", "phi_exit", "h_exit", "top_zand"]:
             df_var = df_case[df_case["variable"] == variable]
             fig.add_trace(go.Scatter(
-                x=df_var['M_value'],
+                x=df_var['metrering'],
                 y=df_var["physical_value"],
                 mode='markers',
                 name=names[variable],
@@ -70,7 +74,7 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
             ))
 
         # Button logic
-        # Disapperance of title is a plotly bug
+        # Disappearance of title is a plotly bug
         total_traces = len(scenario_orders) * 4
         vis = [False] * total_traces
         vis[i*4:(i+1)*4] = [True]*4
@@ -135,7 +139,7 @@ def phreatic_waterline(geoprob_pipe, export: bool = False):
                                  "h_exit", "top_zand"]:
                     df_var = df_case[df_case["variable"] == variable]
                     fig_case.add_trace(go.Scatter(
-                        x=df_var["M_value"],
+                        x=df_var["metrering"],
                         y=df_var["physical_value"],
                         mode="markers",
                         name=names[variable],

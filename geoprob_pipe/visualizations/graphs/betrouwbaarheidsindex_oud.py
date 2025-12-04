@@ -15,6 +15,8 @@ def beta_scenarios_graph(geoprob_pipe: GeoProbPipe, export: bool = True) -> Figu
     """ Grafiek van de betrouwbaarheidsindex per scenario over de gecombineerde uitvoer (uplift/heave/piping). Over
     de x-as uitgezet tegen de dijkpaal nummering. Op de achtergrond zijn de categoriegrenzen weergegeven. """
 
+    plt.ioff()
+
     # Collect data
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df_results_combined = geoprob_pipe.results.df_beta_scenarios

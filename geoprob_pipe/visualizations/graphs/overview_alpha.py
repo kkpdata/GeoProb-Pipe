@@ -1,11 +1,15 @@
+from __future__ import annotations
 import os
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from pandas import merge
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from geoprob_pipe import GeoProbPipe
 
 
-def overview_alpha(geoprob_pipe, export: bool = False):
+def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
     # Get data for graphing
     df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
         system_only=True, filter_deterministic=False, filter_derived=False
@@ -13,8 +17,8 @@ def overview_alpha(geoprob_pipe, export: bool = False):
     df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id",
              "variable", "distribution_type", "physical_value"]]
 
-    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
-    df = merge(df, df_uittredepunten[["uittredepunt_id", "M_value"]],
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
+    df = merge(df, gdf_uittredepunten[["uittredepunt_id", "metrering"]],
                on="uittredepunt_id", how="left")
 
     # Determine scenario order per uittredepunt_id
@@ -42,7 +46,7 @@ def overview_alpha(geoprob_pipe, export: bool = False):
         subplot_titles=parameters
     )
 
-    # Add a button for each ondergroundscenario
+    # Add a button for each ondergrondscenario
     buttons = []
 
     # Add scatter plot per scenario
@@ -53,7 +57,7 @@ def overview_alpha(geoprob_pipe, export: bool = False):
             df_param = df_case[df_case["variable"] == param]
             fig.add_trace(
                 go.Scatter(
-                    x=df_param["M_value"],
+                    x=df_param["metrering"],
                     y=df_param["physical_value"],
                     mode="markers",
                     marker=dict(color="black", symbol="x", size=5),
@@ -121,7 +125,7 @@ def overview_alpha(geoprob_pipe, export: bool = False):
                     df_param = df_case[df_case["variable"] == param]
                     fig_case.add_trace(
                         go.Scatter(
-                            x=df_param["M_value"],
+                            x=df_param["metrering"],
                             y=df_param["physical_value"],
                             mode="markers",
                             marker=dict(color="black", symbol="x", size=5),
