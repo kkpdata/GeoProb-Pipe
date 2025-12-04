@@ -33,19 +33,19 @@ def _background_graph(
               "rgba(177,33,38,0.6)"]
     labels = ["+III", "+II", "+I", "0", "-I", "-II", "-III"]
 
-    if "M_value" in df_for_graph.columns:
-        x_line = np.linspace(df_for_graph['M_value'].min()-10,
-                             df_for_graph['M_value'].max()+10)
+    if "metrering" in df_for_graph.columns:
+        x_line = np.linspace(df_for_graph['metrering'].min()-10,
+                             df_for_graph['metrering'].max()+10)
     else:
-        x_line = np.linspace(df_for_graph['M_van'].min()-10,
-                             df_for_graph['M_tot'].max()+10)
+        x_line = np.linspace(df_for_graph['m_start'].min()-10,
+                             df_for_graph['m_end'].max()+10)
 
     i = 1
-    for vak in geoprob_pipe.input_data.vakken:
-        fig.add_vline(x=vak.M_van, line_color="black", line_width=1)
-        fig.add_vline(x=vak.M_tot, line_color="black", line_width=1)
+    for _, vak in geoprob_pipe.input_data.vakken.gdf.iterrows():
+        fig.add_vline(x=vak["m_start"], line_color="black", line_width=1)
+        fig.add_vline(x=vak["m_end"], line_color="black", line_width=1)
         fig.add_annotation(
-            x=(vak.M_van + vak.M_tot) / 2, y=np.log10(2),
+            x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
             text=(f"Vak: {i}"),
             showarrow=False,
             xanchor="center",
@@ -138,7 +138,7 @@ def beta_scenarios_graph(
         xaxis=dict(title="Metrering",
                    type='linear',
                    range=[0,
-                          df_for_graph['M_value'].max()+10],
+                          df_for_graph['metrering'].max()+10],
                    showgrid=True,
                    gridwidth=0.5,
                    gridcolor="gray"
@@ -196,7 +196,7 @@ def beta_uittredepunten_graph(
 
     fig.add_trace(
         go.Scatter(
-            x=df_for_graph['M_value'],
+            x=df_for_graph['metrering'],
             y=df_for_graph["beta"],
             mode='markers',
             marker=dict(symbol='circle', size=3, color='black'),
@@ -211,7 +211,7 @@ def beta_uittredepunten_graph(
         xaxis=dict(title="Metrering",
                    type='linear',
                    range=[0,
-                          df_for_graph['M_value'].max()+10],
+                          df_for_graph['metrering'].max()+10],
                    showgrid=True,
                    gridwidth=0.5,
                    gridcolor="gray"
@@ -254,12 +254,13 @@ def beta_vakken_graph(
     categoriegrenzen weergegeven. """
 
     # Collect data
-    df_vakken = geoprob_pipe.input_data.vakken.df
+    gdf_vakken = geoprob_pipe.input_data.vakken.gdf
     df_results_vakken = geoprob_pipe.results.df_beta_vakken
+    df_results_vakken = df_results_vakken.rename(columns={"vak_id": "id"})
     df_for_graph = merge(
-        left=df_results_vakken[["vak_id", "beta"]],
-        right=df_vakken[["vak_id", "M_van", "M_tot"]],
-        on="vak_id",
+        left=df_results_vakken[["id", "beta"]],
+        right=gdf_vakken[["id", "m_start", "m_end"]],
+        on="id",
         how="left"
     )
 
@@ -268,9 +269,9 @@ def beta_vakken_graph(
     # Background
     fig = _background_graph(geoprob_pipe, fig, df_for_graph)
 
-    for index, row in df_for_graph.iterrows():
+    for _, row in df_for_graph.iterrows():
         fig.add_shape(type="line",
-                      x0=row["M_van"], x1=row["M_tot"],
+                      x0=row["m_start"], x1=row["m_end"],
                       y0=row["beta"], y1=row["beta"],
                       line=dict(color="black", width=2.5))
 
@@ -280,7 +281,7 @@ def beta_vakken_graph(
         xaxis=dict(title="Metrering",
                    type='linear',
                    range=[0,
-                          df_for_graph['M_tot'].max()+10],
+                          df_for_graph['m_end'].max()+10],
                    showgrid=True,
                    gridwidth=0.5,
                    gridcolor="gray"
@@ -319,9 +320,10 @@ class GraphBetaValuesSingleInteractive:
         self.geoprob_pipe = geoprob_pipe
         self.fig = go.Figure()
 
-        df_uittredepunten = self.geoprob_pipe.input_data.uittredepunten.df
-        self.M_van = df_uittredepunten['M_value'].min()-10
-        self.M_tot = df_uittredepunten['M_value'].max()+10
+        self.gdf_uittredepunten = self.geoprob_pipe.input_data.uittredepunten.gdf
+        self.gdf_vakken = self.geoprob_pipe.input_data.vakken.gdf
+        self.m_start = self.gdf_vakken['m_start'].min()-10
+        self.m_end = self.gdf_vakken['m_end'].max()+10
 
         self._add_backgrond()
         self._add_beta_per_vak()
@@ -331,36 +333,34 @@ class GraphBetaValuesSingleInteractive:
         self._optionally_export(export=export)
 
     def _add_beta_per_vak(self):
-        df_vakken = self.geoprob_pipe.input_data.vakken.df
         df_results_vakken = self.geoprob_pipe.results.df_beta_vakken
+        df_results_vakken = df_results_vakken.rename(columns={"vak_id": "id"})
         df_for_graph = merge(
-            left=df_results_vakken[["vak_id", "beta"]],
-            right=df_vakken[["vak_id", "M_van", "M_tot"]],
-            on="vak_id",
+            left=df_results_vakken[["id", "beta"]],
+            right=self.gdf_vakken[["id", "m_start", "m_end"]],
+            on="id",
             how="left"
         )
 
-        for index, row in df_for_graph.iterrows():
+        for _, row in df_for_graph.iterrows():
             self.fig.add_shape(type="line",
-                               x0=row["M_van"], x1=row["M_tot"],
+                               x0=row["m_start"], x1=row["m_end"],
                                y0=row["beta"], y1=row["beta"],
                                line=dict(color="grey", width=2.5),
                                )
 
     def _add_beta_per_scenario(self):
-
-        df_uittredepunten = self.geoprob_pipe.input_data.uittredepunten.df
         df_results_combined = self.geoprob_pipe.results.df_beta_scenarios
         df_for_graph = merge(
             left=df_results_combined[["uittredepunt_id", "beta"]],
-            right=df_uittredepunten[["uittredepunt_id", "M_value"]],
+            right=self.gdf_uittredepunten[["uittredepunt_id", "metrering"]],
             on="uittredepunt_id",
             how="left"
         )
 
         self.fig.add_trace(
             go.Scatter(
-                x=df_for_graph['M_value'],
+                x=df_for_graph['metrering'],
                 y=df_for_graph["beta"],
                 mode='markers',
                 marker=dict(symbol='diamond', size=5, color='black'),
@@ -370,20 +370,18 @@ class GraphBetaValuesSingleInteractive:
         )
 
     def _add_beta_per_uittredepunt(self):
-
-        df_uittredepunten_m = self.geoprob_pipe.input_data.uittredepunten.df
         df_results_uittredepunten = (self.geoprob_pipe.results
                                      .df_beta_uittredepunten)
         df_for_graph = merge(
             left=df_results_uittredepunten[["uittredepunt_id", "beta"]],
-            right=df_uittredepunten_m[["uittredepunt_id", "M_value"]],
+            right=self.gdf_uittredepunten[["uittredepunt_id", "metrering"]],
             on="uittredepunt_id",
             how="left"
         )
 
         self.fig.add_trace(
             go.Scatter(
-                x=df_for_graph['M_value'],
+                x=df_for_graph['metrering'],
                 y=df_for_graph["beta"],
                 mode='markers',
                 marker=dict(symbol='circle', size=7, color='black'),
@@ -403,7 +401,7 @@ class GraphBetaValuesSingleInteractive:
         # labels = ["β<sub>eis;sig;dsn / 30</sub>", "β<sub>eis;sig;dsn</sub>",
         #           "β<sub>eis;ond;dsn</sub>", "β<sub>eis;ond</sub>",
         #           "β<sub>eis;ond * 30</sub>", ""]
-        
+
         cg = (self.geoprob_pipe.input_data.traject_normering
               .riskeer_categorie_grenzen)
         colors = ["rgba(30,141,41,0.6)", "rgba(146,206,90,0.6)",
@@ -412,14 +410,17 @@ class GraphBetaValuesSingleInteractive:
                   "rgba(177,33,38,0.6)"]
         labels = ["+III", "+II", "+I", "0", "-I", "-II", "-III"]
 
-        x_line = np.linspace(self.M_van, self.M_tot)
+        x_line = np.linspace(self.m_start, self.m_end)
 
         i = 1
-        for vak in self.geoprob_pipe.input_data.vakken:
-            self.fig.add_vline(x=vak.M_van, line_color="black", line_width=1)
-            self.fig.add_vline(x=vak.M_tot, line_color="black", line_width=1)
+
+        for _, vak in self.gdf_vakken.iterrows():
+            self.fig.add_vline(x=vak["m_start"], line_color="black",
+                               line_width=1)
+            self.fig.add_vline(x=vak["m_end"], line_color="black",
+                               line_width=1)
             self.fig.add_annotation(
-                x=(vak.M_van + vak.M_tot) / 2, y=np.log10(2),
+                x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
                 text=(f"Vak: {i}"),
                 showarrow=False,
                 xanchor="center",
@@ -477,7 +478,7 @@ class GraphBetaValuesSingleInteractive:
             title="Betrouwbaarheidsindex STPH",
             xaxis=dict(title="Metrering",
                        type='linear',
-                       range=[0, self.M_tot],
+                       range=[0, self.m_end],
                        showgrid=True,
                        gridwidth=0.5,
                        gridcolor="gray"

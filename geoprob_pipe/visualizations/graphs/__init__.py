@@ -6,7 +6,6 @@ from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive
 from geoprob_pipe.visualizations.graphs.physical_values_along_levee import physical_values_buitenwaterstand_and_top_zand
 from geoprob_pipe.visualizations.graphs.invloedsfactoren import invloedsfactoren
 from typing import TYPE_CHECKING
-from matplotlib.pyplot import Figure as MatplotLibFigure
 from plotly.graph_objects import Figure as PlotlyFigure
 import os
 
@@ -35,13 +34,10 @@ class Graphs:
     def physical_values_buitenwaterstand_and_top_zand(self, export: bool = False) -> PlotlyFigure:
         return physical_values_buitenwaterstand_and_top_zand(self.geoprob_pipe, export=export)
 
-    def hfreq_graphs_per_location(self) -> List[MatplotLibFigure]:
-        return hfreq_graphs_per_location(self.geoprob_pipe, export=False)
-    
     def beta_value_in_single_interactive(self, export: bool = False) -> PlotlyFigure:
         graph = GraphBetaValuesSingleInteractive(self.geoprob_pipe, export=export)
         return graph.fig
-    
+
     def beta_scenarios(self) -> PlotlyFigure:
         return beta_scenarios_graph(self.geoprob_pipe, export=False)
 
@@ -53,7 +49,6 @@ class Graphs:
 
     def export_graphs(self):
         GraphHFreqSingleInteractive(self.geoprob_pipe, export=True)
-        hfreq_graphs_per_location(self.geoprob_pipe, export=True)
         GraphBetaValuesSingleInteractive(self.geoprob_pipe, export=True)
         beta_scenarios_graph(self.geoprob_pipe, export=True)
         beta_uittredepunten_graph(self.geoprob_pipe, export=True)
