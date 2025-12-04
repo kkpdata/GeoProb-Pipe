@@ -107,11 +107,11 @@ def beta_scenarios_graph(
     categoriegrenzen weergegeven. """
 
     # Collect data
-    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df_results_combined = geoprob_pipe.results.df_beta_scenarios
     df_for_graph = merge(
         left=df_results_combined[["uittredepunt_id", "beta"]],
-        right=df_uittredepunten[["uittredepunt_id", "M_value"]],
+        right=gdf_uittredepunten[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id",
         how="left"
     )
@@ -123,7 +123,7 @@ def beta_scenarios_graph(
 
     fig.add_trace(
         go.Scatter(
-            x=df_for_graph['M_value'],
+            x=df_for_graph['metrering'],
             y=df_for_graph["beta"],
             mode='markers',
             marker=dict(symbol='diamond', size=3, color='black'),
@@ -181,11 +181,11 @@ def beta_uittredepunten_graph(
     categoriegrenzen weergegeven. """
 
     # Collect data
-    df_uittredepunten_m = geoprob_pipe.input_data.uittredepunten.df
+    gdf_uittredepunten_m = geoprob_pipe.input_data.uittredepunten.gdf
     df_results_uittredepunten = geoprob_pipe.results.df_beta_uittredepunten
     df_for_graph = merge(
         left=df_results_uittredepunten[["uittredepunt_id", "beta"]],
-        right=df_uittredepunten_m[["uittredepunt_id", "M_value"]],
+        right=gdf_uittredepunten_m[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id",
         how="left"
     )

@@ -43,7 +43,9 @@ def calc_lengte_voorland(
         L_intrede: float,
         L_but: float
 ) -> float:
-    r"""Berekent de geometrische voorlandlengte in [m] op basis van afstanden ten opzichte van een uittredepunt. In de pre-processing tool worden :math:`L_{intrede}` en :math:`L_{but}` als geografische lijnobjecten gedefinieerd. De kortste afstand tussen deze objecten is invoer voor deze functie.
+    r""" Berekent de geometrische voorlandlengte in [m] op basis van afstanden ten opzichte van een uittredepunt. In de
+    pre-processing tool worden :math:`L_{intrede}` en :math:`L_{but}` als geografische lijnobjecten gedefinieerd. De
+    kortste afstand tussen deze objecten is invoer voor deze functie.
 
     Args:
         L_intrede (float): afstand van uittredepunten tot een (denkbeeldige) intredelijn [m]

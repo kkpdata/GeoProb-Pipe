@@ -1,11 +1,14 @@
 from __future__ import annotations
 from pandas import DataFrame, concat
 from probabilistic_library import DesignPoint, Alpha
-from geoprob_pipe.calculations.limit_states.piping import z_piping
-from geoprob_pipe.calculations.limit_states.uplift_icw_model4a import z_uplift
-from geoprob_pipe.calculations.limit_states.heave_icw_model4a import z_heave
+# from geoprob_pipe.calculations.limit_states.piping import z_piping
+# from geoprob_pipe.calculations.limit_states.uplift_icw_model4a import z_uplift
+# from geoprob_pipe.calculations.limit_states.heave_icw_model4a import z_heave
 from typing import TYPE_CHECKING, Dict, List, Union
 import numpy as np
+
+from geoprob_pipe.calculations.system_calculations.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
+
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
     from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
@@ -24,7 +27,7 @@ def _collect_stochast_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
             alpha: Alpha
             rows_from_dp.append({
                 "uittredepunt_id": calc.metadata['uittredepunt_id'],
-                "ondergrondscenario_id": calc.metadata['ondergrondscenario_id'],
+                "ondergrondscenario_id": calc.metadata['ondergrondscenario_naam'],
                 "vak_id": calc.metadata['vak_id'],
                 "design_point": dp.identifier,
                 "variable": alpha.identifier,
@@ -60,18 +63,24 @@ def _calculate_derived_values(geoprob_pipe: GeoProbPipe):
     )
 
     # Calculate the derived values
-    def derived_values_single_calculation(**kwargs):
-        heave_return_keys = ["z_h", "lengte_voorland", "r_exit", "phi_exit", "h_exit", "d_deklaag", "i_exit"]
-        heave_derived_values = {key: value for key, value in zip(heave_return_keys, z_heave(**kwargs))}
-        uplift_return_keys = ["z_u", "L_voorland", "r_exit", "phi_exit", "h_exit", "d_deklaag", "dphi_c_u"]
-        uplift_derived_values = {key: value for key, value in zip(uplift_return_keys, z_uplift(**kwargs))}
-        piping_return_keys = [
-            "z_p", "L_voorland", "lambda_voorland", "W_voorland", "L_kwelweg", "dh_c", "h_exit", "d_deklaag", "dh_red"]
-        piping_derived_values = {key: value for key, value in zip(piping_return_keys, z_piping(**kwargs))}
-        return {**heave_derived_values, **uplift_derived_values, **piping_derived_values,}
+    def derived_values_single_calculation(model_naam: str, **kwargs):
+
+        return_keys: List[str] = SYSTEM_CALCULATION_MAPPER[model_naam]["system_return_parameter_keys"]
+        system_limit_state_function = SYSTEM_CALCULATION_MAPPER[model_naam]["limit_state_function"]
+        derived_values = {key: value for key, value in zip(return_keys, system_limit_state_function(**kwargs))}
+
+        # heave_return_keys = ["z_h", "lengte_voorland", "r_exit", "phi_exit", "h_exit", "d_deklaag", "i_exit"]
+        # heave_derived_values = {key: value for key, value in zip(heave_return_keys, z_heave(**kwargs))}
+        # uplift_return_keys = ["z_u", "L_voorland", "r_exit", "phi_exit", "h_exit", "d_deklaag", "dphi_c_u"]
+        # uplift_derived_values = {key: value for key, value in zip(uplift_return_keys, z_uplift(**kwargs))}
+        # piping_return_keys = [
+        #     "z_p", "L_voorland", "lambda_voorland", "W_voorland", "L_kwelweg", "dh_c", "h_exit", "d_deklaag", "dh_red"]
+        # piping_derived_values = {key: value for key, value in zip(piping_return_keys, z_piping(**kwargs))}
+        return {**derived_values}
 
     df['derived_physical_values'] = df['physical_values'].apply(
-        lambda kwargs: derived_values_single_calculation(**kwargs)
+        lambda kwargs: derived_values_single_calculation(
+            model_naam=geoprob_pipe.input_data.geohydrologisch_model, **kwargs)
     )
 
     # Create df with row per derived physical value
