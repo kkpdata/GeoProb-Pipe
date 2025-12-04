@@ -48,6 +48,8 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
                     for freq in target_freqs}
 
     # Add Hydra lines (grouped per frequency)
+    # TODO: Volgens mij veranderd naar geoprob_pipe.input_data.hydra_nl_data.hrd_frequency_line()
+    #  Maar twijfelachtig of dit werkt met de csv-bestanden.
     for hydra_nl_name, hfreq in (geoprob_pipe.input_data
                                  .overschrijdingsfrequentielijnen.items()):
         df_subset = gdf_uittredepunten[
