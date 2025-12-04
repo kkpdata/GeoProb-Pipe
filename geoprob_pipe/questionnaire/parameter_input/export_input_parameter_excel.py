@@ -90,5 +90,12 @@ def export_input_parameter_tables(app_settings: ApplicationSettings, tables: Inp
         df_fragility_values_invoer.to_excel(
             writer, sheet_name="Fragility values", index=False, header=False, startrow=4, startcol=0)
 
+    # Fill 'Correlatie invoer'
+    df_correlatie_invoer = tables.df_correlatie_invoer
+    df_correlatie_invoer = df_correlatie_invoer[["parameter_a", "parameter_b", "correlation"]].copy()
+    with ExcelWriter(dst_path, engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:
+        df_correlatie_invoer.to_excel(
+            writer, sheet_name="Correlatie invoer", index=False, header=False, startrow=4, startcol=0)
+
     print(f"{BColors.UNDERLINE}Exporteren van invoer tabellen compleet:\n"
           f"{dst_path}{BColors.ENDC}")
