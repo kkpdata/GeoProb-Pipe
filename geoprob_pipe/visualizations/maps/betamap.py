@@ -26,7 +26,6 @@ class BetaMap:
         # results import
         self.inputp = self.geoprob_pipe.input_data.uittredepunten.df
         self.inpsc = self.geoprob_pipe.input_data.ondergrondscenarios.df
-        self.inphfreq = self.geoprob_pipe.input_data.overschrijdingsfrequentielijnen
         self.inppar = self.geoprob_pipe.input_data.df_overview_parameters
         self.resutp = self.geoprob_pipe.results.gdf_beta_uittredepunten
         self.ressc = self.geoprob_pipe.results.gdf_beta_scenarios
