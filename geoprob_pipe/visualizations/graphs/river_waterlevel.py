@@ -52,32 +52,21 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
 
     # Add Hydra lines (grouped per frequency)
     df_input: pd.DataFrame = run_expand_input_tables(
-        geoprob_pipe.input_data.app_settings.geopackage_filepath,
-        add_frag_ref=True
-        )
+        geoprob_pipe.input_data.app_settings.geopackage_filepath, add_frag_ref=True)
     df_input = df_input[df_input["parameter_name"] == "buitenwaterstand"]
-    df_input = pd.concat([df_input.drop(columns=['parameter_input']),
-                          df_input['parameter_input'].apply(pd.Series)],
-                         axis=1)
+    df_input = pd.concat(
+        [df_input.drop(columns=['parameter_input']), df_input['parameter_input'].apply(pd.Series)], axis=1)
 
     for _, row in df_input.iterrows():
-        df_subset = gdf_uittredepunten[
-            gdf_uittredepunten["vak_id"] == row["vak_id"]
-            ]
+        df_subset = gdf_uittredepunten[gdf_uittredepunten["vak_id"] == row["vak_id"]]
         if df_subset.empty:
             continue
 
         m_values = df_subset["metrering"].to_numpy()
 
         # Hydra exceedance curve
-        freqs = np.array(
-            [fv.probability_of_failure for fv in row.loc["fragility_values"]],
-            dtype=float
-            )
-        levels = np.array(
-            [fv.x for fv in row.loc["fragility_values"]],
-            dtype=float
-            )
+        freqs = np.array([fv.probability_of_failure for fv in row.loc["fragility_values"]], dtype=float)
+        levels = np.array([fv.x for fv in row.loc["fragility_values"]], dtype=float)
 
         # Sort for interpolation
         sort_idx = np.argsort(freqs)
