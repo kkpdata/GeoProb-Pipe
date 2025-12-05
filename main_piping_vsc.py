@@ -1,24 +1,15 @@
+# %%
 """ The below code displays an example of how GeoProb-Pipe is run. This example works inside the repository. Use the
 Project-object directly outside the repository. """
-import sys 
-#add the "scr" directory to the system path
-repo_root = r"C:\Github\Project_GeoProb_Pipe\GeoProb-Pipe"
-sys.path.append(repo_root) 
-
 from geoprob_pipe import GeoProbPipe
-from dotenv import load_dotenv
 import os
-import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)  # Preferably address FutureWarnings: part of pydra-core
+from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
-# Import environment variables
-load_dotenv(os.path.join(repo_root, "geoprob_pipe.ini"))
+app_settings = ApplicationSettings()
 
+filepath = r"tests\systeem_testen\224\Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg"
+app_settings.workspace_dir = os.path.dirname(filepath)
+app_settings.geopackage_filename = os.path.basename(filepath)
 
-# Initiate GeoProb-Pipe project object
-geoprob_pipe = GeoProbPipe(os.getenv("PATH_WORKSPACE"))
+geoprob_pipe = GeoProbPipe(app_settings)
 geoprob_pipe.export_archive()
-
-
-
-
