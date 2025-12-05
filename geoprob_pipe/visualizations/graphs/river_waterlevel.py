@@ -39,7 +39,7 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
 
     # Blue gradient for lines
     line_colors = pc.sample_colorscale(
-        "Blues", np.linspace(0.2, 0.9, len(target_freqs))
+        "Jet", np.linspace(0.2, 0.9, len(target_freqs))
         )
     freq_color_map = {f: c for f, c in zip(target_freqs, line_colors)}
 
