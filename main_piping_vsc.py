@@ -6,7 +6,7 @@ from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
 app_settings = ApplicationSettings()
 
-filepath = r"tests\systeem_testen\224\Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg"
+filepath = r"tests\systeem_testen\224\Traject224_MORIA_WBN_det_corr.geoprob_pipe.gpkg"
 app_settings.workspace_dir = os.path.dirname(filepath)
 app_settings.geopackage_filename = os.path.basename(filepath)
 

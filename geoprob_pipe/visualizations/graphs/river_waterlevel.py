@@ -61,38 +61,42 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
                          axis=1)
 
     for _, row in df_input.iterrows():
-        df_subset = gdf_uittredepunten[
-            gdf_uittredepunten["vak_id"] == row["vak_id"]
-            ]
-        if df_subset.empty:
+        try:
+            df_subset = gdf_uittredepunten[
+                gdf_uittredepunten["vak_id"] == row["vak_id"]
+                ]
+            if df_subset.empty:
+                continue
+
+            m_values = df_subset["metrering"].to_numpy()
+
+            # Hydra exceedance curve
+            freqs = np.array(
+                [fv.probability_of_failure for fv in row.loc["fragility_values"]],
+                dtype=float
+                )
+            levels = np.array(
+                [fv.x for fv in row.loc["fragility_values"]],
+                dtype=float
+                )
+
+            # Sort for interpolation
+            sort_idx = np.argsort(freqs)
+            freqs = freqs[sort_idx]
+            levels = levels[sort_idx]
+
+            # Interpolate levels for standard frequencies
+            interp_levels = np.interp(target_freqs, freqs, levels)
+
+            # Store values for each frequency
+            for freq, level in zip(target_freqs, interp_levels):
+                hydra_curves[freq]["metrering"].extend(m_values)
+                hydra_curves[freq]["level"].extend(np.full_like(m_values, level))
+        except KeyError:
             continue
 
-        m_values = df_subset["metrering"].to_numpy()
-
-        # Hydra exceedance curve
-        freqs = np.array(
-            [fv.probability_of_failure for fv in row.loc["fragility_values"]],
-            dtype=float
-            )
-        levels = np.array(
-            [fv.x for fv in row.loc["fragility_values"]],
-            dtype=float
-            )
-
-        # Sort for interpolation
-        sort_idx = np.argsort(freqs)
-        freqs = freqs[sort_idx]
-        levels = levels[sort_idx]
-
-        # Interpolate levels for standard frequencies
-        interp_levels = np.interp(target_freqs, freqs, levels)
-
-        # Store values for each frequency
-        for freq, level in zip(target_freqs, interp_levels):
-            hydra_curves[freq]["metrering"].extend(m_values)
-            hydra_curves[freq]["level"].extend(np.full_like(m_values, level))
-
     # Plot one continuous line per exceedance frequency
+    
     for freq, data in hydra_curves.items():
         # Sort by metrering for continuous line plotting
         sort_idx = np.argsort(data["metrering"])
