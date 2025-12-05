@@ -1,7 +1,7 @@
 from probabilistic_library import (
     ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod, CombinerMethod, CombineType, DistributionType,
     Stochast, Settings)
-from typing import Optional, Callable, List, Dict, Union
+from typing import Optional, Callable, List, Dict, Union, Tuple
 from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit_state_functions import (
     system_variable_setup, limit_state_example_1, limit_state_example_2)
 from geoprob_pipe.calculations.system_calculations.system_base_objects._base_system_reliability_calculation import (
@@ -44,6 +44,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
     def __init__(
             self,
             system_variable_distributions: List[Dict],
+            system_variable_correlations: List[Tuple[str, str, float]],
             system_models: Optional[List[Callable]] = None,  # For assigning in children
             system_variables_setup_function: Optional[Callable] = None,  # For assigning in children
             project_settings: Dict[str, Union[str, float, int]] = None
@@ -59,6 +60,8 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         # Mutable arguments
         if project_settings is None:
             project_settings = {}
+        if system_variable_correlations is None:
+            system_variable_correlations = []
 
         self.validation_messages = ValidationMessages()
         self.metadata = {}
@@ -68,6 +71,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self.given_system_variables_setup_function: Callable = system_variables_setup_function
         self.given_system_models: List[Callable] = system_models
         self.given_system_variable_distributions: List[Dict] = system_variable_distributions
+        self.given_system_variable_correlations: List[Tuple[str, str, float]] = system_variable_correlations
         # TODO Nu Should Klein: I.p.v. dict maak gebruik van Distributie-objecten. Minder fout gevoelig.
 
         # Placeholders
@@ -84,6 +88,7 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self.project.settings.maximum_iterations = 100
         self.project.settings.relaxation_factor = 0.75
         self._assign_variables()
+        self._assign_project_correlations()
         self._generate_model_design_points()
         self._generate_system_design_point()
 
@@ -157,9 +162,17 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
             if 'fragility_values' in item.keys():
                 self.project.variables[name].fragility_values.extend(item['fragility_values'])
 
+    def _assign_project_correlations(self):
+        for correlation in self.given_system_variable_correlations:
+            self.project.correlation_matrix[
+                correlation[0],  # Parameter name A
+                correlation[1]   # Parameter name B
+            ] = correlation[2]   # Correlation value between 0.0 and 1.0
+
     def _generate_model_design_points(self):
         for model_callable in self.given_system_models:
             self.project.model = model_callable
+            self._assign_project_correlations()
             self.project.run()
             design_point = self.project.design_point
             design_point.identifier = model_callable.__name__
