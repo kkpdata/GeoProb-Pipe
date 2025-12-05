@@ -287,9 +287,7 @@ def limit_state_moria(  # TODO: Naam moria vervangen voor iets generieks?
     d_deklaag = pc_piping.calc_d_deklaag(mv_exit=mv_exit, top_zand=top_zand)
     phi_exit = r_exit * (buitenwaterstand - buitenwaterstand_gemiddeld) + phi_exit_gemiddeld
     dphi_c_u = pc_piping.calc_dphi_c_u(
-        d_deklaag=d_deklaag,
-        gamma_sat_deklaag=gamma_sat_deklaag,
-        gamma_water=gamma_water)
+        d_deklaag=d_deklaag, gamma_sat_deklaag=gamma_sat_deklaag, gamma_water=gamma_water)
     i_exit = pc_piping.calc_i_exit(phi_exit=phi_exit, h_exit=h_exit, d_deklaag=d_deklaag)
     dh_c = pc_piping.calc_dh_c(
         d70=d70, D_wvp=D_wvp, kD_wvp=kD_wvp, L_kwelweg=L_kwelweg, gamma_water=gamma_water, g=g, v=v, theta=theta,

@@ -10,17 +10,23 @@ if TYPE_CHECKING:
 
 
 def get_plot_order(geoprob_pipe: GeoProbPipe) -> DataFrame:
+    """ Assigns color codes (indices) and color rgb-values to each stochast such that they can be plotted with the
+    same color and same order.
+
+    :param geoprob_pipe:
+    :return: DataFrame with columns 'variable', 'plot_order' and 'color'
+    """
 
     # Define plot order
     df: DataFrame = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(filter_derived=True)
     df = df[["variable", "influence_factor"]]
-    df = df.groupby(['variable']).mean()
+    df = df.groupby(['variable']).mean()  # Influence factor average value define color order
     df = df.sort_values(by=["influence_factor"], ascending=False)
     df = df.reset_index(drop=False)
-    df['plot_order'] = df.index
+    df['plot_order'] = df.index  # Result is df with columns 'variable', 'influence_factor' (average), 'plot_order'
 
     # Add colors to plot order
-    df_colors = DataFrame({"color": DISTINCTIVE_COLORS})
+    df_colors = DataFrame({"color": DISTINCTIVE_COLORS})  # Convert to dict to df for ease of use
     df_colors['plot_order'] = df_colors.index
     df = merge(df, df_colors, how="left", on="plot_order")
 
