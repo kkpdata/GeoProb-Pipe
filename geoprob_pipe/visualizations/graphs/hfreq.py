@@ -89,6 +89,8 @@ class GraphHFreqSingleInteractive:
         self.df_parameter_input_expanded: DataFrame = run_expand_input_tables(
             geopackage_filepath=self.geoprob_pipe.input_data.app_settings.geopackage_filepath, add_frag_ref=True)
         self.df_fragility_ref_data: DataFrame = self._collect_fragility_ref_data()
+        if self.df_fragility_ref_data.__len__() == 0:
+            return  # No fragility values, then no graphs needed
 
         # Logic
         self.fig = go.Figure()
@@ -106,6 +108,16 @@ class GraphHFreqSingleInteractive:
         df = self.df_parameter_input_expanded
         df = df[df["parameter_name"] == "buitenwaterstand"]
         df = concat([df.drop(columns=['parameter_input']), df['parameter_input'].apply(Series)], axis=1)
+        # print(f"{df.__len__()=}")
+        # print(f"{df.columns=}")
+        # print(f"{df=}")
+
+        # If fragility_values_ref not in columns, then there are no fragility values needed
+        if "fragility_values_ref" not in df.columns:
+            return DataFrame(
+                data=[],
+                columns=["uittredepunt_id", "fragility_values", "uittredepunt_ids_multiline", "frequency_line"]
+            )
 
         # Group uittredepunt ids and fragility values
         df_result = (

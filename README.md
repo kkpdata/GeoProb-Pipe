@@ -89,10 +89,13 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | must | middel | Assert toevoegen die piping resultaat unit test | /calculations/system_calculations/piping_system/test_calculation.py | 55 | 
 | should | groot | Zou goed zijn om in GeoProb-Pipe voorbeelden op te nemen die tonen dat de applicatie klopt. | /calculations/test_prob_lib_vs_openturns.py | 1 | 
 | should | klein | Sommige resultaten zijn niet converged. Wat doen we daarmee? | /results/__init__.py | 70 | 
-| should | klein | I.p.v. dict maak gebruik van Distributie-objecten. Minder fout gevoelig. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 71 | 
-| should | klein | Feedback aan gebruiker dat er validation messages zijn. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 137 | 
+| should | klein | I.p.v. dict maak gebruik van Distributie-objecten. Minder fout gevoelig. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 75 | 
+| should | klein | Feedback aan gebruiker dat er validation messages zijn. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 142 | 
 
 <!-- END_TODO_TABLE_NU --> 
+
+
+
 
 
 
@@ -154,6 +157,9 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should | middel | Should validate if AHN grid fully overlaps area | /questionnaire/spatial_layers/ahn.py | 13 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
+
+
 
 
 

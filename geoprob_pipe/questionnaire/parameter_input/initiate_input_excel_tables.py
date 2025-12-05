@@ -94,6 +94,16 @@ def push_fragility_values_invoer_tabel(app_settings: ApplicationSettings):
     conn.close()
 
 
+DF_EMPTY_CORRELATIE_INVOER = DataFrame({"parameter_a": [], "parameter_b": [], "correlation": []})
+
+
+def push_correlatie_invoer_tabel(app_settings: ApplicationSettings):
+    # Push to geopackage
+    conn = sqlite3.connect(app_settings.geopackage_filepath)
+    DF_EMPTY_CORRELATIE_INVOER.to_sql("correlatie_invoer", conn, if_exists="replace", index=False)
+    conn.close()
+
+
 def initiate_input_excel_tables(app_settings: ApplicationSettings):
 
     # Fill 'Scenario invoer'
@@ -104,3 +114,6 @@ def initiate_input_excel_tables(app_settings: ApplicationSettings):
 
     # Fill 'Fragility values invoer'
     push_fragility_values_invoer_tabel(app_settings=app_settings)
+
+    # Fill 'Correlatie invoer'
+    push_correlatie_invoer_tabel(app_settings=app_settings)
