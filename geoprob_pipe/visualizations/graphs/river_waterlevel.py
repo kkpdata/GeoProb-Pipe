@@ -52,13 +52,15 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
 
     # Add Hydra lines (grouped per frequency)
     df_input: pd.DataFrame = run_expand_input_tables(
-        geoprob_pipe.input_data.app_settings.geopackage_filepath, add_frag_ref=True)
+        geoprob_pipe.input_data.app_settings.geopackage_filepath,
+        add_frag_ref=True)
     df_input = df_input[df_input["parameter_name"] == "buitenwaterstand"]
     df_input = pd.concat(
-        [df_input.drop(columns=['parameter_input']), df_input['parameter_input'].apply(pd.Series)], axis=1)
+        [df_input.drop(columns=['parameter_input']),
+         df_input['parameter_input'].apply(pd.Series)], axis=1)
 
     for _, row in df_input.iterrows():
-        try:
+        if row["distribution_type"] != "deterministic":
             df_subset = gdf_uittredepunten[
                 gdf_uittredepunten["vak_id"] == row["vak_id"]
                 ]
@@ -89,11 +91,9 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
             for freq, level in zip(target_freqs, interp_levels):
                 hydra_curves[freq]["metrering"].extend(m_values)
                 hydra_curves[freq]["level"].extend(np.full_like(m_values, level))
-        except KeyError:
-            continue
 
     # Plot one continuous line per exceedance frequency
-    
+
     for freq, data in hydra_curves.items():
         # Sort by metrering for continuous line plotting
         sort_idx = np.argsort(data["metrering"])
