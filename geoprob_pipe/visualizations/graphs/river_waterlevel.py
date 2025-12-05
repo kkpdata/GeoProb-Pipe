@@ -52,13 +52,10 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
 
     # Add Hydra lines (grouped per frequency)
     df_input: pd.DataFrame = run_expand_input_tables(
-        geoprob_pipe.input_data.app_settings.geopackage_filepath,
-        add_frag_ref=True
-        )
+        geoprob_pipe.input_data.app_settings.geopackage_filepath, add_frag_ref=True)
     df_input = df_input[df_input["parameter_name"] == "buitenwaterstand"]
-    df_input = pd.concat([df_input.drop(columns=['parameter_input']),
-                          df_input['parameter_input'].apply(pd.Series)],
-                         axis=1)
+    df_input = pd.concat(
+        [df_input.drop(columns=['parameter_input']), df_input['parameter_input'].apply(pd.Series)], axis=1)
 
     for _, row in df_input.iterrows():
         try:
