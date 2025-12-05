@@ -17,7 +17,7 @@ def _background_graph(
         ) -> go.Figure:
     # Categorie kleuren
 
-    # # Oude catogerie grenzen en kleuren
+    # # Oude categorie grenzen en kleuren
     # cg = geoprob_pipe.input_data.traject_normering.beta_categorie_grenzen
     # colors = ["rgba(0,128,0,0.4)", "rgba(144,238,144,0.4)",
     #           "rgba(255,255,0,0.4)", "rgba(255,165,0,0.4)",
@@ -46,7 +46,7 @@ def _background_graph(
         fig.add_vline(x=vak["m_end"], line_color="black", line_width=1)
         fig.add_annotation(
             x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
-            text=(f"Vak: {i}"),
+            text=f"Vak: {i}",
             showarrow=False,
             xanchor="center",
             yanchor="bottom",
@@ -134,7 +134,7 @@ def beta_scenarios_graph(
 
     # Layout
     fig.update_layout(
-        title="Betrouwbaarheidsindex STPH scenarioberekeningen",
+        title="Betrouwbaarheidsindex STPH per scenarioberekening",
         xaxis=dict(title="Metrering",
                    type='linear',
                    range=[0,
@@ -364,7 +364,7 @@ class GraphBetaValuesSingleInteractive:
                 y=df_for_graph["beta"],
                 mode='markers',
                 marker=dict(symbol='diamond', size=5, color='black'),
-                name='Beta Scenarios',
+                name='Beta scenarios',
                 showlegend=True
             )
         )
@@ -421,7 +421,7 @@ class GraphBetaValuesSingleInteractive:
                                line_width=1)
             self.fig.add_annotation(
                 x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
-                text=(f"Vak: {i}"),
+                text=f"Vak: {i}",
                 showarrow=False,
                 xanchor="center",
                 yanchor="bottom",
