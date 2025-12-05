@@ -2,6 +2,7 @@ from __future__ import annotations
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
 from typing import List, TYPE_CHECKING, Tuple
+from geoprob_pipe.utils.validation_messages import BColors
 from pandas import DataFrame, Series
 import sqlite3
 from geoprob_pipe.questionnaire.parameter_input.expand_input_tables import run_expand_input_tables
@@ -24,13 +25,17 @@ def _gather_variable_correlations(geopackage_filepath: str) -> List[Tuple[str, s
     try:
         conn = sqlite3.connect(geopackage_filepath)
         cursor = conn.cursor()
-        cursor.execute(f"SELECT parameter_a, parameter_b, correlation FROM correlatie_invoer;")
+        cursor.execute(f"""
+SELECT parameter_a, parameter_b, correlation FROM correlatie_invoer WHERE correlation <> 0.0;
+""")
         rows = cursor.fetchall()  # This will be a list of tuples
         conn.close()
+        if rows.__len__() > 0:
+            print(f"{BColors.WARNING}Er zijn één of meer correlaties toegepast. De logica hiervoor is geïmplementeerd "
+                  f"maar nog niet volledig gevalideerd.{BColors.ENDC}")
         return rows
     except sqlite3.OperationalError:
         return []
-
 
 
 def _gather_calculation_input(df_expanded: DataFrame, uittredepunt_id: int, ondergrondscenario_naam: str) -> List:
@@ -101,8 +106,9 @@ class BaseSystemBuilder:
         df_unique_combos: DataFrame = df_expanded[["uittredepunt_id", "ondergrondscenario_naam"]].drop_duplicates()
 
         # Gather variable correlations
-        variable_correlations = _gather_variable_correlations(
+        variable_correlations: List[Tuple[str, str, float]] = _gather_variable_correlations(
             geopackage_filepath=self.geoprob_pipe.input_data.app_settings.geopackage_filepath)
+
         # TODO: Should be made uittredepunt/vak specific in future versions of the code. For now only for the entire
         #  trajectory.
 
