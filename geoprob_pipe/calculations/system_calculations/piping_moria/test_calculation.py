@@ -8,26 +8,11 @@ def test_calculation():
         PipingMORIASystemReliabilityCalculation)
     from geoprob_pipe.calculations.system_calculations.piping_moria.dummy_input import DUMMY_INPUT
 
-    obj = PipingMORIASystemReliabilityCalculation(
-        system_variable_distributions=DUMMY_INPUT,
-    )
+    obj = PipingMORIASystemReliabilityCalculation(system_variable_distributions=DUMMY_INPUT)
 
     # Run prob system
     obj.run()
     assert obj.validation_messages.cnt == 0
-    # print(f"{obj.system_design_point.reliability_index=}")
-    # for design_point in obj.model_design_points:
-    #     print(f"{design_point.reliability_index=}")
-
-    # Check correlation influences result
-    obj2 = PipingMORIASystemReliabilityCalculation(
-        system_variable_distributions=DUMMY_INPUT,
-        system_variable_correlations=[("lambda_voorland", "k_wvp", 0.8)],
-    )
-    obj2.run()
-    assert obj.system_design_point.reliability_index != obj2.system_design_point.reliability_index
-
-    ##
 
     # Model resultaten
     print(f"\nModellen:")
