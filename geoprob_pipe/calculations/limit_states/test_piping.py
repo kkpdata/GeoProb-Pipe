@@ -33,7 +33,7 @@ input_keys_calc_z_piping = [
     "D_wvp",  # D_wvp
     "kD_wvp",  # kD_wvp
     "top_zand",  # top_zand
-    "gamma_water",  # GAMMA_WATER not in excel file, use global variable
+    "gamma_water",  # GAMMA_WATER not in Excel file, use global variable
     "g",  # G
     "v",  # V
     "theta",  # THETA
@@ -107,7 +107,7 @@ expected_outputs_calc_z_piping = data_calc_z_piping[output_key_calc_z_piping].to
     "inputs, expected", zip(inputs_calc_z_piping_dict, expected_outputs_calc_z_piping)
 )
 def test_calc_z_piping(inputs, expected):
-    """Test calc_dh_c function with multiple test cases from excel file"""
+    """Test calc_dh_c function with multiple test cases from Excel file"""
     result = piping.z_piping(
         c_voorland=inputs["c_voorland"],
         buitenwaterstand=inputs["buitenwaterstand"],

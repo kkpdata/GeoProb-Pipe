@@ -12,7 +12,7 @@ def collect_df_beta_per_limit_state(geoprob_pipe: GeoProbPipe) -> DataFrame:
     def create_row(calc, dp, model_name):
         return {
             "uittredepunt_id": calc.metadata["uittredepunt_id"],
-            "ondergrondscenario_id": calc.metadata["ondergrondscenario_id"],
+            "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
             "vak_id": calc.metadata["vak_id"],
             "limit_state": model_name,
             "converged": dp.is_converged,
@@ -33,8 +33,8 @@ def collect_df_beta_per_scenario(geoprob_pipe: GeoProbPipe) -> DataFrame:
     def create_row(calc):
         return {
             "uittredepunt_id": calc.metadata["uittredepunt_id"],
-            "ondergrondscenario_id": calc.metadata["ondergrondscenario_id"],
-            "ondergrondscenario": calc.metadata["ondergrondscenario"],
+            "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
+            # "ondergrondscenario": calc.metadata["ondergrondscenario"],
             "vak_id": calc.metadata["vak_id"],
             "system_calculation": calc,
             "converged": calc.system_design_point.is_converged,
@@ -58,15 +58,15 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     # Sum
     df = results.df_beta_scenarios.assign(
         failure_probability=results.df_beta_scenarios.apply(
-            lambda row: row['failure_probability'] *
-                        row['ondergrondscenario'].variables.ondergrondscenario_kans[
-                            "value"], axis=1)).groupby('uittredepunt_id', as_index=False)[
+            lambda row: row['failure_probability'] * geoprob_pipe.input_data.scenarios.scenario_kans(
+                vak_id=row['vak_id'], scenario_naam=row['ondergrondscenario_id']
+            ), axis=1)).groupby('uittredepunt_id', as_index=False)[
         'failure_probability'].sum()
     df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
 
     # Add vak id back to it
-    df_uittredepunten = geoprob_pipe.input_data.uittredepunten.df
-    df_uittredepunten = df_uittredepunten[["uittredepunt_id", "vak_id"]]
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
+    df_uittredepunten = gdf_uittredepunten[["uittredepunt_id", "vak_id"]]
     df = df.merge(df_uittredepunten, left_on="uittredepunt_id", right_on="uittredepunt_id")
 
     return df[["uittredepunt_id", "vak_id", "beta", "failure_probability"]]

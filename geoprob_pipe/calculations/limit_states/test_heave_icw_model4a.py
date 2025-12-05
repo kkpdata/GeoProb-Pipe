@@ -48,7 +48,7 @@ output_key_calc_z_heave = [
     "i_exit",  # i_exit
 ]
 
-# global variables - also defined in teststet excel file
+# global variables - also defined in testset excel file
 # G = 9.81  # m/s^2
 # V = 1.33e-6  # m^2/s
 # ETA = 0.25  # [-]
@@ -70,7 +70,7 @@ expected_outputs_calc_z_heave = data_calc_z_heave[output_key_calc_z_heave].to_di
     "inputs, expected", zip(inputs_calc_z_heave, expected_outputs_calc_z_heave)
 )
 def test_calc_z_heave(inputs, expected):
-    """Test calc_dh_c function with multiple test cases from excel file"""
+    """Test calc_dh_c function with multiple test cases from Excel file"""
     result = heave_icw_model4a.z_heave(
         L_achterland=inputs["L_achterland"],
         c_voorland=inputs["c_voorland"],
