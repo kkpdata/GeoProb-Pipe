@@ -70,21 +70,6 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | could | middel | Uitvoeren van system calculations ombouwen naar Threads. | /calculations/system_calculations/piping_system/build_and_run.py | 25 | 
 | must | klein | Voor export df_beta_limit_states, kolommen filteren? | /results/__init__.py | 68 | 
 | must | klein | Eigenlijk hoofdletter N_dsn. Maar ipv afkorting naam gebruiken? | /misc/traject_normering.py | 76 | 
-| must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/betrouwbaarheidsindex.py | 92 | 
-| must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | /visualizations/graphs/betrouwbaarheidsindex.py | 115 | 
-| must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | /visualizations/graphs/betrouwbaarheidsindex.py | 116 | 
-| must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/betrouwbaarheidsindex.py | 191 | 
-| must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | /visualizations/graphs/betrouwbaarheidsindex.py | 214 | 
-| must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | /visualizations/graphs/betrouwbaarheidsindex.py | 215 | 
-| must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 47 | 
-| must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 70 | 
-| must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 71 | 
-| must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 153 | 
-| must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 176 | 
-| must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 177 | 
-| must | klein | Pas dijkpaal codering op x-as toe. Heb op dit moment niet deze gekoppeld aan de measure. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 268 | 
-| must | klein | Dit zijn niet de officiële categoriekleuren. Aanpassen. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 290 | 
-| must | klein | De fills lijken een kleine overlap te hebben waardoor het lijkt alsof er een border is. | /visualizations/graphs/betrouwbaarheidsindex_oud.py | 291 | 
 | must | middel | Optie toevoegen dat ParallelSystemReliabilityCalculation ook deterministisch word uitgerekend | /calculations/system_calculations/piping_system/test_calculation.py | 53 | 
 | must | middel | Assert toevoegen die piping resultaat unit test | /calculations/system_calculations/piping_system/test_calculation.py | 55 | 
 | should | groot | Zou goed zijn om in GeoProb-Pipe voorbeelden op te nemen die tonen dat de applicatie klopt. | /calculations/test_prob_lib_vs_openturns.py | 1 | 
@@ -93,6 +78,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should | klein | Feedback aan gebruiker dat er validation messages zijn. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 142 | 
 
 <!-- END_TODO_TABLE_NU --> 
+
 
 
 
@@ -157,6 +143,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should | middel | Should validate if AHN grid fully overlaps area | /questionnaire/spatial_layers/ahn.py | 13 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
 
 
 
