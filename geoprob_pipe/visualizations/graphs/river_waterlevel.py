@@ -142,6 +142,10 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
                 ),
                 line=dict(width=0.5, color="black"),
             ),
+            customdata=df_filtered[["beta"]],
+            hovertemplate=("metering: %{x}<br>" +
+                           "buitenwaterstand: %{y:.2f}<br>" +
+                           "beta: %{customdata:.3f}"),
             showlegend=True
         )
     )
@@ -149,9 +153,9 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
     # Layout
     fig.update_layout(
         title="Buitenwaterstanden bij herhaaltijd en system design points",
-        xaxis=dict(title="Metrering", showgrid=True,
+        xaxis=dict(title="Metrering [m]", showgrid=True,
                    gridwidth=0.5, gridcolor="gray"),
-        yaxis=dict(title="Hoogte [m+NAP]", showgrid=True,
+        yaxis=dict(title="Buitenwaterstand [m+NAP]", showgrid=True,
                    gridwidth=0.5, gridcolor="gray"),
         legend=dict(
             orientation="v",
@@ -160,8 +164,9 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
             xanchor="left",
             x=1.02,
             title="Overschrijdingsfrequentie",
-            bgcolor="rgba(255,255,255,0.7)"
+            bgcolor="rgba(255,255,255,0.7)",
         ),
+        legend_traceorder="reversed",
         height=600,
         margin=dict(r=200),
     )
