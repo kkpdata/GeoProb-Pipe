@@ -15,6 +15,7 @@ class BetaMap:
     def __init__(self, geoprob_pipe: GeoProbPipe, export: bool = False):
 
         self.geoprob_pipe = geoprob_pipe
+
         # Logic
         self._import_results()
         self._setup_gdf()
@@ -28,35 +29,32 @@ class BetaMap:
         self.res_sc = self.geoprob_pipe.results.df_beta_scenarios
 
         # Setup of beta category limits
-        # TODO Later Should Middel: Omzetten naar riskeer kleuren
-        self.een = 10
-        self.twee = -1*sct.norm.ppf(
-            self.geoprob_pipe.input_data.traject_normering
-            .faalkanseis_sign_dsn/30.0
-            )
-        self.drie = -1*sct.norm.ppf(
-            self.geoprob_pipe.input_data.traject_normering
-            .faalkanseis_sign_dsn
-            )
-        self.vier = -1*sct.norm.ppf(
-            self.geoprob_pipe.input_data.traject_normering
-            .faalkanseis_ond_dsn
-            )
-        self.vijf = -1*sct.norm.ppf(
-            self.geoprob_pipe.input_data.traject_normering
-            .faalkanseis_ondergrens
-            )
-        self.zes = -1*sct.norm.ppf(
-            self.geoprob_pipe.input_data.traject_normering
-            .faalkanseis_ondergrens*30
-            )
-        self.zeven = -1
+        self.cg = (self.geoprob_pipe.input_data.traject_normering
+                   .riskeer_categorie_grenzen)
+        self.colors = ["rgb(30,141,41)", "rgb(146,206,90)",
+                       "rgb(198,226,176)", "rgb(255,255,0)",
+                       "rgb(254,165,3)", "rgb(255,0,0)",
+                       "rgb(177,33,38)"]
+        self.labels = ["+III", "+II", "+I", "0", "-I", "-II", "-III"]
 
-        self.zesp = (self.zes-self.zeven)/(self.een-self.zeven)
-        self.vijfp = (self.vijf-self.zeven)/(self.een-self.zeven)
-        self.vierp = (self.vier-self.zeven)/(self.een-self.zeven)
-        self.driep = (self.drie-self.zeven)/(self.een-self.zeven)
-        self.tweep = (self.twee-self.zeven)/(self.een-self.zeven)
+        self.len_cg = self.cg[self.labels[0]][1] - self.cg[self.labels[6]][0]
+
+        self.color1 = ((self.cg[self.labels[0]][1]
+                        - self.cg[self.labels[6]][0]) / self.len_cg)
+        self.color2 = ((self.cg[self.labels[1]][1]
+                        - self.cg[self.labels[6]][0]) / self.len_cg)
+        self.color3 = ((self.cg[self.labels[2]][1]
+                        - self.cg[self.labels[6]][0]) / self.len_cg)
+        self.color4 = ((self.cg[self.labels[3]][1]
+                        - self.cg[self.labels[6]][0]) / self.len_cg)
+        self.color5 = ((self.cg[self.labels[4]][1]
+                        - self.cg[self.labels[6]][0]) / self.len_cg)
+        self.color6 = ((self.cg[self.labels[5]][1]
+                        - self.cg[self.labels[6]][0]) / self.len_cg)
+        self.color7 = ((self.cg[self.labels[6]][1]
+                        - self.cg[self.labels[6]][0]) / self.len_cg)
+        self.color8 = ((self.cg[self.labels[6]][0]
+                        - self.cg[self.labels[6]][0]) / self.len_cg)
 
     def _setup_gdf(self):
         self.hoverdata = ["uittredepunt_id", "converged", "beta", "model_betas"]
@@ -101,7 +99,6 @@ class BetaMap:
 
     def _create_figure(self):
         self.fig = go.Figure()
-
         self.fig.add_trace(go.Scattermap(
             mode='markers',
             lat=self.gdf_latlon.geometry.y,   # direct uit geometrie
@@ -110,23 +107,46 @@ class BetaMap:
                 size=8,
                 color=self.gdf_latlon['beta'],
                 colorscale=[
-                    (0.00, "purple"),  (self.zesp, "purple"),
-                    (self.zesp, "red"), (self.vijfp, "red"),
-                    (self.vijfp, "orange"), (self.vierp, "orange"),
-                    (self.vierp, "yellow"), (self.driep, "yellow"),
-                    (self.driep, "lightgreen"), (self.tweep, "lightgreen"),
-                    (self.tweep, "green"), (1.0, "green")
+                    (self.color8, self.colors[6]),
+                    (self.color7, self.colors[6]),
+                    (self.color7, self.colors[5]),
+                    (self.color6, self.colors[5]),
+                    (self.color6, self.colors[4]),
+                    (self.color5, self.colors[4]),
+                    (self.color5, self.colors[3]),
+                    (self.color4, self.colors[3]),
+                    (self.color4, self.colors[2]),
+                    (self.color3, self.colors[2]),
+                    (self.color3, self.colors[1]),
+                    (self.color2, self.colors[1]),
+                    (self.color2, self.colors[0]),
+                    (self.color1, self.colors[0])
                 ],
-                cmin=-1,
-                cmax=10,
+                cmin=self.cg[self.labels[6]][0],
+                cmax=self.cg[self.labels[0]][1],
                 colorbar=dict(
                     title="Bèta, WBI cat.",
-                    tickvals=[np.round(self.zeven, 2), np.round(self.zes, 2),
-                              np.round(self.vijf, 2), np.round(self.vier, 2),
-                              np.round(self.drie, 2), np.round(self.twee, 2),
-                              10]
-                )
-            ),
+                    tickvals=[
+                        self.cg[self.labels[6]][0],
+                        self.cg[self.labels[6]][1],
+                        self.cg[self.labels[5]][1],
+                        self.cg[self.labels[4]][1],
+                        self.cg[self.labels[3]][1],
+                        self.cg[self.labels[2]][1],
+                        self.cg[self.labels[1]][1],
+                        self.cg[self.labels[0]][1]
+                    ],
+                    ticktext=[f"{v:.2f}" for v in [
+                        self.cg[self.labels[6]][0],
+                        self.cg[self.labels[6]][1],
+                        self.cg[self.labels[5]][1],
+                        self.cg[self.labels[4]][1],
+                        self.cg[self.labels[3]][1],
+                        self.cg[self.labels[2]][1],
+                        self.cg[self.labels[1]][1],
+                        self.cg[self.labels[0]][1]]],
+                    )
+                ),
             hoverinfo='text',
             text=self.gdf_latlon[self.hoverdata].apply(
                 lambda row: '<br>'.join(
