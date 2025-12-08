@@ -1,3 +1,4 @@
+# %%
 """ The below code displays an example of how GeoProb-Pipe is run. This example works inside the repository. Use the
 Project-object directly outside the repository. """
 from geoprob_pipe import GeoProbPipe

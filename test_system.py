@@ -41,5 +41,6 @@ def test_system():
         app_settings.geopackage_filename = os.path.basename(filepath)
         geoprob_pipe = GeoProbPipe(app_settings)
         geoprob_pipe.export_archive()
+        print(filepath)
 
     ##
