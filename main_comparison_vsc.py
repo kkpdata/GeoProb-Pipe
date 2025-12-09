@@ -6,7 +6,7 @@ filepath1 = r"tests\systeem_testen\224\Traject224_model4a_WBN_prob.geoprob_pipe.
 filepath2 = r"tests\systeem_testen\224\Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg"
 comparison = ComparisonCollecter(filepath1, filepath2)
 
-# beta_dumbbell.dumbbell_beta(comparison)
+beta_dumbbell.dumbbell_beta(comparison)
 # beta_dumbbell.dumbbell_uplift(comparison)
 # beta_dumbbell.dumbbell_heave(comparison)
 # beta_dumbbell.dumbbell_piping(comparison)

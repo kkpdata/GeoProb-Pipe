@@ -3,32 +3,30 @@ from geoprob_pipe.comparisons.comparison_collector import ComparisonCollecter
 
 
 def _determine_zoom(gdf_latlon):
-        center_lat = gdf_latlon.geometry.y.mean()
-        center_lon = gdf_latlon.geometry.x.mean()
-        min_lat = gdf_latlon.geometry.y.min()
-        max_lat = gdf_latlon.geometry.y.max()
-        min_lon = gdf_latlon.geometry.x.min()
-        max_lon = gdf_latlon.geometry.x.max()
+    min_lat = gdf_latlon.geometry.y.min()
+    max_lat = gdf_latlon.geometry.y.max()
+    min_lon = gdf_latlon.geometry.x.min()
+    max_lon = gdf_latlon.geometry.x.max()
 
-        def _calculate_zoom(lat_range, lon_range):
-            max_range = max(lat_range, lon_range)
-            if max_range < 0.01:
-                return 15
-            elif max_range < 0.05:
-                return 13
-            elif max_range < 0.1:
-                return 12
-            elif max_range < 0.5:
-                return 10
-            elif max_range < 1.0:
-                return 9
-            else:
-                return 8
+    def _calculate_zoom(lat_range, lon_range):
+        max_range = max(lat_range, lon_range)
+        if max_range < 0.01:
+            return 15
+        elif max_range < 0.05:
+            return 13
+        elif max_range < 0.1:
+            return 12
+        elif max_range < 0.5:
+            return 10
+        elif max_range < 1.0:
+            return 9
+        else:
+            return 8
 
-        lat_range = max_lat - min_lat
-        lon_range = max_lon - min_lon
-        zoom = _calculate_zoom(lat_range, lon_range)
-        return zoom
+    lat_range = max_lat - min_lat
+    lon_range = max_lon - min_lon
+    zoom = _calculate_zoom(lat_range, lon_range)
+    return zoom
 
 
 def map_beta_comparison(comparison: ComparisonCollecter):
@@ -80,7 +78,7 @@ def map_beta_comparison(comparison: ComparisonCollecter):
             lon=gdf_latlon.geometry.x.mean()
         ),
         dragmode="zoom",
-        title="Delta beta uittredepunt tussen<br>" +
+        title="Delta beta van uittredepunten tussen<br>" +
         f"{comparison.name_1} en {comparison.name_2}"
         )
     fig.show()
