@@ -1,5 +1,6 @@
 import sqlite3
 import pandas as pd
+import geopandas as gpd
 
 
 class ComparisonCollecter:
@@ -18,8 +19,12 @@ class ComparisonCollecter:
         self.df2_beta_limit_states: pd.DataFrame
         self.df2_beta_uittredepunten: pd.DataFrame
 
+        self.gdf1_uittredepunten: gpd.GeoDataFrame
+        self.gdf2_uittredepunten: gpd.GeoDataFrame
+
         # logic
         self._load_result_data_from_geopackage()
+        self._load_uittredepunten_gdf()
 
     def _load_result_data_from_geopackage(self):
         # TODO Must Groot Nu Ensure dataframe are the same size and are
@@ -47,3 +52,13 @@ class ComparisonCollecter:
             )
         conn_1.close()
         conn_2.close()
+
+    def _load_uittredepunten_gdf(self):
+        self.gdf1_uittredepunten = gpd.read_file(
+            self.geopackage_filepath_1,
+            layer="beta_uittredepunten"
+            )
+        self.gdf2_uittredepunten = gpd.read_file(
+            self.geopackage_filepath_2,
+            layer="beta_uittredepunten"
+            )

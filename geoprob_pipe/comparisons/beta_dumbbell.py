@@ -1,6 +1,6 @@
 import plotly.graph_objects as go
 import pandas as pd
-from geoprob_pipe.comparisons.result_collect import ComparisonCollecter
+from geoprob_pipe.comparisons.comparison_collector import ComparisonCollecter
 
 
 def _add_traces(comparison: ComparisonCollecter,
