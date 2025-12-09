@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from pandas import merge
+from geoprob_pipe.calculations.system_calculations.piping_system.dummy_input import DUMMY_INPUT
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -29,14 +30,21 @@ def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
     scenario_orders = sorted(df["scenario_order"].unique())
 
     # List of all alphas that can be shown
-    parameters = [
-        "D_wvp", "L_kwelweg", "L_voorland", "W_voorland", "buitenwaterstand",
-        "c_achterland", "c_voorland", "d70", "d_deklaag", "dh_c", "dh_red",
-        "dphi_c_u", "gamma_sat_deklaag", "h_exit", "i_c_h", "i_exit",
-        "kD_wvp", "lambda_voorland", "lengte_voorland",
-        "modelfactor_h", "modelfactor_p", "modelfactor_u",
-        "phi_exit", "r_exit", "top_zand", "z_h", "z_p", "z_u"
-    ]
+    parameters: list[str] = list(df["variable"].unique())
+    # Add distribution type
+    dist_types = {}
+    for param in parameters:
+        dist_type = df.loc[
+            df["variable"] == param, "distribution_type"].unique()[0]
+        dist_types.update({param: dist_type})
+    # Add units
+    unit_lookup = {item["name"]: item["unit"] for item in DUMMY_INPUT}
+    param_units = {}
+    for param in parameters:
+        try:
+            param_units.update({param: str(unit_lookup[param]).strip("[]")})
+        except KeyError:
+            param_units.update({param: "?"})
 
     # Create subplots
     fig = make_subplots(
@@ -68,7 +76,9 @@ def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
             )
             fig.update_xaxes(showgrid=True, tickangle=90,
                              row=row_idx, col=1)
-            fig.update_yaxes(showgrid=True, title_text=param,
+            fig.update_yaxes(showgrid=True,
+                             title_text=f"{param} [{param_units[param]}]" +
+                             f"<br>({dist_types[param]})",
                              row=row_idx, col=1)
 
         total_traces = len(scenario_orders) * len(parameters)
