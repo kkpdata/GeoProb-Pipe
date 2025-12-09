@@ -48,9 +48,9 @@ def phreatic_waterline(geoprob_pipe: GeoProbPipe, export: bool = False):
     }
     names = {
         "buitenwaterstand": "Buitenwaterstand",
-        "phi_exit": "Stijghoogte uittredepunt",
-        "h_exit": "Hoogte uittredepunt",
-        "top_zand": "Bovenkant watervoerend pakket"
+        "phi_exit": "Stijghoogte uittredepunt (phi_exit)",
+        "h_exit": "Gehanteerde hoogte uittredepunt (h_exit)",
+        "top_zand": "Bovenkant watervoerend pakket (top_zand)"
     }
 
     # Build one frame per scenario order
