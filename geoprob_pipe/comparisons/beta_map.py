@@ -31,9 +31,10 @@ def _determine_zoom(gdf_latlon):
     return zoom
 
 
-def _add_traject(comparison: ComparisonCollecter, fig: go.Figure):
+def _add_line(comparison: ComparisonCollecter, fig: go.Figure,
+              layer: str, color: str):
     gdf_traject = gpd.read_file(comparison.geopackage_filepath_1,
-                                layer="dijktraject")
+                                layer=layer)
     gdf_traject = gdf_traject.to_crs("EPSG:4326")
 
     def plot_linestring(ls):
@@ -44,49 +45,9 @@ def _add_traject(comparison: ComparisonCollecter, fig: go.Figure):
             lon=xs,
             lat=ys,
             mode="lines",
-            line=dict(color="black", width=2),
+            line=dict(color=color, width=1),
             hoverinfo="none",
-            name="Trajectlijn"
-        ))
-
-    for geom in gdf_traject.geometry:
-        if isinstance(geom, LineString):
-            plot_linestring(geom)
-
-        elif isinstance(geom, MultiLineString):
-            for line in geom.geoms:
-                plot_linestring(line)
-
-        elif isinstance(geom, GeometryCollection):
-            for g in geom.geoms:
-                if isinstance(g, LineString):
-                    plot_linestring(g)
-                elif isinstance(g, MultiLineString):
-                    for line in g.geoms:
-                        plot_linestring(line)
-
-        else:
-            print("Skipping unsupported geometry:", geom.geom_type)
-
-    return fig
-
-
-def _add_intrede(comparison: ComparisonCollecter, fig: go.Figure):
-    gdf_traject = gpd.read_file(comparison.geopackage_filepath_1,
-                                layer="intredelijn")
-    gdf_traject = gdf_traject.to_crs("EPSG:4326")
-
-    def plot_linestring(ls):
-        xs, ys = ls.xy
-        xs = list(xs)
-        ys = list(ys)
-        fig.add_trace(go.Scattermap(
-            lon=xs,
-            lat=ys,
-            mode="lines",
-            line=dict(color="blue", width=2),
-            hoverinfo="none",
-            name="Intredelijn"
+            name=layer
         ))
 
     for geom in gdf_traject.geometry:
@@ -150,8 +111,10 @@ def map_beta_comparison(comparison: ComparisonCollecter):
         showlegend=False
         ))
 
-    fig = _add_traject(comparison, fig)
-    fig = _add_intrede(comparison, fig)
+    fig = _add_line(comparison, fig, "dijktraject", "black")
+    fig = _add_line(comparison, fig, "intredelijn", "blue")
+    fig = _add_line(comparison, fig, "binnenteenlijn", "green")
+    fig = _add_line(comparison, fig, "buitenteenlijn", "orange")
 
     zoom = _determine_zoom(gdf_latlon)
     fig.update_layout(
