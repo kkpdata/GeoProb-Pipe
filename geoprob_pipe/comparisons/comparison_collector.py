@@ -1,15 +1,27 @@
+from __future__ import annotations
 import sqlite3
+import os
+from datetime import datetime
 import pandas as pd
 import geopandas as gpd
 
 
 class ComparisonCollecter:
-    def __init__(self, geopackage_filepath_1: str, geopackage_filepath_2: str):
+    def __init__(self,
+                 geopackage_filepath_1: str,
+                 geopackage_filepath_2: str,
+                 export_dir: str
+                 ):
         self.geopackage_filepath_1 = geopackage_filepath_1
         self.geopackage_filepath_2 = geopackage_filepath_2
         self.name_1 = self.geopackage_filepath_1.split("\\")[-1].split(".")[0]
         self.name_2 = self.geopackage_filepath_2.split("\\")[-1].split(".")[0]
 
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
+        self.export_dir = os.path.join(
+            export_dir, f"comparisons/{self.name_1}_{self.name_2}_{timestamp}"
+            )
+        os.makedirs(export_dir, exist_ok=True)
         # Placeholders
         self.df1_beta_scenarios: pd.DataFrame
         self.df1_beta_limit_states: pd.DataFrame

@@ -1,6 +1,10 @@
+from __future__ import annotations
+import os
 import plotly.graph_objects as go
 import pandas as pd
-from geoprob_pipe.comparisons.comparison_collector import ComparisonCollecter
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from geoprob_pipe.comparisons.comparison_collector import ComparisonCollecter
 
 
 def _add_traces(comparison: ComparisonCollecter,
@@ -24,7 +28,7 @@ def _add_traces(comparison: ComparisonCollecter,
         x=df["uittredepunt_id"],
         y=df["beta1"],
         mode="markers",
-        name=comparison.name_1,
+        name=comparison.name_1 + ".geoprob_pipe.gpkg",
         marker=dict(
                 color="green",
                 size=10
@@ -42,7 +46,7 @@ def _add_traces(comparison: ComparisonCollecter,
         x=df["uittredepunt_id"],
         y=df["beta2"],
         mode="markers",
-        name=comparison.name_2,
+        name=comparison.name_2 + ".geoprob_pipe.gpkg",
         marker=dict(
                 color="blue",
                 size=10
@@ -80,7 +84,7 @@ def _add_vak_id(comparison: ComparisonCollecter,
 
         fig.add_annotation(
             x=(min_id + max_id) / 2,
-            y=1,
+            y=-0.7,
             text=f"{vak_id}",
             showarrow=False,
             font=dict(size=10, color="black"),
@@ -90,7 +94,7 @@ def _add_vak_id(comparison: ComparisonCollecter,
 
 
 def dumbbell_beta(comparison: ComparisonCollecter,
-                          export: bool = False):
+                  export: bool = False):
     df_result1 = (comparison.df1_beta_uittredepunten[
         ["uittredepunt_id", "beta"]].rename(columns={"beta": "beta1"}))
     df_result2 = (comparison.df2_beta_uittredepunten[
@@ -103,7 +107,7 @@ def dumbbell_beta(comparison: ComparisonCollecter,
     fig = _add_vak_id(comparison, fig)
 
     fig.update_layout(
-        title="Dumbbell Plot: Uittredepunt Beta Comparison",
+        title="Uittredepunt Beta Comparison",
         xaxis_title="Uittredepunt ID",
         yaxis_title="β-value",
         legend=dict(
@@ -114,12 +118,22 @@ def dumbbell_beta(comparison: ComparisonCollecter,
             x=1
         )
     )
+
+    if export:
+        os.makedirs(comparison.export_dir, exist_ok=True)
+        fig.write_html(os.path.join(
+            comparison.export_dir, "dumbbell_beta.html"
+            ), include_plotlyjs='cdn')
+        fig.write_image(os.path.join(
+            comparison.export_dir, "dumbbell_beta.png"
+            ), format="png", scale=5,  width=1400)
     fig.show()
+
     return
 
 
 def dumbbell_uplift(comparison: ComparisonCollecter,
-                          export: bool = False):
+                    export: bool = False):
 
     df_result1 = (comparison.df1_beta_limit_states[
         ["uittredepunt_id", "limit_state", "beta"]
@@ -142,7 +156,7 @@ def dumbbell_uplift(comparison: ComparisonCollecter,
     fig = _add_vak_id(comparison, fig)
 
     fig.update_layout(
-        title="Dumbbell Plot: Uittredepunt Calc_Z_u Beta Comparison",
+        title="Uittredepunt Calc_Z_u Beta Comparison",
         xaxis_title="Uittredepunt ID",
         yaxis_title="β-value",
         legend=dict(
@@ -153,12 +167,20 @@ def dumbbell_uplift(comparison: ComparisonCollecter,
             x=1
         )
     )
+    if export:
+        os.makedirs(comparison.export_dir, exist_ok=True)
+        fig.write_html(os.path.join(
+            comparison.export_dir, "dumbbell_uplift.html"
+            ), include_plotlyjs='cdn')
+        fig.write_image(os.path.join(
+            comparison.export_dir, "dumbbell_uplift.png"
+            ), format="png", scale=5,  width=1400)
     fig.show()
     return
 
 
 def dumbbell_heave(comparison: ComparisonCollecter,
-                          export: bool = False):
+                   export: bool = False):
     df_result1 = (comparison.df1_beta_limit_states[
         ["uittredepunt_id", "limit_state", "beta"]]
                   .rename(columns={"beta": "beta1",
@@ -177,7 +199,7 @@ def dumbbell_heave(comparison: ComparisonCollecter,
     fig = _add_vak_id(comparison, fig)
 
     fig.update_layout(
-        title="Dumbbell Plot: Uittredepunt Calc_Z_h Beta Comparison",
+        title="Uittredepunt Calc_Z_h Beta Comparison",
         xaxis_title="Uittredepunt ID",
         yaxis_title="β-value",
         legend=dict(
@@ -188,12 +210,20 @@ def dumbbell_heave(comparison: ComparisonCollecter,
             x=1
         )
     )
+    if export:
+        os.makedirs(comparison.export_dir, exist_ok=True)
+        fig.write_html(os.path.join(
+            comparison.export_dir, "dumbbell_heave.html"
+            ), include_plotlyjs='cdn')
+        fig.write_image(os.path.join(
+            comparison.export_dir, "dumbbell_heave.png"
+            ), format="png", scale=5,  width=1400)
     fig.show()
     return
 
 
 def dumbbell_piping(comparison: ComparisonCollecter,
-                          export: bool = False):
+                    export: bool = False):
     df_result1 = (comparison.df1_beta_limit_states[
         ["uittredepunt_id", "limit_state", "beta"]]
                   .rename(columns={"beta": "beta1",
@@ -212,7 +242,7 @@ def dumbbell_piping(comparison: ComparisonCollecter,
     fig = _add_vak_id(comparison, fig)
 
     fig.update_layout(
-        title="Dumbbell Plot: Uittredepunt Calc_Z_p Beta Comparison",
+        title="Uittredepunt Calc_Z_p Beta Comparison",
         xaxis_title="Uittredepunt ID",
         yaxis_title="β-value",
         legend=dict(
@@ -223,5 +253,13 @@ def dumbbell_piping(comparison: ComparisonCollecter,
             x=1
         )
     )
+    if export:
+        os.makedirs(comparison.export_dir, exist_ok=True)
+        fig.write_html(os.path.join(
+            comparison.export_dir, "dumbbell_piping.html"
+            ), include_plotlyjs='cdn')
+        fig.write_image(os.path.join(
+            comparison.export_dir, "dumbbell_piping.png"
+            ), format="png", scale=5,  width=1400)
     fig.show()
     return

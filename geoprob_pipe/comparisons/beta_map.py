@@ -1,7 +1,11 @@
+from __future__ import annotations
+import os
 import plotly.graph_objects as go
 import geopandas as gpd
 from shapely.geometry import LineString, MultiLineString, GeometryCollection
-from geoprob_pipe.comparisons.comparison_collector import ComparisonCollecter
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from geoprob_pipe.comparisons.comparison_collector import ComparisonCollecter
 
 
 def _determine_zoom(gdf_latlon):
@@ -72,7 +76,8 @@ def _add_line(comparison: ComparisonCollecter, fig: go.Figure,
     return fig
 
 
-def map_beta_comparison(comparison: ComparisonCollecter):
+def map_beta_comparison(comparison: ComparisonCollecter,
+                        export: bool = False):
     # load data from class
     gdf_result1 = (comparison.gdf1_uittredepunten[
         ["uittredepunt_id", "beta", "geometry"]]
@@ -136,5 +141,13 @@ def map_beta_comparison(comparison: ComparisonCollecter):
             x=1
             )
         )
+    if export:
+        os.makedirs(comparison.export_dir, exist_ok=True)
+        fig.write_html(os.path.join(
+            comparison.export_dir, "delta_beta_map.html"
+            ), include_plotlyjs='cdn')
+        fig.write_image(os.path.join(
+            comparison.export_dir, "delta_beta_map.png"
+            ), format="png", scale=5,  width=1400)
     fig.show()
     return
