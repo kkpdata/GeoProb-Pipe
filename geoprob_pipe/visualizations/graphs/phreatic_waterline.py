@@ -55,16 +55,18 @@ def phreatic_waterline(geoprob_pipe: GeoProbPipe, export: bool = False):
 
     # Build one frame per scenario order
     for i, scen_order in enumerate(scenario_orders):
-        df_case = df[df["scenario_order"] == scen_order]
+        df_case: pd.DataFrame = df[df["scenario_order"] == scen_order]
 
         # Add 4 variable traces per scenario_order
         for variable in ["buitenwaterstand", "phi_exit", "h_exit", "top_zand"]:
             df_var = df_case[df_case["variable"] == variable]
+            dist_type = (str(df_var["distribution_type"].unique())
+                         .strip("[]").strip("'"))
             fig.add_trace(go.Scatter(
                 x=df_var['metrering'],
                 y=df_var["physical_value"],
                 mode='markers',
-                name=names[variable],
+                name=(f"{names[variable]} ({dist_type})"),
                 marker=dict(
                     symbol=symbols[variable],
                     size=5,
@@ -84,13 +86,15 @@ def phreatic_waterline(geoprob_pipe: GeoProbPipe, export: bool = False):
             method="update",
             args=[
                 {"visible": vis},
-                {"title": f"Phreatic waterline for Scenario {scen_order}"}
+                {"title": f"Physical values t.o.v. NAP voor scenario {scen_order}"
+                 + "<br><sup>overzicht per uittredepunt</sup>"}
             ]
         ))
 
     # Layout and controls
     fig.update_layout(
-        title=f"Phreatic waterline for Scenario {scenario_orders[0]}",
+        title=f"Physical values t.o.v. NAP voor scenario {scenario_orders[0]}"
+        + "<br><sup>overzicht per uittredepunt</sup>",
         updatemenus=[dict(
             active=0,
             buttons=buttons,

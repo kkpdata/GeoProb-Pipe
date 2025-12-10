@@ -46,6 +46,29 @@ def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
         except KeyError:
             param_units.update({param: "?"})
 
+    # Add parameter units missing in DUMMY_INPUT by hand.
+    param_units.update({
+        "L_kwelweg": "m",
+        "L_voorland": "m",
+        "W_voorland": "s/m",
+        "buitenwaterstand_gemiddeld": "m+NAP",
+        "d_deklaag": "m",
+        "dh_c": "m",
+        "dh_red": "m",
+        "dphi_c_u": "m+NAP",
+        "h_exit": "m+NAP",
+        "i_exit": "-",
+        "k_wvp": "m/dag",
+        "lambda_voorland": "m",
+        "phi_exit": "m+NAP",
+        "phi_exit_gemiddeld": "m+NAP",
+        "r_exit": "-",
+        "z_combin": "-",
+        "z_h": "-",
+        "z_p": "-",
+        "z_u": "-"
+    })
+
     # Create subplots
     fig = make_subplots(
         rows=len(parameters),
@@ -77,8 +100,8 @@ def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
             fig.update_xaxes(showgrid=True, tickangle=90,
                              row=row_idx, col=1)
             fig.update_yaxes(showgrid=True,
-                             title_text=f"{param} [{param_units[param]}]" +
-                             f"<br>({dist_types[param]})",
+                             title_text=f"{param} [{param_units[param]}]"
+                             + f"<br>({dist_types[param]})",
                              row=row_idx, col=1)
 
         total_traces = len(scenario_orders) * len(parameters)
@@ -145,7 +168,9 @@ def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
                     )
                     fig_case.update_xaxes(showgrid=True, tickangle=90,
                                           row=row_idx, col=1)
-                    fig_case.update_yaxes(showgrid=True, title_text=param,
+                    fig_case.update_yaxes(showgrid=True,
+                                          title_text=f"{param} [{param_units[param]}]"
+                                          + f"<br>({dist_types[param]})",
                                           row=row_idx, col=1)
 
                 fig_case.update_layout(
