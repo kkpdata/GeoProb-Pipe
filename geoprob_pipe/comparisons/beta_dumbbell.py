@@ -72,15 +72,16 @@ def _add_vak_id(comparison: ComparisonCollecter,
             x=[min_id, max_id],
             y=[0, 0],
             mode="lines",
-            line=dict(width=2),
+            line=dict(color="red",
+                      width=2),
             showlegend=False,
-            name=f"vak {vak_id}"
+            name=f"{vak_id}"
         ))
 
         fig.add_annotation(
             x=(min_id + max_id) / 2,
             y=1,
-            text=f"vak {vak_id}",
+            text=f"{vak_id}",
             showarrow=False,
             font=dict(size=10, color="black"),
             align="center"

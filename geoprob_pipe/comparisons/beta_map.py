@@ -113,8 +113,8 @@ def map_beta_comparison(comparison: ComparisonCollecter):
 
     fig = _add_line(comparison, fig, "dijktraject", "black")
     fig = _add_line(comparison, fig, "intredelijn", "blue")
-    fig = _add_line(comparison, fig, "binnenteenlijn", "green")
-    fig = _add_line(comparison, fig, "buitenteenlijn", "orange")
+    fig = _add_line(comparison, fig, "binnenteenlijn", "purple")
+    fig = _add_line(comparison, fig, "buitenteenlijn", "red")
 
     zoom = _determine_zoom(gdf_latlon)
     fig.update_layout(
