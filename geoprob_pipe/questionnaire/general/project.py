@@ -30,12 +30,12 @@ def created_project(app_settings: ApplicationSettings) -> bool:
     elif choice == choices_list[1]:
         specify_dir_for_new_project(app_settings)
         return True
-    elif choice == choices_list[1]:
+    elif choice == choices_list[2]:
         filepath1 = specify_dir_for_first_file(app_settings)
         filepath2 = specify_dir_for_second_file(app_settings)
         export_dir = specify_dir_for_comparison(app_settings)
         run_comparison(filepath1, filepath2, export_dir)
-        return True
+        return False
     return False
 
 
@@ -208,9 +208,9 @@ def specify_dir_for_comparison(app_settings: ApplicationSettings):
 
 
 def run_comparison(filepath1, filepath2, export_dir):
-    print(BColors.OKBLUE, "Vergeijking wordt uit gevoerd.", BColors.ENDC)
+    print(BColors.OKBLUE, "Vergelijking wordt uit gevoerd.", BColors.ENDC)
     comparison = ComparisonCollecter(filepath1, filepath2, export_dir)
     comparison.create_and_export_figures()
     print(BColors.OKBLUE,
-          f"Vergeijking voltooid en opgeslagen in {comparison.export_dir}.",
+          f"Vergelijking voltooid en opgeslagen in {comparison.export_dir}.",
           BColors.ENDC)

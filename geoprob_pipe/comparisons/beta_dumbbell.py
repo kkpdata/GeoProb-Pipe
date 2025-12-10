@@ -127,7 +127,6 @@ def dumbbell_beta(comparison: ComparisonCollecter,
         fig.write_image(os.path.join(
             comparison.export_dir, "dumbbell_beta.png"
             ), format="png", scale=5,  width=1400)
-    fig.show()
 
     return
 
@@ -175,7 +174,6 @@ def dumbbell_uplift(comparison: ComparisonCollecter,
         fig.write_image(os.path.join(
             comparison.export_dir, "dumbbell_uplift.png"
             ), format="png", scale=5,  width=1400)
-    fig.show()
     return
 
 
@@ -218,7 +216,6 @@ def dumbbell_heave(comparison: ComparisonCollecter,
         fig.write_image(os.path.join(
             comparison.export_dir, "dumbbell_heave.png"
             ), format="png", scale=5,  width=1400)
-    fig.show()
     return
 
 
@@ -261,5 +258,4 @@ def dumbbell_piping(comparison: ComparisonCollecter,
         fig.write_image(os.path.join(
             comparison.export_dir, "dumbbell_piping.png"
             ), format="png", scale=5,  width=1400)
-    fig.show()
     return

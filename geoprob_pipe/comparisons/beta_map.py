@@ -149,5 +149,5 @@ def map_beta_comparison(comparison: ComparisonCollecter,
         fig.write_image(os.path.join(
             comparison.export_dir, "delta_beta_map.png"
             ), format="png", scale=5,  width=1400)
-    fig.show()
+
     return

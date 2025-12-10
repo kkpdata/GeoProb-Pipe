@@ -5,9 +5,9 @@ from datetime import datetime
 import pandas as pd
 import geopandas as gpd
 
-from beta_dumbbell import (dumbbell_beta, dumbbell_uplift,
+from geoprob_pipe.comparisons.beta_dumbbell import (dumbbell_beta, dumbbell_uplift,
                            dumbbell_heave, dumbbell_piping)
-from beta_map import map_beta_comparison
+from geoprob_pipe.comparisons.beta_map import map_beta_comparison
 
 
 class ComparisonCollecter:
