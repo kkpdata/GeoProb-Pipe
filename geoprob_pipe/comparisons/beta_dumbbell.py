@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import pandas as pd
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from geoprob_pipe.comparisons.comparison_collector import ComparisonCollecter
+    from geoprob_pipe.comparisons import ComparisonCollecter
 
 
 def _add_traces(comparison: ComparisonCollecter,

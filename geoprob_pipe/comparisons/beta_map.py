@@ -5,7 +5,7 @@ import geopandas as gpd
 from shapely.geometry import LineString, MultiLineString, GeometryCollection
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from geoprob_pipe.comparisons.comparison_collector import ComparisonCollecter
+    from geoprob_pipe.comparisons import ComparisonCollecter
 
 
 def _determine_zoom(gdf_latlon):

@@ -1,4 +1,4 @@
-from geoprob_pipe.comparisons.comparison_collector import ComparisonCollecter
+from geoprob_pipe.comparisons import ComparisonCollecter
 import geoprob_pipe.comparisons.beta_dumbbell as beta_dumbbell
 from geoprob_pipe.comparisons.beta_map import map_beta_comparison
 
