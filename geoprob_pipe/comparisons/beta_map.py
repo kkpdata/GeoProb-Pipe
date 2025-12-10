@@ -49,7 +49,7 @@ def _add_line(comparison: ComparisonCollecter, fig: go.Figure,
             lon=xs,
             lat=ys,
             mode="lines",
-            line=dict(color=color, width=1),
+            line=dict(color=color, width=1.5),
             hoverinfo="none",
             name=layer
         ))
@@ -77,7 +77,7 @@ def _add_line(comparison: ComparisonCollecter, fig: go.Figure,
 
 
 def map_beta_comparison(comparison: ComparisonCollecter,
-                        export: bool = False):
+                        export: bool = False) -> go.Figure:
     # load data from class
     gdf_result1 = (comparison.gdf1_uittredepunten[
         ["uittredepunt_id", "beta", "geometry"]]
@@ -150,4 +150,4 @@ def map_beta_comparison(comparison: ComparisonCollecter,
             comparison.export_dir, "delta_beta_map.png"
             ), format="png", scale=5,  width=1400)
 
-    return
+    return fig

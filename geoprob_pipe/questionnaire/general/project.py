@@ -35,7 +35,7 @@ def created_project(app_settings: ApplicationSettings) -> bool:
         filepath2 = specify_dir_for_second_file(app_settings)
         export_dir = specify_dir_for_comparison(app_settings)
         run_comparison(filepath1, filepath2, export_dir)
-        return False
+        sys.exit("Applicatie afgesloten")
     return False
 
 
