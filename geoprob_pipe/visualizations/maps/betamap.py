@@ -2,12 +2,59 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import plotly.graph_objects as go
 import os
-import scipy.stats as sct
 import geopandas as gpd
-import numpy as np
+from shapely.geometry import LineString, MultiLineString, GeometryCollection
 
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
+
+
+def _add_line(geoprobpipe: GeoProbPipe, fig: go.Figure,
+              layer: str, color: str):
+    """
+Helperfunctie om de lijen uit de geopackage te vinden en
+toe tevoegen aan de map. Layer is de naam van de laag in de
+geopackage waar de lijn is opgeslagen. Color is de kleur van deze
+lijn in de map.
+    """
+    gdf_traject = gpd.read_file(
+        geoprobpipe.input_data.app_settings.geopackage_filepath,
+        layer=layer)
+    gdf_traject = gdf_traject.to_crs("EPSG:4326")
+
+    def plot_linestring(ls):
+        xs, ys = ls.xy
+        xs = list(xs)
+        ys = list(ys)
+        fig.add_trace(go.Scattermap(
+            lon=xs,
+            lat=ys,
+            mode="lines",
+            line=dict(color=color, width=1),
+            hoverinfo="none",
+            name=layer
+        ))
+
+    for geom in gdf_traject.geometry:
+        if isinstance(geom, LineString):
+            plot_linestring(geom)
+
+        elif isinstance(geom, MultiLineString):
+            for line in geom.geoms:
+                plot_linestring(line)
+
+        elif isinstance(geom, GeometryCollection):
+            for g in geom.geoms:
+                if isinstance(g, LineString):
+                    plot_linestring(g)
+                elif isinstance(g, MultiLineString):
+                    for line in g.geoms:
+                        plot_linestring(line)
+
+        else:
+            print("Skipping unsupported geometry:", geom.geom_type)
+
+    return fig
 
 
 class BetaMap:
@@ -21,6 +68,7 @@ class BetaMap:
         self._setup_gdf()
         self._determine_zoom()
         self._create_figure()
+        self._add_lines()
         self._optionally_export()
 
     def _import_results(self):
@@ -165,9 +213,26 @@ class BetaMap:
                 lat=self.gdf_latlon.geometry.y.mean(),
                 lon=self.gdf_latlon.geometry.x.mean()
             ),
+            legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+            ),
             dragmode='zoom',
             title='Faalkansberekening STPH'
         )
+
+    def _add_lines(self):
+        self.fig = _add_line(self.geoprob_pipe, self.fig,
+                             "dijktraject", "black")
+        self.fig = _add_line(self.geoprob_pipe, self.fig,
+                             "intredelijn", "blue")
+        self.fig = _add_line(self.geoprob_pipe, self.fig,
+                             "binnenteenlijn", "purple")
+        self.fig = _add_line(self.geoprob_pipe, self.fig,
+                             "buitenteenlijn", "red")
 
     def _optionally_export(self):
         path = self.geoprob_pipe.visualizations.maps.export_dir
