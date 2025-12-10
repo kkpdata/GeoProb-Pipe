@@ -208,7 +208,7 @@ def specify_dir_for_comparison(app_settings: ApplicationSettings):
 
 
 def run_comparison(filepath1, filepath2, export_dir):
-    print(BColors.OKBLUE, "Vergelijking wordt uit gevoerd.", BColors.ENDC)
+    print(BColors.OKBLUE, "Vergelijking wordt uitgevoerd.", BColors.ENDC)
     comparison = ComparisonCollecter(filepath1, filepath2, export_dir)
     comparison.create_and_export_figures()
     print(BColors.OKBLUE,
