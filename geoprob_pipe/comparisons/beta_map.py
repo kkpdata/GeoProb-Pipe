@@ -91,6 +91,16 @@ def map_delta_beta_comparison(comparison: ComparisonCollecter,
     gdf_latlon = gdf.to_crs("EPSG:4326")
 
     fig = go.Figure()
+    fig.add_trace(go.Scattermap(
+        mode="markers",
+        lat=gdf_latlon.geometry.y,
+        lon=gdf_latlon.geometry.x,
+        marker=dict(
+            size=9,
+            color="black"
+            ),
+        showlegend=False
+        ))
     hoverdata = ["uittredepunt_id", "beta_delta"]
     fig.add_trace(go.Scattermap(
         mode="markers",
@@ -104,6 +114,10 @@ def map_delta_beta_comparison(comparison: ComparisonCollecter,
             colorscale="Turbo_r",
             colorbar=dict(
                 title="Delta Beta"
+            ),
+            line=dict(
+                width=0.5,
+                color="black"
             )
         ),
         hoverinfo='text',
@@ -168,6 +182,16 @@ def map_ratio_beta_comparison(comparison: ComparisonCollecter,
     gdf_latlon = gdf.to_crs("EPSG:4326")
 
     fig = go.Figure()
+    fig.add_trace(go.Scattermap(
+        mode="markers",
+        lat=gdf_latlon.geometry.y,
+        lon=gdf_latlon.geometry.x,
+        marker=dict(
+            size=9,
+            color="black"
+            ),
+        showlegend=False
+        ))
     hoverdata = ["uittredepunt_id", "beta_ratio"]
     fig.add_trace(go.Scattermap(
         mode="markers",
@@ -177,11 +201,9 @@ def map_ratio_beta_comparison(comparison: ComparisonCollecter,
             size=8,
             color=gdf_latlon["beta_ratio"],
             cmax=5,
-            cmin=-5,
+            cmin=0,
             colorscale="Turbo_r",
-            colorbar=dict(
-                title="Beta Ratio"
-            )
+            colorbar=dict(title="Beta Ratio"),
         ),
         hoverinfo='text',
         text=gdf_latlon[hoverdata].apply(
