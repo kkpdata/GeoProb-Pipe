@@ -14,8 +14,9 @@ app_settings.workspace_dir = os.path.dirname(filepath)
 app_settings.geopackage_filename = os.path.basename(filepath)
 
 geoprob_pipe = GeoProbPipe(app_settings)
-start_time = time.time()
-geoprob_pipe.export_archive()
-end_time = time.time()
+geoprob_pipe.visualizations.graphs.beta_scenarios().show()
+# start_time = time.time()
+# geoprob_pipe.export_archive()
+# end_time = time.time()
 
-print(f"Time passed for export: {end_time - start_time:.2f} sec")
+# print(f"Time passed for export: {end_time - start_time:.2f} sec")

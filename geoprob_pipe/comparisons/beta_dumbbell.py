@@ -20,6 +20,8 @@ def _add_traces(comparison: ComparisonCollecter,
         symbols = [symbol_map[b] for b in df["converged"]]
     except KeyError:
         df_conv = comparison.df1_beta_scenarios
+        # TODO is dit correct? Mss inbouwen in
+        # calculate_df_beta_per_uittredepunt
         df_conv = (df_conv.groupby("uittredepunt_id", as_index=False)
                    ["converged"].min())
         symbols = [symbol_map[b] for b in df_conv["converged"]]
@@ -70,6 +72,21 @@ def _add_traces(comparison: ComparisonCollecter,
             "β1: %{customdata[1]:.2f}<br>"
             "<extra></extra>"
         )
+    ))
+    # Empty trace for legend
+    fig.add_trace(go.Scatter(
+        x=[None], y=[None],
+        mode="markers",
+        marker=dict(
+            symbol="x",
+            color="white",
+            size=10,
+            line=dict(
+                color="black",
+                width=0.5
+            )
+        ),
+        name="Not converged"
     ))
     return fig
 
