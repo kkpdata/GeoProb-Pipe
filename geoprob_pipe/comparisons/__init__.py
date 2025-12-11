@@ -6,9 +6,10 @@ import pandas as pd
 import geopandas as gpd
 from plotly.graph_objects import Figure as PlotlyFigure
 
-from geoprob_pipe.comparisons.beta_dumbbell import (dumbbell_beta, dumbbell_uplift,
-                                                    dumbbell_heave, dumbbell_piping)
-from geoprob_pipe.comparisons.beta_map import map_beta_comparison
+from geoprob_pipe.comparisons.beta_dumbbell import \
+    dumbbell_beta, dumbbell_uplift, dumbbell_heave, dumbbell_piping
+from geoprob_pipe.comparisons.beta_map import map_delta_beta_comparison, \
+    map_ratio_beta_comparison
 
 
 class ComparisonCollecter:
@@ -105,12 +106,16 @@ class ComparisonCollecter:
     def dumbell_piping(self, export: bool = False) -> PlotlyFigure:
         return dumbbell_piping(self, export)
 
-    def map_beta_comparison(self, export: bool = False) -> PlotlyFigure:
-        return map_beta_comparison(self, export)
+    def map_delta_beta_comparison(self, export: bool = False) -> PlotlyFigure:
+        return map_delta_beta_comparison(self, export)
+
+    def map_ratio_beta_comparison(self, export: bool = False) -> PlotlyFigure:
+        return map_ratio_beta_comparison(self, export)
 
     def create_and_export_figures(self):
         dumbbell_beta(self, export=True)
         dumbbell_uplift(self, export=True)
         dumbbell_heave(self, export=True)
         dumbbell_piping(self, export=True)
-        map_beta_comparison(self, export=True)
+        map_delta_beta_comparison(self, export=True)
+        map_ratio_beta_comparison(self, export=True)

@@ -76,7 +76,7 @@ def _add_line(comparison: ComparisonCollecter, fig: go.Figure,
     return fig
 
 
-def map_beta_comparison(comparison: ComparisonCollecter,
+def map_delta_beta_comparison(comparison: ComparisonCollecter,
                         export: bool = False) -> go.Figure:
     # load data from class
     gdf_result1 = (comparison.gdf1_uittredepunten[
@@ -86,7 +86,6 @@ def map_beta_comparison(comparison: ComparisonCollecter,
         ["uittredepunt_id", "beta"]].rename(columns={"beta": "beta2"}))
     gdf = gdf_result1.merge(gdf_result2, on="uittredepunt_id")
     gdf["beta_delta"] = gdf["beta2"] - gdf["beta1"]
-    # gdf["beta_ratio"] = (gdf["beta1"] - gdf["beta2"]) / gdf["beta1"]
 
     # Covert to crs for map.
     gdf_latlon = gdf.to_crs("EPSG:4326")
@@ -148,6 +147,83 @@ def map_beta_comparison(comparison: ComparisonCollecter,
             ), include_plotlyjs='cdn', include_mathjax='cdn')
         fig.write_image(os.path.join(
             comparison.export_dir, "delta_beta_map.png"
+            ), format="png", scale=5,  width=1400)
+
+    return fig
+
+
+def map_ratio_beta_comparison(comparison: ComparisonCollecter,
+                              export: bool = False) -> go.Figure:
+    # load data from class
+    gdf_result1 = (comparison.gdf1_uittredepunten[
+        ["uittredepunt_id", "beta", "geometry"]]
+                   .rename(columns={"beta": "beta1"}))
+    gdf_result2 = (comparison.gdf2_uittredepunten[
+        ["uittredepunt_id", "beta"]].rename(columns={"beta": "beta2"}))
+    gdf = gdf_result1.merge(gdf_result2, on="uittredepunt_id")
+
+    gdf["beta_ratio"] = round((gdf["beta2"] - gdf["beta1"]) / gdf["beta1"], 2)
+
+    # Covert to crs for map.
+    gdf_latlon = gdf.to_crs("EPSG:4326")
+
+    fig = go.Figure()
+    hoverdata = ["uittredepunt_id", "beta_ratio"]
+    fig.add_trace(go.Scattermap(
+        mode="markers",
+        lat=gdf_latlon.geometry.y,
+        lon=gdf_latlon.geometry.x,
+        marker=dict(
+            size=8,
+            color=gdf_latlon["beta_ratio"],
+            cmax=5,
+            cmin=-5,
+            colorscale="Turbo_r",
+            colorbar=dict(
+                title="Beta Ratio"
+            )
+        ),
+        hoverinfo='text',
+        text=gdf_latlon[hoverdata].apply(
+            lambda row: '<br>'.join(
+                [f"{col}: {row[col]}" for col in hoverdata]
+                ),
+            axis=1),
+        showlegend=False
+        ))
+
+    fig = _add_line(comparison, fig, "dijktraject", "black")
+    fig = _add_line(comparison, fig, "intredelijn", "blue")
+    fig = _add_line(comparison, fig, "binnenteenlijn", "purple")
+    fig = _add_line(comparison, fig, "buitenteenlijn", "red")
+
+    zoom = _determine_zoom(gdf_latlon)
+    fig.update_layout(
+        map_style="open-street-map",
+        # carto-positron, open-street-map, satellite-streets
+        map_zoom=zoom,
+        map_center=dict(
+            lat=gdf_latlon.geometry.y.mean(),
+            lon=gdf_latlon.geometry.x.mean()
+        ),
+        dragmode="zoom",
+        title="Beta ratio van uittredepunten tussen<br>" +
+        f"{comparison.name_1} en {comparison.name_2}",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+            )
+        )
+    if export:
+        os.makedirs(comparison.export_dir, exist_ok=True)
+        fig.write_html(os.path.join(
+            comparison.export_dir, "ratio_beta_map.html"
+            ), include_plotlyjs='cdn', include_mathjax='cdn')
+        fig.write_image(os.path.join(
+            comparison.export_dir, "ratio_beta_map.png"
             ), format="png", scale=5,  width=1400)
 
     return fig
