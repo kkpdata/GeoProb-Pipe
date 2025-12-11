@@ -12,6 +12,17 @@ def _add_traces(comparison: ComparisonCollecter,
                 fig: go.Figure):
 
     hoverdata = df[["uittredepunt_id", "beta1", "beta2"]].to_numpy()
+    symbol_map = {
+        1: "circle",
+        0: "x"
+    }
+    try:
+        symbols = [symbol_map[b] for b in df["converged"]]
+    except KeyError:
+        df_conv = comparison.df1_beta_scenarios
+        df_conv = (df_conv.groupby("uittredepunt_id", as_index=False)
+                   ["converged"].min())
+        symbols = [symbol_map[b] for b in df_conv["converged"]]
 
     for _, row in df.iterrows():
         fig.add_trace(go.Scatter(
@@ -30,8 +41,9 @@ def _add_traces(comparison: ComparisonCollecter,
         mode="markers",
         name=comparison.name_1 + ".geoprob_pipe.gpkg",
         marker=dict(
-                color="green",
-                size=10
+            symbol=symbols,
+            color="green",
+            size=10
             ),
         customdata=hoverdata,
         hovertemplate=(

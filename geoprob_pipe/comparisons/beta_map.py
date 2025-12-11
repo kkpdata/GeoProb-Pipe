@@ -114,10 +114,6 @@ def map_delta_beta_comparison(comparison: ComparisonCollecter,
             colorscale="Turbo_r",
             colorbar=dict(
                 title="Delta Beta"
-            ),
-            line=dict(
-                width=0.5,
-                color="black"
             )
         ),
         hoverinfo='text',

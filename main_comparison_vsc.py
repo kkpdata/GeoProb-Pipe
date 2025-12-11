@@ -9,11 +9,11 @@ comparison = ComparisonCollecter(filepath1,
                                  filepath2,
                                  export_dir)
 start_time = time.time()
-# comparison.dumbell_beta().show()
-# comparison.dumbell_uplift().show()
-# comparison.dumbell_heave().show()
-# comparison.dumbell_piping().show()
-# comparison.map_delta_beta_comparison().show()
+comparison.dumbell_beta().show()
+comparison.dumbell_uplift().show()
+comparison.dumbell_heave().show()
+comparison.dumbell_piping().show()
+comparison.map_delta_beta_comparison().show()
 comparison.map_ratio_beta_comparison().show()
 end_time = time.time()
 
