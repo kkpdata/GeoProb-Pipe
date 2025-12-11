@@ -3,6 +3,7 @@
 Project-object directly outside the repository. """
 from geoprob_pipe import GeoProbPipe
 import os
+import time
 from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
 app_settings = ApplicationSettings()
@@ -12,4 +13,8 @@ app_settings.workspace_dir = os.path.dirname(filepath)
 app_settings.geopackage_filename = os.path.basename(filepath)
 
 geoprob_pipe = GeoProbPipe(app_settings)
+start_time = time.time()
 geoprob_pipe.export_archive()
+end_time = time.time()
+
+print(f"Time passed for export: {end_time - start_time:.2f} sec")
