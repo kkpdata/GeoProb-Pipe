@@ -84,9 +84,6 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         """ Performs all logic of the system reliability calculation. """
         self._setup_project()
         self._apply_settings()
-        self.project.settings.reliability_method = 'form'
-        self.project.settings.maximum_iterations = 100
-        self.project.settings.relaxation_factor = 0.75
         self._assign_variables()
         self._assign_project_correlations()
         self._generate_model_design_points()
@@ -98,8 +95,10 @@ class ParallelSystemReliabilityCalculation(BaseSystemReliabilityCalculation):
         self.project.settings.reliability_method = ReliabilityMethod.form
 
         # Some base settings, may be overwritten through self._apply_settings
+        self.project.settings.reliability_method = 'form'
         self.project.settings.variation_coefficient = 0.02
-        self.project.settings.maximum_iterations = 50
+        self.project.settings.maximum_iterations = 1000
+        self.project.settings.relaxation_factor = 0.75
 
     def _apply_settings(self):
         """
