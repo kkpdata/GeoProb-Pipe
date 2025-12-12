@@ -40,14 +40,9 @@ def _background_graph(
         x_line = np.linspace(df_for_graph['m_start'].min()-10,
                              df_for_graph['m_end'].max()+10)
 
-    fig.add_annotation(x=0.5,
-                       y=np.log10(2.1),
-                       text="Vak ID:",
-                       showarrow=False,
-                       xanchor="left",
-                       yanchor="bottom",
-                       font=dict(color="black")
-                       )
+    fig.add_annotation(
+        x=0.5, y=np.log10(2.1), text="Vak ID:", showarrow=False, xanchor="left", yanchor="bottom",
+        font=dict(color="black"))
     i = 1
     for _, vak in geoprob_pipe.input_data.vakken.gdf.iterrows():
         fig.add_vline(x=vak["m_start"], line_color="black", line_width=1)
@@ -68,27 +63,16 @@ def _background_graph(
 
         # Onderste lijn (zichtbaar)
         fig.add_trace(go.Scatter(
-            x=x_line,
-            y=[cg[grens][0]] * len(x_line),
-            name=grens,
-            mode="lines",
-            line=dict(color="black", width=0.5),
-            hoverinfo="skip",
-            showlegend=False,
-        ))
+            x=x_line, y=[cg[grens][0]] * len(x_line), name=grens, mode="lines", line=dict(color="black", width=0.5),
+            hoverinfo="skip", showlegend=False,))
 
         # Bovenste lijn (onzichtbaar, zorgt voor fill)
         fig.add_trace(go.Scatter(
-            x=x_line,
-            y=[cg[grens][1]] * len(x_line),
-            name=grens,
-            mode="lines",
+            x=x_line, y=[cg[grens][1]] * len(x_line), name=grens, mode="lines",
             line=dict(width=0),        # geen bovenrand zichtbaar
             fill="tonexty",
             fillcolor=colors[i % len(colors)],  # kleur uit lijst
-            hoverinfo="skip",
-            showlegend=False,
-        ))
+            hoverinfo="skip", showlegend=False))
 
         # Labels bij de ondergrens
         fig.add_annotation(

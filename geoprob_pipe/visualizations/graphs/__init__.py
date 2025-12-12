@@ -8,8 +8,7 @@ from geoprob_pipe.visualizations.graphs.invloedsfactoren import invloedsfactoren
 from geoprob_pipe.visualizations.graphs.phreatic_waterline import phreatic_waterline
 from geoprob_pipe.visualizations.graphs.overview_alpha import overview_alpha
 from geoprob_pipe.visualizations.graphs.river_waterlevel import river_waterlevel
-from typing import TYPE_CHECKING, List
-from matplotlib.pyplot import Figure as MatplotLibFigure
+from typing import TYPE_CHECKING
 from plotly.graph_objects import Figure as PlotlyFigure
 import os
 

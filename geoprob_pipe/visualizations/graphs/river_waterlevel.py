@@ -126,7 +126,7 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
             x=df_filtered["metrering"],
             y=df_filtered["physical_value"],
             mode="markers",
-            name="Buitenwaterstand",
+            name="Physical values",
             marker=dict(
                 symbol="circle",
                 size=7,
@@ -152,7 +152,7 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
 
     # Layout
     fig.update_layout(
-        title="Buitenwaterstanden bij herhaaltijd en system design points",
+        title="Buitenwaterstanden bij herhaaltijd en physical values uit system design points",
         xaxis=dict(title="Metrering [m]", showgrid=True,
                    gridwidth=0.5, gridcolor="gray"),
         yaxis=dict(title="Buitenwaterstand [m+NAP]", showgrid=True,
@@ -163,7 +163,7 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
             y=0.5,
             xanchor="left",
             x=1.02,
-            title="Overschrijdingsfrequentie",
+            title="Legenda",
             bgcolor="rgba(255,255,255,0.7)",
         ),
         legend_traceorder="reversed",

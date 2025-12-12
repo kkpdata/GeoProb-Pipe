@@ -66,7 +66,7 @@ def phreatic_waterline(geoprob_pipe: GeoProbPipe, export: bool = False):
                 x=df_var['metrering'],
                 y=df_var["physical_value"],
                 mode='markers',
-                name=(f"{names[variable]} ({dist_type})"),
+                name=f"{names[variable]} ({dist_type})",
                 marker=dict(
                     symbol=symbols[variable],
                     size=5,
@@ -87,14 +87,14 @@ def phreatic_waterline(geoprob_pipe: GeoProbPipe, export: bool = False):
             args=[
                 {"visible": vis},
                 {"title": f"Physical values t.o.v. NAP voor scenario {scen_order}"
-                 + "<br><sup>overzicht per uittredepunt</sup>"}
+                 + "<br><sup>Punten zijn per uittredepunt</sup>"}
             ]
         ))
 
     # Layout and controls
     fig.update_layout(
         title=f"Physical values t.o.v. NAP voor scenario {scenario_orders[0]}"
-        + "<br><sup>overzicht per uittredepunt</sup>",
+        + "<br><sup>Punten zijn per uittredepunt</sup>",
         updatemenus=[dict(
             active=0,
             buttons=buttons,
@@ -130,9 +130,7 @@ def phreatic_waterline(geoprob_pipe: GeoProbPipe, export: bool = False):
 
         # Export interactive HTML
         fig.write_html(
-            os.path.join(export_dir, "phreatic_waterline.html"),
-            include_plotlyjs='cdn'
-        )
+            os.path.join(export_dir, "phreatic_waterline.html"), include_plotlyjs='cdn')
 
         # Export one PNG per scenario_order
         if geoprob_pipe.software_requirements.chrome_is_installed:
