@@ -34,13 +34,12 @@ def test_system():
     ]
 
     for file_name in file_names:
-        print(f"Now running {file_name}\n")
+        print(f"\nNow running {file_name}")
         app_settings = ApplicationSettings()
         filepath = os.path.join(repo_root, "tests", "systeem_testen", "224", file_name)
         app_settings.workspace_dir = os.path.dirname(filepath)
         app_settings.geopackage_filename = os.path.basename(filepath)
         geoprob_pipe = GeoProbPipe(app_settings)
         geoprob_pipe.export_archive()
-        print(filepath)
 
     ##

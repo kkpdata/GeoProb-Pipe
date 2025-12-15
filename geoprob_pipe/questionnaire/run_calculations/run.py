@@ -60,7 +60,8 @@ def run_calculations(app_settings: ApplicationSettings) -> bool:
         app_settings.to_run = vakken_str
         geoprob_pipe = GeoProbPipe(app_settings)
         geoprob_pipe.export_archive()
-        print(BColors.OKBLUE, f"✅  Berekeningen zijn uitgevoerd, voor vakken.", BColors.ENDC)
+        print(BColors.OKBLUE, f"✅  Berekeningen zijn uitgevoerd, voor vakken "
+                              f"{app_settings.to_run.replace("vakken:", "")}.", BColors.ENDC)
     elif choice == choices_list[2]:
         sys.exit(f"Applicatie is afgesloten.")
     else:

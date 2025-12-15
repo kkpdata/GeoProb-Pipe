@@ -14,11 +14,12 @@ app = typer.Typer(help="GeoProb-Pipe - CLI applicatie voor probabilistische pipi
 
 class ApplicationSettings:
 
-    workspace_dir: Optional[str] = None
-    geopackage_filename: Optional[str] = None
-    datetime_stamp: str = datetime.now().strftime("%Y-%m-%d_%H%M")
-    to_run = "all"
-    # -> or vakken:1,2,3,4,5
+    def __init__(self):
+        self.workspace_dir: Optional[str] = None
+        self.geopackage_filename: Optional[str] = None
+        self.datetime_stamp: str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        self.to_run = "all"
+        # -> or vakken:1,2,3,4,5
 
     @property
     def geopackage_filepath(self) -> str:

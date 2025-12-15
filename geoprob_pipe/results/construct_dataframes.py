@@ -5,11 +5,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe
+    from probabilistic_library import DesignPoint
 
 
 def collect_df_beta_per_limit_state(geoprob_pipe: GeoProbPipe) -> DataFrame:
 
-    def create_row(calc, dp, model_name):
+    def create_row(calc, dp: DesignPoint, model_name):
         return {
             "uittredepunt_id": calc.metadata["uittredepunt_id"],
             "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
@@ -18,6 +19,9 @@ def collect_df_beta_per_limit_state(geoprob_pipe: GeoProbPipe) -> DataFrame:
             "converged": dp.is_converged,
             "beta": round(dp.reliability_index, 2),
             "failure_probability": dp.probability_failure,
+            "convergence": dp.convergence,
+            "total_iterations": dp.total_iterations,
+            "total_model_runs": dp.total_model_runs,
         }
 
     rows = []
@@ -40,6 +44,9 @@ def collect_df_beta_per_scenario(geoprob_pipe: GeoProbPipe) -> DataFrame:
             "converged": calc.system_design_point.is_converged,
             "beta": round(calc.system_design_point.reliability_index, 2),
             "failure_probability": calc.system_design_point.probability_failure,
+            "convergence": calc.system_design_point.convergence,
+            "total_model_runs": calc.system_design_point.total_model_runs,
+            "total_iterations": calc.system_design_point.total_iterations,
             "model_betas": ", ".join([
                 str(round(dp.reliability_index, 2)) for dp in calc.model_design_points
             ])
