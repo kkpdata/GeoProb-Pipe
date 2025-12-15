@@ -22,8 +22,8 @@ class Maps:
         return path
 
     def betamap(self, export: bool = False) -> PlotlyFigure:
-        map = BetaMap(self.geoprob_pipe, export=export)
-        return map.fig
+        map_figure = BetaMap(self.geoprob_pipe, export=export)
+        return map_figure.fig
 
     def export_maps(self):
         BetaMap(self.geoprob_pipe, export=True)

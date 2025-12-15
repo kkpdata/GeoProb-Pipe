@@ -9,16 +9,13 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
-def _add_line(geoprobpipe: GeoProbPipe, fig: go.Figure,
+def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure,
               layer: str, color: str):
-    """
-Helperfunctie om de lijen uit de geopackage te vinden en
-toe tevoegen aan de map. Layer is de naam van de laag in de
-geopackage waar de lijn is opgeslagen. Color is de kleur van deze
-lijn in de map.
-    """
+    """ Helperfunctie om de lijnen uit de geopackage te vinden en toe te voegen aan de map. Layer is de naam van de
+    laag in de geopackage waar de lijn is opgeslagen. Color is de kleur van deze lijn in de map. """
+
     gdf_traject = gpd.read_file(
-        geoprobpipe.input_data.app_settings.geopackage_filepath,
+        geoprob_pipe.input_data.app_settings.geopackage_filepath,
         layer=layer)
     gdf_traject = gdf_traject.to_crs("EPSG:4326")
 
