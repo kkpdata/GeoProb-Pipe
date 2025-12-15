@@ -59,6 +59,7 @@ class BetaMap:
     def __init__(self, geoprob_pipe: GeoProbPipe, export: bool = False):
 
         self.geoprob_pipe = geoprob_pipe
+        self.export = export
 
         # Logic
         self._import_results()
@@ -211,11 +212,11 @@ class BetaMap:
                 lon=self.gdf_latlon.geometry.x.mean()
             ),
             legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
             ),
             dragmode='zoom',
             title='Faalkansberekening STPH'
@@ -232,8 +233,11 @@ class BetaMap:
                              "buitenteenlijn", "red")
 
     def _optionally_export(self):
-        path = self.geoprob_pipe.visualizations.maps.export_dir
-        self.fig.write_html(os.path.join(path, 'Faalkansberekening STPH.html'),
-                            include_plotlyjs='cdn')
-        self.fig.write_image(os.path.join(path, 'Faalkansberekening STPH.png'),
-                             format='png')
+        if self.export:
+            path = self.geoprob_pipe.visualizations.maps.export_dir
+            self.fig.write_html(os.path.join(
+                path, 'Faalkansberekening STPH.html'), include_plotlyjs='cdn'
+                                )
+            self.fig.write_image(os.path.join(
+                path, 'Faalkansberekening STPH.png'), format='png'
+                                 )
