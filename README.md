@@ -34,7 +34,7 @@ Benodigdheden:
 
 
 # Mee ontwikkelen
-Wil je bijdragen aan de ontwikkeling van GeoProb-Pipe? Dat kan! 
+Wil je bijdragen aan de ontwikkeling van GeoProb-Pipe? Dat kan! :)
 
 Maak een nieuwe branch aan vanuit `dev`, ga coden en wanneer je klaar bent, maak een pull en review request aan. Zorg 
 er voor dat de unit tests werken en dat je PEP8 als code stijl hanteert. Bij vragen, neem contact op met één van de 
