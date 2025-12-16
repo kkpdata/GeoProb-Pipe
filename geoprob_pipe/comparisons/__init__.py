@@ -12,7 +12,7 @@ from geoprob_pipe.comparisons.beta_map import map_delta_beta_comparison, \
     map_ratio_beta_comparison
 
 
-class ComparisonCollecter:
+class ComparisonCollector:
     def __init__(self,
                  geopackage_filepath_1: str,
                  geopackage_filepath_2: str,
