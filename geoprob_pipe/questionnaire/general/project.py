@@ -10,7 +10,7 @@ from importlib.metadata import distributions
 from geopandas import GeoDataFrame
 from geoprob_pipe.questionnaire.utils.misc import get_geoprob_pipe_version_number
 from geoprob_pipe.utils.validation_messages import BColors
-from geoprob_pipe.comparisons import ComparisonCollecter
+from geoprob_pipe.comparisons import ComparisonCollector
 if TYPE_CHECKING:
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
@@ -209,7 +209,7 @@ def specify_dir_for_comparison(app_settings: ApplicationSettings):
 
 def run_comparison(filepath1, filepath2, export_dir):
     print(BColors.OKBLUE, "Vergelijking wordt uitgevoerd.", BColors.ENDC)
-    comparison = ComparisonCollecter(filepath1, filepath2, export_dir)
+    comparison = ComparisonCollector(filepath1, filepath2, export_dir)
     comparison.create_and_export_figures()
     print(BColors.OKBLUE,
           f"Vergelijking voltooid en opgeslagen in {comparison.export_dir}.",
