@@ -40,18 +40,17 @@ def _background_graph(
     fig.add_annotation(
         x=0.5, y=np.log10(2.2), text="Vak ID:", showarrow=False,
         xanchor="left", yanchor="bottom", font=dict(color="black"))
-    i = 1
+
     for _, vak in vakken.iterrows():
         fig.add_vline(x=vak["m_start"], line_color="black", line_width=1)
         fig.add_vline(x=vak["m_end"], line_color="black", line_width=1)
         fig.add_annotation(
             x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
-            text=f"{i}",
+            text=vak["id"],
             showarrow=False,
             xanchor="center",
             yanchor="bottom",
             font=dict(color="black"))
-        i += 1
 
     for i, grens in enumerate(cg):
 
@@ -449,7 +448,7 @@ class GraphBetaValuesSingleInteractive:
                 customdata=df_for_graph.loc[
                     mask_high, ["uittredepunt_id", "beta", "metrering"]
                     ],
-                hovertemplate=("ID: %{customdata[0]}" +
+                hovertemplate=("ID: %{customdata[0]}<br>" +
                                "Beta: %{customdata[1]:.3f}<br>" +
                                "Metrering: %{customdata[2]}"),
                 showlegend=True
@@ -503,7 +502,6 @@ class GraphBetaValuesSingleInteractive:
                                 yanchor="bottom",
                                 font=dict(color="black")
                                 )
-        i = 1
 
         for _, vak in self.gdf_vakken.iterrows():
             self.fig.add_vline(x=vak["m_start"], line_color="black",
@@ -512,13 +510,12 @@ class GraphBetaValuesSingleInteractive:
                                line_width=1)
             self.fig.add_annotation(
                 x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
-                text=f"{i}",
+                text=vak["id"],
                 showarrow=False,
                 xanchor="center",
                 yanchor="bottom",
                 font=dict(color="black")
                 )
-            i += 1
 
         for i, grens in enumerate(cg):
 
