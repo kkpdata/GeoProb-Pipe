@@ -432,8 +432,8 @@ class GraphBetaValuesSingleInteractive:
                     ["uittredepunt_id", "beta", "metrering"]
                     ],
                 hovertemplate=("ID: %{customdata[0]}<br>" +
-                               "Beta: %{customdata[0]:.3f}<br>" +
-                               "Metrering: %{customdata[1]}"),
+                               "Beta: %{customdata[1]:.3f}<br>" +
+                               "Metrering: %{customdata[2]}"),
                 showlegend=True
             )
         )
@@ -465,7 +465,7 @@ class GraphBetaValuesSingleInteractive:
                 customdata=df_for_graph.loc[
                     mask_low, ["uittredepunt_id", "beta", "metrering"]
                     ],
-                hovertemplate=("ID: %{customdata[0]}" +
+                hovertemplate=("ID: %{customdata[0]}<br>" +
                                "Beta: %{customdata[1]:.3f}<br>" +
                                "Metrering: %{customdata[2]}"),
                 showlegend=True
