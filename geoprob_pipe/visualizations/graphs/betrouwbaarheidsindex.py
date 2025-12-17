@@ -102,7 +102,7 @@ def beta_scenarios_graph(
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df_results_combined = geoprob_pipe.results.df_beta_scenarios
     df_for_graph = merge(
-        left=df_results_combined[["uittredepunt_id", "beta"]],
+        left=df_results_combined[["uittredepunt_id", "beta", "converged"]],
         right=gdf_uittredepunten[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id",
         how="left"
@@ -112,13 +112,13 @@ def beta_scenarios_graph(
     fig = go.Figure()
     # Background
     fig = _background_graph(geoprob_pipe, fig, df_for_graph)
-
+    colors = ["black" if b else "blue" for b in df_for_graph["converged"]]
     fig.add_trace(
         go.Scatter(
             x=df_for_graph['metrering'],
             y=df_for_graph["beta"],
             mode='markers',
-            marker=dict(symbol='diamond', size=3, color='black'),
+            marker=dict(symbol='diamond', size=3, color=colors),
             name='Beta scenarios',
             showlegend=True
         )
@@ -349,22 +349,27 @@ class GraphBetaValuesSingleInteractive:
     def _add_beta_per_scenario(self):
         df_results_combined = self.geoprob_pipe.results.df_beta_scenarios
         df_for_graph = merge(
-            left=df_results_combined[["uittredepunt_id", "beta"]],
+            left=df_results_combined[["uittredepunt_id", "beta", "converged"]],
             right=self.gdf_uittredepunten[["uittredepunt_id", "metrering"]],
             on="uittredepunt_id",
             how="left"
         )
 
-        self.fig.add_trace(
-            go.Scatter(
-                x=df_for_graph['metrering'],
-                y=df_for_graph["beta"],
-                mode='markers',
-                marker=dict(symbol='diamond', size=5, color='black'),
-                name='Beta scenarios',
-                showlegend=True
+        for value, color, name in [(True, "black", 'Beta scenarios'),
+                                   (False, "blue", "Unconverged Beta scenarios")]:
+            mask = df_for_graph["converged"] == value
+            self.fig.add_trace(
+                go.Scatter(
+                    x=df_for_graph.loc[mask, 'metrering'],
+                    y=df_for_graph.loc[mask, "beta"],
+                    mode='markers',
+                    marker=dict(symbol='diamond', size=7,
+                                color=color,
+                                line=dict(color="white", width=1)),
+                    name=name,
+                    showlegend=True
+                )
             )
-        )
 
     def _add_beta_per_uittredepunt(self):
         df_results_uittredepunten = (self.geoprob_pipe.results
@@ -375,14 +380,50 @@ class GraphBetaValuesSingleInteractive:
             on="uittredepunt_id",
             how="left"
         )
-
+        beta_min = 2
+        beta_max = 20
+        mask_low = df_for_graph["beta"] < beta_min
+        mask_high = df_for_graph["beta"] > beta_max
+        mask_in = ~(mask_low | mask_high)
+        # In range
         self.fig.add_trace(
             go.Scatter(
-                x=df_for_graph['metrering'],
-                y=df_for_graph["beta"],
+                x=df_for_graph.loc[mask_in, 'metrering'],
+                y=df_for_graph.loc[mask_in, "beta"],
                 mode='markers',
                 marker=dict(symbol='circle', size=7, color='black'),
                 name='Beta uittredepunten',
+                customdata=df_for_graph.loc[mask_in, ["beta", "metrering"]],
+                hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
+                               "Metrering: %{customdata[1]}"),
+                showlegend=True
+            )
+        )
+        # Above range
+        self.fig.add_trace(
+            go.Scatter(
+                x=df_for_graph.loc[mask_high, 'metrering'],
+                y=[beta_max-0.1] * mask_high.sum(),
+                mode='markers',
+                marker=dict(symbol='triangle-up', size=7, color='black'),
+                name='Beta uittredepunten above range',
+                customdata=df_for_graph.loc[mask_high, ["beta", "metrering"]],
+                hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
+                               "Metrering: %{customdata[1]}"),
+                showlegend=True
+            )
+        )
+        # Below range
+        self.fig.add_trace(
+            go.Scatter(
+                x=df_for_graph.loc[mask_low, 'metrering'],
+                y=[beta_min+0.1] * mask_low.sum(),
+                mode='markers',
+                marker=dict(symbol='triangle-down', size=7, color='black'),
+                name='Beta uittredepunten below range',
+                customdata=df_for_graph.loc[mask_low, ["beta", "metrering"]],
+                hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
+                               "Metrering: %{customdata[1]}"),
                 showlegend=True
             )
         )
