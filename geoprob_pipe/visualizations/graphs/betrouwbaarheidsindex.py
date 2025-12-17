@@ -421,17 +421,19 @@ class GraphBetaValuesSingleInteractive:
         beta_max = 20
         mask_low = df_for_graph["beta"] < beta_min
         mask_high = df_for_graph["beta"] > beta_max
-        mask_in = ~(mask_low | mask_high)
         # In range
         self.fig.add_trace(
             go.Scatter(
-                x=df_for_graph.loc[mask_in, 'metrering'],
-                y=df_for_graph.loc[mask_in, "beta"],
+                x=df_for_graph["metrering"],
+                y=df_for_graph["beta"],
                 mode='markers',
                 marker=dict(symbol='circle', size=7, color='black'),
                 name='Beta uittredepunten',
-                customdata=df_for_graph.loc[mask_in, ["beta", "metrering"]],
-                hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
+                customdata=df_for_graph[
+                    ["uittredepunt_id", "beta", "metrering"]
+                    ],
+                hovertemplate=("ID: %{customdata[0]}<br>" +
+                               "Beta: %{customdata[0]:.3f}<br>" +
                                "Metrering: %{customdata[1]}"),
                 showlegend=True
             )
@@ -443,10 +445,13 @@ class GraphBetaValuesSingleInteractive:
                 y=[beta_max-0.1] * mask_high.sum(),
                 mode='markers',
                 marker=dict(symbol='triangle-up', size=7, color='black'),
-                name='Beta uittredepunten above range',
-                customdata=df_for_graph.loc[mask_high, ["beta", "metrering"]],
-                hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
-                               "Metrering: %{customdata[1]}"),
+                name='Beta uittredepunten above plotted range',
+                customdata=df_for_graph.loc[
+                    mask_high, ["uittredepunt_id", "beta", "metrering"]
+                    ],
+                hovertemplate=("ID: %{customdata[0]}" +
+                               "Beta: %{customdata[1]:.3f}<br>" +
+                               "Metrering: %{customdata[2]}"),
                 showlegend=True
             )
         )
@@ -457,10 +462,13 @@ class GraphBetaValuesSingleInteractive:
                 y=[beta_min+0.1] * mask_low.sum(),
                 mode='markers',
                 marker=dict(symbol='triangle-down', size=7, color='black'),
-                name='Beta uittredepunten below range',
-                customdata=df_for_graph.loc[mask_low, ["beta", "metrering"]],
-                hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
-                               "Metrering: %{customdata[1]}"),
+                name='Beta uittredepunten below plotted range',
+                customdata=df_for_graph.loc[
+                    mask_low, ["uittredepunt_id", "beta", "metrering"]
+                    ],
+                hovertemplate=("ID: %{customdata[0]}" +
+                               "Beta: %{customdata[1]:.3f}<br>" +
+                               "Metrering: %{customdata[2]}"),
                 showlegend=True
             )
         )
