@@ -1,11 +1,11 @@
-from geoprob_pipe.comparisons import ComparisonCollecter
+from geoprob_pipe.comparisons import ComparisonCollector
 import time
 
 filepath1 = r"tests\systeem_testen\224\Traject224_model4a_WBN_prob.geoprob_pipe.gpkg"
 filepath2 = r"tests\systeem_testen\224\Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg"
 export_dir = r"tests\systeem_testen\224"
 
-comparison = ComparisonCollecter(filepath1,
+comparison = ComparisonCollector(filepath1,
                                  filepath2,
                                  export_dir)
 start_time = time.time()
