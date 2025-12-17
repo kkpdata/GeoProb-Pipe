@@ -33,18 +33,15 @@ def _background_graph(
               "rgba(177,33,38,0.6)"]
     labels = ["+III", "+II", "+I", "0", "-I", "-II", "-III"]
 
-    if "metrering" in df_for_graph.columns:
-        x_line = np.linspace(df_for_graph['metrering'].min()-10,
-                             df_for_graph['metrering'].max()+10)
-    else:
-        x_line = np.linspace(df_for_graph['m_start'].min()-10,
-                             df_for_graph['m_end'].max()+10)
+    vakken = geoprob_pipe.input_data.vakken.gdf
+    x_line = np.linspace(vakken['m_start'].min()-10,
+                         vakken['m_end'].max()+10)
 
     fig.add_annotation(
-        x=0.5, y=np.log10(2.1), text="Vak ID:", showarrow=False, xanchor="left", yanchor="bottom",
-        font=dict(color="black"))
+        x=0.5, y=np.log10(2.2), text="Vak ID:", showarrow=False,
+        xanchor="left", yanchor="bottom", font=dict(color="black"))
     i = 1
-    for _, vak in geoprob_pipe.input_data.vakken.gdf.iterrows():
+    for _, vak in vakken.iterrows():
         fig.add_vline(x=vak["m_start"], line_color="black", line_width=1)
         fig.add_vline(x=vak["m_end"], line_color="black", line_width=1)
         fig.add_annotation(
@@ -63,7 +60,8 @@ def _background_graph(
 
         # Onderste lijn (zichtbaar)
         fig.add_trace(go.Scatter(
-            x=x_line, y=[cg[grens][0]] * len(x_line), name=grens, mode="lines", line=dict(color="black", width=0.5),
+            x=x_line, y=[cg[grens][0]] * len(x_line), name=grens,
+            mode="lines", line=dict(color="black", width=0.5),
             hoverinfo="skip", showlegend=False,))
 
         # Bovenste lijn (onzichtbaar, zorgt voor fill)
@@ -129,8 +127,9 @@ def beta_scenarios_graph(
         title="Betrouwbaarheidsindex STPH per scenarioberekening",
         xaxis=dict(title="Metrering",
                    type='linear',
-                   range=[0,
-                          df_for_graph['metrering'].max()+10],
+                   range=[
+                      0, geoprob_pipe.input_data.vakken.gdf['m_end'].max()+10
+                      ],
                    showgrid=True,
                    gridwidth=0.5,
                    gridcolor="gray"
@@ -185,14 +184,50 @@ def beta_uittredepunten_graph(
     fig = go.Figure()
     # Background
     fig = _background_graph(geoprob_pipe, fig, df_for_graph)
-
+    beta_min = 2
+    beta_max = 20
+    mask_low = df_for_graph["beta"] < beta_min
+    mask_high = df_for_graph["beta"] > beta_max
+    mask_in = ~(mask_low | mask_high)
+    # In range
     fig.add_trace(
         go.Scatter(
-            x=df_for_graph['metrering'],
-            y=df_for_graph["beta"],
+            x=df_for_graph.loc[mask_in, 'metrering'],
+            y=df_for_graph.loc[mask_in, "beta"],
             mode='markers',
-            marker=dict(symbol='circle', size=3, color='black'),
-            name='Beta Uittredepunten',
+            marker=dict(symbol='circle', size=7, color='black'),
+            name='Beta uittredepunten',
+            customdata=df_for_graph.loc[mask_in, ["beta", "metrering"]],
+            hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
+                            "Metrering: %{customdata[1]}"),
+            showlegend=True
+        )
+    )
+    # Above range
+    fig.add_trace(
+        go.Scatter(
+            x=df_for_graph.loc[mask_high, 'metrering'],
+            y=[beta_max-0.1] * mask_high.sum(),
+            mode='markers',
+            marker=dict(symbol='triangle-up', size=7, color='black'),
+            name='Beta uittredepunten above range',
+            customdata=df_for_graph.loc[mask_high, ["beta", "metrering"]],
+            hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
+                            "Metrering: %{customdata[1]}"),
+            showlegend=True
+        )
+    )
+    # Below range
+    fig.add_trace(
+        go.Scatter(
+            x=df_for_graph.loc[mask_low, 'metrering'],
+            y=[beta_min+0.1] * mask_low.sum(),
+            mode='markers',
+            marker=dict(symbol='triangle-down', size=7, color='black'),
+            name='Beta uittredepunten below range',
+            customdata=df_for_graph.loc[mask_low, ["beta", "metrering"]],
+            hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
+                           "Metrering: %{customdata[1]}"),
             showlegend=True
         )
     )
@@ -202,8 +237,9 @@ def beta_uittredepunten_graph(
         title="Betrouwbaarheidsindex STPH per uittredepunt",
         xaxis=dict(title="Metrering",
                    type='linear',
-                   range=[0,
-                          df_for_graph['metrering'].max()+10],
+                   range=[
+                       0, geoprob_pipe.input_data.vakken.gdf['m_end'].max()+10
+                       ],
                    showgrid=True,
                    gridwidth=0.5,
                    gridcolor="gray"
@@ -272,8 +308,9 @@ def beta_vakken_graph(
         title="Betrouwbaarheidsindex STPH per vak",
         xaxis=dict(title="Metrering",
                    type='linear',
-                   range=[0,
-                          df_for_graph['m_end'].max()+10],
+                   range=[
+                       0, geoprob_pipe.input_data.vakken.gdf['m_end'].max()+10
+                       ],
                    showgrid=True,
                    gridwidth=0.5,
                    gridcolor="gray"

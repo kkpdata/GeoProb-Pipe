@@ -7,7 +7,7 @@ from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
 app_settings = ApplicationSettings()
 
-filepath = r"C:\Users\vinji\Python\geoprob_pipe\Analyse_20-2\Analyse_20-2.geoprob_pipe.gpkg"
+filepath = r"tests\systeem_testen\224\Traject224_model4a_WBN_prob.geoprob_pipe.gpkg"
 app_settings.workspace_dir = os.path.dirname(filepath)
 app_settings.geopackage_filename = os.path.basename(filepath)
 
