@@ -1,25 +1,15 @@
-# %%
-"""The below code displays an example of how GeoProb-Pipe is run. This example works inside the repository. Use the
-Project-object directly outside the repository."""
-from numpy import add
-from geoprob_pipe import GeoProbPipe
-import os
-from geoprob_pipe.questionnaire.cmd import ApplicationSettings
-
-app_settings = ApplicationSettings()
-
-filepath = r"C:\Github\Project_GeoProb_Pipe\GeoProb-Pipe\tests\systeem_testen\224\Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg"
-app_settings.workspace_dir = os.path.dirname(filepath)
-app_settings.geopackage_filename = os.path.basename(filepath)
-
-geoprob_pipe = GeoProbPipe(app_settings)
-geoprob_pipe.export_archive()
-
-# %% test icicle plot
 from __future__ import annotations
+import pandas as pd
+from pandas import merge
+import numpy as np
 from scipy.stats import norm
 import os
+from datetime import datetime
 import plotly.graph_objects as go
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from geoprob_pipe import GeoProbPipe
 
 
 def beta_to_color(beta: float, geoprob_pipe) -> str:
@@ -53,7 +43,133 @@ def beta_to_color(beta: float, geoprob_pipe) -> str:
     return "rgba(200,200,200,0.6)"
 
 
-def run_dummy_icicle(export: bool = True) -> go.Figure:
+def run_icicle(export: bool = True) -> go.Figure:
+    """
+    Horizontale Icicle (links → rechts)
+    GeoProb data
+
+    - Internal labels: leesbaar + uniek (pathbar + boom)
+    - Display labels: naam + β
+    - Kleuren op basis van β-categorie
+    """
+
+    labels = []
+    parents = []
+    values = []
+    betas = []
+    text = []
+    colors = []
+
+    def add(internal: str, parent: str, display: str, beta: float):
+        labels.append(internal)
+        parents.append(parent)
+        values.append(1.0)
+        betas.append(beta)
+        text.append(display)
+        colors.append(beta_to_color(beta, geoprob_pipe))
+
+    LIMIT_STATE_MAP = {
+        "calc_Z_u": "Uplift",
+        "calc_Z_h": "Heave",
+        "calc_Z_p": "Piping",
+    }
+
+    df_vak = geoprob_pipe.results.df_beta_vakken
+    df_up = geoprob_pipe.results.df_beta_uittredepunten
+    df_sc = geoprob_pipe.results.df_beta_scenarios
+    df_ls = geoprob_pipe.results.df_beta_limit_states
+
+    # ---- Traject ----
+    df_vak["pf_vak"] = norm.cdf(-df_vak["beta"])
+    pf_traj = float(
+        df_vak["pf_vak"].sum()
+    )  # traject kans bij benadering de som van vak kansen bespreken met Chris en Vincent
+    beta_traj = -norm.ppf(pf_traj)
+    traj_int = "Traject"
+    traj_disp = f"Traject (β={beta_traj:.2f}, Pf={pf_traj:.2e})"
+    add(traj_int, "", traj_disp, beta_traj)
+
+    for _, vak in df_vak.iterrows():
+        vak_id = int(vak["vak_id"])
+        beta_vak = float(vak["beta"])
+
+        vak_int = f"Vak {vak_id}"
+        vak_disp = f"Vak {vak_id} (β={beta_vak:.2f})"
+        add(vak_int, traj_int, vak_disp, beta_vak)
+
+        df_up_vak = df_up[df_up["vak_id"] == vak_id]
+        for _, up in df_up_vak.iterrows():
+            up_id = int(up["uittredepunt_id"])
+            beta_up = float(up["beta"])
+
+            up_int = f"Uittredepunt {up_id} (Vak {vak_id})"
+            up_disp = f"Uittredepunt {up_id} (β={beta_up:.2f})"
+            add(up_int, vak_int, up_disp, beta_up)
+
+            df_sc_up = df_sc[
+                (df_sc["vak_id"] == vak_id) & (df_sc["uittredepunt_id"] == up_id)
+            ]
+
+            for _, sc in df_sc_up.iterrows():
+                sc_id = sc["ondergrondscenario_id"]
+                beta_sc = float(sc["beta"])
+
+                sc_int = f"Scenario {sc_id} (Uittredepunt {up_id}, Vak {vak_id})"
+                sc_disp = f"Scenario {sc_id} (β={beta_sc:.2f})"
+                add(sc_int, up_int, sc_disp, beta_sc)
+
+                df_ls_sc = df_ls[
+                    (df_ls["vak_id"] == vak_id)
+                    & (df_ls["uittredepunt_id"] == up_id)
+                    & (df_ls["ondergrondscenario_id"] == sc_id)
+                ]
+
+                for _, ls in df_ls_sc.iterrows():
+                    beta_ls = float(ls["beta"])
+                    mech = LIMIT_STATE_MAP.get(ls["limit_state"], ls["limit_state"])
+
+                    ls_int = f"{mech} (Scenario {sc_id}, UP {up_id})"
+                    ls_disp = f"{mech} (β={beta_ls:.2f})"
+                    add(ls_int, sc_int, ls_disp, beta_ls)
+
+    fig = go.Figure(
+        go.Icicle(
+            labels=labels,
+            parents=parents,
+            values=values,
+            text=text,
+            textinfo="text",
+            customdata=betas,
+            marker=dict(colors=colors),
+            branchvalues="remainder",
+            tiling=dict(orientation="h"),
+            pathbar=dict(visible=True),
+            hovertemplate="<b>%{text}</b><br>β=%{customdata:.2f}<extra></extra>",
+        )
+    )
+
+    fig.update_layout(
+        title="Overview betrouwbaarheidsindexen alle niveaus GeoProb-Pipe",
+        margin=dict(t=50, l=20, r=20, b=20),
+    )
+
+    # Export
+    if export:
+        export_dir = geoprob_pipe.visualizations.graphs.export_dir
+        os.makedirs(export_dir, exist_ok=True)
+        fig.write_html(
+            os.path.join(export_dir, f"icicle_overview_betas.html"),
+            include_plotlyjs="cdn",
+        )
+        if geoprob_pipe.software_requirements.chrome_is_installed:
+            fig.write_image(
+                os.path.join(export_dir, f"icicle_overview_betas.png"), format="png"
+            )
+
+    return fig
+
+
+def run_icicle_scale(export: bool = True) -> go.Figure:
     """
     Horizontale Icicle (links → rechts)
 
@@ -227,7 +343,6 @@ def run_dummy_icicle(export: bool = True) -> go.Figure:
         title=f"Overview betrouwbaarheidsindexen alle niveaus GeoProb-Pipe",
         margin=dict(t=50, l=20, r=20, b=20),
     )
-
     # Export
     if export:
         export_dir = geoprob_pipe.visualizations.graphs.export_dir
@@ -242,9 +357,3 @@ def run_dummy_icicle(export: bool = True) -> go.Figure:
             )
 
     return fig
-
-
-if __name__ == "__main__":
-    run_dummy_icicle(export=True)
-
-# %%
