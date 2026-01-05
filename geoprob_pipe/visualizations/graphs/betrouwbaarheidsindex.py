@@ -532,19 +532,27 @@ class GraphBetaValuesSingleInteractive:
         x_line = np.linspace(self.m_start, self.m_end)
         self.annotation_vak = []
         self.annotation_vak.append(dict(x=0.5,
-                                    y=np.log10(2.1),
-                                    text="Vak ID:",
-                                    showarrow=False,
-                                    xanchor="left",
-                                    yanchor="bottom",
-                                    font=dict(color="black")
-                                    ))
-
+                                        y=np.log10(2.1),
+                                        text="Vak ID:",
+                                        showarrow=False,
+                                        xanchor="left",
+                                        yanchor="bottom",
+                                        font=dict(color="black")
+                                        ))
+        self.vak_lines = []
         for _, vak in self.gdf_vakken.iterrows():
-            self.fig.add_vline(x=vak["m_start"], line_color="black",
-                               line_width=1)
-            self.fig.add_vline(x=vak["m_end"], line_color="black",
-                               line_width=1)
+            self.vak_lines.append(dict(
+                x0=vak["m_start"], x1=vak["m_start"],
+                y0=0, y1=1,
+                xref="x", yref="paper",
+                line=dict(color="black", width=1)
+                ))
+            self.vak_lines.append(dict(
+                x0=vak["m_end"], x1=vak["m_end"],
+                y0=0, y1=1,
+                xref="x", yref="paper",
+                line=dict(color="black", width=1)
+                ))
             self.annotation_vak.append(dict(
                 x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
                 text=vak["id"],
@@ -633,7 +641,8 @@ class GraphBetaValuesSingleInteractive:
                 xanchor="left",
                 x=0.01
                 ),
-            annotations=annotation
+            annotations=annotation,
+            shapes=self.vak_lines
             )
         # Toggles for annotations
         self.fig.update_layout(
@@ -652,6 +661,16 @@ class GraphBetaValuesSingleInteractive:
                             label="Hide annotations",
                             method="relayout",
                             args=["annotations", self.annotation_label]
+                        ),
+                        dict(
+                            label="Show vlines",
+                            method="relayout",
+                            args=["shapes", self.vak_lines]
+                        ),
+                        dict(
+                            label="Hide vlines",
+                            method="relayout",
+                            args=["shapes", []]
                         )
                     ],
                     x=0.5,
