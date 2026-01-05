@@ -352,6 +352,9 @@ class GraphBetaValuesSingleInteractive:
         self.gdf_vakken = self.geoprob_pipe.input_data.vakken.gdf
         self.m_start = self.gdf_vakken['m_start'].min()-10
         self.m_end = self.gdf_vakken['m_end'].max()+10
+        
+        self.beta_min = 2
+        self.beta_max = 20
 
         self._add_backgrond()
         self._add_beta_per_vak()
@@ -394,6 +397,10 @@ class GraphBetaValuesSingleInteractive:
         for value, color, name in [(True, "black", 'Beta scenarios'),
                                    (False, "blue", "Unconverged Beta scenarios")]:
             mask = df_for_graph["converged"] == value
+            mask_low = df_for_graph["beta"] < self.beta_min
+            mask_high = df_for_graph["beta"] > self.beta_max
+            
+            # In range
             self.fig.add_trace(
                 go.Scatter(
                     x=df_for_graph.loc[mask, 'metrering'],
@@ -402,8 +409,39 @@ class GraphBetaValuesSingleInteractive:
                     marker=dict(symbol='diamond', size=7,
                                 color=color,
                                 line=dict(color="white", width=1)),
+                    legendgroup="Beta scenarios",
                     name=name,
-                    showlegend=True
+                    showlegend=value
+                )
+            )
+            # Above range
+            mask_combi = mask & mask_high
+            self.fig.add_trace(
+                go.Scatter(
+                    x=df_for_graph.loc[mask_combi, 'metrering'],
+                    y=[self.beta_max-0.1] * mask_combi.sum(),
+                    mode='markers',
+                    marker=dict(symbol='triangle-up', size=7,
+                                color=color,
+                                line=dict(color="white", width=1)),
+                    legendgroup="Beta scenarios",
+                    name=name,
+                    showlegend=value
+                )
+            )
+            # Below range
+            mask_combi = mask & mask_low
+            self.fig.add_trace(
+                go.Scatter(
+                    x=df_for_graph.loc[mask_combi, 'metrering'],
+                    y=[self.beta_min+0.1] * mask_combi.sum(),
+                    mode='markers',
+                    marker=dict(symbol='triangle-down', size=7,
+                                color=color,
+                                line=dict(color="white", width=1)),
+                    legendgroup="Beta scenarios",
+                    name=name,
+                    showlegend=value
                 )
             )
 
@@ -416,10 +454,9 @@ class GraphBetaValuesSingleInteractive:
             on="uittredepunt_id",
             how="left"
         )
-        beta_min = 2
-        beta_max = 20
-        mask_low = df_for_graph["beta"] < beta_min
-        mask_high = df_for_graph["beta"] > beta_max
+
+        mask_low = df_for_graph["beta"] < self.beta_min
+        mask_high = df_for_graph["beta"] > self.beta_max
         # In range
         self.fig.add_trace(
             go.Scatter(
@@ -441,7 +478,7 @@ class GraphBetaValuesSingleInteractive:
         self.fig.add_trace(
             go.Scatter(
                 x=df_for_graph.loc[mask_high, 'metrering'],
-                y=[beta_max-0.1] * mask_high.sum(),
+                y=[self.beta_max-0.1] * mask_high.sum(),
                 mode='markers',
                 marker=dict(symbol='triangle-up', size=7, color='black'),
                 name='Beta uittredepunten above plotted range',
@@ -458,7 +495,7 @@ class GraphBetaValuesSingleInteractive:
         self.fig.add_trace(
             go.Scatter(
                 x=df_for_graph.loc[mask_low, 'metrering'],
-                y=[beta_min+0.1] * mask_low.sum(),
+                y=[self.beta_min+0.1] * mask_low.sum(),
                 mode='markers',
                 marker=dict(symbol='triangle-down', size=7, color='black'),
                 name='Beta uittredepunten below plotted range',
@@ -561,6 +598,15 @@ class GraphBetaValuesSingleInteractive:
             )
 
     def _update_layout(self):
+        self.fig.add_trace(go.Scatter(
+            x=[0],
+            y=[0],
+            mode="markers",
+            marker=dict(color="blue",
+                        symbol="square"),
+            name="Unconverged",
+            showlegend=True
+        ))
 
         self.fig.update_layout(
             title="Betrouwbaarheidsindex STPH",
