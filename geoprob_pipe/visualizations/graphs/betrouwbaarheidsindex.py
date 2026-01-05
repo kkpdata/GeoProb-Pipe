@@ -352,7 +352,7 @@ class GraphBetaValuesSingleInteractive:
         self.gdf_vakken = self.geoprob_pipe.input_data.vakken.gdf
         self.m_start = self.gdf_vakken['m_start'].min()-10
         self.m_end = self.gdf_vakken['m_end'].max()+10
-        
+
         self.beta_min = 2
         self.beta_max = 20
 
@@ -399,7 +399,7 @@ class GraphBetaValuesSingleInteractive:
             mask = df_for_graph["converged"] == value
             mask_low = df_for_graph["beta"] < self.beta_min
             mask_high = df_for_graph["beta"] > self.beta_max
-            
+
             # In range
             self.fig.add_trace(
                 go.Scatter(
@@ -530,30 +530,30 @@ class GraphBetaValuesSingleInteractive:
         labels = ["+III", "+II", "+I", "0", "-I", "-II", "-III"]
 
         x_line = np.linspace(self.m_start, self.m_end)
-
-        self.fig.add_annotation(x=0.5,
-                                y=np.log10(2.1),
-                                text="Vak ID:",
-                                showarrow=False,
-                                xanchor="left",
-                                yanchor="bottom",
-                                font=dict(color="black")
-                                )
+        self.annotation_vak = []
+        self.annotation_vak.append(dict(x=0.5,
+                                    y=np.log10(2.1),
+                                    text="Vak ID:",
+                                    showarrow=False,
+                                    xanchor="left",
+                                    yanchor="bottom",
+                                    font=dict(color="black")
+                                    ))
 
         for _, vak in self.gdf_vakken.iterrows():
             self.fig.add_vline(x=vak["m_start"], line_color="black",
                                line_width=1)
             self.fig.add_vline(x=vak["m_end"], line_color="black",
                                line_width=1)
-            self.fig.add_annotation(
+            self.annotation_vak.append(dict(
                 x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
                 text=vak["id"],
                 showarrow=False,
                 xanchor="center",
                 yanchor="bottom",
                 font=dict(color="black")
-                )
-
+                ))
+        self.annotation_label = []
         for i, grens in enumerate(cg):
 
             if cg[grens][0] <= 0:
@@ -586,7 +586,7 @@ class GraphBetaValuesSingleInteractive:
             ))
 
             # Labels bij de ondergrens
-            self.fig.add_annotation(
+            self.annotation_label.append(dict(
                 x=x_line.max(),
                 y=(np.log10(cg[grens][0]) + np.log10(cg[grens][1])) / 2,
                 text=labels[i % len(labels)],
@@ -595,7 +595,7 @@ class GraphBetaValuesSingleInteractive:
                 yanchor="middle",
                 font=dict(color="black", size=10),
                 align="right"
-            )
+            ))
 
     def _update_layout(self):
         self.fig.add_trace(go.Scatter(
@@ -607,7 +607,7 @@ class GraphBetaValuesSingleInteractive:
             name="Unconverged",
             showlegend=True
         ))
-
+        annotation = self.annotation_vak + self.annotation_label
         self.fig.update_layout(
             title="Betrouwbaarheidsindex STPH",
             xaxis=dict(title="Metrering",
@@ -632,8 +632,34 @@ class GraphBetaValuesSingleInteractive:
                 y=0.99,
                 xanchor="left",
                 x=0.01
-                )
+                ),
+            annotations=annotation
             )
+        # Toggles for annotations
+        self.fig.update_layout(
+            updatemenus=[
+                dict(
+                    type="buttons",
+                    direction="right",
+                    buttons=[
+                        dict(
+                            label="Show annotations",
+                            method="relayout",
+                            args=["annotations",
+                                  self.annotation_vak + self.annotation_label]
+                        ),
+                        dict(
+                            label="Hide annotations",
+                            method="relayout",
+                            args=["annotations", self.annotation_label]
+                        )
+                    ],
+                    x=0.5,
+                    y=1.15,
+                    xanchor="center"
+                )
+            ]
+        )
 
     def _optionally_export(self,
                            export: bool = False,
