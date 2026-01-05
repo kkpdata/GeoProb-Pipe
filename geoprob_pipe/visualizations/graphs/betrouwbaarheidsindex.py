@@ -376,6 +376,8 @@ class GraphBetaValuesSingleInteractive:
         for value, color in [(True, "black"),
                              (False, "blue")]:
             mask = df_for_graph["converged"] == value
+            mask_low = df_for_graph["beta"] < self.beta_min
+            mask_high = df_for_graph["beta"] > self.beta_max
             for _, row in df_for_graph.loc[mask].iterrows():
                 self.fig.add_trace(go.Scatter(
                     x=[row["m_start"], row["m_end"]],
@@ -384,7 +386,35 @@ class GraphBetaValuesSingleInteractive:
                     line=dict(color=color, width=2.5),
                     name="Beta Vakken",
                     legendgroup="Beta vakken",
-                    showlegend=first
+                    showlegend=first & value
+                ))
+                first = False
+            # Above range
+            mask_combi = mask & mask_high
+            first = True
+            for _, row in df_for_graph.loc[mask_combi].iterrows():
+                self.fig.add_trace(go.Scatter(
+                    x=[(row["m_start"] + row["m_end"]) / 2],
+                    y=[self.beta_max-0.1] * mask_combi.sum(),
+                    mode="markers",
+                    marker=dict(color=color, symbol="triangle-up", size=9),
+                    name="Beta Vakken above plotted range",
+                    legendgroup="Beta vakken",
+                    showlegend=first & value
+                ))
+                first = False
+            # Below range
+            mask_combi = mask & mask_low
+            first = True
+            for _, row in df_for_graph.loc[mask_combi].iterrows():
+                self.fig.add_trace(go.Scatter(
+                    x=[(row["m_start"] + row["m_end"]) / 2],
+                    y=[self.beta_min+0.1] * mask_combi.sum(),
+                    mode="markers",
+                    marker=dict(color=color, symbol="triangle-down", size=9),
+                    name="Beta Vakken below plotted range",
+                    legendgroup="Beta vakken",
+                    showlegend=first & value
                 ))
                 first = False
 
