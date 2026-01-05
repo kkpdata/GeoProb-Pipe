@@ -198,7 +198,7 @@ def beta_uittredepunten_graph(
             name='Beta uittredepunten',
             customdata=df_for_graph.loc[mask_in, ["beta", "metrering"]],
             hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
-                            "Metrering: %{customdata[1]}"),
+                           "Metrering: %{customdata[1]}"),
             showlegend=True
         )
     )
@@ -212,7 +212,7 @@ def beta_uittredepunten_graph(
             name='Beta uittredepunten above range',
             customdata=df_for_graph.loc[mask_high, ["beta", "metrering"]],
             hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
-                            "Metrering: %{customdata[1]}"),
+                           "Metrering: %{customdata[1]}"),
             showlegend=True
         )
     )

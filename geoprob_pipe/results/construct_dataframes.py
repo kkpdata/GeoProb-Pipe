@@ -70,18 +70,26 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
             ), axis=1)).groupby('uittredepunt_id', as_index=False)[
         'failure_probability'].sum()
     df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
+    conv = results.df_beta_scenarios.groupby(
+        'uittredepunt_id', as_index=False)["converged"].all()
+    df = df.merge(conv, on="uittredepunt_id", how="left")
 
     # Add vak id back to it
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df_uittredepunten = gdf_uittredepunten[["uittredepunt_id", "vak_id"]]
     df = df.merge(df_uittredepunten, left_on="uittredepunt_id", right_on="uittredepunt_id")
 
-    return df[["uittredepunt_id", "vak_id", "beta", "failure_probability"]]
+    return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability"]]
 
 
 def construct_df_beta_per_vak(results: Results):
     df = results.df_beta_uittredepunten
-    return df.loc[df.groupby('vak_id')['beta'].idxmin()]
+    df = df.drop(columns=["converged"])
+    conv = results.df_beta_scenarios.groupby(
+        'vak_id', as_index=False)["converged"].all()
+    df = df.loc[df.groupby('vak_id')['beta'].idxmin()]
+    df = df.merge(conv, on="vak_id", how="left")
+    return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability"]]
 
 
 # def collect_df_alphas_influence_factors_and_physical_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
