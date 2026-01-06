@@ -109,17 +109,76 @@ def beta_scenarios_graph(
     fig = go.Figure()
     # Background
     fig = _background_graph(geoprob_pipe, fig, df_for_graph)
-    colors = ["black" if b else "blue" for b in df_for_graph["converged"]]
-    fig.add_trace(
-        go.Scatter(
-            x=df_for_graph['metrering'],
-            y=df_for_graph["beta"],
-            mode='markers',
-            marker=dict(symbol='diamond', size=3, color=colors),
-            name='Beta scenarios',
-            showlegend=True
-        )
-    )
+    beta_min = 2
+    beta_max = 20
+    for value, color, name in [(True, "black", 'Beta scenarios'),
+                                   (False, "blue", "Unconverged Beta scenarios")]:
+            mask = df_for_graph["converged"] == value
+            mask_low = df_for_graph["beta"] < beta_min
+            mask_high = df_for_graph["beta"] > beta_max
+
+            # In range
+            fig.add_trace(
+                go.Scatter(
+                    x=df_for_graph.loc[mask, 'metrering'],
+                    y=df_for_graph.loc[mask, "beta"],
+                    mode='markers',
+                    marker=dict(symbol='diamond', size=7,
+                                color=color,
+                                line=dict(color="white", width=1)),
+                    legendgroup="Beta scenarios",
+                    name=name,
+                    customdata=df_for_graph.loc[
+                        mask, ["uittredepunt_id", "beta", "metrering"]
+                        ],
+                    hovertemplate=("ID: %{customdata[0]}<br>" +
+                                   "Beta: %{customdata[1]:.3f}<br>" +
+                                   "Metrering: %{customdata[2]}"),
+                    showlegend=value
+                )
+            )
+            # Above range
+            mask_combi = mask & mask_high
+            fig.add_trace(
+                go.Scatter(
+                    x=df_for_graph.loc[mask_combi, 'metrering'],
+                    y=[beta_max-0.1] * mask_combi.sum(),
+                    mode='markers',
+                    marker=dict(symbol='triangle-up', size=7,
+                                color=color,
+                                line=dict(color="white", width=1)),
+                    legendgroup="Beta scenarios",
+                    name=name + " above plotted range",
+                    customdata=df_for_graph.loc[
+                        mask_combi, ["uittredepunt_id", "beta", "metrering"]
+                        ],
+                    hovertemplate=("ID: %{customdata[0]}<br>" +
+                                   "Beta: %{customdata[1]:.3f}<br>" +
+                                   "Metrering: %{customdata[2]}"),
+                    showlegend=value
+                )
+            )
+            # Below range
+            mask_combi = mask & mask_low
+            fig.add_trace(
+                go.Scatter(
+                    x=df_for_graph.loc[mask_combi, 'metrering'],
+                    y=[beta_min+0.1] * mask_combi.sum(),
+                    mode='markers',
+                    marker=dict(symbol='triangle-down', size=7,
+                                color=color,
+                                line=dict(color="white", width=1)),
+                    legendgroup="Beta scenarios",
+                    name=name + " below plotted range",
+                    customdata=df_for_graph.loc[mask_combi,
+                        ["uittredepunt_id", "beta", "metrering"]
+                        ],
+                    hovertemplate=("ID: %{customdata[0]}<br>" +
+                                   "Beta: %{customdata[1]:.3f}<br>" +
+                                   "Metrering: %{customdata[2]}"),
+                    showlegend=value
+                )
+            )
 
     # Layout
     fig.update_layout(
@@ -174,7 +233,7 @@ def beta_uittredepunten_graph(
     gdf_uittredepunten_m = geoprob_pipe.input_data.uittredepunten.gdf
     df_results_uittredepunten = geoprob_pipe.results.df_beta_uittredepunten
     df_for_graph = merge(
-        left=df_results_uittredepunten[["uittredepunt_id", "beta"]],
+        left=df_results_uittredepunten[["uittredepunt_id", "beta", "converged"]],
         right=gdf_uittredepunten_m[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id",
         how="left"
@@ -187,49 +246,68 @@ def beta_uittredepunten_graph(
     beta_max = 20
     mask_low = df_for_graph["beta"] < beta_min
     mask_high = df_for_graph["beta"] > beta_max
-    mask_in = ~(mask_low | mask_high)
     # In range
-    fig.add_trace(
-        go.Scatter(
-            x=df_for_graph.loc[mask_in, 'metrering'],
-            y=df_for_graph.loc[mask_in, "beta"],
-            mode='markers',
-            marker=dict(symbol='circle', size=7, color='black'),
-            name='Beta uittredepunten',
-            customdata=df_for_graph.loc[mask_in, ["beta", "metrering"]],
-            hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
-                           "Metrering: %{customdata[1]}"),
-            showlegend=True
+    for value, color, name in [(True, "black", "Beta uittredepunt"),
+                               (False, "blue", "Unconverged Beta uittredepunt")]:
+        mask = df_for_graph["converged"] == value
+        mask_low = df_for_graph["beta"] < beta_min
+        mask_high = df_for_graph["beta"] > beta_max
+        # In range
+        fig.add_trace(
+            go.Scatter(
+                x=df_for_graph.loc[mask, "metrering"],
+                y=df_for_graph.loc[mask, "beta"],
+                mode='markers',
+                marker=dict(symbol='circle', size=7, color=color),
+                name=name,
+                customdata=df_for_graph[
+                    ["uittredepunt_id", "beta", "metrering"]
+                    ],
+                hovertemplate=("ID: %{customdata[0]}<br>" +
+                                "Beta: %{customdata[1]:.3f}<br>" +
+                                "Metrering: %{customdata[2]}"),
+                legendgroup="Beta uittredepunten",
+                showlegend=value
+            )
         )
-    )
-    # Above range
-    fig.add_trace(
-        go.Scatter(
-            x=df_for_graph.loc[mask_high, 'metrering'],
-            y=[beta_max-0.1] * mask_high.sum(),
-            mode='markers',
-            marker=dict(symbol='triangle-up', size=7, color='black'),
-            name='Beta uittredepunten above range',
-            customdata=df_for_graph.loc[mask_high, ["beta", "metrering"]],
-            hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
-                           "Metrering: %{customdata[1]}"),
-            showlegend=True
+        # Above range
+        mask_combi = mask & mask_high
+        fig.add_trace(
+            go.Scatter(
+                x=df_for_graph.loc[mask_combi, 'metrering'],
+                y=[beta_max-0.1] * mask_combi.sum(),
+                mode='markers',
+                marker=dict(symbol='triangle-up', size=7, color=color),
+                name=name + " above plotted range",
+                customdata=df_for_graph.loc[
+                    mask_combi, ["uittredepunt_id", "beta", "metrering"]
+                    ],
+                hovertemplate=("ID: %{customdata[0]}<br>" +
+                               "Beta: %{customdata[1]:.3f}<br>" +
+                               "Metrering: %{customdata[2]}"),
+                legendgroup="Beta uittredepunten",
+                showlegend=value
+            )
         )
-    )
-    # Below range
-    fig.add_trace(
-        go.Scatter(
-            x=df_for_graph.loc[mask_low, 'metrering'],
-            y=[beta_min+0.1] * mask_low.sum(),
-            mode='markers',
-            marker=dict(symbol='triangle-down', size=7, color='black'),
-            name='Beta uittredepunten below range',
-            customdata=df_for_graph.loc[mask_low, ["beta", "metrering"]],
-            hovertemplate=("Beta: %{customdata[0]:.3f}<br>" +
-                           "Metrering: %{customdata[1]}"),
-            showlegend=True
+        # Below range
+        mask_combi = mask & mask_low
+        fig.add_trace(
+            go.Scatter(
+                x=df_for_graph.loc[mask_combi, 'metrering'],
+                y=[beta_min+0.1] * mask_combi.sum(),
+                mode='markers',
+                marker=dict(symbol='triangle-down', size=7, color=color),
+                name=name + " below plotted range",
+                customdata=df_for_graph.loc[
+                    mask_combi, ["uittredepunt_id", "beta", "metrering"]
+                    ],
+                hovertemplate=("ID: %{customdata[0]}<br>" +
+                               "Beta: %{customdata[1]:.3f}<br>" +
+                               "Metrering: %{customdata[2]}"),
+                legendgroup="Beta uittredepunten",
+                showlegend=value
+            )
         )
-    )
 
     # Layout
     fig.update_layout(
@@ -285,7 +363,7 @@ def beta_vakken_graph(
     df_results_vakken = geoprob_pipe.results.df_beta_vakken
     df_results_vakken = df_results_vakken.rename(columns={"vak_id": "id"})
     df_for_graph = merge(
-        left=df_results_vakken[["id", "beta"]],
+        left=df_results_vakken[["id", "beta", "converged"]],
         right=gdf_vakken[["id", "m_start", "m_end"]],
         on="id",
         how="left"
@@ -296,11 +374,59 @@ def beta_vakken_graph(
     # Background
     fig = _background_graph(geoprob_pipe, fig, df_for_graph)
 
-    for _, row in df_for_graph.iterrows():
-        fig.add_shape(type="line",
-                      x0=row["m_start"], x1=row["m_end"],
-                      y0=row["beta"], y1=row["beta"],
-                      line=dict(color="black", width=2.5))
+    beta_min = 2
+    beta_max = 20
+
+    for value, color, name in [(True, "black", "Beta vakken"),
+                               (False, "blue", "Unconverged Beta vakken")]:
+        mask = df_for_graph["converged"] == value
+        mask_low = df_for_graph["beta"] < beta_min
+        mask_high = df_for_graph["beta"] > beta_max
+        for _, row in df_for_graph.loc[mask].iterrows():
+            fig.add_trace(go.Scatter(
+                x=[row["m_start"], row["m_end"]],
+                y=[row["beta"], row["beta"]],
+                mode="lines",
+                line=dict(color=color, width=2.5),
+                name=name,
+                customdata=[[row["id"], row["beta"]]] * 2,
+                hovertemplate=("ID: %{customdata[0]}<br>" +
+                                "Beta: %{customdata[1]:.3f}<br>"),
+                legendgroup="Beta vakken",
+                showlegend=False
+            ))
+        # Above range
+        mask_combi = mask & mask_high
+        for _, row in df_for_graph.loc[mask_combi].iterrows():
+            fig.add_trace(go.Scatter(
+                x=[(row["m_start"] + row["m_end"]) / 2],
+                y=[beta_max-0.1],
+                mode="markers",
+                marker=dict(color=color, symbol="triangle-up", size=9),
+                name=name + " above plotted range",
+                customdata=[[row["id"], row["beta"]]],
+                hovertemplate=("ID: %{customdata[0]}<br>" +
+                                "Beta: %{customdata[1]:.3f}<br>"),
+                legendgroup="Beta vakken",
+                showlegend=False
+            ))
+
+        # Below range
+        mask_combi = mask & mask_low
+        for _, row in df_for_graph.loc[mask_combi].iterrows():
+            fig.add_trace(go.Scatter(
+                x=[(row["m_start"] + row["m_end"]) / 2],
+                y=[beta_min+0.1],
+                mode="markers",
+                marker=dict(color=color, symbol="triangle-down", size=9),
+                name=name + " below plotted range",
+                customdata=[[row["id"], row["beta"]]],
+                hovertemplate=("ID: %{customdata[0]}<br>" +
+                                "Beta: %{customdata[1]:.3f}<br>"),
+                legendgroup="Beta vakken",
+                showlegend=False
+            ))
+
 
     # Layout
     fig.update_layout(
@@ -764,7 +890,3 @@ class GraphBetaValuesSingleInteractive:
         self.fig.write_html(os.path.join(
             export_dir, f"{timestamp_str}betrouwbaarheidsindex.html"
             ), include_plotlyjs='cdn')
-        if self.geoprob_pipe.software_requirements.chrome_is_installed:
-            self.fig.write_image(os.path.join(
-                export_dir, f"{timestamp_str}betrouwbaarheidsindex.png"
-                ), format="png", scale=5,  width=1400)
