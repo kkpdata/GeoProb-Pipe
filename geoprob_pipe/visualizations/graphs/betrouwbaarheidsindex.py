@@ -43,18 +43,16 @@ def _background_graph(
     fig.add_annotation(
         x=0.5, y=np.log10(2.1), text="Vak ID:", showarrow=False, xanchor="left", yanchor="bottom",
         font=dict(color="black"))
-    i = 1
     for _, vak in geoprob_pipe.input_data.vakken.gdf.iterrows():
         fig.add_vline(x=vak["m_start"], line_color="black", line_width=1)
         fig.add_vline(x=vak["m_end"], line_color="black", line_width=1)
         fig.add_annotation(
             x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
-            text=f"{i}",
+            text=f"{vak['id']}",
             showarrow=False,
             xanchor="center",
             yanchor="bottom",
             font=dict(color="black"))
-        i += 1
 
     for i, grens in enumerate(cg):
 
