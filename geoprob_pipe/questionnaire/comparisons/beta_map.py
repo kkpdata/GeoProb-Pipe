@@ -5,7 +5,7 @@ import geopandas as gpd
 from shapely.geometry import LineString, MultiLineString, GeometryCollection
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from geoprob_pipe.comparisons import ComparisonCollecter
+    from geoprob_pipe.questionnaire.comparisons import ComparisonCollector
 
 
 def _determine_zoom(gdf_latlon):
@@ -14,8 +14,8 @@ def _determine_zoom(gdf_latlon):
     min_lon = gdf_latlon.geometry.x.min()
     max_lon = gdf_latlon.geometry.x.max()
 
-    def _calculate_zoom(lat_range, lon_range):
-        max_range = max(lat_range, lon_range)
+    def _calculate_zoom(lat_range_val, lon_range_val):
+        max_range = max(lat_range_val, lon_range_val)
         if max_range < 0.01:
             return 15
         elif max_range < 0.05:
@@ -35,7 +35,7 @@ def _determine_zoom(gdf_latlon):
     return zoom
 
 
-def _add_line(comparison: ComparisonCollecter, fig: go.Figure,
+def _add_line(comparison: ComparisonCollector, fig: go.Figure,
               layer: str, color: str):
     gdf_traject = gpd.read_file(comparison.geopackage_filepath_1,
                                 layer=layer)
@@ -76,7 +76,7 @@ def _add_line(comparison: ComparisonCollecter, fig: go.Figure,
     return fig
 
 
-def map_delta_beta_comparison(comparison: ComparisonCollecter,
+def map_delta_beta_comparison(comparison: ComparisonCollector,
                         export: bool = False) -> go.Figure:
     # load data from class
     gdf_result1 = (comparison.gdf1_uittredepunten[
@@ -162,7 +162,7 @@ def map_delta_beta_comparison(comparison: ComparisonCollecter,
     return fig
 
 
-def map_ratio_beta_comparison(comparison: ComparisonCollecter,
+def map_ratio_beta_comparison(comparison: ComparisonCollector,
                               export: bool = False) -> go.Figure:
     # load data from class
     gdf_result1 = (comparison.gdf1_uittredepunten[

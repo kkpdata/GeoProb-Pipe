@@ -4,10 +4,10 @@ import plotly.graph_objects as go
 import pandas as pd
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from geoprob_pipe.comparisons import ComparisonCollecter
+    from geoprob_pipe.questionnaire.comparisons import ComparisonCollector
 
 
-def _add_traces(comparison: ComparisonCollecter,
+def _add_traces(comparison: ComparisonCollector,
                 df: pd.DataFrame,
                 fig: go.Figure):
 
@@ -91,7 +91,7 @@ def _add_traces(comparison: ComparisonCollecter,
     return fig
 
 
-def _add_vak_id(comparison: ComparisonCollecter,
+def _add_vak_id(comparison: ComparisonCollector,
                 fig: go.Figure):
     vak_ids = comparison.df1_beta_uittredepunten["vak_id"].unique()
     for _, vak_id in enumerate(vak_ids):
@@ -122,7 +122,7 @@ def _add_vak_id(comparison: ComparisonCollecter,
     return fig
 
 
-def dumbbell_beta(comparison: ComparisonCollecter,
+def dumbbell_beta(comparison: ComparisonCollector,
                   export: bool = False):
     df_result1 = (comparison.df1_beta_uittredepunten[
         ["uittredepunt_id", "beta"]].rename(columns={"beta": "beta1"}))
@@ -160,7 +160,7 @@ def dumbbell_beta(comparison: ComparisonCollecter,
     return fig
 
 
-def dumbbell_uplift(comparison: ComparisonCollecter,
+def dumbbell_uplift(comparison: ComparisonCollector,
                     export: bool = False):
 
     df_result1 = (comparison.df1_beta_limit_states[
@@ -206,7 +206,7 @@ def dumbbell_uplift(comparison: ComparisonCollecter,
     return fig
 
 
-def dumbbell_heave(comparison: ComparisonCollecter,
+def dumbbell_heave(comparison: ComparisonCollector,
                    export: bool = False):
     df_result1 = (comparison.df1_beta_limit_states[
         ["uittredepunt_id", "limit_state", "beta"]]
@@ -248,7 +248,7 @@ def dumbbell_heave(comparison: ComparisonCollecter,
     return fig
 
 
-def dumbbell_piping(comparison: ComparisonCollecter,
+def dumbbell_piping(comparison: ComparisonCollector,
                     export: bool = False):
     df_result1 = (comparison.df1_beta_limit_states[
         ["uittredepunt_id", "limit_state", "beta"]]

@@ -9,17 +9,21 @@ import sys
 from importlib.metadata import distributions
 from geopandas import GeoDataFrame
 from geoprob_pipe.questionnaire.utils.misc import get_geoprob_pipe_version_number
+from geoprob_pipe.questionnaire.comparisons.start_comparison import start_comparison
 from geoprob_pipe.utils.validation_messages import BColors
-from geoprob_pipe.comparisons import ComparisonCollector
 if TYPE_CHECKING:
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
 
 def created_project(app_settings: ApplicationSettings) -> bool:
 
-    choices_list = ["Bestaand project openen", "Nieuw project starten", "Twee projectbestanden vergelijken", "Applicatie afsluiten"]
+    choices_list = [
+        "Bestaand project openen", "Nieuw project starten",
+        "Twee projectbestanden vergelijken", "Applicatie afsluiten"]
     choice = inquirer.select(
-        message="Wil je verder gaan met een bestaand project, een nieuw project starten, of twee project bestanden vergelijken?",
+        message="Wil je verder gaan met een bestaand project, "
+                "een nieuw project starten, "
+                "of twee project bestanden vergelijken?",
         choices=choices_list,
         default=choices_list[0],
     ).execute()
@@ -31,10 +35,7 @@ def created_project(app_settings: ApplicationSettings) -> bool:
         specify_dir_for_new_project(app_settings)
         return True
     elif choice == choices_list[2]:
-        filepath1 = specify_dir_for_first_file(app_settings)
-        filepath2 = specify_dir_for_second_file(app_settings)
-        export_dir = specify_dir_for_comparison(app_settings)
-        run_comparison(filepath1, filepath2, export_dir)
+        start_comparison()
         sys.exit("Applicatie afgesloten")
     return False
 
@@ -131,86 +132,3 @@ def create_geopackage_file(app_settings: ApplicationSettings):
 
     gdf.to_file(Path(app_settings.geopackage_filepath), layer="geoprob_pipe_metadata", driver="GPKG")
     print(BColors.OKBLUE, f"✅  Project-bestand aangemaakt op locatie:\n {app_settings.geopackage_filepath}", BColors.ENDC)
-
-
-def specify_dir_for_first_file(app_settings: ApplicationSettings):
-    filepath: str = ""
-    filepath_is_valid = False
-    while filepath_is_valid is False:
-        filepath: str = inquirer.text(
-            message="Specificeer het volledige bestandspad naar het eerste .geoprob_pipe.gpkg-bestand.",
-        ).execute()
-
-        filepath = filepath.replace('"', '')
-
-        if not filepath.endswith(".geoprob_pipe.gpkg"):
-            print(BColors.WARNING,
-                  f"Het bestand moet een .geoprob_pipe.gpkg-bestand zijn. Jouw invoer "
-                  f"{os.path.basename(filepath)} eindigt niet op deze extensie.", BColors.ENDC)
-            continue
-        if not os.path.exists(filepath):
-            print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.",
-                  BColors.ENDC)
-            continue
-
-        filepath_is_valid = True
-
-    return filepath
-
-
-def specify_dir_for_second_file(app_settings: ApplicationSettings):
-    filepath: str = ""
-    filepath_is_valid = False
-    while filepath_is_valid is False:
-        filepath: str = inquirer.text(
-            message="Specificeer het volledige bestandspad naar het tweede .geoprob_pipe.gpkg-bestand.",
-        ).execute()
-
-        filepath = filepath.replace('"', '')
-
-        if not filepath.endswith(".geoprob_pipe.gpkg"):
-            print(BColors.WARNING,
-                  f"Het bestand moet een .geoprob_pipe.gpkg-bestand zijn. Jouw invoer "
-                  f"{os.path.basename(filepath)} eindigt niet op deze extensie.", BColors.ENDC)
-            continue
-        if not os.path.exists(filepath):
-            print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.",
-                  BColors.ENDC)
-            continue
-
-        filepath_is_valid = True
-
-    return filepath
-
-
-def specify_dir_for_comparison(app_settings: ApplicationSettings):
-    workspace_dir: str = ""
-    workspace_dir_is_valid = False
-    while workspace_dir_is_valid is False:
-        workspace_dir: str = inquirer.text(
-            message="Specificeer het volledige pad naar de map waar je"
-            + " de export van de vergelijking wilt opslaan.",
-        ).execute()
-        workspace_dir = workspace_dir.replace('"', '')
-
-        if not os.path.exists(workspace_dir):
-            print(BColors.WARNING, "De opgegeven map bestaat niet.",
-                  BColors.ENDC)
-            continue
-        if not os.path.isdir(workspace_dir):
-            print(BColors.WARNING, "De opgegeven locatie is geen map.",
-                  BColors.ENDC)
-            continue
-
-        workspace_dir_is_valid = True
-
-    return workspace_dir
-
-
-def run_comparison(filepath1, filepath2, export_dir):
-    print(BColors.OKBLUE, "Vergelijking wordt uitgevoerd.", BColors.ENDC)
-    comparison = ComparisonCollector(filepath1, filepath2, export_dir)
-    comparison.create_and_export_figures()
-    print(BColors.OKBLUE,
-          f"Vergelijking voltooid en opgeslagen in {comparison.export_dir}.",
-          BColors.ENDC)

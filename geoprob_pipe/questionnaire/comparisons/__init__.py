@@ -5,10 +5,9 @@ from datetime import datetime
 import pandas as pd
 import geopandas as gpd
 from plotly.graph_objects import Figure as PlotlyFigure
-
-from geoprob_pipe.comparisons.beta_dumbbell import \
+from geoprob_pipe.questionnaire.comparisons.beta_dumbbell import \
     dumbbell_beta, dumbbell_uplift, dumbbell_heave, dumbbell_piping
-from geoprob_pipe.comparisons.beta_map import map_delta_beta_comparison, \
+from geoprob_pipe.questionnaire.comparisons.beta_map import map_delta_beta_comparison, \
     map_ratio_beta_comparison
 
 
