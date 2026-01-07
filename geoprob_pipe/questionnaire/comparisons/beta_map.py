@@ -52,22 +52,19 @@ def _add_line(comparison: ComparisonCollector, fig: go.Figure,
             line=dict(color=color, width=1.5),
             hoverinfo="none",
             name=layer,
+            legendgroup=layer,
             showlegend=show
         ))
-
+    show = True
     for geom in gdf_traject.geometry:
         if isinstance(geom, LineString):
-            show = True
             plot_linestring(geom, show)
-
+            show = False
         elif isinstance(geom, MultiLineString):
-            show = True
             for line in geom.geoms:
                 plot_linestring(line, show)
                 show = False
-
         elif isinstance(geom, GeometryCollection):
-            show = True
             for g in geom.geoms:
                 if isinstance(g, LineString):
                     plot_linestring(g, show)

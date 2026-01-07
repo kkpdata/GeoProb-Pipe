@@ -164,127 +164,142 @@ def dumbbell_uplift(comparison: ComparisonCollector,
                     export: bool = False):
 
     df_result1 = (comparison.df1_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta"]
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]
         ].rename(columns={"beta": "beta1",
                           "limit_state": "limit_state1"}))
 
     df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_u"]
 
     df_result2 = (comparison.df2_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta"]
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]
         ].rename(columns={"beta": "beta2",
                           "limit_state": "limit_state2"}))
 
     df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_u"]
 
-    df = df_result1.merge(df_result2, on="uittredepunt_id")
+    df = df_result1.merge(df_result2, on=["uittredepunt_id",
+                                          "ondergrondscenario_id"])
+    fig_list = []
+    for scenario in df["ondergrondscenario_id"].unique():
+        fig = go.Figure()
+        scenario_mask = df["ondergrondscenario_id"] == scenario
+        df_plot = df[scenario_mask]
+        fig = _add_traces(comparison, df_plot, fig)
+        fig = _add_vak_id(comparison, fig)
 
-    fig = go.Figure()
-    fig = _add_traces(comparison, df, fig)
-    fig = _add_vak_id(comparison, fig)
-
-    fig.update_layout(
-        title="Uittredepunt Calc_Z_u Beta Comparison",
-        xaxis_title="Uittredepunt ID",
-        yaxis_title="β-value",
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1
+        fig.update_layout(
+            title=f"Uittredepunt Calc_Z_u Beta Comparison for scenario: {scenario}",
+            xaxis_title="Uittredepunt ID",
+            yaxis_title="β-value",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            )
         )
-    )
-    if export:
-        os.makedirs(comparison.export_dir, exist_ok=True)
-        fig.write_html(os.path.join(
-            comparison.export_dir, "dumbbell_uplift.html"
-            ), include_plotlyjs='cdn')
-        fig.write_image(os.path.join(
-            comparison.export_dir, "dumbbell_uplift.png"
-            ), format="png", scale=5,  width=1400)
-    return fig
+        fig_list.append(fig)
+        if export:
+            os.makedirs(comparison.export_dir, exist_ok=True)
+            fig.write_html(os.path.join(
+                comparison.export_dir, f"dumbbell_uplift_{scenario}.html"
+                ), include_plotlyjs='cdn')
+            fig.write_image(os.path.join(
+                comparison.export_dir, f"dumbbell_uplift_{scenario}.png"
+                ), format="png", scale=5,  width=1400)
+    return fig_list
 
 
 def dumbbell_heave(comparison: ComparisonCollector,
                    export: bool = False):
     df_result1 = (comparison.df1_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta"]]
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]]
                   .rename(columns={"beta": "beta1",
                                    "limit_state": "limit_state1"}))
     df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_h"]
     df_result2 = (comparison.df2_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta"]]
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]]
                   .rename(columns={"beta": "beta2",
                                    "limit_state": "limit_state2"}))
     df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_h"]
 
-    df = df_result1.merge(df_result2, on="uittredepunt_id")
+    df = df_result1.merge(df_result2, on=["uittredepunt_id",
+                                          "ondergrondscenario_id"])
+    fig_list = []
+    for scenario in df["ondergrondscenario_id"].unique():
+        fig = go.Figure()
+        scenario_mask = df["ondergrondscenario_id"] == scenario
+        df_plot = df[scenario_mask]
+        fig = _add_traces(comparison, df_plot, fig)
+        fig = _add_vak_id(comparison, fig)
 
-    fig = go.Figure()
-    fig = _add_traces(comparison, df, fig)
-    fig = _add_vak_id(comparison, fig)
-
-    fig.update_layout(
-        title="Uittredepunt Calc_Z_h Beta Comparison",
-        xaxis_title="Uittredepunt ID",
-        yaxis_title="β-value",
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1
+        fig.update_layout(
+            title=f"Uittredepunt Calc_Z_h Beta Comparison for scenario: {scenario}",
+            xaxis_title="Uittredepunt ID",
+            yaxis_title="β-value",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            )
         )
-    )
-    if export:
-        os.makedirs(comparison.export_dir, exist_ok=True)
-        fig.write_html(os.path.join(
-            comparison.export_dir, "dumbbell_heave.html"
-            ), include_plotlyjs='cdn')
-        fig.write_image(os.path.join(
-            comparison.export_dir, "dumbbell_heave.png"
-            ), format="png", scale=5,  width=1400)
-    return fig
+        fig_list.append(fig)
+        if export:
+            os.makedirs(comparison.export_dir, exist_ok=True)
+            fig.write_html(os.path.join(
+                comparison.export_dir, f"dumbbell_heave_{scenario}.html"
+                ), include_plotlyjs='cdn')
+            fig.write_image(os.path.join(
+                comparison.export_dir, f"dumbbell_heave_{scenario}.png"
+                ), format="png", scale=5,  width=1400)
+    return fig_list
 
 
 def dumbbell_piping(comparison: ComparisonCollector,
                     export: bool = False):
     df_result1 = (comparison.df1_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta"]]
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]]
                   .rename(columns={"beta": "beta1",
                                    "limit_state": "limit_state1"}))
     df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_p"]
     df_result2 = (comparison.df2_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta"]]
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]]
                   .rename(columns={"beta": "beta2",
                                    "limit_state": "limit_state2"}))
     df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_p"]
 
-    df = df_result1.merge(df_result2, on="uittredepunt_id")
+    df = df_result1.merge(df_result2, on=["uittredepunt_id",
+                                          "ondergrondscenario_id"])
+    fig_list = []
+    for scenario in df["ondergrondscenario_id"].unique():
+        fig = go.Figure()
+        scenario_mask = df["ondergrondscenario_id"] == scenario
+        df_plot = df[scenario_mask]
+        fig = _add_traces(comparison, df_plot, fig)
+        fig = _add_vak_id(comparison, fig)
 
-    fig = go.Figure()
-    fig = _add_traces(comparison, df, fig)
-    fig = _add_vak_id(comparison, fig)
-
-    fig.update_layout(
-        title="Uittredepunt Calc_Z_p Beta Comparison",
-        xaxis_title="Uittredepunt ID",
-        yaxis_title="β-value",
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1
+        fig.update_layout(
+            title=f"Uittredepunt Calc_Z_p Beta Comparison for scenario: {scenario}",
+            xaxis_title="Uittredepunt ID",
+            yaxis_title="β-value",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            )
         )
-    )
-    if export:
-        os.makedirs(comparison.export_dir, exist_ok=True)
-        fig.write_html(os.path.join(
-            comparison.export_dir, "dumbbell_piping.html"
-            ), include_plotlyjs='cdn')
-        fig.write_image(os.path.join(
-            comparison.export_dir, "dumbbell_piping.png"
-            ), format="png", scale=5,  width=1400)
-    return fig
+        fig_list.append(fig)
+        if export:
+            os.makedirs(comparison.export_dir, exist_ok=True)
+            fig.write_html(os.path.join(
+                comparison.export_dir, f"dumbbell_piping_{scenario}.html"
+                ), include_plotlyjs='cdn')
+            fig.write_image(os.path.join(
+                comparison.export_dir, f"dumbbell_piping_{scenario}.png"
+                ), format="png", scale=5,  width=1400)
+    return fig_list
