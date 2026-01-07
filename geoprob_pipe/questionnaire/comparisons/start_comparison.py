@@ -1,5 +1,5 @@
 from __future__ import annotations
-from InquirerPy import inquirer
+from InquirerPy.prompts.input import InputPrompt as inq_text
 # from typing import TYPE_CHECKING
 import os
 from geoprob_pipe.utils.validation_messages import BColors
@@ -12,7 +12,7 @@ def specify_dir_for_first_file():
     filepath: str = ""
     filepath_is_valid = False
     while filepath_is_valid is False:
-        filepath: str = inquirer.text(
+        filepath: str = inq_text(
             message="Specificeer het volledige bestandspad naar het eerste .geoprob_pipe.gpkg-bestand.",
         ).execute()
 
@@ -37,7 +37,7 @@ def specify_dir_for_second_file():
     filepath: str = ""
     filepath_is_valid = False
     while filepath_is_valid is False:
-        filepath: str = inquirer.text(
+        filepath: str = inq_text(
             message="Specificeer het volledige bestandspad naar het tweede .geoprob_pipe.gpkg-bestand.",
         ).execute()
 
@@ -62,7 +62,7 @@ def specify_dir_for_comparison():
     workspace_dir: str = ""
     workspace_dir_is_valid = False
     while workspace_dir_is_valid is False:
-        workspace_dir: str = inquirer.text(
+        workspace_dir: str = inq_text(
             message="Specificeer het volledige pad naar de map waar je"
             + " de export van de vergelijking wilt opslaan.",
         ).execute()

@@ -93,16 +93,16 @@ class ComparisonCollector:
         if set(self.gdf1_uittredepunten.geometry) != set(self.gdf2_uittredepunten.geometry):
             raise ValueError("De twee sets uittredepunten hebben afwijkende geometry")
 
-    def dumbell_beta(self, export: bool = False) -> PlotlyFigure:
+    def dumbbell_beta(self, export: bool = False) -> PlotlyFigure:
         return dumbbell_beta(self, export)
 
-    def dumbell_uplift(self, export: bool = False) -> PlotlyFigure:
+    def dumbbell_uplift(self, export: bool = False) -> PlotlyFigure:
         return dumbbell_uplift(self, export)
 
-    def dumbell_heave(self, export: bool = False) -> PlotlyFigure:
+    def dumbbell_heave(self, export: bool = False) -> PlotlyFigure:
         return dumbbell_heave(self, export)
 
-    def dumbell_piping(self, export: bool = False) -> PlotlyFigure:
+    def dumbbell_piping(self, export: bool = False) -> PlotlyFigure:
         return dumbbell_piping(self, export)
 
     def map_delta_beta_comparison(self, export: bool = False) -> PlotlyFigure:
