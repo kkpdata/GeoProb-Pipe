@@ -35,14 +35,8 @@ def collect_df_beta_per_limit_state(calculation: ParallelSystemReliabilityCalcul
     return df
 
 
-def combine_df_beta_per_limit_state(geoprob_pipe: GeoProbPipe) -> pd.DataFrame:
-    out_dir = os.path.join(
-        str(geoprob_pipe.input_data.app_settings.workspace_dir),
-        "exports",
-        str(geoprob_pipe.input_data.app_settings.datetime_stamp),
-        "temp",
-        "limit_state")
-    df = pd.concat(pd.read_csv(p) for p in Path(out_dir).glob("*.csv"))
+def combine_df_beta_per_limit_state(calc_results) -> pd.DataFrame:
+    df = pd.concat((r[0] for r in calc_results), ignore_index=True)
     return df
 
 
@@ -71,14 +65,8 @@ def collect_df_beta_per_scenario(calc: ParallelSystemReliabilityCalculation
     return pd.DataFrame([row])
 
 
-def combine_df_beta_per_scenario(geoprob_pipe: GeoProbPipe) -> pd.DataFrame:
-    out_dir = os.path.join(
-        str(geoprob_pipe.input_data.app_settings.workspace_dir),
-        "exports",
-        str(geoprob_pipe.input_data.app_settings.datetime_stamp),
-        "temp",
-        "scenario")
-    df = pd.concat(pd.read_csv(p) for p in Path(out_dir).glob("*.csv"))
+def combine_df_beta_per_scenario(calc_results) -> pd.DataFrame:
+    df = pd.concat((r[1] for r in calc_results), ignore_index=True)
     df = df.sort_values(
         ["uittredepunt_id", "ondergrondscenario_id", "vak_id"]
         ).reset_index(drop=True)

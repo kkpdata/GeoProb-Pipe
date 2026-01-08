@@ -106,7 +106,7 @@ class BetaMap:
         self.hoverdata = ["uittredepunt_id", "converged", "beta", "model_betas"]
 
         self.df = self.res_sc.merge(self.inp_point, on="uittredepunt_id",
-                                    how="left")
+                                    how="left").drop_duplicates()
 
         self.gdf = gpd.GeoDataFrame(
             self.df, geometry=gpd.points_from_xy(

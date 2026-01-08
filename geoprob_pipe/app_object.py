@@ -51,7 +51,7 @@ class GeoProbPipe:
         # self._read_calculation_settings()  # TODO: Not part of new version
         # TODO: Unsure if the single statement belongs here. Wouldn't it be part of input data?
 
-        build_and_run_system_calculations(self)
+        self.calc_results = build_and_run_system_calculations(self)
         self.results = Results(self)
 
         # Log finish

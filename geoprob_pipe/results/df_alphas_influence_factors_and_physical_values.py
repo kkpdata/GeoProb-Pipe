@@ -55,14 +55,8 @@ def collect_stochast_values(calc: ParallelSystemReliabilityCalculation
     return df
 
 
-def _combine_stochast_values(geoprob_pipe: GeoProbPipe)  -> DataFrame:
-    out_dir = os.path.join(
-        str(geoprob_pipe.input_data.app_settings.workspace_dir),
-        "exports",
-        str(geoprob_pipe.input_data.app_settings.datetime_stamp),
-        "temp",
-        "stochast")
-    df = concat(read_csv(p) for p in Path(out_dir).glob("*.csv"))
+def _combine_stochast_values(calc_results)  -> DataFrame:
+    df = concat((r[2] for r in calc_results), ignore_index=True)
     return df
 
 
@@ -119,14 +113,8 @@ def calculate_derived_values(df_scenarios: DataFrame,
     return df_new
 
 
-def _combine_derived_values(geoprob_pipe: GeoProbPipe)  -> DataFrame:
-    out_dir = os.path.join(
-        str(geoprob_pipe.input_data.app_settings.workspace_dir),
-        "exports",
-        str(geoprob_pipe.input_data.app_settings.datetime_stamp),
-        "temp",
-        "derived")
-    df = concat(read_csv(p) for p in Path(out_dir).glob("*.csv"))
+def _combine_derived_values(calc_results)  -> DataFrame:
+    df = concat((r[3] for r in calc_results), ignore_index=True)
     return df
 
 
@@ -134,8 +122,8 @@ def construct_df(geoprob_pipe: GeoProbPipe):
 
     # Merge derived and stochast values
     df = concat([
-        _combine_stochast_values(geoprob_pipe=geoprob_pipe),
-        _combine_derived_values(geoprob_pipe=geoprob_pipe)
+        _combine_stochast_values(geoprob_pipe.calc_results),
+        _combine_derived_values(geoprob_pipe.calc_results)
     ])
 
     # Sort
