@@ -1,10 +1,12 @@
 from __future__ import annotations
-from pandas import DataFrame, concat
+from pandas import DataFrame, concat, read_csv
 from probabilistic_library import DesignPoint, Alpha
+import os
+from pathlib import Path
 # from geoprob_pipe.calculations.limit_states.piping import z_piping
 # from geoprob_pipe.calculations.limit_states.uplift_icw_model4a import z_uplift
 # from geoprob_pipe.calculations.limit_states.heave_icw_model4a import z_heave
-from typing import TYPE_CHECKING, Dict, List, Union
+from typing import TYPE_CHECKING, Dict, List, Union, cast
 import numpy as np
 
 from geoprob_pipe.calculations.system_calculations.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
@@ -15,8 +17,10 @@ if TYPE_CHECKING:
         ParallelSystemReliabilityCalculation)
 
 
-def _collect_stochast_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
-    """ Collects all Alphas, Influence factors and Physical values of the stochast input parameters. """
+def collect_stochast_values(calc: ParallelSystemReliabilityCalculation
+                            ) -> DataFrame:
+    """ Collects all Alphas, Influence factors and Physical values of
+    the stochast input parameters. """
 
     # Create
     def create_df_rows_for_design_point(
@@ -40,10 +44,10 @@ def _collect_stochast_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
 
     # Gather data
     rows = []
-    for calculation in geoprob_pipe.calculations:
-        for design_point in calculation.model_design_points:
-            rows.extend(create_df_rows_for_design_point(dp=design_point, calc=calculation))
-        rows.extend(create_df_rows_for_design_point(dp=calculation.system_design_point, calc=calculation))
+    for design_point in calc.model_design_points:
+        rows.extend(create_df_rows_for_design_point(dp=design_point, calc=calc))
+    sdp = cast(DesignPoint, calc.system_design_point)
+    rows.extend(create_df_rows_for_design_point(dp=sdp, calc=calc))
 
     # Generate df from rows
     df = DataFrame(rows)
@@ -51,13 +55,25 @@ def _collect_stochast_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
     return df
 
 
-def _calculate_derived_values(geoprob_pipe: GeoProbPipe):
+def _combine_stochast_values(geoprob_pipe: GeoProbPipe)  -> DataFrame:
+    out_dir = os.path.join(
+        str(geoprob_pipe.input_data.app_settings.workspace_dir),
+        "exports",
+        str(geoprob_pipe.input_data.app_settings.datetime_stamp),
+        "temp",
+        "stochast")
+    df = concat(read_csv(p) for p in Path(out_dir).glob("*.csv"))
+    return df
+
+
+def calculate_derived_values(df_scenarios: DataFrame,
+                             geohydrologisch_model: str):
     """ Re-calculates all derived physical values, i.e. intermediate values that were calculated inside the limit state
     functions. These are not returned by the probabilistic library, hence we need to re-calculate them.
     """
 
     # Get kwargs per calculation
-    df = geoprob_pipe.results.df_beta_scenarios.copy(deep=True)
+    df = df_scenarios.copy(deep=True)
     df['physical_values'] = df['system_calculation'].apply(
         lambda sc: {alpha.variable.name: alpha.x for alpha in sc.system_design_point.alphas}
     )
@@ -80,7 +96,7 @@ def _calculate_derived_values(geoprob_pipe: GeoProbPipe):
 
     df['derived_physical_values'] = df['physical_values'].apply(
         lambda kwargs: derived_values_single_calculation(
-            model_naam=geoprob_pipe.input_data.geohydrologisch_model, **kwargs)
+            model_naam=geohydrologisch_model, **kwargs)
     )
 
     # Create df with row per derived physical value
@@ -103,12 +119,23 @@ def _calculate_derived_values(geoprob_pipe: GeoProbPipe):
     return df_new
 
 
+def _combine_derived_values(geoprob_pipe: GeoProbPipe)  -> DataFrame:
+    out_dir = os.path.join(
+        str(geoprob_pipe.input_data.app_settings.workspace_dir),
+        "exports",
+        str(geoprob_pipe.input_data.app_settings.datetime_stamp),
+        "temp",
+        "derived")
+    df = concat(read_csv(p) for p in Path(out_dir).glob("*.csv"))
+    return df
+
+
 def construct_df(geoprob_pipe: GeoProbPipe):
 
     # Merge derived and stochast values
     df = concat([
-        _collect_stochast_values(geoprob_pipe=geoprob_pipe),
-        _calculate_derived_values(geoprob_pipe=geoprob_pipe)
+        _combine_stochast_values(geoprob_pipe=geoprob_pipe),
+        _combine_derived_values(geoprob_pipe=geoprob_pipe)
     ])
 
     # Sort

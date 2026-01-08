@@ -2,7 +2,7 @@ from __future__ import annotations
 from pandas import DataFrame
 from typing import TYPE_CHECKING, Optional
 from geoprob_pipe.results.construct_dataframes import (
-    collect_df_beta_per_limit_state, collect_df_beta_per_scenario, calculate_df_beta_per_uittredepunt,
+    combine_df_beta_per_limit_state, combine_df_beta_per_scenario, calculate_df_beta_per_uittredepunt,
     construct_df_beta_per_vak)
 from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import construct_df
 import os
@@ -15,8 +15,8 @@ class Results:
 
     def __init__(self, geoprob_pipe: GeoProbPipe):
         self.geoprob_pipe = geoprob_pipe
-        self.df_beta_limit_states = collect_df_beta_per_limit_state(geoprob_pipe=geoprob_pipe)
-        self.df_beta_scenarios = collect_df_beta_per_scenario(geoprob_pipe=geoprob_pipe)
+        self.df_beta_limit_states = combine_df_beta_per_limit_state(geoprob_pipe=geoprob_pipe)
+        self.df_beta_scenarios = combine_df_beta_per_scenario(geoprob_pipe=geoprob_pipe)
         self._df_alphas_influence_factors_and_physical_values: Optional[DataFrame] = None
         self.df_beta_uittredepunten = calculate_df_beta_per_uittredepunt(geoprob_pipe=geoprob_pipe, results=self)
         self.df_beta_vakken = construct_df_beta_per_vak(self)

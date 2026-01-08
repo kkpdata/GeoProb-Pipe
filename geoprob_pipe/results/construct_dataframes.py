@@ -1,14 +1,18 @@
 from __future__ import annotations
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
-from pandas import DataFrame
+import pandas as pd
+import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe
+    from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import \
+        ParallelSystemReliabilityCalculation
     from probabilistic_library import DesignPoint
 
 
-def collect_df_beta_per_limit_state(geoprob_pipe: GeoProbPipe) -> DataFrame:
+def collect_df_beta_per_limit_state(calculation: ParallelSystemReliabilityCalculation) -> pd.DataFrame:
 
     def create_row(calc, dp: DesignPoint, model_name):
         return {
@@ -25,14 +29,25 @@ def collect_df_beta_per_limit_state(geoprob_pipe: GeoProbPipe) -> DataFrame:
         }
 
     rows = []
-    for calculation in geoprob_pipe.calculations:
-        for design_point, model in zip(calculation.model_design_points, calculation.given_system_models):
-            rows.append(create_row(calc=calculation, dp=design_point, model_name=model.__name__))
-    df = DataFrame(rows).sort_values(by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+    for design_point, model in zip(calculation.model_design_points, calculation.given_system_models):
+        rows.append(create_row(calc=calculation, dp=design_point, model_name=model.__name__))
+    df = pd.DataFrame(rows).sort_values(by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
 
-def collect_df_beta_per_scenario(geoprob_pipe: GeoProbPipe) -> DataFrame:
+def combine_df_beta_per_limit_state(geoprob_pipe: GeoProbPipe) -> pd.DataFrame:
+    out_dir = os.path.join(
+        str(geoprob_pipe.input_data.app_settings.workspace_dir),
+        "exports",
+        str(geoprob_pipe.input_data.app_settings.datetime_stamp),
+        "temp",
+        "limit_state")
+    df = pd.concat(pd.read_csv(p) for p in Path(out_dir).glob("*.csv"))
+    return df
+
+
+def collect_df_beta_per_scenario(calc: ParallelSystemReliabilityCalculation
+                                 ) -> pd.DataFrame:
 
     def create_row(calc):
         return {
@@ -51,16 +66,26 @@ def collect_df_beta_per_scenario(geoprob_pipe: GeoProbPipe) -> DataFrame:
                 str(round(dp.reliability_index, 2)) for dp in calc.model_design_points
             ])
         }
+    row = create_row(calc)
 
-    df = DataFrame([
-        create_row(calc)
-        for calc in geoprob_pipe.calculations]
-    ).sort_values(
-        by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+    return pd.DataFrame([row])
+
+
+def combine_df_beta_per_scenario(geoprob_pipe: GeoProbPipe) -> pd.DataFrame:
+    out_dir = os.path.join(
+        str(geoprob_pipe.input_data.app_settings.workspace_dir),
+        "exports",
+        str(geoprob_pipe.input_data.app_settings.datetime_stamp),
+        "temp",
+        "scenario")
+    df = pd.concat(pd.read_csv(p) for p in Path(out_dir).glob("*.csv"))
+    df = df.sort_values(
+        ["uittredepunt_id", "ondergrondscenario_id", "vak_id"]
+        ).reset_index(drop=True)
     return df
 
 
-def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> DataFrame:
+def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> pd.DataFrame:
 
     # Sum
     df = results.df_beta_scenarios.assign(
