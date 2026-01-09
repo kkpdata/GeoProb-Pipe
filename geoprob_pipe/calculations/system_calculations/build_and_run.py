@@ -1,9 +1,8 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 from geoprob_pipe.calculations.system_calculations.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
 from multiprocessing import Pool, cpu_count
 import os
-import pandas as pd
 from geoprob_pipe.results.construct_dataframes import (
     collect_df_beta_per_limit_state, collect_df_beta_per_scenario)
 from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import (
@@ -14,8 +13,6 @@ from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
     from geoprob_pipe.calculations.system_calculations.system_base_objects.base_system_build import BaseSystemBuilder
-    from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import \
-        ParallelSystemReliabilityCalculation
 
 
 def _worker(row_unique,

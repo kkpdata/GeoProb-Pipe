@@ -2,7 +2,7 @@ from __future__ import annotations
 from geoprob_pipe.calculations.system_calculations.system_base_objects.base_system_build import BaseSystemBuilder
 from geoprob_pipe.calculations.system_calculations.piping_system.reliability_calculation import (
     PipingSystemReliabilityCalculation)
-from typing import TYPE_CHECKING
+# from typing import TYPE_CHECKING
 # from geoprob_pipe.globals import ALLOWED_DISPERSION_TYPES
 # from geoprob_pipe.input_data.data_validation import is_number
 # from geoprob_pipe.input_data.ondergrond_scenario import OndergrondScenario
@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING
 # from geoprob_pipe.input_data.vak import VakCollection, Vak
 # from pandas import DataFrame, notna, Series
 # from probabilistic_library import FragilityValue
-if TYPE_CHECKING:
-    from geoprob_pipe import GeoProbPipe
+# if TYPE_CHECKING:
+#     from geoprob_pipe import GeoProbPipe
 
 
 # def generate_parameter_dict_for_constant(attr_name: str, df_overview_row: Series) -> dict:

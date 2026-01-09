@@ -1,13 +1,12 @@
 from __future__ import annotations
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
-from typing import List, TYPE_CHECKING, Tuple
-from geoprob_pipe.utils.validation_messages import BColors
+from typing import List, Tuple
 from pandas import DataFrame, Series
 import sqlite3
 from geoprob_pipe.questionnaire.parameter_input.expand_input_tables import run_expand_input_tables
-if TYPE_CHECKING:
-    from geoprob_pipe import GeoProbPipe
+# if TYPE_CHECKING:
+#     from geoprob_pipe import GeoProbPipe
 
 
 def _gather_variable_correlations(geopackage_filepath: str) -> List[Tuple[str, str, float]]:

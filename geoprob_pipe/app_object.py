@@ -1,8 +1,7 @@
 from __future__ import annotations
 import os
 from datetime import datetime
-from pandas import DataFrame, concat
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 try:
     import probabilistic_library
@@ -15,8 +14,6 @@ except ModuleNotFoundError:
 # noinspection PyPep8Naming
 from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 from geoprob_pipe.input_data import InputData
-from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
-    ParallelSystemReliabilityCalculation)
 from geoprob_pipe.results import Results
 from geoprob_pipe.spatial import Spatial
 from geoprob_pipe.visualizations import Visualizations
@@ -74,7 +71,7 @@ class GeoProbPipe:
         # Gather validation messages from software requirements
         df_val = self.software_requirements.validation_messages.concat_with_df()
 
-        # Gather vlidation messages from calculations
+        # Gather validation messages from calculations
         [r[4].concat_with_df(df_to_append_to=df_val) for r in self.calc_results
          if r[4] is not None]
 
