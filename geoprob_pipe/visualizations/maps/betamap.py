@@ -73,6 +73,8 @@ class BetaMap:
         # results import
         self.inp_point = self.geoprob_pipe.input_data.uittredepunten.gdf
         self.res_sc = self.geoprob_pipe.results.df_beta_scenarios
+        mask = self.inp_point["uittredepunt_id"].isin(self.res_sc["uittredepunt_id"])
+        self.inp_point = self.inp_point[mask]
 
         # Setup of beta category limits
         self.cg = (self.geoprob_pipe.input_data.traject_normering
@@ -106,7 +108,9 @@ class BetaMap:
         self.hoverdata = ["uittredepunt_id", "converged", "beta", "model_betas"]
 
         self.df = self.res_sc.merge(self.inp_point, on="uittredepunt_id",
-                                    how="left").drop_duplicates()
+                                    how="inner")
+        idx = self.df.groupby(["uittredepunt_id"])["beta"].idxmin()
+        self.df = self.df.loc[idx]
 
         self.gdf = gpd.GeoDataFrame(
             self.df, geometry=gpd.points_from_xy(
