@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from geoprob_pipe.calculations.system_calculations.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
 from multiprocessing import Pool, cpu_count
 import os
@@ -42,7 +42,7 @@ def _worker(row_unique,
     except Exception as e:
         print(f"[PID {os.getpid()}] ERROR: {e}", flush=True)
         raise
-    return df_limit_state, df_scenario, df_stochast, df_derived
+    return df_limit_state, df_scenario, df_stochast, df_derived, calc.validation_messages
 
 
 def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import os
 from datetime import datetime
-from pandas import DataFrame
+from pandas import DataFrame, concat
 from typing import List, Optional, TYPE_CHECKING
 
 try:
@@ -72,16 +72,19 @@ class GeoProbPipe:
     def _export_validation_messages(self):
 
         # Gather validation messages from software requirements
-        df: Optional[DataFrame] = self.software_requirements.validation_messages.concat_with_df()
+        df_val = self.software_requirements.validation_messages.concat_with_df()
 
-        # Gather validation messages from all calculations
-        for calc in self.calculations:
-            df = calc.validation_messages.concat_with_df(df_to_append_to=df)
+        # Gather vlidation messages from calculations
+        [r[4].concat_with_df(df_to_append_to=df_val) for r in self.calc_results
+         if r[4] is not None]
 
         # Export dataframe with validation messages
-        if df is not None:
-            export_path = os.path.join(self.input_data.app_settings.workspace_dir, "validation_messages.xlsx")
-            df.to_excel(export_path)
+        if df_val is not None:
+            export_path = os.path.join(
+                self.input_data.app_settings.workspace_dir,
+                "validation_messages.xlsx"
+                )
+            df_val.to_excel(export_path)
 
     def export_archive(self):
         """ Exports everything related to this project. """
