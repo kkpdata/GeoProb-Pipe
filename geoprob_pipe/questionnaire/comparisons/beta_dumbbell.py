@@ -57,14 +57,9 @@ def _add_traces(comparison: ComparisonCollector,
     ))
 
     fig.add_trace(go.Scatter(
-        x=df["uittredepunt_id"],
-        y=df["beta2"],
-        mode="markers",
+        x=df["uittredepunt_id"], y=df["beta2"], mode="markers",
         name=comparison.name_2 + ".geoprob_pipe.gpkg",
-        marker=dict(
-                color="blue",
-                size=10
-            ),
+        marker=dict(color="blue", size=10),
         customdata=hoverdata,
         hovertemplate=(
             "Uittredepunt ID: %{customdata[0]}<br>"
@@ -75,24 +70,13 @@ def _add_traces(comparison: ComparisonCollector,
     ))
     # Empty trace for legend
     fig.add_trace(go.Scatter(
-        x=[None], y=[None],
-        mode="markers",
-        marker=dict(
-            symbol="x",
-            color="white",
-            size=10,
-            line=dict(
-                color="black",
-                width=0.5
-            )
-        ),
-        name="Not converged"
-    ))
+        x=[None], y=[None], mode="markers", name="Not converged",
+        marker=dict(symbol="x", color="white", size=10, line=dict(color="black", width=0.5))))
     return fig
 
 
-def _add_vak_id(comparison: ComparisonCollector,
-                fig: go.Figure):
+def _add_vak_id(comparison: ComparisonCollector, fig: go.Figure):
+
     vak_ids = comparison.df1_beta_uittredepunten["vak_id"].unique()
     for _, vak_id in enumerate(vak_ids):
         df_vak = comparison.df1_beta_uittredepunten
@@ -102,32 +86,20 @@ def _add_vak_id(comparison: ComparisonCollector,
         max_id: int = uit_ids.max().iloc[0]
 
         fig.add_trace(go.Scatter(
-            x=[min_id, max_id],
-            y=[0, 0],
-            mode="lines",
-            line=dict(color="red",
-                      width=2),
-            showlegend=False,
-            name=f"{vak_id}"
-        ))
+            x=[min_id, max_id], y=[0, 0], mode="lines",
+            line=dict(color="red", width=2), showlegend=False, name=f"{vak_id}"))
 
         fig.add_annotation(
-            x=(min_id + max_id) / 2,
-            y=-0.7,
-            text=f"{vak_id}",
-            showarrow=False,
-            font=dict(size=10, color="black"),
-            align="center"
-        )
+            x=(min_id + max_id) / 2, y=-0.7, text=f"{vak_id}", showarrow=False,
+            font=dict(size=10, color="black"), align="center")
     return fig
 
 
 def dumbbell_beta(comparison: ComparisonCollector,
                   export: bool = False):
-    df_result1 = (comparison.df1_beta_uittredepunten[
-        ["uittredepunt_id", "beta"]].rename(columns={"beta": "beta1"}))
-    df_result2 = (comparison.df2_beta_uittredepunten[
-        ["uittredepunt_id", "beta"]].rename(columns={"beta": "beta2"}))
+
+    df_result1 = (comparison.df1_beta_uittredepunten[["uittredepunt_id", "beta"]].rename(columns={"beta": "beta1"}))
+    df_result2 = (comparison.df2_beta_uittredepunten[["uittredepunt_id", "beta"]].rename(columns={"beta": "beta2"}))
 
     df = df_result1.merge(df_result2, on="uittredepunt_id")
 
@@ -136,26 +108,17 @@ def dumbbell_beta(comparison: ComparisonCollector,
     fig = _add_vak_id(comparison, fig)
 
     fig.update_layout(
-        title="Uittredepunt Beta Comparison",
+        title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+              f"<sup>Voor de <b>gecombineerde limit state</b>, en gevisualiseerd per uittredepunt.</sup>",
         xaxis_title="Uittredepunt ID",
         yaxis_title="β-value",
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1
-        )
-    )
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
 
     if export:
         os.makedirs(comparison.export_dir, exist_ok=True)
-        fig.write_html(os.path.join(
-            comparison.export_dir, "dumbbell_beta.html"
-            ), include_plotlyjs='cdn')
-        fig.write_image(os.path.join(
-            comparison.export_dir, "dumbbell_beta.png"
-            ), format="png", scale=5,  width=1400)
+        fig.write_html(os.path.join(comparison.export_dir, "dumbbell_beta.html"), include_plotlyjs='cdn')
+        fig.write_image(os.path.join(comparison.export_dir, "dumbbell_beta.png"),
+                        format="png", scale=5,  width=1400)
 
     return fig
 
@@ -188,7 +151,9 @@ def dumbbell_uplift(comparison: ComparisonCollector,
         fig = _add_vak_id(comparison, fig)
 
         fig.update_layout(
-            title=f"Uittredepunt Calc_Z_u Beta Comparison for scenario: {scenario}",
+            title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+                  f"<sup>Voor de <b>limit state Uplift</b> en <b>scenario {scenario}</b>, "
+                  f"en gevisualiseerd per uittredepunt.</sup>",
             xaxis_title="Uittredepunt ID",
             yaxis_title="β-value",
             legend=dict(
@@ -235,7 +200,9 @@ def dumbbell_heave(comparison: ComparisonCollector,
         fig = _add_vak_id(comparison, fig)
 
         fig.update_layout(
-            title=f"Uittredepunt Calc_Z_h Beta Comparison for scenario: {scenario}",
+            title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+                  f"<sup>Voor de <b>limit state Heave</b> en <b>scenario {scenario}</b>, "
+                  f"en gevisualiseerd per uittredepunt.</sup>",
             xaxis_title="Uittredepunt ID",
             yaxis_title="β-value",
             legend=dict(
@@ -282,7 +249,9 @@ def dumbbell_piping(comparison: ComparisonCollector,
         fig = _add_vak_id(comparison, fig)
 
         fig.update_layout(
-            title=f"Uittredepunt Calc_Z_p Beta Comparison for scenario: {scenario}",
+            title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+                  f"<sup>Voor de <b>limit state Piping</b> en <b>scenario {scenario}</b>, "
+                  f"en gevisualiseerd per uittredepunt.</sup>",
             xaxis_title="Uittredepunt ID",
             yaxis_title="β-value",
             legend=dict(
