@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from geoprob_pipe.calculations.system_calculations.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
 from multiprocessing import Pool, cpu_count
-import os
 import time
 import math
 from geoprob_pipe.results.construct_dataframes import (
@@ -20,7 +19,11 @@ _BUILDER = None
 _MODEL = None
 
 
-def _init_worker(geohydrologisch_model, geopackage_filepath, to_run_vakken_ids):
+def _init_worker(geohydrologisch_model, geopackage_filepath,
+                 to_run_vakken_ids):
+    """initialisator voor de worker, dit zorgt ervoor dat de tijdrovende
+    stappen een keer per worker worden uitgevoerd en dan beschikbaar blijven
+    voor iedere run."""
     global _BUILDER, _MODEL
     _MODEL = geohydrologisch_model
     _BUILDER = (
@@ -31,20 +34,23 @@ def _init_worker(geohydrologisch_model, geopackage_filepath, to_run_vakken_ids):
 
 
 def _worker(row_unique: dict):
+    """De worker functie die op de parallele rekenkernen wordt gedraaid."""
     calc = _BUILDER.build_instance(row_unique=row_unique)
     calc.run()
 
     df_limit_state = collect_df_beta_per_limit_state(calc)
     df_scenario = collect_df_beta_per_scenario(calc)
     df_stochast = collect_stochast_values(calc)
-    df_derived = calculate_derived_values(df_scenario,
-                                          _MODEL)
+    df_derived = calculate_derived_values(df_scenario, _MODEL)
     df_scenario = df_scenario.drop(columns=["system_calculation"])
 
-    return df_limit_state, df_scenario, df_stochast, df_derived, calc.validation_messages
+    return (df_limit_state, df_scenario, df_stochast,
+            df_derived, calc.validation_messages)
 
 
 def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe):
+    """In deze functie worden de parameters voor de berekeningen verzamelt,
+    aan de workers gegeven en vervolgens de resultaten verzameld."""
     geohydrologisch_model = geoprob_pipe.input_data.geohydrologisch_model
     geopackage_filepath = geoprob_pipe.input_data.app_settings.geopackage_filepath
     to_run_vakken_ids = geoprob_pipe.input_data.app_settings.to_run_vakken_ids
@@ -58,14 +64,19 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe):
     df_unique_combos = system_builder.setup_iteration_df()
 
     logger.info("Now running calculations...")
+    # Bepaal de parameters voor de multiprocessing setup en de logger
     n_threads: int = cpu_count() - 1
     n_calc_totaal: int = len(df_unique_combos)
+    # Minimaal 5 berekeningen per chunk en grootte van chunk beperken
+    # zodat er gelogd kan worden.
     chunk_size: int = max(math.ceil(n_calc_totaal / (n_threads * 10)), 5)
     logger.info(
         f"Running {n_calc_totaal} calculations in chunks of {chunk_size}" +
         f" with {n_threads} parallel threads.")
     logger.info(f"Progress: 0 / {n_calc_totaal} calculations.")
 
+    # Dicts zijn gemakkelijker te pickelen en daardoor sneller te
+    # verwerken dan pandas series.
     rows = [
         dict(zip(df_unique_combos.columns, r))
         for r in df_unique_combos.itertuples(index=False, name=None)
@@ -76,12 +87,15 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe):
     results = []
     pool_size = max(min(math.floor(n_calc_totaal / chunk_size), n_threads), 1)
 
+    # Multiprocessing setup
     with Pool(processes=pool_size, initializer=_init_worker, initargs=(
         geohydrologisch_model, geopackage_filepath, to_run_vakken_ids
-        )) as pool:
+            )) as pool:
         for res in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
             results.append(res)
             done += 1
+            # Alleen kijken of er gelogd moet worden bij de laatste
+            # berekening die uit de chunk komt.
             if done % chunk_size == 0:
                 now = time.time()
                 if now - last_report >= 30:
