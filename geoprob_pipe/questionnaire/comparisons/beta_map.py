@@ -142,16 +142,15 @@ def map_delta_beta_comparison(comparison: ComparisonCollector,
             lon=gdf_latlon.geometry.x.mean()
         ),
         dragmode="zoom",
-        title="Delta beta van uittredepunten tussen<br>" +
-        f"Beta1: {comparison.name_1} en Beta2: {comparison.name_2}",
+        title=f"Delta beta van uittredepunten tussen<br>" +
+              f"<sup>Beta1: {comparison.name_1} en Beta2: {comparison.name_2}</sup>",
         legend=dict(
             orientation="h",
             yanchor="bottom",
             y=1.02,
             xanchor="right",
-            x=1
-            )
-        )
+            x=1))
+
     if export:
         os.makedirs(comparison.export_dir, exist_ok=True)
         fig.write_html(os.path.join(
@@ -227,8 +226,8 @@ def map_ratio_beta_comparison(comparison: ComparisonCollector,
             lon=gdf_latlon.geometry.x.mean()
         ),
         dragmode="zoom",
-        title="Beta ratio van uittredepunten tussen<br>" +
-        f"Beta1: {comparison.name_1} en Beta2: {comparison.name_2}",
+        title=f"Beta ratio van uittredepunten tussen<br>" +
+              f"<sup>Beta1: {comparison.name_1} en Beta2: {comparison.name_2}</sup>",
         legend=dict(
             orientation="h",
             yanchor="bottom",
