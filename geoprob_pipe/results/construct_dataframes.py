@@ -1,8 +1,6 @@
 from __future__ import annotations
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
 import pandas as pd
-import os
-from pathlib import Path
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
@@ -43,21 +41,21 @@ def combine_df_beta_per_limit_state(calc_results) -> pd.DataFrame:
 def collect_df_beta_per_scenario(calc: ParallelSystemReliabilityCalculation
                                  ) -> pd.DataFrame:
 
-    def create_row(calc):
+    def create_row(calculation):
         return {
-            "uittredepunt_id": calc.metadata["uittredepunt_id"],
-            "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
-            # "ondergrondscenario": calc.metadata["ondergrondscenario"],
-            "vak_id": calc.metadata["vak_id"],
-            "system_calculation": calc,
-            "converged": calc.system_design_point.is_converged,
-            "beta": round(calc.system_design_point.reliability_index, 2),
-            "failure_probability": calc.system_design_point.probability_failure,
-            "convergence": calc.system_design_point.convergence,
-            "total_model_runs": calc.system_design_point.total_model_runs,
-            "total_iterations": calc.system_design_point.total_iterations,
+            "uittredepunt_id": calculation.metadata["uittredepunt_id"],
+            "ondergrondscenario_id": calculation.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
+            # "ondergrondscenario": calculation.metadata["ondergrondscenario"],
+            "vak_id": calculation.metadata["vak_id"],
+            "system_calculation": calculation,
+            "converged": calculation.system_design_point.is_converged,
+            "beta": round(calculation.system_design_point.reliability_index, 2),
+            "failure_probability": calculation.system_design_point.probability_failure,
+            "convergence": calculation.system_design_point.convergence,
+            "total_model_runs": calculation.system_design_point.total_model_runs,
+            "total_iterations": calculation.system_design_point.total_iterations,
             "model_betas": ", ".join([
-                str(round(dp.reliability_index, 2)) for dp in calc.model_design_points
+                str(round(dp.reliability_index, 2)) for dp in calculation.model_design_points
             ])
         }
     row = create_row(calc)

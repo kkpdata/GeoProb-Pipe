@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from geoprob_pipe.calculations.system_calculations.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
 from multiprocessing import Pool, cpu_count
 import time
@@ -15,13 +15,13 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
     from geoprob_pipe.calculations.system_calculations.system_base_objects.base_system_build import BaseSystemBuilder
 
-_BUILDER = None
-_MODEL = None
+_BUILDER: Optional[BaseSystemBuilder] = None
+_MODEL: Optional[str] = None
 
 
 def _init_worker(geohydrologisch_model, geopackage_filepath,
                  to_run_vakken_ids):
-    """initialisator voor de worker, dit zorgt ervoor dat de tijdrovende
+    """ Initiator voor de worker, dit zorgt ervoor dat de tijdrovende
     stappen een keer per worker worden uitgevoerd en dan beschikbaar blijven
     voor iedere run."""
     global _BUILDER, _MODEL
@@ -34,7 +34,7 @@ def _init_worker(geohydrologisch_model, geopackage_filepath,
 
 
 def _worker(row_unique: dict):
-    """De worker functie die op de parallele rekenkernen wordt gedraaid."""
+    """ De worker functie die op de parallelle rekenkernen wordt gedraaid."""
     calc = _BUILDER.build_instance(row_unique=row_unique)
     calc.run()
 
@@ -73,7 +73,8 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe):
     logger.info(
         f"Running {n_calc_totaal} calculations in chunks of {chunk_size}" +
         f" with {n_threads} parallel threads.")
-    logger.info(f"Progress: 0 / {n_calc_totaal} calculations.")
+    char_len_total = str(n_calc_totaal).__len__()
+    logger.info(f"Progress: {0:>{char_len_total}} / {n_calc_totaal} calculations.")
 
     # Dicts zijn gemakkelijker te pickelen en daardoor sneller te
     # verwerken dan pandas series.
@@ -99,6 +100,6 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe):
             if done % chunk_size == 0:
                 now = time.time()
                 if now - last_report >= 30:
-                    logger.info(f"Progress: {done} / {n_calc_totaal} calculations.")
+                    logger.info(f"Progress: {done:>{char_len_total}} / {n_calc_totaal} calculations.")
                     last_report = now
     return results

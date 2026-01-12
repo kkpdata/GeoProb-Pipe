@@ -1,11 +1,6 @@
 from __future__ import annotations
-from pandas import DataFrame, concat, read_csv
+from pandas import DataFrame, concat
 from probabilistic_library import DesignPoint, Alpha
-import os
-from pathlib import Path
-# from geoprob_pipe.calculations.limit_states.piping import z_piping
-# from geoprob_pipe.calculations.limit_states.uplift_icw_model4a import z_uplift
-# from geoprob_pipe.calculations.limit_states.heave_icw_model4a import z_heave
 from typing import TYPE_CHECKING, Dict, List, Union, cast
 import numpy as np
 
@@ -24,15 +19,15 @@ def collect_stochast_values(calc: ParallelSystemReliabilityCalculation
 
     # Create
     def create_df_rows_for_design_point(
-            dp: DesignPoint, calc: ParallelSystemReliabilityCalculation
+            dp: DesignPoint, calculation: ParallelSystemReliabilityCalculation
     ) -> List[Dict[str, Union[str, float]]]:
         rows_from_dp = []
         for alpha in dp.alphas:
             alpha: Alpha
             rows_from_dp.append({
-                "uittredepunt_id": calc.metadata['uittredepunt_id'],
-                "ondergrondscenario_id": calc.metadata['ondergrondscenario_naam'],
-                "vak_id": calc.metadata['vak_id'],
+                "uittredepunt_id": calculation.metadata['uittredepunt_id'],
+                "ondergrondscenario_id": calculation.metadata['ondergrondscenario_naam'],
+                "vak_id": calculation.metadata['vak_id'],
                 "design_point": dp.identifier,
                 "variable": alpha.identifier,
                 "distribution_type": alpha.variable.distribution.value,
@@ -45,9 +40,9 @@ def collect_stochast_values(calc: ParallelSystemReliabilityCalculation
     # Gather data
     rows = []
     for design_point in calc.model_design_points:
-        rows.extend(create_df_rows_for_design_point(dp=design_point, calc=calc))
+        rows.extend(create_df_rows_for_design_point(dp=design_point, calculation=calc))
     sdp = cast(DesignPoint, calc.system_design_point)
-    rows.extend(create_df_rows_for_design_point(dp=sdp, calc=calc))
+    rows.extend(create_df_rows_for_design_point(dp=sdp, calculation=calc))
 
     # Generate df from rows
     df = DataFrame(rows)
@@ -79,13 +74,6 @@ def calculate_derived_values(df_scenarios: DataFrame,
         system_limit_state_function = SYSTEM_CALCULATION_MAPPER[model_naam]["limit_state_function"]
         derived_values = {key: value for key, value in zip(return_keys, system_limit_state_function(**kwargs))}
 
-        # heave_return_keys = ["z_h", "lengte_voorland", "r_exit", "phi_exit", "h_exit", "d_deklaag", "i_exit"]
-        # heave_derived_values = {key: value for key, value in zip(heave_return_keys, z_heave(**kwargs))}
-        # uplift_return_keys = ["z_u", "L_voorland", "r_exit", "phi_exit", "h_exit", "d_deklaag", "dphi_c_u"]
-        # uplift_derived_values = {key: value for key, value in zip(uplift_return_keys, z_uplift(**kwargs))}
-        # piping_return_keys = [
-        #     "z_p", "L_voorland", "lambda_voorland", "W_voorland", "L_kwelweg", "dh_c", "h_exit", "d_deklaag", "dh_red"]
-        # piping_derived_values = {key: value for key, value in zip(piping_return_keys, z_piping(**kwargs))}
         return {**derived_values}
 
     df['derived_physical_values'] = df['physical_values'].apply(

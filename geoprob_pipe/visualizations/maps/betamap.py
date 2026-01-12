@@ -19,7 +19,7 @@ def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure,
         layer=layer)
     gdf_traject = gdf_traject.to_crs("EPSG:4326")
 
-    def plot_linestring(ls, show):
+    def plot_linestring(ls, display):
         xs, ys = ls.xy
         xs = list(xs)
         ys = list(ys)
@@ -31,8 +31,9 @@ def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure,
             hoverinfo="none",
             name=layer,
             legendgroup=layer,
-            showlegend=show
+            showlegend=display
         ))
+
     show = True
     for geom in gdf_traject.geometry:
         if isinstance(geom, LineString):
