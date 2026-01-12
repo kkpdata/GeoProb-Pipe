@@ -41,7 +41,7 @@ def _add_traces(comparison: ComparisonCollector,
         x=df["uittredepunt_id"],
         y=df["beta1"],
         mode="markers",
-        name=comparison.name_1 + ".geoprob_pipe.gpkg",
+        name="Beta1: " + comparison.name_1 + ".geoprob_pipe.gpkg",
         marker=dict(
             symbol=symbols,
             color="green",
@@ -58,7 +58,7 @@ def _add_traces(comparison: ComparisonCollector,
 
     fig.add_trace(go.Scatter(
         x=df["uittredepunt_id"], y=df["beta2"], mode="markers",
-        name=comparison.name_2 + ".geoprob_pipe.gpkg",
+        name="Beta2: " + comparison.name_2 + ".geoprob_pipe.gpkg",
         marker=dict(color="blue", size=10),
         customdata=hoverdata,
         hovertemplate=(
@@ -118,7 +118,7 @@ def dumbbell_beta(comparison: ComparisonCollector,
         os.makedirs(comparison.export_dir, exist_ok=True)
         fig.write_html(os.path.join(comparison.export_dir, "dumbbell_beta.html"), include_plotlyjs='cdn')
         fig.write_image(os.path.join(comparison.export_dir, "dumbbell_beta.png"),
-                        format="png", scale=5,  width=1400)
+                        format="png", scale=5, width=1400)
 
     return fig
 
@@ -179,14 +179,14 @@ def dumbbell_uplift(comparison: ComparisonCollector,
 def dumbbell_heave(comparison: ComparisonCollector,
                    export: bool = False):
     df_result1 = (comparison.df1_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]]
-                  .rename(columns={"beta": "beta1",
-                                   "limit_state": "limit_state1"}))
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]
+        ].rename(columns={"beta": "beta1",
+                          "limit_state": "limit_state1"}))
     df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_h"]
     df_result2 = (comparison.df2_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]]
-                  .rename(columns={"beta": "beta2",
-                                   "limit_state": "limit_state2"}))
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]
+        ].rename(columns={"beta": "beta2",
+                          "limit_state": "limit_state2"}))
     df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_h"]
 
     df = df_result1.merge(df_result2, on=["uittredepunt_id",
@@ -221,7 +221,7 @@ def dumbbell_heave(comparison: ComparisonCollector,
                 ), include_plotlyjs='cdn')
             fig.write_image(os.path.join(
                 comparison.export_dir, f"dumbbell_heave_{scenario}.png"
-                ), format="png", scale=5,  width=1400)
+                ), format="png", scale=5, width=1400)
     return fig_list
 
 
@@ -270,5 +270,5 @@ def dumbbell_piping(comparison: ComparisonCollector,
                 ), include_plotlyjs='cdn')
             fig.write_image(os.path.join(
                 comparison.export_dir, f"dumbbell_piping_{scenario}.png"
-                ), format="png", scale=5,  width=1400)
+                ), format="png", scale=5, width=1400)
     return fig_list

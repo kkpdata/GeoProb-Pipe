@@ -1,9 +1,9 @@
 from geoprob_pipe.questionnaire.comparisons import ComparisonCollector
 import time
 
-filepath1 = r"tests\systeem_testen\224\Traject224_model4a_WBN_prob.geoprob_pipe.gpkg"
-filepath2 = r"tests\systeem_testen\224\Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg"
-export_dir = r"tests\systeem_testen\224"
+filepath1 = r"C:\Users\vinji\Python\GEOprob-Pipe\Bestandenuitwisseling\Analyse16-1_V5.geoprob_pipe\Analyse16-1_V5.geoprob_pipe.gpkg"
+filepath2 = r"C:\Users\vinji\Python\GEOprob-Pipe\Bestandenuitwisseling\Analyse16-1_V5.geoprob_pipe\Analyse16-1_V5alt.geoprob_pipe.gpkg"
+export_dir = r"C:\Users\vinji\Python\GEOprob-Pipe\Bestandenuitwisseling\Analyse16-1_V5.geoprob_pipe"
 
 comparison = ComparisonCollector(filepath1,
                                  filepath2,
