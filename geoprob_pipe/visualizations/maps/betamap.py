@@ -19,7 +19,7 @@ def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure,
         layer=layer)
     gdf_traject = gdf_traject.to_crs("EPSG:4326")
 
-    def plot_linestring(ls):
+    def plot_linestring(ls, show):
         xs, ys = ls.xy
         xs = list(xs)
         ys = list(ys)
@@ -29,24 +29,30 @@ def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure,
             mode="lines",
             line=dict(color=color, width=1),
             hoverinfo="none",
-            name=layer
+            name=layer,
+            legendgroup=layer,
+            showlegend=show
         ))
-
+    show = True
     for geom in gdf_traject.geometry:
         if isinstance(geom, LineString):
-            plot_linestring(geom)
+            plot_linestring(geom, show)
+            show = False
 
         elif isinstance(geom, MultiLineString):
             for line in geom.geoms:
-                plot_linestring(line)
+                plot_linestring(line, show)
+                show = False
 
         elif isinstance(geom, GeometryCollection):
             for g in geom.geoms:
                 if isinstance(g, LineString):
-                    plot_linestring(g)
+                    plot_linestring(g, show)
+                    show = False
                 elif isinstance(g, MultiLineString):
                     for line in g.geoms:
-                        plot_linestring(line)
+                        plot_linestring(line, show)
+                        show = False
 
         else:
             print("Skipping unsupported geometry:", geom.geom_type)
@@ -149,6 +155,16 @@ class BetaMap:
 
     def _create_figure(self):
         self.fig = go.Figure()
+        self.fig.add_trace(go.Scattermap(
+            mode="markers",
+            lat=self.gdf_latlon.geometry.y,
+            lon=self.gdf_latlon.geometry.x,
+            marker=dict(
+                size=9,
+                color="black"
+                ),
+            showlegend=False
+            ))
         self.fig.add_trace(go.Scattermap(
             mode='markers',
             lat=self.gdf_latlon.geometry.y,   # direct uit geometrie
