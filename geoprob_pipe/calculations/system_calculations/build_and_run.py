@@ -28,29 +28,30 @@ def _init_worker(geohydrologisch_model, geopackage_filepath,
     _MODEL = geohydrologisch_model
     _BUILDER = (
         SYSTEM_CALCULATION_MAPPER[geohydrologisch_model]["system_builder"](
-            geopackage_filepath=geopackage_filepath,
-            to_run_vakken_ids=to_run_vakken_ids,
-            ))
+            geopackage_filepath=geopackage_filepath, to_run_vakken_ids=to_run_vakken_ids))
 
 
 def _worker(row_unique: dict):
     """ De worker functie die op de parallelle rekenkernen wordt gedraaid."""
+
+    # Build and run calculations
     calc = _BUILDER.build_instance(row_unique=row_unique)
     calc.run()
 
+    # Collect results
     df_limit_state = collect_df_beta_per_limit_state(calc)
     df_scenario = collect_df_beta_per_scenario(calc)
     df_stochast = collect_stochast_values(calc)
     df_derived = calculate_derived_values(df_scenario, _MODEL)
     df_scenario = df_scenario.drop(columns=["system_calculation"])
 
-    return (df_limit_state, df_scenario, df_stochast,
-            df_derived, calc.validation_messages)
+    # Return results (without calculation object)
+    return df_limit_state, df_scenario, df_stochast, df_derived, calc.validation_messages
 
 
 def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe):
-    """In deze functie worden de parameters voor de berekeningen verzamelt,
-    aan de workers gegeven en vervolgens de resultaten verzameld."""
+    """ In deze functie worden de parameters voor de berekeningen verzamelt, aan de workers gegeven en vervolgens de
+    resultaten verzameld. """
     geohydrologisch_model = geoprob_pipe.input_data.geohydrologisch_model
     geopackage_filepath = geoprob_pipe.input_data.app_settings.geopackage_filepath
     to_run_vakken_ids = geoprob_pipe.input_data.app_settings.to_run_vakken_ids
@@ -90,16 +91,24 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe):
 
     # Multiprocessing setup
     with Pool(processes=pool_size, initializer=_init_worker, initargs=(
-        geohydrologisch_model, geopackage_filepath, to_run_vakken_ids
-            )) as pool:
+            geohydrologisch_model, geopackage_filepath, to_run_vakken_ids)) as pool:
+
         for res in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
             results.append(res)
             done += 1
+
             # Alleen kijken of er gelogd moet worden bij de laatste
             # berekening die uit de chunk komt.
-            if done % chunk_size == 0:
-                now = time.time()
-                if now - last_report >= 30:
-                    logger.info(f"Progress: {done:>{char_len_total}} / {n_calc_totaal} calculations.")
-                    last_report = now
+            if done % chunk_size != 0:
+                continue
+
+            # Alleen loggen wanneer 30 seconden is gepasseerd
+            now = time.time()
+            if now - last_report < 30.0:
+                continue
+
+            # Log
+            logger.info(f"Progress: {done:>{char_len_total}} / {n_calc_totaal} calculations.")
+            last_report = now
+
     return results
