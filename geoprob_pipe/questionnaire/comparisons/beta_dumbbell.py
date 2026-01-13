@@ -16,15 +16,11 @@ def _add_traces(comparison: ComparisonCollector,
         1: "circle",
         0: "x"
     }
-    try:
-        symbols = [symbol_map[b] for b in df["converged"]]
-    except KeyError:
-        df_conv = comparison.df1_beta_scenarios
-        # TODO is dit correct? Mss inbouwen in
-        # calculate_df_beta_per_uittredepunt
-        df_conv = (df_conv.groupby("uittredepunt_id", as_index=False)
-                   ["converged"].min())
-        symbols = [symbol_map[b] for b in df_conv["converged"]]
+
+    symbols1 = [symbol_map[b] for b in df["converged1"]]
+    symbols2 = [symbol_map[b] for b in df["converged2"]]
+    name1 = "Beta1: " + comparison.name_1 + ".geoprob_pipe.gpkg"
+    name2 = "Beta2: " + comparison.name_2 + ".geoprob_pipe.gpkg"
 
     for _, row in df.iterrows():
         fig.add_trace(go.Scatter(
@@ -41,9 +37,9 @@ def _add_traces(comparison: ComparisonCollector,
         x=df["uittredepunt_id"],
         y=df["beta1"],
         mode="markers",
-        name="Beta1: " + comparison.name_1 + ".geoprob_pipe.gpkg",
+        name=name1,
         marker=dict(
-            symbol=symbols,
+            symbol=symbols1,
             color="green",
             size=10
             ),
@@ -53,22 +49,38 @@ def _add_traces(comparison: ComparisonCollector,
             "β1: %{customdata[1]:.2f}<br>"
             "β2: %{customdata[2]:.2f}<br>"
             "<extra></extra>"
-        )
+        ),
+        legendgroup="beta1",
+        showlegend=False
     ))
 
     fig.add_trace(go.Scatter(
         x=df["uittredepunt_id"], y=df["beta2"], mode="markers",
-        name="Beta2: " + comparison.name_2 + ".geoprob_pipe.gpkg",
-        marker=dict(color="blue", size=10),
+        name=name2,
+        marker=dict(symbol=symbols2, color="blue", size=10),
         customdata=hoverdata,
         hovertemplate=(
             "Uittredepunt ID: %{customdata[0]}<br>"
             "β2: %{customdata[2]:.2f}<br>"
             "β1: %{customdata[1]:.2f}<br>"
             "<extra></extra>"
-        )
+        ),
+        legendgroup="beta2",
+        showlegend=False
     ))
     # Empty trace for legend
+    fig.add_trace(go.Scatter(
+        x=[None], y=[None], mode="markers",
+        marker=dict(symbol="circle", color="green", size=10),
+        name=name1,
+        legendgroup="beta1",
+    ))
+    fig.add_trace(go.Scatter(
+        x=[None], y=[None], mode="markers",
+        marker=dict(symbol="circle", color="blue", size=10),
+        name=name2,
+        legendgroup="beta2"
+    ))
     fig.add_trace(go.Scatter(
         x=[None], y=[None], mode="markers", name="Not converged",
         marker=dict(symbol="x", color="white", size=10, line=dict(color="black", width=0.5))))
@@ -98,8 +110,12 @@ def _add_vak_id(comparison: ComparisonCollector, fig: go.Figure):
 def dumbbell_beta(comparison: ComparisonCollector,
                   export: bool = False):
 
-    df_result1 = (comparison.df1_beta_uittredepunten[["uittredepunt_id", "beta"]].rename(columns={"beta": "beta1"}))
-    df_result2 = (comparison.df2_beta_uittredepunten[["uittredepunt_id", "beta"]].rename(columns={"beta": "beta2"}))
+    df_result1 = (comparison.df1_beta_uittredepunten[
+        ["uittredepunt_id", "converged", "beta"]
+        ].rename(columns={"beta": "beta1", "converged": "converged1"}))
+    df_result2 = (comparison.df2_beta_uittredepunten[
+        ["uittredepunt_id", "converged", "beta"]
+        ].rename(columns={"beta": "beta2", "converged": "converged2"}))
 
     df = df_result1.merge(df_result2, on="uittredepunt_id")
 
@@ -127,17 +143,17 @@ def dumbbell_uplift(comparison: ComparisonCollector,
                     export: bool = False):
 
     df_result1 = (comparison.df1_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]
-        ].rename(columns={"beta": "beta1",
-                          "limit_state": "limit_state1"}))
-
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={"beta": "beta1",
+                                       "limit_state": "limit_state1",
+                                       "converged": "converged1"}))
     df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_u"]
 
     df_result2 = (comparison.df2_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]
-        ].rename(columns={"beta": "beta2",
-                          "limit_state": "limit_state2"}))
-
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={"beta": "beta2",
+                                       "limit_state": "limit_state2",
+                                       "converged": "converged2"}))
     df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_u"]
 
     df = df_result1.merge(df_result2, on=["uittredepunt_id",
@@ -179,14 +195,16 @@ def dumbbell_uplift(comparison: ComparisonCollector,
 def dumbbell_heave(comparison: ComparisonCollector,
                    export: bool = False):
     df_result1 = (comparison.df1_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]
-        ].rename(columns={"beta": "beta1",
-                          "limit_state": "limit_state1"}))
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={"beta": "beta1",
+                                       "limit_state": "limit_state1",
+                                       "converged": "converged1"}))
     df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_h"]
     df_result2 = (comparison.df2_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]
-        ].rename(columns={"beta": "beta2",
-                          "limit_state": "limit_state2"}))
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={"beta": "beta2",
+                                       "limit_state": "limit_state2",
+                                       "converged": "converged2"}))
     df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_h"]
 
     df = df_result1.merge(df_result2, on=["uittredepunt_id",
@@ -228,14 +246,18 @@ def dumbbell_heave(comparison: ComparisonCollector,
 def dumbbell_piping(comparison: ComparisonCollector,
                     export: bool = False):
     df_result1 = (comparison.df1_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]]
-                  .rename(columns={"beta": "beta1",
-                                   "limit_state": "limit_state1"}))
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={
+             "beta": "beta1",
+             "limit_state": "limit_state1",
+             "converged": "converged1"}))
     df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_p"]
     df_result2 = (comparison.df2_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id"]]
-                  .rename(columns={"beta": "beta2",
-                                   "limit_state": "limit_state2"}))
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={
+             "beta": "beta2",
+             "limit_state": "limit_state2",
+             "converged": "converged2"}))
     df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_p"]
 
     df = df_result1.merge(df_result2, on=["uittredepunt_id",

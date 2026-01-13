@@ -8,15 +8,13 @@ import time
 from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
 app_settings = ApplicationSettings()
+app_settings.to_run = "vakken:12,13,14"
 
-filepath = r"C:\Users\vinji\Python\GEOprob-Pipe\Bestandenuitwisseling\Analyse16-1_V5alt.geoprob_pipe\Analyse16-1_V5.geoprob_pipe.gpkg"
+filepath = r"C:\Users\vinji\Python\GEOprob-Pipe\Bestandenuitwisseling\Analyse16-1_V5.geoprob_pipe\Analyse16-1_V5.geoprob_pipe.gpkg"
+# filepath = r"C:\Users\vinji\Python\GEOprob-Pipe\Bestandenuitwisseling\Analyse16-1_V5.geoprob_pipe\Analyse16-1_V5alt.geoprob_pipe.gpkg"
+app_settings.workspace_dir = os.path.dirname(filepath)
 app_settings.workspace_dir = os.path.dirname(filepath)
 app_settings.geopackage_filename = os.path.basename(filepath)
 
 geoprob_pipe = GeoProbPipe(app_settings)
-geoprob_pipe.visualizations.graphs.beta_scenarios().show()
-# start_time = time.time()
-# geoprob_pipe.export_archive()
-# end_time = time.time()
-
-# print(f"Time passed for export: {end_time - start_time:.2f} sec")
+geoprob_pipe.export_archive()
