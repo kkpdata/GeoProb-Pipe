@@ -60,14 +60,9 @@ def _generate_single_calculation(
 
     # Construct calculation
     calculation_input = _gather_calculation_input(
-        df_expanded=df_expanded, uittredepunt_id=uittredepunt_id,
-        ondergrondscenario_naam=ondergrondscenario_naam
-        )
+        df_expanded=df_expanded, uittredepunt_id=uittredepunt_id, ondergrondscenario_naam=ondergrondscenario_naam)
     calc = system_class(
-        system_variable_distributions=calculation_input,
-        system_variable_correlations=variable_correlations,
-        # project_settings=...
-    )
+        system_variable_distributions=calculation_input, system_variable_correlations=variable_correlations)
     calc.metadata["uittredepunt_id"] = uittredepunt_id
     calc.metadata["ondergrondscenario_naam"] = ondergrondscenario_naam
     calc.metadata["vak_id"] = vak_id
@@ -94,21 +89,16 @@ class BaseSystemBuilder:
 
         # Filter vakken (if only selection needs to run)
         if to_run_vakken_ids is not None:
-            df_expanded = df_expanded[
-                df_expanded['vak_id'].isin(to_run_vakken_ids)
-                ]
+            df_expanded = df_expanded[df_expanded['vak_id'].isin(to_run_vakken_ids)]
         self.df_expanded = df_expanded
 
     def setup_iteration_df(self) -> DataFrame:
         # Iteration dataframe
-        df_unique_combos: DataFrame = self.df_expanded[
-            ["uittredepunt_id", "ondergrondscenario_naam", "vak_id"]
-            ].drop_duplicates()
+        df_unique_combos: DataFrame = self.df_expanded[[
+            "uittredepunt_id", "ondergrondscenario_naam", "vak_id"]].drop_duplicates()
         return df_unique_combos
 
-    def build_instance(
-        self, row_unique
-            ) -> ParallelSystemReliabilityCalculation:
+    def build_instance(self, row_unique) -> ParallelSystemReliabilityCalculation:
 
         # Gather variable correlations
         variable_correlations: List[Tuple[str, str, float]] = (

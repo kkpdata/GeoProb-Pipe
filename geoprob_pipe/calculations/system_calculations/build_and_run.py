@@ -57,11 +57,9 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe):
     to_run_vakken_ids = geoprob_pipe.input_data.app_settings.to_run_vakken_ids
     system_builder: BaseSystemBuilder = (
         SYSTEM_CALCULATION_MAPPER[geohydrologisch_model]['system_builder'](
-            geopackage_filepath=geopackage_filepath,
-            to_run_vakken_ids=to_run_vakken_ids)
-        )
-    logger.info("Now building calculations...")
+            geopackage_filepath=geopackage_filepath, to_run_vakken_ids=to_run_vakken_ids))
 
+    logger.info("Now building calculations...")
     df_unique_combos = system_builder.setup_iteration_df()
 
     logger.info("Now running calculations...")
@@ -72,17 +70,13 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe):
     # zodat er gelogd kan worden.
     chunk_size: int = max(math.ceil(n_calc_totaal / (n_threads * 10)), 5)
     logger.info(
-        f"Running {n_calc_totaal} calculations in chunks of {chunk_size}" +
-        f" with {n_threads} parallel threads.")
+        f"Running {n_calc_totaal} calculations in chunks of {chunk_size} with {n_threads} parallel threads.")
     char_len_total = str(n_calc_totaal).__len__()
     logger.info(f"Progress: {0:>{char_len_total}} / {n_calc_totaal} calculations.")
 
     # Dicts zijn gemakkelijker te pickelen en daardoor sneller te
     # verwerken dan pandas series.
-    rows = [
-        dict(zip(df_unique_combos.columns, r))
-        for r in df_unique_combos.itertuples(index=False, name=None)
-        ]
+    rows = [dict(zip(df_unique_combos.columns, r)) for r in df_unique_combos.itertuples(index=False, name=None)]
 
     last_report = time.time()
     done = 0
