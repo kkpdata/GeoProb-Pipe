@@ -1,7 +1,7 @@
 from __future__ import annotations
 import os
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional, List, Tuple
+from typing import TYPE_CHECKING, Optional, List
 import pandas as pd
 
 try:
@@ -24,7 +24,6 @@ from geoprob_pipe.software_requirements import SoftwareRequirements
 if TYPE_CHECKING:
     from geoprob_pipe.calculations.system_calculations.build_and_run import CalcResult
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
-    from geoprob_pipe.utils.validation_messages import ValidationMessages
 
 
 class GeoProbPipe:
