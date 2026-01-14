@@ -31,7 +31,7 @@ class CalcResult():
     Dataframe: df_scenario,
     Dataframe: df_stochast,
     Dataframe: df_derived,
-    ValidationMessages: validatiion_message
+    ValidationMessages: validation_message
     """
     df_limit_state: DataFrame
     df_scenario: DataFrame
