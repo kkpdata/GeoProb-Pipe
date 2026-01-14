@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, List, Tuple
 from geoprob_pipe.calculations.system_calculations.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
 from multiprocessing import Pool, cpu_count
 import time
@@ -12,8 +12,10 @@ from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import
 from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 
 if TYPE_CHECKING:
+    from pandas import DataFrame
     from geoprob_pipe import GeoProbPipe
     from geoprob_pipe.calculations.system_calculations.system_base_objects.base_system_build import BaseSystemBuilder
+    from geoprob_pipe.utils.validation_messages import ValidationMessages
 
 _BUILDER: Optional[BaseSystemBuilder] = None
 _MODEL: Optional[str] = None
@@ -44,12 +46,16 @@ def _worker(row_unique: dict):
     df_stochast = collect_stochast_values(calc)
     df_derived = calculate_derived_values(df_scenario, _MODEL)
     df_scenario = df_scenario.drop(columns=["system_calculation"])
-
     # Return results (without calculation object)
-    return df_limit_state, df_scenario, df_stochast, df_derived, calc.validation_messages
+    output = (df_limit_state, df_scenario, df_stochast,
+              df_derived, calc.validation_messages)
+    return output
 
 
-def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe):
+def build_and_run_system_calculations(
+    geoprob_pipe: GeoProbPipe
+        ) -> List[Tuple[DataFrame, DataFrame, DataFrame,
+                        DataFrame, ValidationMessages]]:
     """ In deze functie worden de parameters voor de berekeningen verzamelt, aan de workers gegeven en vervolgens de
     resultaten verzameld. """
     geohydrologisch_model = geoprob_pipe.input_data.geohydrologisch_model

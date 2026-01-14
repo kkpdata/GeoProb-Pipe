@@ -106,12 +106,12 @@ class BaseSystemBuilder:
         # TODO: Should be made uittredepunt/vak specific in future versions of the code. For now only for the entire
         #  trajectory.
 
-        calc = (_generate_single_calculation(
+        calc = _generate_single_calculation(
             row_calculation_metadata=row_unique,
             vak_id=row_unique["vak_id"],
             df_expanded=self.df_expanded,
             system_class=self.system_class,
             variable_correlations=variable_correlations
-        ))
+        )
 
         return calc
