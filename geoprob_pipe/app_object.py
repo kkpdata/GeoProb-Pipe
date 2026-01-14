@@ -22,7 +22,7 @@ from geoprob_pipe.calculations.system_calculations.build_and_run import build_an
 from geoprob_pipe.software_requirements import SoftwareRequirements
 
 if TYPE_CHECKING:
-    from pandas import DataFrame
+    from geoprob_pipe.calculations.system_calculations.build_and_run import CalcResult
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
     from geoprob_pipe.utils.validation_messages import ValidationMessages
 
@@ -51,9 +51,7 @@ class GeoProbPipe:
         # self._read_calculation_settings()  # TODO: Not part of new version
         # TODO: Unsure if the single statement belongs here. Wouldn't it be part of input data?
 
-        self.calc_results: List[
-            Tuple[DataFrame, DataFrame, DataFrame, DataFrame, ValidationMessages]
-            ] = build_and_run_system_calculations(self)
+        self.calc_results: List[CalcResult] = build_and_run_system_calculations(self)
         self.results = Results(self)
 
         # Log finish
@@ -77,8 +75,8 @@ class GeoProbPipe:
         df_val: Optional[pd.DataFrame] = self.software_requirements.validation_messages.concat_with_df()
 
         # Gather validation messages from calculations
-        [r[4].concat_with_df(df_to_append_to=df_val) for r in self.calc_results
-         if r[4] is not None]
+        [result.validation_message.concat_with_df(df_to_append_to=df_val) for result in self.calc_results
+         if result.validation_message is not None]
 
         # Export dataframe with validation messages
         if df_val is not None:

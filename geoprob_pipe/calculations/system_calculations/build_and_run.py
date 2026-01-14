@@ -4,6 +4,7 @@ from geoprob_pipe.calculations.system_calculations.system_calculation_mapper imp
 from multiprocessing import Pool, cpu_count
 import time
 import math
+from dataclasses import dataclass
 from geoprob_pipe.results.construct_dataframes import (
     collect_df_beta_per_limit_state, collect_df_beta_per_scenario)
 from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import (
@@ -19,6 +20,24 @@ if TYPE_CHECKING:
 
 _BUILDER: Optional[BaseSystemBuilder] = None
 _MODEL: Optional[str] = None
+
+
+@dataclass
+class CalcResult():
+    """
+    Dataclass om de resultaten te verzamelen vanuit de calculation.
+    Bevat de volgende attributen:
+    Dataframe: df_limit_state,
+    Dataframe: df_scenario,
+    Dataframe: df_stochast,
+    Dataframe: df_derived,
+    ValidationMessages: validatiion_message
+    """
+    df_limit_state: DataFrame
+    df_scenario: DataFrame
+    df_stochast: DataFrame
+    df_derived: DataFrame
+    validation_message: ValidationMessages
 
 
 def _init_worker(geohydrologisch_model, geopackage_filepath,
@@ -47,15 +66,14 @@ def _worker(row_unique: dict):
     df_derived = calculate_derived_values(df_scenario, _MODEL)
     df_scenario = df_scenario.drop(columns=["system_calculation"])
     # Return results (without calculation object)
-    output = (df_limit_state, df_scenario, df_stochast,
-              df_derived, calc.validation_messages)
-    return output
+    result = CalcResult(df_limit_state, df_scenario, df_stochast,
+                         df_derived, calc.validation_messages)
+    return result
 
 
 def build_and_run_system_calculations(
     geoprob_pipe: GeoProbPipe
-        ) -> List[Tuple[DataFrame, DataFrame, DataFrame,
-                        DataFrame, ValidationMessages]]:
+        ) -> List[CalcResult]:
     """ In deze functie worden de parameters voor de berekeningen verzamelt, aan de workers gegeven en vervolgens de
     resultaten verzameld. """
     geohydrologisch_model = geoprob_pipe.input_data.geohydrologisch_model
@@ -86,8 +104,7 @@ def build_and_run_system_calculations(
 
     last_report = time.time()
     done = 0
-    results: List[Tuple[DataFrame, DataFrame, DataFrame,
-                        DataFrame, ValidationMessages]] = []
+    results: List[CalcResult] = []
     pool_size = max(min(math.floor(n_calc_totaal / chunk_size), n_threads), 1)
 
     # Multiprocessing setup

@@ -1,13 +1,14 @@
 from __future__ import annotations
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
 import pandas as pd
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe
     from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import \
         ParallelSystemReliabilityCalculation
     from probabilistic_library import DesignPoint
+    from geoprob_pipe.calculations.system_calculations.build_and_run import CalcResult
 
 
 def collect_df_beta_per_limit_state(calculation: ParallelSystemReliabilityCalculation) -> pd.DataFrame:
@@ -33,8 +34,8 @@ def collect_df_beta_per_limit_state(calculation: ParallelSystemReliabilityCalcul
     return df
 
 
-def combine_df_beta_per_limit_state(calc_results) -> pd.DataFrame:
-    df = pd.concat((r[0] for r in calc_results), ignore_index=True)
+def combine_df_beta_per_limit_state(calc_results: List[CalcResult]) -> pd.DataFrame:
+    df = pd.concat((result.df_limit_state for result in calc_results), ignore_index=True)
     return df
 
 
@@ -63,8 +64,8 @@ def collect_df_beta_per_scenario(calc: ParallelSystemReliabilityCalculation
     return pd.DataFrame([row])
 
 
-def combine_df_beta_per_scenario(calc_results) -> pd.DataFrame:
-    df = pd.concat((r[1] for r in calc_results), ignore_index=True)
+def combine_df_beta_per_scenario(calc_results: List[CalcResult]) -> pd.DataFrame:
+    df = pd.concat((result.df_scenario for result in calc_results), ignore_index=True)
     df = df.sort_values(
         ["uittredepunt_id", "ondergrondscenario_id", "vak_id"]
         ).reset_index(drop=True)

@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
     from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
         ParallelSystemReliabilityCalculation)
+    from geoprob_pipe.calculations.system_calculations.build_and_run import CalcResult
 
 
 def collect_stochast_values(calc: ParallelSystemReliabilityCalculation
@@ -50,8 +51,8 @@ def collect_stochast_values(calc: ParallelSystemReliabilityCalculation
     return df
 
 
-def _combine_stochast_values(calc_results)  -> DataFrame:
-    df = concat((r[2] for r in calc_results), ignore_index=True)
+def _combine_stochast_values(calc_results: List[CalcResult])  -> DataFrame:
+    df = concat((result.df_stochast for result in calc_results), ignore_index=True)
     return df
 
 
@@ -101,8 +102,9 @@ def calculate_derived_values(df_scenarios: DataFrame,
     return df_new
 
 
-def _combine_derived_values(calc_results)  -> DataFrame:
-    df = concat((r[3] for r in calc_results), ignore_index=True)
+def _combine_derived_values(calc_results: List[CalcResult]) -> DataFrame:
+    df = concat((result.df_derived for result in calc_results),
+                ignore_index=True)
     return df
 
 
