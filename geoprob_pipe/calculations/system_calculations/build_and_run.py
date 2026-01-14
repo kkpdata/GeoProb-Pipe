@@ -86,7 +86,8 @@ def build_and_run_system_calculations(
 
     last_report = time.time()
     done = 0
-    results = []
+    results: List[Tuple[DataFrame, DataFrame, DataFrame,
+                        DataFrame, ValidationMessages]] = []
     pool_size = max(min(math.floor(n_calc_totaal / chunk_size), n_threads), 1)
 
     # Multiprocessing setup
