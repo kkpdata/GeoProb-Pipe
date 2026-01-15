@@ -18,8 +18,8 @@ if TYPE_CHECKING:
     from geoprob_pipe.calculations.system_calculations.system_base_objects.base_system_build import BaseSystemBuilder
     from geoprob_pipe.utils.validation_messages import ValidationMessages
 
-_BUILDER: Optional[BaseSystemBuilder] = None
-_MODEL: Optional[str] = None
+_BUILDER: BaseSystemBuilder
+_MODEL: str
 
 
 @dataclass
@@ -67,7 +67,7 @@ def _worker(row_unique: dict):
     df_scenario = df_scenario.drop(columns=["system_calculation"])
     # Return results (without calculation object)
     result = CalcResult(df_limit_state, df_scenario, df_stochast,
-                         df_derived, calc.validation_messages)
+                        df_derived, calc.validation_messages)
     return result
 
 
