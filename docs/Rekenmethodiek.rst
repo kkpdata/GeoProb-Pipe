@@ -196,6 +196,7 @@ waarin:
 - :math:`D_{wvp}` de dikte van de watervoerende zandlaag [m]
 
 .. _stijghoogtemodellen-geoprob:
+
 Stijghoogtemodellen in GeoProb-Pipe
 -----------------------------------
 
@@ -209,6 +210,7 @@ waarbij elke functie een specifiek type stijghoogtemodel aanroept:
 De rekenmethodiek is zodanig opgezet dat in de toekomst ook andere stijghoogtemodellen kunnen worden toegevoegd.
 
 .. _model4a:
+
 Analytische stijghoogtemodel 4A
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
