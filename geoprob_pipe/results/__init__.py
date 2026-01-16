@@ -19,7 +19,8 @@ class Results:
         self.df_beta_scenarios = collect_df_beta_per_scenario(geoprob_pipe=geoprob_pipe)
         self._df_alphas_influence_factors_and_physical_values: Optional[DataFrame] = None
         self.df_beta_uittredepunten = calculate_df_beta_per_uittredepunt(geoprob_pipe=geoprob_pipe, results=self)
-        self.df_beta_vakken = construct_df_beta_per_vak(self)
+        self.df_beta_vakken = construct_df_beta_per_vak(
+            geoprob_pipe=geoprob_pipe, results=self)
 
     def df_alphas_influence_factors_and_physical_values(
             self,

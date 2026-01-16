@@ -1,7 +1,9 @@
 from __future__ import annotations
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
-from pandas import DataFrame
-from typing import TYPE_CHECKING
+from pandas import DataFrame, merge
+from geoprob_pipe.results.assemblage.objects import (
+    KansElement, UittredepuntElement, VakElement)
+from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe
@@ -79,9 +81,63 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     return df[["uittredepunt_id", "vak_id", "beta", "failure_probability"]]
 
 
-def construct_df_beta_per_vak(results: Results):
-    df = results.df_beta_uittredepunten
-    return df.loc[df.groupby('vak_id')['beta'].idxmin()]
+def construct_df_beta_per_vak(geoprob_pipe: GeoProbPipe, results: Results):
+    punt_df = results.df_beta_uittredepunten
+    punt_gdf = geoprob_pipe.input_data.uittredepunten.gdf
+
+    df = merge(
+        left=punt_df[["uittredepunt_id", "vak_id", "beta", "failure_probability"]],
+        right=punt_gdf[["uittredepunt_id", "metrering"]],
+        on="uittredepunt_id", how="left"
+        )
+
+    vakken_gdf = geoprob_pipe.input_data.vakken.gdf
+    vakken_dict = {}
+    element_list: List[VakElement] = []
+
+    for _, vak in vakken_gdf.iterrows():
+        df_vak = df.loc[df["vak_id"] == vak["id"]]
+        dsn_list = []
+
+        for _, row in df_vak.iterrows():
+            dsn_list.append(UittredepuntElement(
+                pof=row["failure_probability"],
+                beta=row["beta"],
+                M_value=row["metrering"]))
+
+        element_list.append(VakElement(
+            id=vak["id"],
+            M_van=vak["m_start"],
+            M_tot=vak["m_end"],
+            a=0.9,  # TODO Haal dezen vanuit Input Data via excel
+            dL=300,
+            list_dsn=dsn_list
+        ))
+    vakken_list = []
+    for element in element_list:
+        vakken_dict = {
+            "vak_id": element.id,
+            "a": element.a,
+            "invloedsfactor_belasting": element.invloedsfactor_belasting,
+            "method": "Max of dsn with N_vak",
+            "failure_probability": element.Pf_max_dsn.pof,
+            "beta": element.Pf_max_dsn.beta,
+            "method2": "Window 50m over vak",
+            "failure_probability2": element.Pf_window_50m.pof,
+            "beta2": element.Pf_window_50m.beta,
+            "method3": "Window 100m over vak",
+            "failure_probability3": element.Pf_window_100m.pof,
+            "beta3": element.Pf_window_100m.beta,
+            "method4": "Window 250m over vak",
+            "failure_probability4": element.Pf_window_250m.pof,
+            "beta4": element.Pf_window_250m.beta,
+            "method5": "Window 500m over vak",
+            "failure_probability5": element.Pf_window_500m.pof,
+            "beta5": element.Pf_window_500m.beta,
+            }
+        vakken_list.append(vakken_dict)
+
+    return DataFrame(vakken_list)
 
 
 # def collect_df_alphas_influence_factors_and_physical_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
