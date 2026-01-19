@@ -64,9 +64,9 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
     window_size : float
         De breedte van elk M-venster (bin). Moet positief zijn en groter dan 0.
     list_dsn : list of UittredepuntElement
-        Lijst met elementen die minimaal de attributen bevatten:
-        - ``M_value`` (float): de M-positie van het element.
-        - ``pof`` (float): probability of failure (faalkans) behorend bij het element.
+        Lijst met uittredepunten die minimaal de attributen bevatten:
+        - ``M_value`` (float): de M-positie van het uittredepunt.
+        - ``pof`` (float): probability of failure (faalkans) behorend bij het uittredepunt.
     M_van : float
         Ondergrens van het M-bereik. De bins starten bij ``floor(M_van)``.
     M_tot : float
@@ -118,7 +118,7 @@ def scaled_collect(dL: float,
     De lijst `list_dsn` wordt eerst gesorteerd op `M_value`. Voor elk punt
     wordt een lokale representatieve lengte L bepaald als de afstand tussen de
     halve afstand naar de vorige buur (L_van) en de halve afstand naar de
-    volgende buur (L_tot). De lokale faalkans `pof_i` wordt vervolgens geschaald
+    volgende buur (L_tot). De lokale faalkans `pof` wordt vervolgens geschaald
     met een opschaalfactor `N_vak = bepaal_N_vak(L, a, dL)`, waarbij `a` per punt
     komt uit `dsn.a` en `dL` de equivalente onafhankelijke mechanismelengte is.
     De uitkomst is de som van `pof * N_vak` over alle punten.
@@ -143,7 +143,7 @@ def scaled_collect(dL: float,
     Returns
     -------
     float
-        De som van `pof_i * N_vak` over de iteratie-indices.
+        De som van `pof * N_vak` over de uittredepunten.
     """
     list_dsn.sort(key=attrgetter("M_value"))
     pofs = []
