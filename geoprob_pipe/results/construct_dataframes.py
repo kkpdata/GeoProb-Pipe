@@ -92,10 +92,15 @@ def _generate_dsn_list(geoprob_pipe: GeoProbPipe, results: Results
         right=punt_gdf[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id", how="left"
         )
-    vakken_torun = geoprob_pipe.input_data.app_settings.to_run_vakken_ids
+    vakken_torun: List[int] = []
+    run_all: bool = False
+    if geoprob_pipe.input_data.app_settings.to_run_vakken_ids:
+        vakken_torun = geoprob_pipe.input_data.app_settings.to_run_vakken_ids
+    else:
+        run_all = True
     dsn_list: List[UittredepuntElement] = []
     for _, punt in merge_df.iterrows():
-        if punt["vak_id"] in vakken_torun:
+        if punt["vak_id"] in vakken_torun or run_all:
             dsn_list.append(UittredepuntElement(
                 pof=punt["failure_probability"],
                 M_value=punt["metrering"],
@@ -115,13 +120,17 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
         right=punt_gdf[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id", how="left"
         )
-
-    vakken_torun = geoprob_pipe.input_data.app_settings.to_run_vakken_ids
+    vakken_torun: List[int] = []
+    run_all: bool = False
+    if geoprob_pipe.input_data.app_settings.to_run_vakken_ids:
+        vakken_torun = geoprob_pipe.input_data.app_settings.to_run_vakken_ids
+    else:
+        run_all = True
     vakken_gdf = geoprob_pipe.input_data.vakken.gdf
     element_list: List[VakElement] = []
 
     for _, vak in vakken_gdf.iterrows():
-        if vak.id in vakken_torun:
+        if vak.id in vakken_torun or run_all:
             df_vak = df.loc[df["vak_id"] == vak["id"]]
             dsn_list = []
 
