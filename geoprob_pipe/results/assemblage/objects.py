@@ -13,15 +13,15 @@ class KansElement:
     beta: Optional[float] = None  # Betrouwbaarheidindex van het element
 
     def __post_init__(self):
-        if self.pof is not None:
-            if not (0.0 <= self.pof <= 1.0):
-                raise ValueError("pof moet tussen 0.0 en 1.0 liggen.")
+        # if self.pof is not None:
+        #     if not (0.0 <= self.pof <= 1.0):
+        #         raise ValueError("pof moet tussen 0.0 en 1.0 liggen.")
 
-        if self.beta is not None:
-            if not math.isfinite(self.beta):
-                raise ValueError("beta moet een eindige waarde zijn.")
-            if (-38.0 <= self.beta <= 38.0) is False:
-                raise ValueError("beta moet tussen -38.0 en 38.0 liggen.")
+        # if self.beta is not None:
+        #     if not math.isfinite(self.beta):
+        #         raise ValueError("beta moet een eindige waarde zijn.")
+        #     if (-38.0 <= self.beta <= 38.0) is False:
+        #         raise ValueError("beta moet tussen -38.0 en 38.0 liggen.")
 
         if self.pof is None and self.beta is not None:
             self.pof = float(stats.norm.cdf(-1.0 * self.beta))

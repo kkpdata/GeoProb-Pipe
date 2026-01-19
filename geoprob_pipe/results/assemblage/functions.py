@@ -51,6 +51,35 @@ def bepaal_N_vak(L: float, a: float, dL: float) -> float:
 
 def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
                    M_van: float, M_tot: float) -> float:
+    """
+    Agregeert faalkansen (`pof`) per M-venster en somt de bin-maxima op.
+
+    De functie maakt vaste vensters (bins) over het domein van M-waarden met
+    breedte `window_size` binnen het bereik ``[M_van, M_tot)``. Voor elk venster
+    wordt de maximale waarde van `pof` bepaald uit de elementen die met hun
+    `M_value` in dat venster vallen. De output is de som van deze venster-maxima.
+
+    Parameters
+    ----------
+    window_size : float
+        De breedte van elk M-venster (bin). Moet positief zijn en groter dan 0.
+    list_dsn : list of UittredepuntElement
+        Lijst met elementen die minimaal de attributen bevatten:
+        - ``M_value`` (float): de M-positie van het element.
+        - ``pof`` (float): probability of failure (faalkans) behorend bij het element.
+    M_van : float
+        Ondergrens van het M-bereik. De bins starten bij ``floor(M_van)``.
+    M_tot : float
+        Bovengrens van het M-bereik (exclusief). De bins lopen tot ``ceil(M_tot)``,
+        waarbij `pandas.cut` met ``right=False`` half-open intervallen maakt
+        ``[links, rechts)``.
+
+    Returns
+    -------
+    float
+        De som van de maximale `pof` per niet-lege bin over het bereik.
+        Bins zonder waarnemingen dragen niet bij aan de som.
+    """
     list_M_value = [dsn.M_value for dsn in list_dsn]
     list_pof = [dsn.pof for dsn in list_dsn]
 
@@ -82,16 +111,50 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
 def scaled_collect(dL: float,
                    list_dsn: list[UittredepuntElement],
                    M_van: float, M_tot: float) -> float:
+    """
+    Bepaald de totale faalkans door lokale pof-waarden te wegen
+    met een lengtefactor per punt, afgeleid uit de midpoints tot buren.
+
+    De lijst `list_dsn` wordt eerst gesorteerd op `M_value`. Voor elk punt
+    wordt een lokale representatieve lengte L bepaald als de afstand tussen de
+    halve afstand naar de vorige buur (L_van) en de halve afstand naar de
+    volgende buur (L_tot). De lokale faalkans `pof_i` wordt vervolgens geschaald
+    met een opschaalfactor `N_vak = bepaal_N_vak(L, a, dL)`, waarbij `a` per punt
+    komt uit `dsn.a` en `dL` de equivalente onafhankelijke mechanismelengte is.
+    De uitkomst is de som van `pof * N_vak` over alle punten.
+
+    Parameters
+    ----------
+    dL : float
+        Equivalente onafhankelijke mechanismelengte [m]
+    list_dsn : list of UittredepuntElement
+        Lijst met elementen met minimaal de attributen:
+        - ``M_value`` (float): positie langs M-as (wordt gebruikt voor sorteren
+          en voor afbakenen van de lokale lengte).
+        - ``pof`` (float): lokale probability of failure (faalkans) op het punt.
+        - ``a`` (float): karakteristieke lengte-/vormparameter voor `bepaal_N_vak`.
+    M_van : float
+        Ondergrens van het M-bereik voor de eerste halve-afstand (alleen van
+        toepassing voor de berekening van `L_van` bij de eerste index).
+    M_tot : float
+        Bovengrens van het M-bereik voor de laatste halve-afstand (alleen van
+        toepassing voor de berekening van `L_tot` bij de laatste index).
+
+    Returns
+    -------
+    float
+        De som van `pof_i * N_vak` over de iteratie-indices.
+    """
     list_dsn.sort(key=attrgetter("M_value"))
     pofs = []
-    for i in range(0, len(list_dsn)-1):
-        if i == 1:
+    for i in range(len(list_dsn)):
+        if i == 0:
             L_van: float = M_van
         else:
             L_van: float = (cast(float, list_dsn[i-1].M_value)
                             + (cast(float, list_dsn[i].M_value)
                                - cast(float, list_dsn[i-1].M_value)) / 2)
-        if i == len(list_dsn):
+        if i == len(list_dsn)-1:
             L_tot: float = M_tot
         else:
             L_tot: float = (cast(float, list_dsn[i].M_value)
