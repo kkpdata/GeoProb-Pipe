@@ -2,7 +2,7 @@ from __future__ import annotations
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
 from pandas import DataFrame, merge
 from geoprob_pipe.results.assemblage.objects import (
-    KansElement, UittredepuntElement, VakElement)
+    KansElement, UittredepuntElement, VakElement, TrajectElement)
 from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
@@ -81,38 +81,72 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     return df[["uittredepunt_id", "vak_id", "beta", "failure_probability"]]
 
 
-def construct_df_beta_per_vak(geoprob_pipe: GeoProbPipe, results: Results):
+def _generate_dsn_list(geoprob_pipe: GeoProbPipe, results: Results
+                       ) -> List[UittredepuntElement]:
+    punt_df = results.df_beta_uittredepunten
+    punt_gdf = geoprob_pipe.input_data.uittredepunten.gdf
+
+    merge_df = merge(
+        left=punt_df[["uittredepunt_id", "vak_id", "beta",
+                      "failure_probability"]],
+        right=punt_gdf[["uittredepunt_id", "metrering"]],
+        on="uittredepunt_id", how="left"
+        )
+    vakken_torun = geoprob_pipe.input_data.app_settings.to_run_vakken_ids
+    dsn_list: List[UittredepuntElement] = []
+    for _, punt in merge_df.iterrows():
+        if punt["vak_id"] in vakken_torun:
+            dsn_list.append(UittredepuntElement(
+                pof=punt["failure_probability"],
+                M_value=punt["metrering"],
+                a=0.9  # TODO Haal dezen vanuit Input Data via excel
+                ))
+    return dsn_list
+
+
+def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
+                           ) -> list[VakElement]:
     punt_df = results.df_beta_uittredepunten
     punt_gdf = geoprob_pipe.input_data.uittredepunten.gdf
 
     df = merge(
-        left=punt_df[["uittredepunt_id", "vak_id", "beta", "failure_probability"]],
+        left=punt_df[["uittredepunt_id", "vak_id", "beta",
+                      "failure_probability"]],
         right=punt_gdf[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id", how="left"
         )
 
+    vakken_torun = geoprob_pipe.input_data.app_settings.to_run_vakken_ids
     vakken_gdf = geoprob_pipe.input_data.vakken.gdf
-    vakken_dict = {}
     element_list: List[VakElement] = []
 
     for _, vak in vakken_gdf.iterrows():
-        df_vak = df.loc[df["vak_id"] == vak["id"]]
-        dsn_list = []
+        if vak.id in vakken_torun:
+            df_vak = df.loc[df["vak_id"] == vak["id"]]
+            dsn_list = []
 
-        for _, row in df_vak.iterrows():
-            dsn_list.append(UittredepuntElement(
-                pof=row["failure_probability"],
-                beta=row["beta"],
-                M_value=row["metrering"]))
+            for _, row in df_vak.iterrows():
+                dsn_list.append(UittredepuntElement(
+                    pof=row["failure_probability"],
+                    beta=row["beta"],
+                    M_value=row["metrering"],
+                    a=0.9))
 
-        element_list.append(VakElement(
-            id=vak["id"],
-            M_van=vak["m_start"],
-            M_tot=vak["m_end"],
-            a=0.9,  # TODO Haal dezen vanuit Input Data via excel
-            dL=300,
-            list_dsn=dsn_list
-        ))
+            element_list.append(VakElement(
+                id=vak["id"],
+                M_van=vak["m_start"],
+                M_tot=vak["m_end"],
+                a=0.9,  # TODO Haal dezen vanuit Input Data via excel
+                dL=300,
+                list_dsn=dsn_list
+            ))
+    return element_list
+
+
+def construct_df_beta_per_vak(geoprob_pipe: GeoProbPipe, results: Results):
+    vakken_dict = {}
+    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
+                                          results=results)
     vakken_list = []
     for element in element_list:
         vakken_dict = {
@@ -134,10 +168,50 @@ def construct_df_beta_per_vak(geoprob_pipe: GeoProbPipe, results: Results):
             "method5": "Window 500m over vak",
             "failure_probability5": element.Pf_window_500m.pof,
             "beta5": element.Pf_window_500m.beta,
+            "method6": "Scaled over individual sections",
+            "beta6": element.Pf_scaled.beta,
+            "failure_probability6": element.Pf_scaled.pof
             }
         vakken_list.append(vakken_dict)
 
     return DataFrame(vakken_list)
+
+
+def construct_df_beta_per_traject(geoprob_pipe: GeoProbPipe,
+                                  results: Results) -> DataFrame:
+    dsn_list = _generate_dsn_list(geoprob_pipe=geoprob_pipe, results=results)
+    vakken_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
+                                         results=results)
+
+    traject = TrajectElement(
+        list_vakken=vakken_list, list_dsn=dsn_list, dL=300.0
+    )
+    traject_list = []
+    traject_list.append({
+        "method": "Sum of vakken",
+        "beta": traject.Pf_sum_max_vak.beta,
+        "failure_probability": traject.Pf_sum_max_vak.pof})
+    traject_list.append({
+        "method": "Window 50m over traject",
+        "beta": traject.Pf_window_50m.beta,
+        "failure_probability": traject.Pf_window_50m.pof})
+    traject_list.append({
+        "method": "Window 100m over traject",
+        "beta": traject.Pf_window_100m.beta,
+        "failure_probability": traject.Pf_window_100m.pof})
+    traject_list.append({
+        "method": "Window 250m over traject",
+        "beta": traject.Pf_window_250m.beta,
+        "failure_probability": traject.Pf_window_250m.pof})
+    traject_list.append({
+        "method": "Window 500m over traject",
+        "beta": traject.Pf_window_500m.beta,
+        "failure_probability": traject.Pf_window_500m.pof})
+    traject_list.append({
+        "method": "Scaled over individual sections",
+        "beta": traject.Pf_scaled.beta,
+        "failure_probability": traject.Pf_scaled.pof})
+    return DataFrame(traject_list)
 
 
 # def collect_df_alphas_influence_factors_and_physical_values(geoprob_pipe: GeoProbPipe) -> DataFrame:

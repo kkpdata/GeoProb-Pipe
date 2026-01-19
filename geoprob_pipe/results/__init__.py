@@ -3,7 +3,7 @@ from pandas import DataFrame
 from typing import TYPE_CHECKING, Optional
 from geoprob_pipe.results.construct_dataframes import (
     collect_df_beta_per_limit_state, collect_df_beta_per_scenario, calculate_df_beta_per_uittredepunt,
-    construct_df_beta_per_vak)
+    construct_df_beta_per_vak, construct_df_beta_per_traject)
 from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import construct_df
 import os
 if TYPE_CHECKING:
@@ -20,6 +20,8 @@ class Results:
         self._df_alphas_influence_factors_and_physical_values: Optional[DataFrame] = None
         self.df_beta_uittredepunten = calculate_df_beta_per_uittredepunt(geoprob_pipe=geoprob_pipe, results=self)
         self.df_beta_vakken = construct_df_beta_per_vak(
+            geoprob_pipe=geoprob_pipe, results=self)
+        self.df_beta_traject = construct_df_beta_per_traject(
             geoprob_pipe=geoprob_pipe, results=self)
 
     def df_alphas_influence_factors_and_physical_values(
@@ -61,7 +63,8 @@ class Results:
             bool_beta_scenarios: bool = True,
             bool_alphas_influence_factors_and_physical_values: bool = True,
             bool_beta_uittredepunten: bool = True,
-            bool_beta_vakken: bool = True):
+            bool_beta_vakken: bool = True,
+            bool_beta_traject: bool = True):
 
         # Results of limit state calculations
         if bool_beta_limit_states:
@@ -86,3 +89,6 @@ class Results:
 
         if bool_beta_vakken:
             self.df_beta_vakken.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_vakken.xlsx"))
+
+        if bool_beta_traject:
+            self.df_beta_traject.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_traject.xlsx"))
