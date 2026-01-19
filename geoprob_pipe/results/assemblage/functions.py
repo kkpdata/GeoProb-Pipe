@@ -55,9 +55,10 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
     Agregeert faalkansen (`pof`) per M-venster en somt de bin-maxima op.
 
     De functie maakt vaste vensters (bins) over het domein van M-waarden met
-    breedte `window_size` binnen het bereik ``[M_van, M_tot)``. Voor elk venster
-    wordt de maximale waarde van `pof` bepaald uit de elementen die met hun
-    `M_value` in dat venster vallen. De output is de som van deze venster-maxima.
+    breedte `window_size` binnen het bereik ``[M_van, M_tot)``. Voor elk
+    venster wordt de maximale waarde van `pof` bepaald uit de elementen die
+    met hun `M_value` in dat venster vallen. De output is de som van
+    deze venster-maxima.
 
     Parameters
     ----------
@@ -66,13 +67,14 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
     list_dsn : list of UittredepuntElement
         Lijst met uittredepunten die minimaal de attributen bevatten:
         - ``M_value`` (float): de M-positie van het uittredepunt.
-        - ``pof`` (float): probability of failure (faalkans) behorend bij het uittredepunt.
+        - ``pof`` (float): probability of failure (faalkans) behorend bij
+        het uittredepunt.
     M_van : float
         Ondergrens van het M-bereik. De bins starten bij ``floor(M_van)``.
     M_tot : float
-        Bovengrens van het M-bereik (exclusief). De bins lopen tot ``ceil(M_tot)``,
-        waarbij `pandas.cut` met ``right=False`` half-open intervallen maakt
-        ``[links, rechts)``.
+        Bovengrens van het M-bereik (exclusief). De bins lopen tot
+        ``ceil(M_tot)``, waarbij `pandas.cut` met ``right=False``
+        half-open intervallen maakt ``[links, rechts)``.
 
     Returns
     -------
@@ -89,11 +91,11 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
         })
 
     bins_window = np.arange(
-        np.floor(M_van), np.ceil(M_tot), window_size
-        )
+        M_van, M_tot, window_size
+        ).tolist()
 
     vak_df["bin"] = pd.cut(
-        vak_df["M_value"],
+        x=vak_df["M_value"],
         bins=bins_window,
         labels=False,
         right=False,
@@ -119,9 +121,10 @@ def scaled_collect(dL: float,
     wordt een lokale representatieve lengte L bepaald als de afstand tussen de
     halve afstand naar de vorige buur (L_van) en de halve afstand naar de
     volgende buur (L_tot). De lokale faalkans `pof` wordt vervolgens geschaald
-    met een opschaalfactor `N_vak = bepaal_N_vak(L, a, dL)`, waarbij `a` per punt
-    komt uit `dsn.a` en `dL` de equivalente onafhankelijke mechanismelengte is.
-    De uitkomst is de som van `pof * N_vak` over alle punten.
+    met een opschaalfactor `N_vak = bepaal_N_vak(L, a, dL)`, waarbij `a` per
+    punt komt uit `dsn.a` en `dL` de equivalente onafhankelijke
+    mechanismelengte is. De uitkomst is de som van `pof * N_vak` over
+    alle punten.
 
     Parameters
     ----------
@@ -131,8 +134,10 @@ def scaled_collect(dL: float,
         Lijst met elementen met minimaal de attributen:
         - ``M_value`` (float): positie langs M-as (wordt gebruikt voor sorteren
           en voor afbakenen van de lokale lengte).
-        - ``pof`` (float): lokale probability of failure (faalkans) op het punt.
-        - ``a`` (float): karakteristieke lengte-/vormparameter voor `bepaal_N_vak`.
+        - ``pof`` (float): lokale probability of failure (faalkans) op het
+        punt.
+        - ``a`` (float): karakteristieke lengte-/vormparameter voor
+        `bepaal_N_vak`.
     M_van : float
         Ondergrens van het M-bereik voor de eerste halve-afstand (alleen van
         toepassing voor de berekening van `L_van` bij de eerste index).
