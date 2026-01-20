@@ -163,23 +163,33 @@ def construct_df_beta_per_vak(geoprob_pipe: GeoProbPipe, results: Results):
             "a": element.a,
             "invloedsfactor_belasting": element.invloedsfactor_belasting,
             "method": "Max of dsn with N_vak",
-            "failure_probability": element.Pf_max_dsn.pof,
+            "pof": element.Pf_max_dsn.pof,
             "beta": element.Pf_max_dsn.beta,
             "method2": "Window 50m over vak",
-            "failure_probability2": element.Pf_window_50m.pof,
-            "beta2": element.Pf_window_50m.beta,
+            "upper_bound_pof_50m": element.Pf_window_50m[0].pof,
+            "lower_bound_beta_50m": element.Pf_window_50m[0].beta,
+            "lower_bound_pof_50m": element.Pf_window_50m[1].pof,
+            "upper_bound_beta_50m": element.Pf_window_50m[1].beta,
             "method3": "Window 100m over vak",
-            "failure_probability3": element.Pf_window_100m.pof,
-            "beta3": element.Pf_window_100m.beta,
-            "method4": "Window 250m over vak",
-            "failure_probability4": element.Pf_window_250m.pof,
-            "beta4": element.Pf_window_250m.beta,
-            "method5": "Window 500m over vak",
-            "failure_probability5": element.Pf_window_500m.pof,
-            "beta5": element.Pf_window_500m.beta,
+            "upper_bound_pof_100m": element.Pf_window_50m[0].pof,
+            "lower_bound_beta_100m": element.Pf_window_100m[0].beta,
+            "lower_bound_pof_100m": element.Pf_window_50m[1].pof,
+            "upper_bound_beta_100m": element.Pf_window_100m[1].beta,
+            "method4": "Window 200m over vak",
+            "upper_bound_pof_200m": element.Pf_window_50m[0].pof,
+            "lower_bound_beta_200m": element.Pf_window_200m[0].beta,
+            "lower_bound_pof_200m": element.Pf_window_50m[1].pof,
+            "upper_bound_beta_200m": element.Pf_window_200m[1].beta,
+            "method5": "Window 300m over vak",
+            "upper_bound_pof_300m": element.Pf_window_50m[0].pof,
+            "lower_bound_beta_300m": element.Pf_window_300m[0].beta,
+            "lower_bound_pof_300m": element.Pf_window_50m[1].pof,
+            "upper_bound_beta_300m": element.Pf_window_300m[1].beta,
             "method6": "Scaled over individual sections",
-            "beta6": element.Pf_scaled.beta,
-            "failure_probability6": element.Pf_scaled.pof
+            "upper_bound_pof_scaled": element.Pf_scaled[0].pof,
+            "lower_bound_beta_scaled": element.Pf_scaled[0].beta,
+            "lower_bound_pof_scaled": element.Pf_scaled[1].pof,
+            "upper_bound_beta_scaled": element.Pf_scaled[1].beta,
             }
         vakken_list.append(vakken_dict)
 
@@ -198,28 +208,40 @@ def construct_df_beta_per_traject(geoprob_pipe: GeoProbPipe,
     traject_list = []
     traject_list.append({
         "method": "Sum of vakken",
-        "beta": traject.Pf_sum_max_vak.beta,
-        "failure_probability": traject.Pf_sum_max_vak.pof})
+        "upper_bound_pof": traject.Pf_max_vak[0].pof,
+        "lower_bound_beta": traject.Pf_max_vak[0].beta,
+        "lower_boud_pof": traject.Pf_max_vak[1].pof,
+        "upper_bound_beta": traject.Pf_max_vak[1].beta})
     traject_list.append({
         "method": "Window 50m over traject",
-        "beta": traject.Pf_window_50m.beta,
-        "failure_probability": traject.Pf_window_50m.pof})
+        "upper_bound_pof": traject.Pf_window_50m[0].pof,
+        "lower_bound_beta": traject.Pf_window_50m[0].beta,
+        "lower_boud_pof": traject.Pf_window_50m[1].pof,
+        "upper_bound_beta": traject.Pf_window_50m[1].beta})
     traject_list.append({
         "method": "Window 100m over traject",
-        "beta": traject.Pf_window_100m.beta,
-        "failure_probability": traject.Pf_window_100m.pof})
+        "upper_bound_pof": traject.Pf_window_100m[0].pof,
+        "lower_bound_beta": traject.Pf_window_100m[0].beta,
+        "lower_boud_pof": traject.Pf_window_100m[1].pof,
+        "upper_bound_beta": traject.Pf_window_100m[1].beta})
     traject_list.append({
-        "method": "Window 250m over traject",
-        "beta": traject.Pf_window_250m.beta,
-        "failure_probability": traject.Pf_window_250m.pof})
+        "method": "Window 200m over traject",
+        "upper_bound_pof": traject.Pf_window_200m[0].pof,
+        "lower_bound_beta": traject.Pf_window_200m[0].beta,
+        "lower_boud_pof": traject.Pf_window_200m[1].pof,
+        "upper_bound_beta": traject.Pf_window_200m[1].beta})
     traject_list.append({
-        "method": "Window 500m over traject",
-        "beta": traject.Pf_window_500m.beta,
-        "failure_probability": traject.Pf_window_500m.pof})
+        "method": "Window 300m over traject",
+        "upper_bound_pof": traject.Pf_window_300m[0].pof,
+        "lower_bound_beta": traject.Pf_window_300m[0].beta,
+        "lower_boud_pof": traject.Pf_window_300m[1].pof,
+        "upper_bound_beta": traject.Pf_window_300m[1].beta})
     traject_list.append({
         "method": "Scaled over individual sections",
-        "beta": traject.Pf_scaled.beta,
-        "failure_probability": traject.Pf_scaled.pof})
+        "upper_bound_pof": traject.Pf_scaled[0].pof,
+        "lower_bound_beta": traject.Pf_scaled[0].beta,
+        "lower_boud_pof": traject.Pf_scaled[1].pof,
+        "upper_bound_beta": traject.Pf_scaled[1].beta})
     return DataFrame(traject_list)
 
 

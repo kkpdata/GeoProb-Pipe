@@ -74,7 +74,7 @@ def bepaal_N_vak(L: float, a: float, dL: float) -> float:
 
 
 def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
-                   M_van: float, M_tot: float) -> float:
+                   M_van: float, M_tot: float) -> tuple[float, float]:
     """
     Agregeert faalkansen (`pof`) per M-venster en somt de bin-maxima op.
 
@@ -131,12 +131,17 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
         .groupby("bin")["pof"]
         .max()
         )
-    return corrected_sum(bin_df.to_list())
+    sum_pof = corrected_sum(bin_df.to_list())
+    if bin_df.to_list() != []:
+        max_pof = max(bin_df.to_list())
+    else:
+        max_pof = 0.0
+    return sum_pof, max_pof
 
 
 def scaled_collect(dL: float,
                    list_dsn: list[UittredepuntElement],
-                   M_van: float, M_tot: float) -> float:
+                   M_van: float, M_tot: float) -> tuple[float, float]:
     """
     Bepaald de totale faalkans door lokale pof-waarden te wegen
     met een lengtefactor per punt, afgeleid uit de midpoints tot buren.
@@ -195,4 +200,11 @@ def scaled_collect(dL: float,
         N_vak = bepaal_N_vak(L, a, dL)
         pof = cast(float, list_dsn[i].pof) * N_vak
         pofs.append(pof)
-    return corrected_sum(pofs)
+
+    sum_pof = corrected_sum(pofs)
+    if pofs != []:
+        max_pof = max(pofs)
+    else:
+        max_pof = 0.0
+
+    return sum_pof, max_pof
