@@ -131,8 +131,6 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
         .groupby("bin")["pof"]
         .max()
         )
-    print(bin_df.to_list())
-    print(corrected_sum(bin_df.to_list()))
     return corrected_sum(bin_df.to_list())
 
 
