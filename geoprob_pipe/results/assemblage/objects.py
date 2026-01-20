@@ -9,7 +9,7 @@ from geoprob_pipe.results.assemblage.functions import window_collect, scaled_col
 
 @dataclass
 class KansElement:
-    _pof: Optional[float] = None  # Faalkans van het element per jaar
+    pof: Optional[float] = None  # Faalkans van het element per jaar
     beta: Optional[float] = None  # Betrouwbaarheidindex van het element
 
     def __post_init__(self):
