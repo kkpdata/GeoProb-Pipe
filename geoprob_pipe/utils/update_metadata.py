@@ -16,6 +16,16 @@ def _to_text(v):
     return str(v)
 
 
+def _upsert_metadata(conn, table, metadata_type, value):
+    sql_update = f'UPDATE {table} SET "values" = ? WHERE metadata_type = ?'
+    sql_insert = f'INSERT INTO {table} (metadata_type, "values") VALUES (?, ?)'
+
+    with conn:  # transaction
+        cur = conn.execute(sql_update, (value, metadata_type))
+        if cur.rowcount == 0:
+            conn.execute(sql_insert, (metadata_type, value))
+
+
 def update_metadata(geoprob_pipe: GeoProbPipe):
     gpkg_path = geoprob_pipe.input_data.app_settings.geopackage_filepath
     table = "geoprob_pipe_metadata"
@@ -31,7 +41,7 @@ def update_metadata(geoprob_pipe: GeoProbPipe):
     n_vakken: int = len(geoprob_pipe.results.df_beta_vakken)
     ratio_points: float = n_points / len(geoprob_pipe.input_data.uittredepunten.gdf)
 
-    metadata_text = [
+    records = [
         {"metadata_type": "last_calculation_run_datetime",
          "values": geoprob_pipe.input_data.app_settings.datetime_stamp},
         {"metadata_type": "last_calculation_rub_in_seconds",
@@ -49,12 +59,10 @@ def update_metadata(geoprob_pipe: GeoProbPipe):
     ]
 
     conn = sqlite3.connect(gpkg_path)
-    cur = conn.cursor()
 
-    sql = f'INSERT OR REPLACE INTO {table} (metadata_type, "values") VALUES (?, ?)'
-    rows = [(t["metadata_type"], _to_text(t.get("values")))
-            for t in metadata_text]
-
-    cur.executemany(sql, rows)
+    for r in records:
+        _upsert_metadata(conn=conn, table=table,
+                         metadata_type=r["metadata_type"],
+                         value=_to_text(r["values"]))
     conn.commit()
     conn.close()

@@ -59,8 +59,7 @@ class GeoProbPipe:
         self.time_diff = self.time_end - self.time_start
         logger.info(f"Calculations were performed successfully in {int(self.time_diff.total_seconds())} seconds.")
 
-        # add run metadata to geopackage
-        update_metadata(self)
+        
 
         # Append logic classes
         self.visualizations = Visualizations(self)
@@ -92,6 +91,8 @@ class GeoProbPipe:
         self.results.export_results()
         self.visualizations.export_visualizations()
         self.spatial.export_geopackage()
+        # add run metadata to geopackage
+        update_metadata(self)
         self._export_validation_messages()
 
         path: str = os.path.join(
