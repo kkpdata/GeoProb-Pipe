@@ -90,3 +90,7 @@ class GeoProbPipe:
         self.visualizations.export_visualizations()
         self.spatial.export_geopackage()
         self._export_validation_messages()
+
+        path: str = os.path.join(
+            self.input_data.app_settings.workspace_dir, "exports", str(self.input_data.app_settings.datetime_stamp))
+        print(f"Exported archive to {path}")

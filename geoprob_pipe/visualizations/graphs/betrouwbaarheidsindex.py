@@ -40,18 +40,19 @@ def _background_graph(
         x_line = np.linspace(df_for_graph['m_start'].min()-10,
                              df_for_graph['m_end'].max()+10)
 
-    i = 1
+    fig.add_annotation(
+        x=0.5, y=np.log10(2.1), text="Vak ID:", showarrow=False, xanchor="left", yanchor="bottom",
+        font=dict(color="black"))
     for _, vak in geoprob_pipe.input_data.vakken.gdf.iterrows():
         fig.add_vline(x=vak["m_start"], line_color="black", line_width=1)
         fig.add_vline(x=vak["m_end"], line_color="black", line_width=1)
         fig.add_annotation(
             x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
-            text=f"Vak: {i}",
+            text=f"{vak['id']}",
             showarrow=False,
             xanchor="center",
             yanchor="bottom",
             font=dict(color="black"))
-        i += 1
 
     for i, grens in enumerate(cg):
 
@@ -60,27 +61,16 @@ def _background_graph(
 
         # Onderste lijn (zichtbaar)
         fig.add_trace(go.Scatter(
-            x=x_line,
-            y=[cg[grens][0]] * len(x_line),
-            name=grens,
-            mode="lines",
-            line=dict(color="black", width=0.5),
-            hoverinfo="skip",
-            showlegend=False,
-        ))
+            x=x_line, y=[cg[grens][0]] * len(x_line), name=grens, mode="lines", line=dict(color="black", width=0.5),
+            hoverinfo="skip", showlegend=False,))
 
         # Bovenste lijn (onzichtbaar, zorgt voor fill)
         fig.add_trace(go.Scatter(
-            x=x_line,
-            y=[cg[grens][1]] * len(x_line),
-            name=grens,
-            mode="lines",
+            x=x_line, y=[cg[grens][1]] * len(x_line), name=grens, mode="lines",
             line=dict(width=0),        # geen bovenrand zichtbaar
             fill="tonexty",
             fillcolor=colors[i % len(colors)],  # kleur uit lijst
-            hoverinfo="skip",
-            showlegend=False,
-        ))
+            hoverinfo="skip", showlegend=False))
 
         # Labels bij de ondergrens
         fig.add_annotation(
@@ -341,13 +331,18 @@ class GraphBetaValuesSingleInteractive:
             on="id",
             how="left"
         )
-
+        first = True
         for _, row in df_for_graph.iterrows():
-            self.fig.add_shape(type="line",
-                               x0=row["m_start"], x1=row["m_end"],
-                               y0=row["beta"], y1=row["beta"],
-                               line=dict(color="grey", width=2.5),
-                               )
+            self.fig.add_trace(go.Scatter(
+                x=[row["m_start"], row["m_end"]],
+                y=[row["beta"], row["beta"]],
+                mode="lines",
+                line=dict(color="black", width=2.5),
+                name="Beta Vakken",
+                legendgroup="Beta vakken",
+                showlegend=first
+            ))
+            first = False
 
     def _add_beta_per_scenario(self):
         df_results_combined = self.geoprob_pipe.results.df_beta_scenarios
@@ -412,6 +407,14 @@ class GraphBetaValuesSingleInteractive:
 
         x_line = np.linspace(self.m_start, self.m_end)
 
+        self.fig.add_annotation(x=0.5,
+                                y=np.log10(2.1),
+                                text="Vak ID:",
+                                showarrow=False,
+                                xanchor="left",
+                                yanchor="bottom",
+                                font=dict(color="black")
+                                )
         i = 1
 
         for _, vak in self.gdf_vakken.iterrows():
@@ -421,7 +424,7 @@ class GraphBetaValuesSingleInteractive:
                                line_width=1)
             self.fig.add_annotation(
                 x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
-                text=f"Vak: {i}",
+                text=f"{i}",
                 showarrow=False,
                 xanchor="center",
                 yanchor="bottom",

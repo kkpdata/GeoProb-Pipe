@@ -30,9 +30,6 @@ SELECT parameter_a, parameter_b, correlation FROM correlatie_invoer WHERE correl
 """)
         rows = cursor.fetchall()  # This will be a list of tuples
         conn.close()
-        if rows.__len__() > 0:
-            print(f"{BColors.WARNING}Er zijn één of meer correlaties toegepast. De logica hiervoor is geïmplementeerd "
-                  f"maar nog niet volledig gevalideerd.{BColors.ENDC}")
         return rows
     except sqlite3.OperationalError:
         return []
