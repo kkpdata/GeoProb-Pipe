@@ -7,6 +7,30 @@ if TYPE_CHECKING:
     from geoprob_pipe.results.assemblage.objects import UittredepuntElement
 
 
+def corrected_sum(list_pof: list[float]) -> float:
+    r"""Gecorrigeerde som van de faalkansen. De som van onafhankelijke
+    faalkansen is geljk aan: 1 min het product van 1 min de inviduele
+    faalkans.
+
+    Parameters
+    ----------
+    list_pof : list[float]
+        Lijst van de faalkans die opgeteld moeten worden.
+
+    Returns
+    -------
+    float
+        Gecorrigeerde som van de faalkansen.
+    """
+    if list_pof != []:
+        corr_inv_pof = 1
+        for pof in list_pof:
+            corr_inv_pof = corr_inv_pof * (1.0 - pof)
+        return 1.0 - corr_inv_pof
+    else:
+        return 0.0
+
+
 def bepaal_N_vak(L: float, a: float, dL: float) -> float:
     r"""Bepaalt de opschaalfactor per vak.
 
@@ -102,12 +126,14 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
         include_lowest=True
         )
 
-    bin_df = (
+    bin_df: pd.Series[float] = (
         vak_df.dropna(subset=["bin"])
         .groupby("bin")["pof"]
         .max()
         )
-    return float(bin_df.sum())
+    print(bin_df.to_list())
+    print(corrected_sum(bin_df.to_list()))
+    return corrected_sum(bin_df.to_list())
 
 
 def scaled_collect(dL: float,
@@ -151,7 +177,7 @@ def scaled_collect(dL: float,
         De som van `pof * N_vak` over de uittredepunten.
     """
     list_dsn.sort(key=attrgetter("M_value"))
-    pofs = []
+    pofs: list[float] = []
     for i in range(len(list_dsn)):
         if i == 0:
             L_van: float = M_van
@@ -171,4 +197,4 @@ def scaled_collect(dL: float,
         N_vak = bepaal_N_vak(L, a, dL)
         pof = cast(float, list_dsn[i].pof) * N_vak
         pofs.append(pof)
-    return sum(pofs)
+    return corrected_sum(pofs)

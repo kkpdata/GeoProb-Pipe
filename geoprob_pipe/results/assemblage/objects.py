@@ -1,10 +1,11 @@
 from __future__ import annotations
 from dataclasses import dataclass
-import math
+
 from typing import Optional, List, cast
 from geoprob_pipe.results.assemblage.functions import bepaal_N_vak
 import scipy.stats as stats  # importeer de scipy.stats module
-from geoprob_pipe.results.assemblage.functions import window_collect, scaled_collect
+from geoprob_pipe.results.assemblage.functions import (
+    corrected_sum, window_collect, scaled_collect)
 
 
 @dataclass
@@ -70,19 +71,19 @@ class VakElement:
 
     @property
     def Pf_window_100m(self) -> KansElement:
-        Pf_vak = window_collect(100.0, list_dsn=self.list_dsn,
+        Pf_vak = window_collect(window_size=100.0, list_dsn=self.list_dsn,
                                 M_van=self.M_van, M_tot=self.M_tot)
         return KansElement(pof=Pf_vak)
 
     @property
     def Pf_window_250m(self) -> KansElement:
-        Pf_vak = window_collect(250.0, list_dsn=self.list_dsn,
+        Pf_vak = window_collect(window_size=250.0, list_dsn=self.list_dsn,
                                 M_van=self.M_van, M_tot=self.M_tot)
         return KansElement(pof=Pf_vak)
 
     @property
     def Pf_window_500m(self) -> KansElement:
-        Pf_vak = window_collect(500.0, list_dsn=self.list_dsn,
+        Pf_vak = window_collect(window_size=500.0, list_dsn=self.list_dsn,
                                 M_van=self.M_van, M_tot=self.M_tot)
         return KansElement(pof=Pf_vak)
 
@@ -120,11 +121,11 @@ class TrajectElement():
     # traject: som van vakken
     @property
     def Pf_sum_max_vak(self) -> KansElement:
-        pofs = []
+        pofs: list[float] = []
         for vak in self.list_vakken:
-            pof = vak.Pf_max_dsn.pof
+            pof = cast(float, vak.Pf_max_dsn.pof)
             pofs.append(pof)
-        return KansElement(pof=sum(pofs))
+        return KansElement(pof=corrected_sum(pofs))
 
     # traject: moving window met variable groote
     @property
