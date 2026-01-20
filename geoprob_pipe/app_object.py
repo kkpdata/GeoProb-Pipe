@@ -20,6 +20,7 @@ from geoprob_pipe.spatial import Spatial
 from geoprob_pipe.visualizations import Visualizations
 from geoprob_pipe.calculations.system_calculations.build_and_run import build_and_run_system_calculations
 from geoprob_pipe.software_requirements import SoftwareRequirements
+from geoprob_pipe.utils.update_metadata import update_metadata
 
 if TYPE_CHECKING:
     from geoprob_pipe.calculations.system_calculations.build_and_run import CalcResult
@@ -55,8 +56,12 @@ class GeoProbPipe:
 
         # Log finish
         self.time_end = datetime.now()
-        time_diff = self.time_end - self.time_start
-        logger.info(f"Calculations were performed successfully in {int(time_diff.total_seconds())} seconds.")
+        self.time_diff = self.time_end - self.time_start
+        logger.info(f"Calculations were performed successfully in \
+            {int(self.time_diff.total_seconds())} seconds.")
+
+        # add run metadata to geopackage
+        update_metadata(self)
 
         # Append logic classes
         self.visualizations = Visualizations(self)
