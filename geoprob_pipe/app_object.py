@@ -96,5 +96,6 @@ class GeoProbPipe:
         self._export_validation_messages()
 
         path: str = os.path.join(
-            self.input_data.app_settings.workspace_dir, "exports", str(self.input_data.app_settings.datetime_stamp))
+            str(self.input_data.app_settings.workspace_dir), "exports",
+            str(self.input_data.app_settings.datetime_stamp))
         print(f"Exported archive to {path}")
