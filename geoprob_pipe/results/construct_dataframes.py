@@ -71,12 +71,17 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
         'failure_probability'].sum()
     df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
 
+    # Determine when uittredepunt is converged (when all scenarios are converged)
+    conv = results.df_beta_scenarios.groupby(
+        'uittredepunt_id', as_index=False)["converged"].all()
+    df = df.merge(conv, on="uittredepunt_id", how="left")
+
     # Add vak id back to it
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df_uittredepunten = gdf_uittredepunten[["uittredepunt_id", "vak_id"]]
     df = df.merge(df_uittredepunten, left_on="uittredepunt_id", right_on="uittredepunt_id")
 
-    return df[["uittredepunt_id", "vak_id", "beta", "failure_probability"]]
+    return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability"]]
 
 
 def construct_df_beta_per_vak(results: Results):

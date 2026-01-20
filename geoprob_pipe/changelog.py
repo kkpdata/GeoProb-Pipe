@@ -1,5 +1,6 @@
 
 CHANGELOG = {
+    "1.1.0": "Implementatie van een eerste versie van het vergelijken van twee verschillende GeoProb-Pipe bestanden.",
     "1.0.0": "Implementatie GeoPackage als data (in- en uitvoer) bestand én implementatie van keuze in "
              "geohydrologische modellen.",
     "0.1.0": "Toevoegen features na interne gebruikerssessie WSRL 2025-08-11: (a) geopackage-export met resultaten, "
