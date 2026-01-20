@@ -57,8 +57,7 @@ class GeoProbPipe:
         # Log finish
         self.time_end = datetime.now()
         self.time_diff = self.time_end - self.time_start
-        logger.info(f"Calculations were performed successfully in \
-            {int(self.time_diff.total_seconds())} seconds.")
+        logger.info(f"Calculations were performed successfully in {int(self.time_diff.total_seconds())} seconds.")
 
         # add run metadata to geopackage
         update_metadata(self)
