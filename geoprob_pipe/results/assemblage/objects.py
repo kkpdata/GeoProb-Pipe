@@ -9,26 +9,22 @@ from geoprob_pipe.results.assemblage.functions import window_collect, scaled_col
 
 @dataclass
 class KansElement:
-    pof: Optional[float] = None  # Faalkans van het element per jaar
+    _pof: Optional[float] = None  # Faalkans van het element per jaar
     beta: Optional[float] = None  # Betrouwbaarheidindex van het element
 
     def __post_init__(self):
-        # if self.pof is not None:
-        #     if not (0.0 <= self.pof <= 1.0):
-        #         raise ValueError("pof moet tussen 0.0 en 1.0 liggen.")
 
-        # if self.beta is not None:
-        #     if not math.isfinite(self.beta):
-        #         raise ValueError("beta moet een eindige waarde zijn.")
-        #     if (-38.0 <= self.beta <= 38.0) is False:
-        #         raise ValueError("beta moet tussen -38.0 en 38.0 liggen.")
+        if self.pof is not None:
+            if self.pof > 1:
+                self.pof = 1
+            elif self.pof <= 0:
+                self.pof = 0
 
         if self.pof is None and self.beta is not None:
             self.pof = float(stats.norm.cdf(-1.0 * self.beta))
 
         if self.beta is None and self.pof is not None:
             self.beta = -1.0 * float(stats.norm.ppf(self.pof))
-
 
 @dataclass
 class UittredepuntElement(KansElement):
