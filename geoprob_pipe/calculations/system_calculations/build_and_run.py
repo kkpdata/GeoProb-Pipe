@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, List
 from geoprob_pipe.calculations.system_calculations.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
 from multiprocessing import Pool, cpu_count
 import time
@@ -23,7 +23,7 @@ _MODEL: str
 
 
 @dataclass
-class CalcResult():
+class CalcResult:
     """
     Dataclass om de resultaten te verzamelen vanuit de calculation.
     Bevat de volgende attributen:
@@ -83,10 +83,8 @@ def build_and_run_system_calculations(
         SYSTEM_CALCULATION_MAPPER[geohydrologisch_model]['system_builder'](
             geopackage_filepath=geopackage_filepath, to_run_vakken_ids=to_run_vakken_ids))
 
-    logger.info("Now building calculations...")
+    logger.info("Now building and running calculations...")
     df_unique_combos = system_builder.setup_iteration_df()
-
-    logger.info("Now running calculations...")
     # Bepaal de parameters voor de multiprocessing setup en de logger
     n_threads: int = cpu_count() - 1
     n_calc_totaal: int = len(df_unique_combos)
