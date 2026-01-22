@@ -1,7 +1,7 @@
 import typer
 from rich.console import Console
 import os
-import platform
+from geoprob_pipe.utils import clear_terminal
 from datetime import datetime
 from rich.panel import Panel
 from geoprob_pipe.questionnaire.questionnaire import start_questionnaire
@@ -52,13 +52,6 @@ class ApplicationSettings:
             return None
         vak_ids_str: List[str] = self.to_run.replace("vakken:", "").split(sep=",")
         return [int(vak_id_str) for vak_id_str in vak_ids_str]
-
-
-def clear_terminal():
-    if platform.system() == "Windows":
-        os.system("cls")
-        return
-    os.system("clear")
 
 
 @app.command()
