@@ -16,7 +16,8 @@ if TYPE_CHECKING:
 
 def created_project(app_settings: ApplicationSettings) -> bool:
 
-    choices_list = ["Bestaand project openen", "Nieuw project starten", "Applicatie afsluiten"]
+    choices_list = ["Bestaand project openen", "Nieuw project starten",
+                    "Uittredepunt opnieuw berekenen", "Applicatie afsluiten"]
     choice = inquirer.select(
         message="Wil je verder gaan met een bestaand project, of een nieuw project starten?",
         choices=choices_list,
@@ -29,6 +30,24 @@ def created_project(app_settings: ApplicationSettings) -> bool:
     elif choice == choices_list[1]:
         specify_dir_for_new_project(app_settings)
         return True
+    elif choice == choices_list[2]:
+
+        example_script = r"""
+from geoprob_pipe.calculations.system_calculations.single_calc import create_single_calc
+from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
+    ParallelSystemReliabilityCalculation,
+)
+
+calc: ParallelSystemReliabilityCalculation = create_single_calc(
+    geopackage_filepath=r"/pad/naar/het/bestand/geoprob_pipe.gpkg",
+    uittredepunt_id=1234,
+    ondergrondscenario_naam="PL",
+)
+"""
+        print("=== COPY/PASTE IN PYTHON WITH YOUR ARGUMENTS ===")
+        print(example_script)
+        print("=== END ===")
+
     return False
 
 
@@ -41,7 +60,6 @@ def specify_path_to_existing_project(app_settings: ApplicationSettings):
         ).execute()
 
         filepath = filepath.replace('"', '')
-
 
         if not filepath.endswith(".geoprob_pipe.gpkg"):
             print(BColors.WARNING, f"Het bestand moet een .geoprob_pipe.gpkg-bestand zijn. Jouw invoer "
