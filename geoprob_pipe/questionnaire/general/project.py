@@ -1,6 +1,9 @@
 from __future__ import annotations
 from InquirerPy import inquirer
 from typing import Optional, TYPE_CHECKING
+from rich.console import Console
+from rich.panel import Panel
+from geoprob_pipe.utils import clear_terminal
 import os
 from pandas import DataFrame
 from datetime import datetime
@@ -11,6 +14,8 @@ from geopandas import GeoDataFrame
 from geoprob_pipe.questionnaire.utils.misc import get_geoprob_pipe_version_number
 from geoprob_pipe.questionnaire.comparisons.start_comparison import start_comparison
 from geoprob_pipe.utils.validation_messages import BColors
+from geoprob_pipe.calculations.system_calculations.single_calc import (
+    EXAMPLE_SCRIPT_REPRODUCING_SINGLE_CALCULATION, EXPLANATION_REPRODUCING_SINGLE_CALCULATION)
 if TYPE_CHECKING:
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
@@ -42,32 +47,15 @@ def created_project(app_settings: ApplicationSettings) -> bool:
         start_comparison()
         sys.exit("Applicatie afgesloten")
     elif choice == choices_list[3]:
-        example_script = r"""
-from geoprob_pipe import reproduce_single_calc, ParallelSystemReliabilityCalculation
-
-calc: ParallelSystemReliabilityCalculation = reproduce_single_calc(
-    geopackage_filepath=r"/pad/naar/het/bestand/geoprob_pipe.gpkg",
-    uittredepunt_id=1234,            # Replace with id of interest
-    ondergrondscenario_naam="PL",    # Replace with scenario name of interest
-)
-"""
-        print(f"""
-=== Uitleg =============================================================================================================
-Met de onderstaande code kun je in de Python console een enkele berekening reproduceren en inspecteren. Dit is 
-bijvoorbeeld handig wanneer je de Python objecten wilt vergelijken met de gegenereerde in- en uitvoer. Of wanneer je een 
-vergelijk aan het maken bent met de PTK-tool.  
-
-Om dit te doen kopieer je de onderstaande code naar de Python console. Zorg er voor dat je de Python console gebruikt 
-waar je GeoProb-Pipe ook hebt geïnstalleerd. Vervang vervolgens nog het uittredepunt id met het id wat je wilt bekijken. 
-Hetzelfde doe je voor de ondergrondscenario_naam. 
-
-Het reproduceren en herberekenen duurt slechts enkele seconden. Daarna kun je de objecten inspecteren.   
-
-Let op: Dit vergt wel enige ervaring met Python. 
-========================================================================================================================
-{example_script}
-========================================================================================================================
-""")
+        clear_terminal()
+        console = Console()
+        console.print(Panel(
+            EXPLANATION_REPRODUCING_SINGLE_CALCULATION,
+            title=f"Inspecteer een enkele berekening".upper(),
+            title_align="left",
+            border_style="bright_blue",
+            padding=(0, 2)))
+        print(EXAMPLE_SCRIPT_REPRODUCING_SINGLE_CALCULATION)
         sys.exit("Applicatie afgesloten")
     return False
 
