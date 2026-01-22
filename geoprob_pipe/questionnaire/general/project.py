@@ -17,9 +17,13 @@ if TYPE_CHECKING:
 
 def created_project(app_settings: ApplicationSettings) -> bool:
 
-    choices_list = ["Bestaand project openen", "Nieuw project starten",
-                    "Twee projectbestanden vergelijken",
-                    "Uittredepunt opnieuw berekenen", "Applicatie afsluiten"]
+    choices_list = [
+        "Bestaand project openen",
+        "Nieuw project starten",
+        "Twee projectbestanden vergelijken",
+        "Inspecteer een enkele berekening",
+        "Applicatie afsluiten"
+    ]
     choice = inquirer.select(
         message="Wil je verder gaan met een bestaand project, "
                 "een nieuw project starten, "
@@ -39,20 +43,31 @@ def created_project(app_settings: ApplicationSettings) -> bool:
         sys.exit("Applicatie afgesloten")
     elif choice == choices_list[3]:
         example_script = r"""
-from geoprob_pipe.calculations.system_calculations.single_calc import create_single_calc
-from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
-    ParallelSystemReliabilityCalculation,
-)
+from geoprob_pipe import reproduce_single_calc, ParallelSystemReliabilityCalculation
 
-calc: ParallelSystemReliabilityCalculation = create_single_calc(
+calc: ParallelSystemReliabilityCalculation = reproduce_single_calc(
     geopackage_filepath=r"/pad/naar/het/bestand/geoprob_pipe.gpkg",
-    uittredepunt_id=1234,
-    ondergrondscenario_naam="PL",
+    uittredepunt_id=1234,            # Replace with id of interest
+    ondergrondscenario_naam="PL",    # Replace with scenario name of interest
 )
 """
-        print("=== COPY/PASTE IN PYTHON WITH YOUR ARGUMENTS ===")
-        print(example_script)
-        print("=== END ===")
+        print(f"""
+=== Uitleg =============================================================================================================
+Met de onderstaande code kun je in de Python console een enkele berekening reproduceren en inspecteren. Dit is 
+bijvoorbeeld handig wanneer je de Python objecten wilt vergelijken met de gegenereerde in- en uitvoer. Of wanneer je een 
+vergelijk aan het maken bent met de PTK-tool.  
+
+Om dit te doen kopieer je de onderstaande code naar de Python console. Zorg er voor dat je de Python console gebruikt 
+waar je GeoProb-Pipe ook hebt geïnstalleerd. Vervang vervolgens nog het uittredepunt id met het id wat je wilt bekijken. 
+Hetzelfde doe je voor de ondergrondscenario_naam. 
+
+Het reproduceren en herberekenen duurt slechts enkele seconden. Daarna kun je de objecten inspecteren.   
+
+Let op: Dit vergt wel enige ervaring met Python. 
+========================================================================================================================
+{example_script}
+========================================================================================================================
+""")
         sys.exit("Applicatie afgesloten")
     return False
 
