@@ -1,5 +1,5 @@
 from __future__ import annotations
-import pandas as pd
+# import pandas as pd
 from pandas import merge
 import numpy as np
 import os
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 def _background_graph(
         geoprob_pipe: GeoProbPipe,
         fig: go.Figure,
-        df_for_graph: pd.DataFrame
+        # df_for_graph: pd.DataFrame
         ) -> go.Figure:
     # Categorie kleuren
 
@@ -41,12 +41,15 @@ def _background_graph(
         x=0.5, y=np.log10(2.2), text="Vak ID:", showarrow=False,
         xanchor="left", yanchor="bottom", font=dict(color="black"))
 
-    for _, vak in vakken.iterrows():
+    # for _, vak in vakken.iterrows():
+    #     x=0.5, y=np.log10(2.1), text="Vak ID:", showarrow=False, xanchor="left", yanchor="bottom",
+    #     font=dict(color="black"))
+    for _, vak in geoprob_pipe.input_data.vakken.gdf.iterrows():
         fig.add_vline(x=vak["m_start"], line_color="black", line_width=1)
         fig.add_vline(x=vak["m_end"], line_color="black", line_width=1)
         fig.add_annotation(
             x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
-            text=vak["id"],
+            text=f"{vak['id']}",
             showarrow=False,
             xanchor="center",
             yanchor="bottom",
@@ -108,7 +111,7 @@ def beta_scenarios_graph(
     # Plot data
     fig = go.Figure()
     # Background
-    fig = _background_graph(geoprob_pipe, fig, df_for_graph)
+    fig = _background_graph(geoprob_pipe, fig)
     beta_min = 2
     beta_max = 20
     for value, color, name in [(True, "black", 'Beta scenarios'),
@@ -241,11 +244,11 @@ def beta_uittredepunten_graph(
     # Plot data
     fig = go.Figure()
     # Background
-    fig = _background_graph(geoprob_pipe, fig, df_for_graph)
+    fig = _background_graph(geoprob_pipe, fig)
     beta_min = 2
     beta_max = 20
-    mask_low = df_for_graph["beta"] < beta_min
-    mask_high = df_for_graph["beta"] > beta_max
+    # mask_low = df_for_graph["beta"] < beta_min
+    # mask_high = df_for_graph["beta"] > beta_max
     # In range
     for value, color, name in [(True, "black", "Beta uittredepunt"),
                                (False, "blue", "Unconverged Beta uittredepunt")]:
@@ -372,7 +375,7 @@ def beta_vakken_graph(
     # Plot data
     fig = go.Figure()
     # Background
-    fig = _background_graph(geoprob_pipe, fig, df_for_graph)
+    fig = _background_graph(geoprob_pipe, fig)
 
     beta_min = 2
     beta_max = 20

@@ -9,6 +9,7 @@ import sys
 from importlib.metadata import distributions
 from geopandas import GeoDataFrame
 from geoprob_pipe.questionnaire.utils.misc import get_geoprob_pipe_version_number
+from geoprob_pipe.questionnaire.comparisons.start_comparison import start_comparison
 from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
@@ -16,9 +17,13 @@ if TYPE_CHECKING:
 
 def created_project(app_settings: ApplicationSettings) -> bool:
 
-    choices_list = ["Bestaand project openen", "Nieuw project starten", "Applicatie afsluiten"]
+    choices_list = [
+        "Bestaand project openen", "Nieuw project starten",
+        "Twee projectbestanden vergelijken", "Applicatie afsluiten"]
     choice = inquirer.select(
-        message="Wil je verder gaan met een bestaand project, of een nieuw project starten?",
+        message="Wil je verder gaan met een bestaand project, "
+                "een nieuw project starten, "
+                "of twee project bestanden vergelijken?",
         choices=choices_list,
         default=choices_list[0],
     ).execute()
@@ -29,6 +34,9 @@ def created_project(app_settings: ApplicationSettings) -> bool:
     elif choice == choices_list[1]:
         specify_dir_for_new_project(app_settings)
         return True
+    elif choice == choices_list[2]:
+        start_comparison()
+        sys.exit("Applicatie afgesloten")
     return False
 
 

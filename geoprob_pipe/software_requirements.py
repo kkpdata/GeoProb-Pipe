@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 from datetime import datetime
 from geoprob_pipe.utils.validation_messages import ValidationMessages
 import numpy as np
+# noinspection PyPep8Naming
+from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 if TYPE_CHECKING:
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
@@ -13,6 +15,7 @@ if TYPE_CHECKING:
 class SoftwareRequirements:
 
     def __init__(self, app_settings: ApplicationSettings):
+        logger.info("Checking software requirements.")
         self.validation_messages = ValidationMessages(about="Checking software requirements")
         self.chrome_is_installed = self._check_chrome_is_installed(app_settings=app_settings)
 
