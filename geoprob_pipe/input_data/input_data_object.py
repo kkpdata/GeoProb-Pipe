@@ -17,7 +17,6 @@ import sqlite3
 from geoprob_pipe.misc.traject_normering import TrajectNormering
 if TYPE_CHECKING:
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
-    # from geoprob_pipe import GeoProbPipe
 
 
 class Vak:
@@ -47,16 +46,6 @@ class Uittredepunt:
         self.geometry: Point = geometry
         self.uittredepunt_id: int = uittredepunt_id
         self.vak_id: int = vak_id
-
-    # def _get_vak_id(self) -> int:
-    #     conn = sqlite3.connect(self.app_settings.geopackage_filepath)
-    #     cursor = conn.cursor()
-    #     cursor.execute(f"SELECT vak_id FROM uittredepunten WHERE uittredepunt_id = {self.uittredepunt_id};")
-    #     result = cursor.fetchone()
-    #     if result:
-    #         conn.close()
-    #         return result[0]
-    #     raise ValueError
 
     @property
     def vak(self) -> Vak:
@@ -138,32 +127,9 @@ class InputData:
     ):
 
         self.app_settings: ApplicationSettings = app_settings
-        # self.workspace: Workspace = workspace
-
-        # # Read overview data of parameters from input Excel file (includes e.g. upper and lower bounds, type of
-        # # distribution, etc.) and carry out checks
-        # self.df_overview_parameters = pd.read_excel(
-        #     workspace.path_input_excel, sheet_name="Overzicht_parameters",
-        #     index_col=0, header=0).rename(columns=lambda x: x.strip())
-        # checks_overview_parameters(self.df_overview_parameters)
-        #
-        # # Collections
-        # self.vakken = VakCollection(workspace=workspace, df_overview_parameters=self.df_overview_parameters)
-        # self.uittredepunten = UittredepuntCollection(
-        #     workspace=workspace, vak_collection=self.vakken, df_overview_parameters=self.df_overview_parameters)
-        # self.ondergrondscenarios = OndergrondScenarioCollection(
-        #     workspace=workspace, vak_collection=self.vakken, df_overview_parameters=self.df_overview_parameters)
-        # checks_input_parameters(
-        #     self.df_overview_parameters, self.vakken.df, self.uittredepunten.df, self.ondergrondscenarios.df)
-        # logger.info(f"Parameter data successfully loaded from `{workspace.path_input_excel.name}`.")
 
         # Traject-data
         self._traject_normering: Optional[TrajectNormering] = None
-
-        # # HRD-data
-        # self.overschrijdingsfrequentielijnen = OverschrijdingsfrequentielijnCollection(
-        #     path_hrd=workspace.path_hrd, uittredepunt_collection=self.uittredepunten)
-        # logger.info(f"HRD .sqlite file successfully loaded from `{workspace.path_hrd.name}`.")
 
         self.uittredepunten = Uittredepunten(self.app_settings)
         self.scenarios = Scenarios(self.app_settings)

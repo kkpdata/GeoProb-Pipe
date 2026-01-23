@@ -1,7 +1,7 @@
 ![Coverage](./readme_images/coverage.svg)
 
 # GeoProb-Pipe
-Applicatie voor het uitvoeren van probabilistische piping berekeningen. De tool maakt gebruik van de probabilistische 
+Applicatie voor het uitvoeren van probabilistische piping berekeningen. De applicatie maakt gebruik van de probabilistische 
 bibliotheek van Deltares. Deze bibliotheek stuurt onder de motorkap de PTK-tool aan. 
 
 
@@ -20,7 +20,7 @@ Op termijn wordt GeoProb-Pipe beschikbaar gesteld middels de Python Package Inde
 installatie via `pip install geoprob-pipe`. Voor nu is de installatie als volgt:
 
  - Kloon de repository middels `git clone repo_weblink`.
- - Maak een virtuele Python environment aan. Deze tool is ontwikkeld met Python versie 3.12. 
+ - Maak een virtuele Python environment aan. Deze applicatie is ontwikkeld met Python versie 3.12. 
  - Installeer alle dependencies middels `pip install -r requirements.txt`. 
 
 

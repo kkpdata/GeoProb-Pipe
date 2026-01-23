@@ -118,7 +118,7 @@ def calc_dh_red(
     Args:
         buitenwaterstand (float): buitenwaterstand [m+NAP]
         h_exit (float): Benedenstroomse randvoorwaarde verval [m+NAP]
-        r_c_deklaag (float): Reductieconstante van het verval over de deklaag [-]
+        r_c_deklaag (float): Reductie constante van het verval over de deklaag [-]
         d_deklaag (float): deklaagdikte in m
 
     Returns:
