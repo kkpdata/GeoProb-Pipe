@@ -1,4 +1,5 @@
-r"""Module met functies voor het berekenen van fysische componenten van piping en uplift. Dit betreft onder andere de dikte van de deklaag,het niveau bij het uittredepunt en de kwelweglengte.
+r"""Module met functies voor het berekenen van fysische componenten van piping en uplift. Dit betreft onder andere de
+dikte van de deklaag, het niveau bij het uittredepunt en de kwelweglengte.
 """
 
 import math
@@ -9,7 +10,9 @@ def calc_d_deklaag(
         mv_exit: float,
         top_zand: float
 ) -> float:
-    r"""Berekening deklaagdikte ter plaatse van het uittredepunt, de minimale dikte van de deklaag is 0.1 m omdat negatieve deklaagdiktes niet mogelijk zijn. Dit uitgangspunt is gekozen omdat ook bij een zeer dunne deklaag nog enige reductie van het verval verwacht mag worden. 
+    r"""Berekening deklaagdikte ter plaatse van het uittredepunt, de minimale dikte van de deklaag is 0.1 m omdat
+    negatieve deklaagdiktes niet mogelijk zijn. Dit uitgangspunt is gekozen omdat ook bij een zeer dunne deklaag nog
+    enige reductie van het verval verwacht mag worden.
 
     Args:
         mv_exit (float): Bodemhoogte ter plaatse van Uittredepunten [m+NAP]
@@ -43,7 +46,9 @@ def calc_lengte_voorland(
         L_intrede: float,
         L_but: float
 ) -> float:
-    r"""Berekent de geometrische voorlandlengte in [m] op basis van afstanden ten opzichte van een uittredepunt. In de pre-processing tool worden :math:`L_{intrede}` en :math:`L_{but}` als geografische lijnobjecten gedefinieerd. De kortste afstand tussen deze objecten is invoer voor deze functie.
+    r""" Berekent de geometrische voorlandlengte in [m] op basis van afstanden ten opzichte van een uittredepunt. In de
+    pre-processing tool worden :math:`L_{intrede}` en :math:`L_{but}` als geografische lijnobjecten gedefinieerd. De
+    kortste afstand tussen deze objecten is invoer voor deze functie.
 
     Args:
         L_intrede (float): afstand van uittredepunten tot een (denkbeeldige) intredelijn [m]
@@ -107,8 +112,8 @@ def calc_dh_red(
     r"""Berekening van het gereduceerde verval over de waterkering.
 
     .. math::
-        
-        \Delta h_{red} = h_{buitenwaterstand} - h_{exit} - r_{c,deklaag} \cdot d_{deklaag}
+
+        \Delta h_{red} = h_{buitenwaterstand} - h_{exit} - r_{c, deklaag} \cdot d_{deklaag}
 
     Args:
         buitenwaterstand (float): buitenwaterstand [m+NAP]
@@ -193,8 +198,8 @@ def calc_dphi_c_u(
 
     .. math::
 
-        \Delta \phi_{c,u} = \frac{d_{deklaag} \cdot (\gamma_{sat,deklaag} - \gamma_{w})}{\gamma_{w}}
-    
+        \Delta \phi_{c, u} = \frac{d_{deklaag} \cdot (\gamma_{sat, deklaag} - \gamma_{w})}{\gamma_{w}}
+
     Args:
         d_deklaag (float): Dikte van de cohesieve deklaag [m]
         gamma_sat_deklaag (float): verzadigd volumegewicht van de deklaag [kN/m³]
@@ -229,7 +234,7 @@ def calc_i_exit(
 
 
 # noinspection PyPep8Naming
-#TODO: deze wrapper functie wordt gebruikt in heave_icw_model4a.py en uplift_icw_model4a.py 
+#TODO: deze wrapper functie wordt gebruikt in heave_icw_model4a.py en uplift_icw_model4a.py
 # check of deze limit_state functies ook daadwerkelijk gebruikt worden in de berekeningen.
 # zo niet, verwijder deze functies of roep de model4a klasse direct aan in de limit_state functies.
 def calc_r_exit_model4a(

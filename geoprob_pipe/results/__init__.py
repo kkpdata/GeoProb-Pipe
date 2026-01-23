@@ -2,7 +2,7 @@ from __future__ import annotations
 from pandas import DataFrame
 from typing import TYPE_CHECKING, Optional
 from geoprob_pipe.results.construct_dataframes import (
-    collect_df_beta_per_limit_state, collect_df_beta_per_scenario, calculate_df_beta_per_uittredepunt,
+    combine_df_beta_per_limit_state, combine_df_beta_per_scenario, calculate_df_beta_per_uittredepunt,
     construct_df_beta_per_vak)
 from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import construct_df
 import os
@@ -15,8 +15,8 @@ class Results:
 
     def __init__(self, geoprob_pipe: GeoProbPipe):
         self.geoprob_pipe = geoprob_pipe
-        self.df_beta_limit_states = collect_df_beta_per_limit_state(geoprob_pipe=geoprob_pipe)
-        self.df_beta_scenarios = collect_df_beta_per_scenario(geoprob_pipe=geoprob_pipe)
+        self.df_beta_limit_states = combine_df_beta_per_limit_state(geoprob_pipe.calc_results)
+        self.df_beta_scenarios = combine_df_beta_per_scenario(geoprob_pipe.calc_results)
         self._df_alphas_influence_factors_and_physical_values: Optional[DataFrame] = None
         self.df_beta_uittredepunten = calculate_df_beta_per_uittredepunt(geoprob_pipe=geoprob_pipe, results=self)
         self.df_beta_vakken = construct_df_beta_per_vak(self)
@@ -46,8 +46,11 @@ class Results:
 
     @property
     def export_dir(self) -> str:
-        # TODO Later Could Klein: Elk sub-object heeft een export_dir-method. Kan dit handiger?
-        path = os.path.join(self.geoprob_pipe.workspace.path_output_folder.folderpath, "results")
+        path: str = os.path.join(
+            self.geoprob_pipe.input_data.app_settings.workspace_dir,
+            "exports",
+            str(self.geoprob_pipe.input_data.app_settings.datetime_stamp),
+            "results")
         os.makedirs(path, exist_ok=True)
         return path
 
@@ -57,23 +60,20 @@ class Results:
             bool_beta_scenarios: bool = True,
             bool_alphas_influence_factors_and_physical_values: bool = True,
             bool_beta_uittredepunten: bool = True,
-            bool_beta_vakken: bool = True,
-    ):
+            bool_beta_vakken: bool = True):
+
+        df: Optional[DataFrame] = None
 
         # Results of limit state calculations
         if bool_beta_limit_states:
             df = self.df_beta_limit_states
-            # df = df[["uittredepunt_id", "ondergrondscenario_id", "model", "converged", "beta", "failure_probability"]]
             # TODO Nu Must Klein: Voor export df_beta_limit_states, kolommen filteren?
-            df.to_excel(
-                excel_writer=os.path.join(self.export_dir, "df_beta_limit_states.xlsx"))
+            df.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_limit_states.xlsx"))
             # TODO Nu Should Klein: Sommige resultaten zijn niet converged. Wat doen we daarmee?
             #  Op dit moment worden ze gewoon gebruikt om de scenario-faalkans te berekenen.
 
         if bool_beta_scenarios:
-            df = self.df_beta_scenarios.drop(columns=['ondergrondscenario', 'system_calculation'])
-            df.to_excel(
-                excel_writer=os.path.join(self.export_dir, "df_beta_scenarios.xlsx"))
+            df.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_scenarios.xlsx"))
 
         if bool_alphas_influence_factors_and_physical_values:
             df = self.df_alphas_influence_factors_and_physical_values()
@@ -85,6 +85,4 @@ class Results:
                 excel_writer=os.path.join(self.export_dir, "df_beta_uittredepunten.xlsx"))
 
         if bool_beta_vakken:
-            self.df_beta_vakken.to_excel(
-                excel_writer=os.path.join(self.export_dir, "df_beta_vakken.xlsx"))
-
+            self.df_beta_vakken.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_vakken.xlsx"))

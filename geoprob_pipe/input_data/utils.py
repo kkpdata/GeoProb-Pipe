@@ -1,3 +1,5 @@
+# TODO: Nalopen of deze code nog wordt gebruikt.
+
 from typing import Optional
 import pandas as pd
 from collections.abc import Iterable

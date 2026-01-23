@@ -187,6 +187,16 @@ test_data = get_data()
 
 # extract inputs and expected outputs for limit_state_wbi
 inputs_lm_wbi = test_data.loc[:, input_keys_lm_wbi]
+
+# add global variables in dataframe in the right order
+# inputs_lm_wbi["g"] = G
+# inputs_lm_wbi["v"] = V
+# inputs_lm_wbi["eta"] = ETA
+# inputs_lm_wbi["theta"] = THETA
+# inputs_lm_wbi["gamma_korrel"] = GAMMA_KORREL
+# inputs_lm_wbi["gamma_water"] = GAMMA_WATER
+# inputs_lm_wbi["d70_m"] = D70_M
+
 inputs_lm_wbi_dict = inputs_lm_wbi.to_dict(orient="records")
 expected_outputs_lm_wbi = test_data[output_keys_lm_wbi].to_dict(orient="records")
 

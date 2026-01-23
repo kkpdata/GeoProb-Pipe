@@ -119,7 +119,7 @@ Rekenmodel
 
 Er zijn enkele algemene instellingen, dit is hoofdzakelijk de systeem keuze. Momenteel is enkel `Piping`` een keuze.
 Later wordt dit uitgewerkt naar onder andere de keuzes ``model4a`` en deze i.c.m. Moria en/of het toepassen van
-respons. 
+respons.
 :ref:`Rekenmethodiek <rekenmethodiek>`
 
 Verschalingsfactoren

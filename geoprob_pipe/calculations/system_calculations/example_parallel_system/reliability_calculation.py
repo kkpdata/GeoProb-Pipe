@@ -3,7 +3,7 @@ from geoprob_pipe.calculations.system_calculations.example_parallel_system.limit
     system_variable_setup, limit_state_example_1, limit_state_example_2)
 from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
     ParallelSystemReliabilityCalculation)
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 
 class ExampleParallelSystemReliabilityCalculation(ParallelSystemReliabilityCalculation):
@@ -26,7 +26,10 @@ class ExampleParallelSystemReliabilityCalculation(ParallelSystemReliabilityCalcu
     >>> obj.run()
     """
 
-    def __init__(self, system_variable_distributions: List[Dict]):
-        super().__init__(system_variable_distributions)
+    def __init__(
+            self, system_variable_distributions: List[Dict],
+            system_variable_correlations: List[Tuple[str, str, float]] = None,
+):
+        super().__init__(system_variable_distributions, system_variable_correlations=system_variable_correlations)
         self.given_system_variables_setup_function = system_variable_setup
         self.given_system_models = [limit_state_example_1, limit_state_example_2]

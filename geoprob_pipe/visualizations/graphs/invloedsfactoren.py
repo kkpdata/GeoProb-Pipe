@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 import os
 from pandas import DataFrame, merge
+from geopandas import GeoDataFrame, read_file
 from geoprob_pipe.globals import DISTINCTIVE_COLORS
 from plotly.graph_objects import Figure, Bar
 if TYPE_CHECKING:
@@ -9,17 +10,23 @@ if TYPE_CHECKING:
 
 
 def get_plot_order(geoprob_pipe: GeoProbPipe) -> DataFrame:
+    """ Assigns color codes (indices) and color rgb-values to each stochast such that they can be plotted with the
+    same color and same order.
+
+    :param geoprob_pipe:
+    :return: DataFrame with columns 'variable', 'plot_order' and 'color'
+    """
 
     # Define plot order
     df: DataFrame = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(filter_derived=True)
     df = df[["variable", "influence_factor"]]
-    df = df.groupby(['variable']).mean()
+    df = df.groupby(['variable']).mean()  # Influence factor average value define color order
     df = df.sort_values(by=["influence_factor"], ascending=False)
     df = df.reset_index(drop=False)
-    df['plot_order'] = df.index
+    df['plot_order'] = df.index  # Result is df with columns 'variable', 'influence_factor' (average), 'plot_order'
 
     # Add colors to plot order
-    df_colors = DataFrame({"color": DISTINCTIVE_COLORS})
+    df_colors = DataFrame({"color": DISTINCTIVE_COLORS})  # Convert to dict to df for ease of use
     df_colors['plot_order'] = df_colors.index
     df = merge(df, df_colors, how="left", on="plot_order")
 
@@ -64,7 +71,9 @@ def invloedsfactoren(geoprob_pipe: GeoProbPipe, export: bool = False) -> Figure:
 
     # Plot data
     fig = Figure()
-    vakken = {row['vak_id']: row['vak_naam'] for index, row in geoprob_pipe.input_data.vakken.df.iterrows()}
+    gdf_vakindeling: GeoDataFrame = read_file(
+        geoprob_pipe.input_data.app_settings.geopackage_filepath, layer="vakindeling")
+    vakken = {row['id']: row["naam"] for index, row in gdf_vakindeling.iterrows()}
     picked_colors = {}
     added_to_legend = []
     for vak_id, vak_naam in vakken.items():
@@ -76,13 +85,8 @@ def invloedsfactoren(geoprob_pipe: GeoProbPipe, export: bool = False) -> Figure:
         if df_factoren is None:
             color = f"rgb{DISTINCTIVE_COLORS[0]}"
             # Add dummy zero value to visualize no results in vak
-            fig.add_trace(Bar(
-                x=[vak_naam],
-                y=[0],
-                name="dummy",
-                marker_color=color,
-                showlegend=False,
-            ))
+            # noinspection PyTypeChecker
+            fig.add_trace(Bar(x=[vak_naam], y=[0], name="dummy", marker_color=color, showlegend=False))
             continue
 
         # Plot data
@@ -100,10 +104,7 @@ def invloedsfactoren(geoprob_pipe: GeoProbPipe, export: bool = False) -> Figure:
             fig.add_trace(Bar(
                 x=[vak_naam],
                 y=[df_factoren[df_factoren['variable'] == stochast].iloc[0]['influence_factor'] * 100],
-                name=stochast,
-                marker_color=color,
-                showlegend=show_legend,
-                legendgroup=stochast,
+                name=stochast, marker_color=color, showlegend=show_legend, legendgroup=stochast,
             ))
 
     # Layout styling
@@ -115,7 +116,6 @@ def invloedsfactoren(geoprob_pipe: GeoProbPipe, export: bool = False) -> Figure:
               '<sup>Invloedsfactoren zijn van het worstcase ondergrondscenario en uittredepunt.</sup>',
         xaxis_title='Vak',
         yaxis=dict(
-            # range=[0, 100],
             title="Percentage",
         ),  # Pas dit aan naar jouw gewenste bereik
     )

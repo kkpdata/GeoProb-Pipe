@@ -1,11 +1,14 @@
 from __future__ import annotations
-from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex_oud import (
+from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex import ( 
+    GraphBetaValuesSingleInteractive,
     beta_uittredepunten_graph, beta_scenarios_graph, beta_vakken_graph)
-from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive, hfreq_graphs_per_location
+from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive
 from geoprob_pipe.visualizations.graphs.physical_values_along_levee import physical_values_buitenwaterstand_and_top_zand
 from geoprob_pipe.visualizations.graphs.invloedsfactoren import invloedsfactoren
-from typing import TYPE_CHECKING, List
-from matplotlib.pyplot import Figure as MatplotLibFigure
+from geoprob_pipe.visualizations.graphs.phreatic_waterline import phreatic_waterline
+from geoprob_pipe.visualizations.graphs.overview_alpha import overview_alpha
+from geoprob_pipe.visualizations.graphs.river_waterlevel import river_waterlevel
+from typing import TYPE_CHECKING
 from plotly.graph_objects import Figure as PlotlyFigure
 import os
 
@@ -34,23 +37,36 @@ class Graphs:
     def physical_values_buitenwaterstand_and_top_zand(self, export: bool = False) -> PlotlyFigure:
         return physical_values_buitenwaterstand_and_top_zand(self.geoprob_pipe, export=export)
 
-    def hfreq_graphs_per_location(self) -> List[MatplotLibFigure]:
-        return hfreq_graphs_per_location(self.geoprob_pipe, export=False)
+    def beta_value_in_single_interactive(self, export: bool = False) -> PlotlyFigure:
+        graph = GraphBetaValuesSingleInteractive(self.geoprob_pipe, export=export)
+        return graph.fig
 
-    def beta_scenarios(self) -> MatplotLibFigure:
+    def beta_scenarios(self) -> PlotlyFigure:
         return beta_scenarios_graph(self.geoprob_pipe, export=False)
 
-    def beta_uittredepunten(self) -> MatplotLibFigure:
+    def beta_uittredepunten(self) -> PlotlyFigure:
         return beta_uittredepunten_graph(self.geoprob_pipe, export=False)
 
-    def beta_vakken(self) -> MatplotLibFigure:
+    def beta_vakken(self) -> PlotlyFigure:
         return beta_vakken_graph(self.geoprob_pipe, export=False)
+
+    def phreatic_waterline(self) -> PlotlyFigure:
+        return phreatic_waterline(self.geoprob_pipe, export=False)
+
+    def overview_alpha(self) -> PlotlyFigure:
+        return overview_alpha(self.geoprob_pipe, export=False)
+
+    def river_waterlevel(self) -> PlotlyFigure:
+        return river_waterlevel(self.geoprob_pipe, export=False)
 
     def export_graphs(self):
         GraphHFreqSingleInteractive(self.geoprob_pipe, export=True)
-        hfreq_graphs_per_location(self.geoprob_pipe, export=True)
-        beta_scenarios_graph(self.geoprob_pipe, export=True)  # TODO Tijdelijk uitgezet: in progress
-        beta_uittredepunten_graph(self.geoprob_pipe, export=True)  # TODO Tijdelijk uitgezet: in progress
+        GraphBetaValuesSingleInteractive(self.geoprob_pipe, export=True)
+        beta_scenarios_graph(self.geoprob_pipe, export=True)
+        beta_uittredepunten_graph(self.geoprob_pipe, export=True)
         beta_vakken_graph(self.geoprob_pipe, export=True)
         self.physical_values_buitenwaterstand_and_top_zand(export=True)
         self.invloedsfactoren(export=True)
+        phreatic_waterline(self.geoprob_pipe, export=True)
+        overview_alpha(self.geoprob_pipe, export=True)
+        river_waterlevel(self.geoprob_pipe, export=True)

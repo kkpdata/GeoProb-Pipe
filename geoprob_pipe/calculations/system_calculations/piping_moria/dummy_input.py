@@ -1,7 +1,7 @@
 from probabilistic_library import DistributionType
 
 
-PIPING_DUMMY_INPUT = [
+DUMMY_INPUT = [
     {
         "name": "L_intrede",
         "description": "TODO",  # TODO
@@ -100,10 +100,10 @@ PIPING_DUMMY_INPUT = [
         "name": "k_wvp",
         "description": "",  # TODO
         "remark": "",  # TODO
-        "unit": "",  # TODO
+        "unit": "m/dag",
         "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 2000.0,  # TODO
-        "variation": 0.35,  # TODO
+        "mean": 45.0,
+        "variation": 0.35,
         "source": "excel",  # TODO
     },
     {

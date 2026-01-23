@@ -3,12 +3,12 @@
 Relatie beslissingsondersteunend raamwerk piping
 ================================================
 
-Het Beslissingsondersteunend Raamwerk Piping (BRP) :cite:t:`BRP_2024` beschrijft een aanpak om aspecten te beschouwen die niet expliciet in de rekenregels zijn opgenomen. 
-Voor de bepaling van de overstromingskans van het faalmechanisme piping is het daarom belangrijk om ook deze aanvullende aspecten te beschouwen. 
+Het Beslissingsondersteunend Raamwerk Piping (BRP) :cite:t:`BRP_2024` beschrijft een aanpak om aspecten te beschouwen die niet expliciet in de rekenregels zijn opgenomen.
+Voor de bepaling van de overstromingskans van het faalmechanisme piping is het daarom belangrijk om ook deze aanvullende aspecten te beschouwen.
 
 In het BRP zijn 14 factsheets opgenomen waarin factoren worden beschreven die het optreden van piping beïnvloeden. Daarnaast worden handelingsperspectieven gegeven om met deze factoren om te gaan.
-DDeze documentatie beschrijft hoe deze aspecten rekenkundig kunnen worden meegenomen 
-in de overstromingskansberekening met ``GeoProb-Pipe``. Het kennisniveau van elk aspect 
+DDeze documentatie beschrijft hoe deze aspecten rekenkundig kunnen worden meegenomen
+in de overstromingskansberekening met ``GeoProb-Pipe``. Het kennisniveau van elk aspect
 bepaalt in welke mate het kan worden geïmplementeerd.
 
 1. Opbarsten: Sterkte deklaag
@@ -54,7 +54,7 @@ voorspellen hoe groot de weerstand zal zijn. Gedurende het piping proces zal de 
 in het kanaal veranderen doordat de stroomsnelheid toeneemt en de korrels uit het 
 opbarstkanaal spoelen. De vorm van het opbarstkanaal is ook van grote invloed, echter is het 
 formaat van het opbarstkanaal eveneens moeilijk te voorspellen. 
-`GeoProb-Pipe` houdt rekening met de weerstand in het opbarstkanaal door de reductieconstante van het verval over de deklaag :math:`r_{c,deklaag}` als een stochast te definiëren. 
+`GeoProb-Pipe` houdt rekening met de weerstand in het opbarstkanaal door de reductieconstante van het verval over de deklaag :math:`r_{c,deklaag}` als een stochast te definiëren.
 
 8. Terugschrijdende erosie: Heterogeniteit korrelgrootte in baan van de pijp
 Het is algemeen bekend dat de ondergrond op korrelschaal heterogeen is. De pipe volgt de 
