@@ -15,9 +15,6 @@
             Gebruikersgedefinieerde factoren
 
 
-Rekenmethodiek
-==============
-
 
 .. contents::
    :local:

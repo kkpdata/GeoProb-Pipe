@@ -209,8 +209,6 @@ Deze werkwijze resulteert in een consistente, transparante en
 fysisch onderbouwde bepaling van de trajectfaalkans voor piping.
 
 
-.. _assembleren:
-
 .. contents::
    :local:
    :depth: 3

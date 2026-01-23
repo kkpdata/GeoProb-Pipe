@@ -30,6 +30,7 @@ from . import geohydro_functions
 def test_calc_lambda():
     assert geohydro_functions.calc_lambda(2000.0, 10.0) == 141.4213562373095
 
+
 # noinspection PyPep8Naming
 def test_calc_W():
     assert geohydro_functions.calc_W(141.4213562373095, 150.0) == 111.14536276273107

@@ -1,62 +1,7 @@
-Quick start
-===========
 
-`GeoProb-Pipe` neemt je mee door het gebruik van de applicatie. De quick start voor gebruik is daarom enkel de
-installatie en het commando om de applicatie op te starten. Dat zijn de volgende twee commando's.
+Invoer
+======
 
-.. code-block:: bash
-
-    pip install geoprob_pipe
-    geoprob_pipe
-
-In de onderstaande paragrafen is dieper in gegaan op het gebruik van `GeoProb-Pipe`.
-
-
-Gebruik van GeoProb-Pipe
-========================
-
-GeoProb-Pipe is een command line-applicatie met een eenvoudig **installatieproces**. Je begint met het aanmaken van een
-nieuwe virtuele Python-omgeving en installeert vervolgens de ``geoprob_pipe``-package. Zie de paragraaf
-:ref:`installatie` voor meer details.
-
-Tijdens het **pre-processen** bereid je de invoerdata voor. De applicatie begeleidt je stap voor stap door het proces.
-In de paragraaf :ref:`pre-processing` wordt dit verder toegelicht. Het resultaat van deze stap is een
-``.geoprob_pipe.gpkp``-bestand waarin alle invoer geografisch is gerefereerd en geschikt is voor gebruik als GeoPackage
-in ArcGIS of QGIS.
-
-Na het pre-processen vraagt GeoProb-Pipe of je de **probabilistische berekeningen** wilt uitvoeren. Deze stap bestaat
-uitsluitend uit rekentijd. De resultaten van de berekeningen worden toegevoegd aan het ``.geoprob_pipe.gpkp``-bestand.
-
-Tijdens het **post-processen** worden alle resultaten geëxporteerd, waaronder ruwe data en visualisaties.
-
-
-.. _installatie:
-Installatie en basis gebruik
-----------------------------
-
-De installatie en het gebruik van `GeoProb-Pipe` is eenvoudig en wordt hieronder toegelicht.
-
-Start een schone Python environment. `GeoProb-Pipe` is ontwikkelt op Python 3.12. Deze versie wordt aangeraden voor
-gebruik. Voer daarna de volgende commando's uit om eerst `GeoProb-Pipe` te installeren en vervolgens de probabilistische
-bibliotheek (PTK-tool wrapper) te installeren.
-
-
-.. code-block:: bash
-
-    pip install geoprob_pipe
-    pip install probabilistic_library
-
-.. TODO: Overleggen met Deltares dat ze de probabilistic_library beschikbaar maken in PyPI.
-
-Daarna start je de applicatie met het commando. Zorg er voor dat je Python-environment actief is.
-
-.. code-block:: bash
-
-    geoprob_pipe
-
-Na het opstarten van de applicatie begeleidt `GeoProb-Pipe` je door het gebruik. Je kunt op elk moment de applicatie
-afsluiten, en weer opstarten. Meestal geeft de applicatie je de mogelijkheid om af te sluiten, is dit niet het geval,
-dan kun je dat doen middels de toetsencombinatie ``ctrl + c``.
 
 
 .. _pre-processing:
@@ -95,7 +40,11 @@ een vinkje hebben voor elk onderdeel.
      ✔  Excel-sheet ingeladen.
 
 
-De gebruiker kiest welk belastingmodel gebruikt wordt. Momenteel zijn dit of model4a of de stijghoogte o.b.v. respons.
+
+
+
+
+De gebruiker kiest welk grondwatermodel gebruikt wordt. Momenteel zijn dit of model4a of de stijghoogte o.b.v. respons.
 Paragraaf :ref:`Stijghoogtemodellen in GeoProb-Pipe <stijghoogtemodellen-geoprob>` gaat hier verder op in. Daarnaast kan de gebruiker kiezen welke verschalingsfactoren
 worden toegepast. Dit zijn onder andere de getijdezandfactor en 3D verschaling. Dit is toegelicht in paragraaf
 :ref:`Relatie beslissingsondersteunend raamwerk piping <BRP>`.
@@ -112,6 +61,7 @@ Tot slot verzoekt de applicatie je om de resterende invoer te definiëren in een
 
 
 .. TODO: Verwijzingen aanmaken.
+
 
 
 Rekenmodel
@@ -171,11 +121,11 @@ De volgende informatie dient te worden vastgelegd per uittredepunt:
 * `Locatie (x, y)`: locatie in RD coördinaten (bijv. geopandas-object)
 * `Mvalue`: waarde die de locatie van het uittredepunt weergeeft ten opzichte van de referentielijn. zie voorbeelden over linear referencing.
 * `Uittredelocatie`: optioneel, beschrijving van de locatie van het uittredepunt. Handig voor analyse van de berekeningen.
-* (Ruimtelijke) koppeling met het vak van de ondergrondschenario: `VakID` en `Vaknaam`. 
+* (Ruimtelijke) koppeling met het vak van de ondergrondschenario: `VakID` en `Vaknaam`.
 * `DIST_L_GEOM`: kortste afstand tot de geschematiseerde `geometrische intredelijn`.
 * `DIST_BUT`: korste afstand tot de geschematiseerde `buitenteen lijn`.
 * `DIST_BIT`: korste afstand tot de geschematiseerde `binnenteen lijn`.
-* `HydraLocatie`: ruimtelijke koppeling met de dichtsbijzijnde uitvoerlocatie. 
+* `HydraLocatie`: ruimtelijke koppeling met de dichtsbijzijnde uitvoerlocatie.
 * `Bodemhoogte`: bodemhoogte (maaiveldniveau) ter plaatse van het uittredepunt.
 * `Polderpeil`: benedenstroomse waterpeil ter plaatse van het uittredepunt.
 
