@@ -70,9 +70,6 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
             ), axis=1)).groupby('uittredepunt_id', as_index=False)[
         'failure_probability'].sum()
     df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
-    conv = results.df_beta_scenarios.groupby(
-        'uittredepunt_id', as_index=False)["converged"].all()
-    df = df.merge(conv, on="uittredepunt_id", how="left")
 
     # Determine when uittredepunt is converged (when all scenarios are converged)
     conv = results.df_beta_scenarios.groupby(
