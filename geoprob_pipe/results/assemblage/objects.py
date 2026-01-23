@@ -35,6 +35,7 @@ class KansElement:
 class UittredepuntElement(KansElement):
     M_value: Optional[float] = None
     a: Optional[float] = None
+    converged: Optional[bool] = None
 
 
 @dataclass
@@ -65,6 +66,13 @@ class VakElement:
             Pf_dsns = 0.0
         Pf_vak = self.N_vak * Pf_dsns
         return KansElement(pof=Pf_vak)
+
+    @property
+    def Conv_max_dsn(self) -> bool:
+        list_conv = [cast(bool, dsn.converged) for dsn in self.list_dsn]
+        if False in list_conv:
+            return False
+        return True
 
     # vak: moving window met variable grootes
     @property

@@ -77,8 +77,12 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df_uittredepunten = gdf_uittredepunten[["uittredepunt_id", "vak_id"]]
     df = df.merge(df_uittredepunten, left_on="uittredepunt_id", right_on="uittredepunt_id")
+    # Add converged to it
+    conv = results.df_beta_scenarios.groupby(
+        'uittredepunt_id', as_index=False)["converged"].all()
+    df = df.merge(conv, on="uittredepunt_id", how="left")
 
-    return df[["uittredepunt_id", "vak_id", "beta", "failure_probability"]]
+    return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability"]]
 
 
 def _generate_dsn_list(geoprob_pipe: GeoProbPipe, results: Results
@@ -88,7 +92,7 @@ def _generate_dsn_list(geoprob_pipe: GeoProbPipe, results: Results
 
     merge_df = merge(
         left=punt_df[["uittredepunt_id", "vak_id", "beta",
-                      "failure_probability"]],
+                      "failure_probability", "converged"]],
         right=punt_gdf[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id", how="left"
         )
@@ -104,7 +108,8 @@ def _generate_dsn_list(geoprob_pipe: GeoProbPipe, results: Results
             dsn_list.append(UittredepuntElement(
                 pof=punt["failure_probability"],
                 M_value=punt["metrering"],
-                a=0.9  # TODO Haal dezen vanuit Input Data via excel
+                a=0.9,  # TODO Haal dezen vanuit Input Data via excel
+                converged=punt["converged"]
                 ))
     return dsn_list
 
@@ -116,7 +121,7 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
 
     df = merge(
         left=punt_df[["uittredepunt_id", "vak_id", "beta",
-                      "failure_probability"]],
+                      "failure_probability", "converged"]],
         right=punt_gdf[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id", how="left"
         )
@@ -139,7 +144,8 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
                     pof=row["failure_probability"],
                     beta=row["beta"],
                     M_value=row["metrering"],
-                    a=0.9))
+                    a=0.9,
+                    converged=row["converged"]))
 
             element_list.append(VakElement(
                 id=vak["id"],
@@ -163,6 +169,7 @@ def construct_df_beta_per_vak(geoprob_pipe: GeoProbPipe, results: Results):
             "a": element.a,
             "invloedsfactor_belasting": element.invloedsfactor_belasting,
             "method": "Max of dsn with N_vak",
+            "converged": element.Conv_max_dsn,
             "pof": element.Pf_max_dsn.pof,
             "beta": element.Pf_max_dsn.beta,
             "method2": "Window 50m over vak",
