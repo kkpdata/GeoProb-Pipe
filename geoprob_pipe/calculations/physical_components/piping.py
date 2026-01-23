@@ -1,4 +1,5 @@
-r"""Module met functies voor het berekenen van fysische componenten van piping en uplift. Dit betreft onder andere de dikte van de deklaag,het niveau bij het uittredepunt en de kwelweglengte.
+r"""Module met functies voor het berekenen van fysische componenten van piping en uplift. Dit betreft onder andere de
+dikte van de deklaag, het niveau bij het uittredepunt en de kwelweglengte.
 """
 
 import math
@@ -9,7 +10,9 @@ def calc_d_deklaag(
         mv_exit: float,
         top_zand: float
 ) -> float:
-    r"""Berekening deklaagdikte ter plaatse van het uittredepunt, de minimale dikte van de deklaag is 0.1 m omdat negatieve deklaagdiktes niet mogelijk zijn. Dit uitgangspunt is gekozen omdat ook bij een zeer dunne deklaag nog enige reductie van het verval verwacht mag worden. 
+    r"""Berekening deklaagdikte ter plaatse van het uittredepunt, de minimale dikte van de deklaag is 0.1 m omdat
+    negatieve deklaagdiktes niet mogelijk zijn. Dit uitgangspunt is gekozen omdat ook bij een zeer dunne deklaag nog
+    enige reductie van het verval verwacht mag worden.
 
     Args:
         mv_exit (float): Bodemhoogte ter plaatse van Uittredepunten [m+NAP]
@@ -110,7 +113,7 @@ def calc_dh_red(
 
     .. math::
         
-        \Delta h_{red} = h_{buitenwaterstand} - h_{exit} - r_{c,deklaag} \cdot d_{deklaag}
+        \Delta h_{red} = h_{buitenwaterstand} - h_{exit} - r_{c, deklaag} \cdot d_{deklaag}
 
     Args:
         buitenwaterstand (float): buitenwaterstand [m+NAP]
@@ -195,7 +198,7 @@ def calc_dphi_c_u(
 
     .. math::
 
-        \Delta \phi_{c,u} = \frac{d_{deklaag} \cdot (\gamma_{sat,deklaag} - \gamma_{w})}{\gamma_{w}}
+        \Delta \phi_{c, u} = \frac{d_{deklaag} \cdot (\gamma_{sat, deklaag} - \gamma_{w})}{\gamma_{w}}
     
     Args:
         d_deklaag (float): Dikte van de cohesieve deklaag [m]
