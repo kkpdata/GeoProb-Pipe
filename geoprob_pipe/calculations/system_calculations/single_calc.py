@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 
 
 EXAMPLE_SCRIPT_REPRODUCING_SINGLE_CALCULATION = r"""
-        from geoprob_pipe import reproduce_single_calc, ParallelSystemReliabilityCalculation
+        from geoprob_pipe import reproduce_single_calculation, ParallelSystemReliabilityCalculation
 
-        calc: ParallelSystemReliabilityCalculation = reproduce_single_calc(
+        calc: ParallelSystemReliabilityCalculation = reproduce_single_calculation(
             geopackage_filepath=r"/pad/naar/het/bestand/geoprob_pipe.gpkg",
             uittredepunt_id=1234,            # Replace with id of interest
             ondergrondscenario_naam="PL",    # Replace with scenario name of interest
@@ -38,39 +38,35 @@ Let op: Deze feature vergt enige ervaring met Python.
 """
 
 
-def reproduce_single_calc(
+def reproduce_single_calculation(
         geopackage_filepath: str,
         uittredepunt_id: int,
         ondergrondscenario_naam: str,
         ) -> ParallelSystemReliabilityCalculation:
 
+    # Fetch geohydrological model
     conn = sqlite3.connect(geopackage_filepath)
     cursor = conn.cursor()
-
-    # cursor.execute('SELECT "values" FROM geoprob_pipe_metadata WHERE metadata_type = ?', ("last_calculation_run_vakken_to_run",))
-    # temp: str = cursor.fetchone()[0]
-    # temp_list: list[str] = temp.strip("[]").split(",")
-    # to_run_vakken_ids: list[int] = []
-    # for item in temp_list:
-    #     to_run_vakken_ids.append(int(item))
-
-    cursor.execute('SELECT "values" FROM geoprob_pipe_metadata WHERE metadata_type = ?', ("geohydrologisch_model",))
+    cursor.execute(
+        'SELECT "values" FROM geoprob_pipe_metadata WHERE metadata_type = ?', ("geohydrologisch_model",))
     geohydrologisch_model: str = cursor.fetchone()[0]
 
+    # Fetch vak id
     cursor.execute('SELECT vak_id FROM uittredepunten WHERE uittredepunt_id = ?', (uittredepunt_id,))
     vak_id: int = int(cursor.fetchone()[0])
     conn.close()
 
+    # Construct calculation builder
     builder: BaseSystemBuilder = (
         SYSTEM_CALCULATION_MAPPER[geohydrologisch_model]["system_builder"](
             geopackage_filepath=geopackage_filepath,
-            to_run_vakken_ids=None)
-        )
+            to_run_vakken_ids=None))
 
+    # Construct calculation
     row = {"uittredepunt_id": uittredepunt_id,
            "ondergrondscenario_naam": ondergrondscenario_naam,
            "vak_id": vak_id}
-
     calc = builder.build_instance(row_unique=row)
     calc.run()
+
     return calc
