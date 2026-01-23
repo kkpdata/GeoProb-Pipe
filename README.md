@@ -67,18 +67,17 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 <!-- START_TODO_TABLE_NU -->
 | Belang | Formaat | Beschrijving | Bestand | Regel |
 | -- | -- | -- | -- | -- |
-| could | middel | Uitvoeren van system calculations ombouwen naar Threads. | /calculations/system_calculations/piping_moria/build_and_run.py | 28 | 
-| could | middel | Uitvoeren van system calculations ombouwen naar Threads. | /calculations/system_calculations/piping_system/build_and_run.py | 25 | 
-| must | klein | Voor export df_beta_limit_states, kolommen filteren? | /results/__init__.py | 68 | 
+| must | klein | Voor export df_beta_limit_states, kolommen filteren? | /results/__init__.py | 70 | 
 | must | klein | Eigenlijk hoofdletter N_dsn. Maar ipv afkorting naam gebruiken? | /misc/traject_normering.py | 76 | 
 | must | middel | Optie toevoegen dat ParallelSystemReliabilityCalculation ook deterministisch word uitgerekend | /calculations/system_calculations/piping_system/test_calculation.py | 53 | 
 | must | middel | Assert toevoegen die piping resultaat unit test | /calculations/system_calculations/piping_system/test_calculation.py | 55 | 
 | should | groot | Zou goed zijn om in GeoProb-Pipe voorbeelden op te nemen die tonen dat de applicatie klopt. | /calculations/test_prob_lib_vs_openturns.py | 1 | 
-| should | klein | Sommige resultaten zijn niet converged. Wat doen we daarmee? | /results/__init__.py | 70 | 
+| should | klein | Sommige resultaten zijn niet converged. Wat doen we daarmee? | /results/__init__.py | 72 | 
 | should | klein | I.p.v. dict maak gebruik van Distributie-objecten. Minder fout gevoelig. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 75 | 
 | should | klein | Feedback aan gebruiker dat er validation messages zijn. | /calculations/system_calculations/system_base_objects/parallel_system_reliability_calculation.py | 141 | 
 
 <!-- END_TODO_TABLE_NU --> 
+
 
 
 
@@ -140,12 +139,11 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | -- | -- | -- | -- | -- |
 | could | groot | Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze. | /app_object.py | 32 | 
 | could | groot | Add functionality to read existing results (without running prob. calculations again) | /utils/workspace.py | 23 | 
-| could | klein | Bespreken of we de physical values willen afronden? Af wellicht afrondden in de export. | /results/df_alphas_influence_factors_and_physical_values.py | 117 | 
+| could | klein | Bespreken of we de physical values willen afronden? Af wellicht afrondden in de export. | /results/df_alphas_influence_factors_and_physical_values.py | 122 | 
 | could | middel | De bovenstaande assertion triggert. Maar dat is fout. | /calculations/test_prob_lib_vs_openturns.py | 132 | 
 | must | klein | Check dat een LineString-laag wordt opgegeven. | /questionnaire/spatial_layers/dijktraject.py | 99 | 
 | must | klein | Check dat een LineString-laag wordt opgegeven. | /questionnaire/spatial_layers/dijktraject.py | 128 | 
 | nice | middel | Visualiseer physical design point value in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 24 | 
-| should | klein | D zit ook in kD_wvp. Dat is dubbelop. | /calculations/system_calculations/piping_system/limit_state_functions.py | 7 | 
 | should | klein | Nadenken hoe we binnen een half uur een quick scan piping kunnen uitvoeren met het object. | /calculations/system_calculations/piping_system/test_calculation.py | 4 | 
 | should | klein | Is het echt nodig om een 'FileSystem'-object te maken? Deze functies bestaan al toch? | /utils/file_system.py | 9 | 
 | should | middel | Het zou goed zijn om voor dit simpele systeem ook betas te kunnen reproduceren. | /calculations/test_prob_lib_vs_openturns.py | 175 | 
@@ -154,6 +152,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | should | middel | Should validate if AHN grid fully overlaps area | /questionnaire/spatial_layers/ahn.py | 13 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
 
 
 
