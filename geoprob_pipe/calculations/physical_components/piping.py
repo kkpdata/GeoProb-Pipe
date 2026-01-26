@@ -154,7 +154,8 @@ def calc_W_voorland(
         lambda_voorland: float,
         L_voorland: float
 ) -> float:
-    r"""Berekent de geohydrologische weerstand van het voorland in [m]. Dit wordt ook wel de effectieve voorlandlengte genoemd.
+    r""" Berekent de geohydrologische weerstand van het voorland in [m]. Dit wordt ook wel de effectieve voorlandlengte
+    genoemd.
 
     .. math::
 

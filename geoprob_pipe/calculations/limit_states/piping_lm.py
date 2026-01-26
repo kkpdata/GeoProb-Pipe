@@ -173,29 +173,14 @@ def limit_state_wbi(
 
 # noinspection PyPep8Naming
 def limit_state_model4a(
-        L_intrede: float, L_but: float, L_bit: float, L_achterland: float, buitenwaterstand: float, polderpeil: float, mv_exit: float,
-        top_zand: float, kD_wvp: float, D_wvp: float, d70: float, gamma_sat_deklaag: float, c_voorland: float, c_achterland: float,
-        modelfactor_u: float, modelfactor_h: float, modelfactor_p: float, modelfactor_ff: float, modelfactor_3d: float,
-        modelfactor_aniso: float, modelfactor_ml: float, i_c_h: float, r_c_deklaag: float, d70_m: float, gamma_korrel: float,
-        v: float, theta: float, eta: float, g: float, gamma_water: float,
+        L_intrede: float, L_but: float, L_bit: float, L_achterland: float, buitenwaterstand: float,
+        polderpeil: float, mv_exit: float, top_zand: float, kD_wvp: float, D_wvp: float, d70: float,
+        gamma_sat_deklaag: float, c_voorland: float, c_achterland: float, modelfactor_u: float, modelfactor_h: float,
+        modelfactor_p: float, modelfactor_ff: float, modelfactor_3d: float, modelfactor_aniso: float,
+        modelfactor_ml: float, i_c_h: float, r_c_deklaag: float, d70_m: float, gamma_korrel: float, v: float,
+        theta: float, eta: float, g: float, gamma_water: float,
 ) -> Tuple[
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-    float,
-]:
+    float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float]:
     """Grenstoestandsfuncties volgens het WBI-model met grondwaterstroming conform model 4a."""
     L_voorland = pc_piping.calc_lengte_voorland(L_intrede=L_intrede, L_but=L_but)
     lambda_voorland = pc_piping.calc_lambda_voorland(kD_wvp=kD_wvp, c_voorland=c_voorland)
