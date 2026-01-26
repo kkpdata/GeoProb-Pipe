@@ -19,7 +19,7 @@ achtergronden van de methode, API-referenties en voorbeelden.
    quick_start
    installatie_proces
    gebruik
-   Rekenmethodiek
+   rekenmethodiek
    Uittredepuntenmethode
    Relatie_beslisraamwerk_piping
    Assembleren
