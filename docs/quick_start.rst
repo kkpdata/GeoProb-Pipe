@@ -11,6 +11,6 @@ installatie en het commando om de applicatie op te starten. Dat zijn de volgende
 
 
 .. warning::
-    Momenteel is ``geoprob_pipe``, en een onderliggende software requirement ``probabilistic_library``, nog niet
-    beschikbaar in de Python Package Index. Installeer daarom voorlopig GeoProb-Pipe vanuit een kloon van de repository.
+    Momenteel is ``geoprob_pipe``, en de onderliggende software requirement ``probabilistic_library``, nog niet
+    beschikbaar in de Python Package Index. Installeer voorlopig GeoProb-Pipe vanuit een kloon van de repository.
     Je vind de instructies in de README.
