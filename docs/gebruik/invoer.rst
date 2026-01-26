@@ -1,59 +1,66 @@
-
 Invoergegevens importeren
 =========================
 
+Tijdens het importeren van de invoergegevens doorloop je de onderstaande stappen. Wanneer alle stappen een
+vinkje hebben, zijn alle gegevens volledig ingevoerd.
 
-
-.. _pre-processing:
-Pre-processing
---------------
-
-Tijdens het pre-processen zet je de invoer klaar. `GeoProb-Pipe` neemt je mee door dit proces. Aan het einde zul je
-een vinkje hebben voor elk onderdeel.
 
 .. code-block:: bash
 
     ALGEMEEN
-     ✔  Stijghoogtemodel al ingesteld.
-     ✔  Verschalingsfactoren al ingesteld.
+     ✔  Geohydrologisch model al ingesteld.
 
     GIS LAGEN
      ✔  Dijktraject al toegevoegd.
      ✔  Vakindeling al toegevoegd.
      ✔  HRD-bestanden al toegevoegd.
      ✔  HRD-locatie punten al uitgelezen.
-     ✔  Uittredepunten al toegevoegd.
+     ✔  HRD-fragility lines al uitgelezen.
+     ✔  Uittredepunten al toegevoegd (#### in totaal).
      ✔  Polderpeil al toegevoegd.
      ✔  Binnenteenlijn al toegevoegd.
      ✔  Buitenteenlijn al toegevoegd.
      ✔  Intredelijn al toegevoegd.
-     ✔  Gebruikersgedefinieerde GIS invoer (2 stuks): top_zand, D_wvp.
 
     GEOGRAFISCHE KOPPELINGEN
+     ✔  Afstand en metrering tot reflijn al gekoppeld aan uittredepunten.
      ✔  HRD-locaties al gekoppeld aan uittredepunten.
      ✔  Afstanden intrede, buitenteen en binnenteen al gekoppeld aan uittredepunten.
      ✔  Polderpeil al gekoppeld aan uittredepunten.
-     ✔  Afstand en metrering tot reflijn al gekoppeld aan uittredepunten.
      ✔  Vakken al gekoppeld aan uittredepunten.
 
-    HANDMATIGE INVOER
-     ✔  Excel-sheet ingeladen.
+    PARAMETER INVOER
+     ✔  Parameter invoer afgerond.
 
 
 
+Algemeen
+^^^^^^^^
+Er is één algemeen item in het invoerproces, namelijk de keuze van het geohydrologische model. Dit is een vertaling van
+de grondwaterstroming als gevolg van het hoogwater, met als resultaat van het model een schatting van de stijghoogte in
+het uittredepunt. Momenteel zijn 3 modellen ingebouwd, waaronder het veel gebruikte model 4A. Een gedetailleerde
+beschrijving vind je :ref:`hier<stijghoogtemodellen-geoprob>`.
 
 
-
-De gebruiker kiest welk grondwatermodel gebruikt wordt. Momenteel zijn dit of model4a of de stijghoogte o.b.v. respons.
-Paragraaf :ref:`Stijghoogtemodellen in GeoProb-Pipe <stijghoogtemodellen-geoprob>` gaat hier verder op in. Daarnaast kan de gebruiker kiezen welke verschalingsfactoren
-worden toegepast. Dit zijn onder andere de getijdezandfactor en 3D verschaling. Dit is toegelicht in paragraaf
-:ref:`Relatie beslissingsondersteunend raamwerk piping <BRP>`.
-
+GIS lagen
+^^^^^^^^^
 In het onderdeel 'GIS lagen' wordt de gebruiker gevraagd de geografische data in te laden. Dit zijn onder andere het
-dijktraject, de vakindeling en de intredelijn. Omdat de gebruiker vaak zijn invoer al geografisch gekoppeld heeft is
-gebruikersgedefinieerde GIS invoer ook mogelijk. Dit geeft je de vrijheid om van elke parameter geografisch gerefereerde
-data in te laden. Het klikken en/of automatisch genereren van uittredepunten worden verder toegelicht in paragraaf
-<<verwijzing aanmaken>>.
+dijktraject, de vakindeling en de intredelijn.
+
+
+Geografische koppelingen
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Parameter invoer
+^^^^^^^^^^^^^^^^
+
+
+.. TODO: Waar beschrijven we hoe parameter invoer elkaar kan overlappen?
+
+
+
+
+
 
 Na het inladen van de geografische data wordt dit automatisch gekoppeld aan de uittredepunten en vakken.
 

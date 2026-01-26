@@ -1,18 +1,23 @@
 .. _stijghoogtemodellen-geoprob:
-Grondwatermodellen in GeoProb-Pipe
-==================================
+Geohydrologische modellen in GeoProb-Pipe
+=========================================
 
 De berekening van de stijghoogte :math:`\phi_{exit}` wordt uitgevoerd binnen de limit-state functies,
-waarbij elke functie een specifiek type stijghoogtemodel aanroept:
+waarbij elke functie een specifiek type geohydrologisch / stijghoogte model aanroept:
 
 - ``limit_state_wbi`` – eenvoudige benadering met vaste responsfactor;
 - ``limit_state_model4a`` – analytisch grondwatermodel 4A (doorsnede);
 - ``limit_state_moria`` – numeriek rastermodel (zoals het regionale grondwatermodel MORIA).
 
-De rekenmethodiek is zodanig opgezet dat in de toekomst ook andere stijghoogtemodellen kunnen worden toegevoegd.
+De code structuur is zodanig opgezet dat in de toekomst ook andere geohydrologische modellen kunnen worden toegevoegd.
+
+
+Analytische stijghoogtemodel WBI
+--------------------------------
+.. TODO: Tekst nog toevoegen.
+
 
 .. _model4a:
-
 Analytische stijghoogtemodel 4A
 -------------------------------
 
