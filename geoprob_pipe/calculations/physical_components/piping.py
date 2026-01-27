@@ -216,7 +216,8 @@ def calc_i_exit(
         h_exit: float,
         d_deklaag: float
 ) -> float:
-    r"""Berekening van de optredende heave gradient. De heave gradient is het stijghoogteverschil over de deklaag gedeeld door de deklaagdikte.
+    r""" Berekening van de optredende heave gradiënt. De heave gradient is het stijghoogteverschil over de deklaag
+    gedeeld door de deklaagdikte.
 
     .. math::
 

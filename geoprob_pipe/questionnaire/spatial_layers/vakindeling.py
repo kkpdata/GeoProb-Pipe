@@ -3,6 +3,7 @@ from geopandas import read_file
 from InquirerPy import inquirer
 import warnings
 from geoprob_pipe.questionnaire.utils.spatial import load_dijktraject_linestring
+from geoprob_pipe.utils.gdf import convert_mls_geom_column_to_ls
 import os
 from pathlib import Path
 from shapely import LineString, MultiLineString
@@ -141,6 +142,8 @@ def request_vakindeling_filepath(app_settings: ApplicationSettings):
 
 
 def validate_vakindeling(app_settings: ApplicationSettings, gdf: GeoDataFrame):
+    """ Validates the vakindeling shape, with some conversions if they can applied safely. """
+    gdf = convert_mls_geom_column_to_ls(gdf=gdf)
     assert gdf.geometry.apply(lambda geom: isinstance(geom, LineString)).all(), \
         "De opgegeven vakindeling heeft niet voor elk vak een geometry. De applicatie sluit nu af."
     specify_column_with_vaknaam(app_settings, gdf=gdf)
