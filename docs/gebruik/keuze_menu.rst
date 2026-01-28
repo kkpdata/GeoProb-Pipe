@@ -1,22 +1,21 @@
-Keuzemenu GeoProb-Pipe
+Keuzemenu GeoProb‑Pipe
 ======================
-GeoProb‑Pipe biedt vanuit het hoofdmenu de volgende functionaliteiten. Hieronder worden ze kort toegelicht.
+In het hoofdmenu van GeoProb‑Pipe zijn de volgende functies beschikbaar. Hieronder volgt een korte toelichting per
+optie.
 
-- Bestaand project openen
-Met deze optie kun je verder werken aan een project dat eerder is aangemaakt. Dit is handig wanneer de invoer nog niet
-volledig is afgerond of wanneer je gevoeligheidsanalyses uitvoert op bestaande berekeningen.
+- **Bestaand project openen**
+Met deze optie open je een eerder aangemaakt project. Dit is handig wanneer de invoer nog niet compleet is of wanneer je
+gevoeligheidsanalyses wilt uitvoeren op bestaande berekeningen.
 
-- Nieuw project starten
-Gebruik deze optie om een volledig nieuw project aan te maken. Je doorloopt hierbij alle invoerstappen voor een nieuwe
-analyse.
+- **Nieuw project starten**
+Gebruik deze functie om een geheel nieuw project aan te maken. Je doorloopt daarbij alle invoerstappen die nodig zijn
+voor een nieuwe analyse.
 
-- Twee projectbestanden vergelijken
-Met deze functie kun je twee verschillende projectbestanden naast elkaar zetten om verschillen te analyseren. Dit is
-vooral nuttig bij het uitvoeren van gevoeligheidsanalyses, waarbij je wilt weten welk effect een wijziging heeft op de
-hoofdanalyse.
+- **Twee projectbestanden vergelijken**
+Met deze functie kun je twee projectbestanden naast elkaar zetten om verschillen te identificeren. Dit is vooral nuttig
+bij gevoeligheidsanalyses, waarbij je wilt zien welke invloed een wijziging heeft op de oorspronkelijke analyse.
 
-- Inspecteer een enkele berekening
-Deze optie is bedoeld voor gebruikers met enige Python‑ervaring. Je kunt hiermee het rekenobject inspecteren, inclusief
-de onderliggende objecten uit de Probabilistic Library (PTK toolkit Python‑wrapper). Dit is vooral handig wanneer je
-berekeningen wilt vergelijken met de Desktop-versie van de PTK toolkit of wanneer je dieper inzicht wilt in de gebruikte
-parameters en structuren.
+- **Inspecteer een enkele berekening**
+Deze optie is bedoeld voor gebruikers met enige ervaring met Python. Hiermee kun je het rekenobject en de
+onderliggende objecten uit de Probabilistic Library (PTK toolkit Python‑wrapper) bekijken. Dit is vooral waardevol
+wanneer je berekeningen wilt vergelijken met de desktopversie van de PTK toolkit of wanneer je dieper inzicht wilt krijgen in de gebruikte parameters en datastructuren.
