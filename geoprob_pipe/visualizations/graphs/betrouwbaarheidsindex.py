@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 def _background_graph(
         geoprob_pipe: GeoProbPipe,
         fig: go.Figure,
-        # df_for_graph: pd.DataFrame
         ) -> go.Figure:
     # Categorie kleuren
 
