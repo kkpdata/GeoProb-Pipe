@@ -1,8 +1,8 @@
 from __future__ import annotations
 import os
 from datetime import datetime
-from pandas import DataFrame
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, List
+import pandas as pd
 
 try:
     import probabilistic_library
@@ -15,15 +15,15 @@ except ModuleNotFoundError:
 # noinspection PyPep8Naming
 from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 from geoprob_pipe.input_data import InputData
-from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
-    ParallelSystemReliabilityCalculation)
 from geoprob_pipe.results import Results
 from geoprob_pipe.spatial import Spatial
 from geoprob_pipe.visualizations import Visualizations
 from geoprob_pipe.calculations.system_calculations.build_and_run import build_and_run_system_calculations
 from geoprob_pipe.software_requirements import SoftwareRequirements
+from geoprob_pipe.utils.update_metadata import update_metadata
 
 if TYPE_CHECKING:
+    from geoprob_pipe.calculations.system_calculations.build_and_run import CalcResult
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
 
@@ -51,13 +51,15 @@ class GeoProbPipe:
         # self._read_calculation_settings()  # TODO: Not part of new version
         # TODO: Unsure if the single statement belongs here. Wouldn't it be part of input data?
 
-        self.calculations: List[ParallelSystemReliabilityCalculation] = build_and_run_system_calculations(self)
+        self.calc_results: List[CalcResult] = build_and_run_system_calculations(self)
         self.results = Results(self)
 
         # Log finish
         self.time_end = datetime.now()
-        time_diff = self.time_end - self.time_start
-        logger.info(f"Calculations were performed successfully in {int(time_diff.total_seconds())} seconds.")
+        self.time_diff = self.time_end - self.time_start
+        logger.info(f"Calculations were performed successfully in {int(self.time_diff.total_seconds())} seconds.")
+
+        
 
         # Append logic classes
         self.visualizations = Visualizations(self)
@@ -72,16 +74,16 @@ class GeoProbPipe:
     def _export_validation_messages(self):
 
         # Gather validation messages from software requirements
-        df: Optional[DataFrame] = self.software_requirements.validation_messages.concat_with_df()
+        df_val: Optional[pd.DataFrame] = self.software_requirements.validation_messages.concat_with_df()
 
-        # Gather validation messages from all calculations
-        for calc in self.calculations:
-            df = calc.validation_messages.concat_with_df(df_to_append_to=df)
+        # Gather validation messages from calculations
+        [result.validation_message.concat_with_df(df_to_append_to=df_val) for result in self.calc_results
+         if result.validation_message is not None]
 
         # Export dataframe with validation messages
-        if df is not None:
+        if df_val is not None:
             export_path = os.path.join(self.input_data.app_settings.workspace_dir, "validation_messages.xlsx")
-            df.to_excel(export_path)
+            df_val.to_excel(export_path)
 
     def export_archive(self):
         """ Exports everything related to this project. """
@@ -89,8 +91,11 @@ class GeoProbPipe:
         self.results.export_results()
         self.visualizations.export_visualizations()
         self.spatial.export_geopackage()
+        # add run metadata to geopackage
+        update_metadata(self)
         self._export_validation_messages()
 
         path: str = os.path.join(
-            self.input_data.app_settings.workspace_dir, "exports", str(self.input_data.app_settings.datetime_stamp))
+            str(self.input_data.app_settings.workspace_dir), "exports",
+            str(self.input_data.app_settings.datetime_stamp))
         print(f"Exported archive to {path}")

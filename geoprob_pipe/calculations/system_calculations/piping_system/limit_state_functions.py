@@ -1,24 +1,4 @@
 from geoprob_pipe.calculations.limit_states.piping_lm import limit_state_model4a
-#
-#
-# # noinspection PyPep8Naming
-# def system_variable_setup(
-#         buitenwaterstand: float, c_achterland: float, c_voorland: float, d70: float, d70_m: float,
-#         D_wvp: float,  # TODO Later Should Klein: D zit ook in kD_wvp. Dat is dubbelop.
-#         eta: float, g: float, gamma_korrel: float, gamma_sat_deklaag: float, gamma_water: float, i_c_h: float,
-#         kD_wvp: float, L_achterland: float, L_bit: float, L_but: float, L_intrede: float, modelfactor_h: float,
-#         modelfactor_u: float, modelfactor_p: float, mv_exit: float, polderpeil: float, r_c_deklaag: float, theta: float,
-#         top_zand: float, v: float,
-# ):
-#     """ Dummy functie waarmee variabele namen worden geïnitieerd.
-#
-#     Deze staat toe dat je de distributies toevoegt aan de ReliabilityProject voordat je de systeemmodellen toevoegt.
-#     Je kunt in één keer alle variabelen toevoegen wat de code overzichtelijker maakt. """
-#     print(
-#         L_achterland, c_voorland, c_achterland, L_intrede, L_but, L_bit, polderpeil, buitenwaterstand, mv_exit,
-#         top_zand, kD_wvp, modelfactor_h, i_c_h, D_wvp, modelfactor_u, gamma_water, gamma_sat_deklaag, modelfactor_p,
-#         d70, g, v, theta, eta, d70_m, gamma_korrel, r_c_deklaag
-#     )
 
 
 # noinspection PyPep8Naming

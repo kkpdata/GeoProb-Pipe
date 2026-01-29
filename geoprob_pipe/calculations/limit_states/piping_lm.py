@@ -242,7 +242,7 @@ def limit_state_moria(  # TODO: Naam moria vervangen voor iets generieks?
         # Constants
         g: float, gamma_water: float,
 ) -> Tuple[
-    float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float
+    float, float, float, float, float, float, float, float, float, float, float, float, float, float, float
 ]:
     """ Grenstoestandsfuncties volgens het WBI-model met grondwaterstroming conform MORIA model.
 
@@ -285,7 +285,7 @@ def limit_state_moria(  # TODO: Naam moria vervangen voor iets generieks?
     L_kwelweg = pc_piping.calc_L_kwelweg(L_but=L_but, W_voorland=W_voorland)
     h_exit = pc_piping.calc_h_exit(polderpeil=polderpeil, mv_exit=mv_exit)
     d_deklaag = pc_piping.calc_d_deklaag(mv_exit=mv_exit, top_zand=top_zand)
-    phi_exit = r_exit * (buitenwaterstand - buitenwaterstand_gemiddeld) + phi_exit_gemiddeld
+    phi_exit = phi_exit_gemiddeld + r_exit * (buitenwaterstand - buitenwaterstand_gemiddeld)
     dphi_c_u = pc_piping.calc_dphi_c_u(
         d_deklaag=d_deklaag, gamma_sat_deklaag=gamma_sat_deklaag, gamma_water=gamma_water)
     i_exit = pc_piping.calc_i_exit(phi_exit=phi_exit, h_exit=h_exit, d_deklaag=d_deklaag)
@@ -299,5 +299,5 @@ def limit_state_moria(  # TODO: Naam moria vervangen voor iets generieks?
     z_p = (modelfactor_p * modelfactor_ff * modelfactor_3d * modelfactor_aniso * modelfactor_ml * dh_c) - dh_red
     z_combin = max(z_u, z_h, z_p)
 
-    return (z_u, z_h, z_p, z_combin, h_exit, r_exit, phi_exit, d_deklaag, dphi_c_u, i_exit, L_voorland, W_voorland,
+    return (z_u, z_h, z_p, z_combin, h_exit, phi_exit, d_deklaag, dphi_c_u, i_exit, L_voorland, W_voorland,
             L_kwelweg, kD_wvp, dh_c, dh_red)

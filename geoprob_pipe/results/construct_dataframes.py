@@ -1,14 +1,17 @@
 from __future__ import annotations
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
-from pandas import DataFrame
-from typing import TYPE_CHECKING
+import pandas as pd
+from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe
+    from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import \
+        ParallelSystemReliabilityCalculation
     from probabilistic_library import DesignPoint
+    from geoprob_pipe.calculations.system_calculations.build_and_run import CalcResult
 
 
-def collect_df_beta_per_limit_state(geoprob_pipe: GeoProbPipe) -> DataFrame:
+def collect_df_beta_per_limit_state(calculation: ParallelSystemReliabilityCalculation) -> pd.DataFrame:
 
     def create_row(calc, dp: DesignPoint, model_name):
         return {
@@ -25,42 +28,51 @@ def collect_df_beta_per_limit_state(geoprob_pipe: GeoProbPipe) -> DataFrame:
         }
 
     rows = []
-    for calculation in geoprob_pipe.calculations:
-        for design_point, model in zip(calculation.model_design_points, calculation.given_system_models):
-            rows.append(create_row(calc=calculation, dp=design_point, model_name=model.__name__))
-    df = DataFrame(rows).sort_values(by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+    for design_point, model in zip(calculation.model_design_points, calculation.given_system_models):
+        rows.append(create_row(calc=calculation, dp=design_point, model_name=model.__name__))
+    df = pd.DataFrame(rows).sort_values(by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
 
-def collect_df_beta_per_scenario(geoprob_pipe: GeoProbPipe) -> DataFrame:
+def combine_df_beta_per_limit_state(calc_results: List[CalcResult]) -> pd.DataFrame:
+    df = pd.concat((result.df_limit_state for result in calc_results), ignore_index=True)
+    return df
 
-    def create_row(calc):
+
+def collect_df_beta_per_scenario(calc: ParallelSystemReliabilityCalculation
+                                 ) -> pd.DataFrame:
+
+    def create_row(calculation):
         return {
-            "uittredepunt_id": calc.metadata["uittredepunt_id"],
-            "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
-            # "ondergrondscenario": calc.metadata["ondergrondscenario"],
-            "vak_id": calc.metadata["vak_id"],
-            "system_calculation": calc,
-            "converged": calc.system_design_point.is_converged,
-            "beta": round(calc.system_design_point.reliability_index, 2),
-            "failure_probability": calc.system_design_point.probability_failure,
-            "convergence": calc.system_design_point.convergence,
-            "total_model_runs": calc.system_design_point.total_model_runs,
-            "total_iterations": calc.system_design_point.total_iterations,
+            "uittredepunt_id": calculation.metadata["uittredepunt_id"],
+            "ondergrondscenario_id": calculation.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
+            # "ondergrondscenario": calculation.metadata["ondergrondscenario"],
+            "vak_id": calculation.metadata["vak_id"],
+            "system_calculation": calculation,
+            "converged": calculation.system_design_point.is_converged,
+            "beta": round(calculation.system_design_point.reliability_index, 2),
+            "failure_probability": calculation.system_design_point.probability_failure,
+            "convergence": calculation.system_design_point.convergence,
+            "total_model_runs": calculation.system_design_point.total_model_runs,
+            "total_iterations": calculation.system_design_point.total_iterations,
             "model_betas": ", ".join([
-                str(round(dp.reliability_index, 2)) for dp in calc.model_design_points
+                str(round(dp.reliability_index, 2)) for dp in calculation.model_design_points
             ])
         }
+    row = create_row(calc)
 
-    df = DataFrame([
-        create_row(calc)
-        for calc in geoprob_pipe.calculations]
-    ).sort_values(
-        by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+    return pd.DataFrame([row])
+
+
+def combine_df_beta_per_scenario(calc_results: List[CalcResult]) -> pd.DataFrame:
+    df = pd.concat((result.df_scenario for result in calc_results), ignore_index=True)
+    df = df.sort_values(
+        ["uittredepunt_id", "ondergrondscenario_id", "vak_id"]
+        ).reset_index(drop=True)
     return df
 
 
-def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> DataFrame:
+def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> pd.DataFrame:
 
     # Sum
     df = results.df_beta_scenarios.assign(
