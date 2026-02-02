@@ -42,14 +42,15 @@ het uittredepunt. Momenteel zijn 3 modellen ingebouwd, waaronder het veel gebrui
 beschrijving vind je :ref:`hier<stijghoogtemodellen-geoprob>`.
 
 
-GIS lagen
-^^^^^^^^^
-In het onderdeel 'GIS lagen' wordt de gebruiker gevraagd de geografische data in te laden. Dit zijn onder andere het
-dijktraject, de vakindeling en de intredelijn.
+GIS lagen & Geografische koppelingen
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In het onderdeel 'GIS lagen' wordt de gebruiker gevraagd om verschillende geografische datasets te importeren. Dit
+betreft onder andere het dijktraject, de vakindeling, de uittredepunten en de intredelijn. Gegevens kunnen worden
+ingelezen vanuit een Shapefile, GeoDatabase of GeoPackage.
 
+Na het importeren van de geografische data worden de benodigde geografische koppelingen automatisch gelegd. Hierbij
+worden de verschillende datasets voornamelijk gekoppeld aan de uittredepunten, zoals het polderpeil.
 
-Geografische koppelingen
-^^^^^^^^^^^^^^^^^^^^^^^^
 
 Parameter invoer
 ^^^^^^^^^^^^^^^^
