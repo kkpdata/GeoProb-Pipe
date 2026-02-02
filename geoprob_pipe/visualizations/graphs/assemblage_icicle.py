@@ -13,6 +13,7 @@ class IciclePlot:
         self.fig = go.Figure()
         self._setup_df()
         self._plot()
+        self._update_layout()
 
     def _setup_df(self):
         # Per element parent_name, label, pof, beta
@@ -20,7 +21,7 @@ class IciclePlot:
         df_vakken = self.geoprob_pipe.results.df_beta_vakken
         # Remove vak without utp
         mask_vakken = df_vakken["pof"] != 0
-        df_vakken = df_vakken[mask_vakken]
+        df_vakken = df_vakken[mask_vakken].copy()
         df_utp = self.geoprob_pipe.results.df_beta_uittredepunten
         df_scen = self.geoprob_pipe.results.df_beta_scenarios
         df_lim = self.geoprob_pipe.results.df_beta_limit_states
@@ -136,12 +137,15 @@ class IciclePlot:
             customdata=np.stack([df_icicle["pof"], df_icicle["beta"]], axis=1),
             texttemplate=(
                 "%{label}<br>"
-                "Pof: %{customdata[0]:.3g}<br>"
+                "Pof: %{customdata[0]:.3e}<br>"
                 "Beta: %{customdata[1]:.2f}"
             ),
             maxdepth=3,
         ))
+
+    def _update_layout(self):
         self.fig.update_layout(
+            title="Icicleplot van assemblage faalkansen",
             width=1400,
             height=900,
             margin=dict(t=50, l=25, r=25, b=25)
