@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
@@ -8,12 +9,14 @@ if TYPE_CHECKING:
 
 
 class IciclePlot:
-    def __init__(self, geoprob_pipe: GeoProbPipe):
+    def __init__(self, geoprob_pipe: GeoProbPipe, export: bool = False):
         self.geoprob_pipe: GeoProbPipe = geoprob_pipe
+        self.export: bool = export
         self.fig = go.Figure()
         self._setup_df()
         self._plot()
         self._update_layout()
+        self._optionally_export()
 
     def _setup_df(self):
         # Per element parent_name, label, pof, beta
@@ -150,3 +153,11 @@ class IciclePlot:
             height=900,
             margin=dict(t=50, l=25, r=25, b=25)
             )
+
+    def _optionally_export(self):
+        if self.export:
+            path = self.geoprob_pipe.visualizations.graphs.export_dir
+            self.fig.write_html(
+                os.path.join(path, 'Icicle_assemblage.html'),
+                include_plotlyjs='cdn'
+                )

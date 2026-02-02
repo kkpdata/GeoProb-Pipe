@@ -3,7 +3,7 @@ from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
 import pandas as pd
 from geoprob_pipe.results.assemblage.objects import (
     KansElement, UittredepuntElement, VakElement, TrajectElement)
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, cast, List
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe
@@ -77,29 +77,27 @@ def combine_df_beta_per_scenario(calc_results: List[CalcResult]) -> pd.DataFrame
 def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> pd.DataFrame:
 
     # Sum
-    df = results.df_beta_scenarios.assign(
+    df_scen = cast(pd.DataFrame, results.df_beta_scenarios.assign(
         failure_probability=results.df_beta_scenarios.apply(
             lambda row: row['failure_probability'] * geoprob_pipe.input_data.scenarios.scenario_kans(
                 vak_id=row['vak_id'], scenario_naam=row['ondergrondscenario_id']
             ), axis=1)).groupby('uittredepunt_id', as_index=False)[
-        'failure_probability'].sum()
-    df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
+        'failure_probability'].sum())
+    df_scen["beta"] = df_scen["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
 
     # Determine when uittredepunt is converged (when all scenarios are converged)
     conv = results.df_beta_scenarios.groupby(
         'uittredepunt_id', as_index=False)["converged"].all()
-    df = df.merge(conv, on="uittredepunt_id", how="left")
+    df_scen = df_scen.merge(conv, on="uittredepunt_id", how="left")
 
     # Add vak id back to it
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df_uittredepunten = gdf_uittredepunten[["uittredepunt_id", "vak_id"]]
-    df = df.merge(df_uittredepunten, left_on="uittredepunt_id", right_on="uittredepunt_id")
-    # Add converged to it
-    conv = results.df_beta_scenarios.groupby(
-        'uittredepunt_id', as_index=False)["converged"].all()
-    df = df.merge(conv, on="uittredepunt_id", how="left")
+    df_scen = df_scen.merge(df_uittredepunten, left_on="uittredepunt_id",
+                            right_on="uittredepunt_id")
 
-    return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability"]]
+    return df_scen[["uittredepunt_id", "vak_id", "converged",
+                    "beta", "failure_probability"]]
 
 
 def _generate_dsn_list(geoprob_pipe: GeoProbPipe, results: Results
@@ -125,7 +123,7 @@ def _generate_dsn_list(geoprob_pipe: GeoProbPipe, results: Results
             dsn_list.append(UittredepuntElement(
                 pof=punt["failure_probability"],
                 M_value=punt["metrering"],
-                a=0.9,  # TODO Haal dezen vanuit Input Data via excel
+                a=0.9,  # TODO Haal deze vanuit Input Data via excel
                 converged=punt["converged"]
                 ))
     return dsn_list
@@ -168,7 +166,7 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
                 id=vak["id"],
                 M_van=vak["m_start"],
                 M_tot=vak["m_end"],
-                a=0.9,  # TODO Haal dezen vanuit Input Data via excel
+                a=0.9,  # TODO Haal deze vanuit Input Data via excel
                 dL=300,
                 list_dsn=dsn_list
             ))

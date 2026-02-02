@@ -3,6 +3,7 @@ from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex import (
     GraphBetaValuesSingleInteractive,
     beta_uittredepunten_graph, beta_scenarios_graph, beta_vakken_graph)
 from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive
+from geoprob_pipe.visualizations.graphs.assemblage_icicle import IciclePlot
 from geoprob_pipe.visualizations.graphs.physical_values_along_levee import physical_values_buitenwaterstand_and_top_zand
 from geoprob_pipe.visualizations.graphs.invloedsfactoren import invloedsfactoren
 from geoprob_pipe.visualizations.graphs.phreatic_waterline import phreatic_waterline
@@ -59,9 +60,14 @@ class Graphs:
     def river_waterlevel(self) -> PlotlyFigure:
         return river_waterlevel(self.geoprob_pipe, export=False)
 
+    def icicle_assemblage(self) -> PlotlyFigure:
+        graph = IciclePlot(self.geoprob_pipe, export=False)
+        return graph.fig
+
     def export_graphs(self):
         GraphHFreqSingleInteractive(self.geoprob_pipe, export=True)
         GraphBetaValuesSingleInteractive(self.geoprob_pipe, export=True)
+        IciclePlot(self.geoprob_pipe, export=True)
         beta_scenarios_graph(self.geoprob_pipe, export=True)
         beta_uittredepunten_graph(self.geoprob_pipe, export=True)
         beta_vakken_graph(self.geoprob_pipe, export=True)
