@@ -3,6 +3,7 @@ from geopandas import read_file
 from InquirerPy import inquirer
 import warnings
 from geoprob_pipe.questionnaire.utils.spatial import load_dijktraject_linestring
+from geoprob_pipe.utils.gdf import convert_mls_geom_column_to_ls
 import os
 from pathlib import Path
 from shapely import LineString, MultiLineString
@@ -75,6 +76,34 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
     return gdf
 
 
+def import_from_geodatabase(filepath: str) -> GeoDataFrame:
+    layer_name: Optional[str] = None
+    layer_name_is_valid = False
+    while layer_name_is_valid is False:
+        layer_name: str = inquirer.text(
+            message="Specificeer de laag met de vakindeling. "
+                    "Type 'listlayers' om een overzicht te krijgen van de geodatabase-layers. ",
+        ).execute()
+
+        layer_names = fiona.listlayers(filepath)
+        layer_names.sort()
+        layers_str = ", ".join(layer_names)
+        if layer_name == "listlayers":
+            print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geodatabase: {layers_str}", BColors.ENDC)
+            continue
+        elif layer_name not in layer_names:
+            print(BColors.OKBLUE, f"De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
+                                  f"de geodatabase: {layers_str}", BColors.ENDC)
+            continue
+
+        layer_name_is_valid = True
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
+        gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
+    return gdf
+
+
 def request_vakindeling_filepath(app_settings: ApplicationSettings):
     filepath: Optional[str] = None
     filepath_is_valid = False
@@ -104,12 +133,17 @@ def request_vakindeling_filepath(app_settings: ApplicationSettings):
     elif filepath.endswith(".gpkg"):
         gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
         validate_vakindeling(app_settings, gdf=gdf)
+    elif filepath.endswith(".gdb"):
+        gdf: GeoDataFrame = import_from_geodatabase(filepath=filepath)
+        validate_vakindeling(app_settings, gdf=gdf)
     else:
         raise NotImplementedError(f"File with extension {filepath.split(sep='.')[-1]} is not yet supported. "
                                   f"Please make a request.")
 
 
 def validate_vakindeling(app_settings: ApplicationSettings, gdf: GeoDataFrame):
+    """ Validates the vakindeling shape, with some conversions if they can applied safely. """
+    gdf = convert_mls_geom_column_to_ls(gdf=gdf)
     assert gdf.geometry.apply(lambda geom: isinstance(geom, LineString)).all(), \
         "De opgegeven vakindeling heeft niet voor elk vak een geometry. De applicatie sluit nu af."
     specify_column_with_vaknaam(app_settings, gdf=gdf)
