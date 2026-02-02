@@ -16,4 +16,7 @@ app_settings.geopackage_filename = os.path.basename(filepath)
 app_settings.to_run = "vakken:20,21,22,23,24"
 
 geoprob_pipe = GeoProbPipe(app_settings)
-geoprob_pipe.export_archive()
+# geoprob_pipe.export_archive()
+from geoprob_pipe.visualizations.graphs.assemblage_icicle import IciclePlot
+IP = IciclePlot(geoprob_pipe)
+IP.fig.show()

@@ -1,7 +1,7 @@
 import os.path
 import scipy.stats as sct
 import sqlite3
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Dict, List
 from shapely import LineString
 import importlib.resources
 from geopandas import read_file, GeoDataFrame
@@ -104,10 +104,10 @@ class TrajectNormering:
                 -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 30),
             ],
         }
-        self.riskeer_categorie_grenzen = {
+        self.riskeer_categorie_grenzen: Dict[str, Tuple[float, float]] = {
             "+III": [
                 -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 1000),
-                20
+                20.0
             ],
             "+II": [
                 -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 100),
@@ -130,7 +130,7 @@ class TrajectNormering:
                 -1 * sct.norm.ppf(self.faalkanseis_ond_dsn)
             ],
             "-III": [
-                2,
+                2.0,
                 -1 * sct.norm.ppf(self.faalkanseis_ond_dsn * 10)
             ],
         }
