@@ -89,12 +89,18 @@ class GeoProbPipe:
     def export_archive(self):
         """ Exports everything related to this project. """
         logger.info("Now exporting archive...")
+        export_start = datetime.now()
         self.results.export_results()
         self.visualizations.export_visualizations()
         self.spatial.export_geopackage()
         # add run metadata to geopackage
         update_metadata(self)
         self._export_validation_messages()
+        
+        export_end = datetime.now()
+        export_diff = export_end - export_start
+        logger.info(f"Archive exported in {int(export_diff.total_seconds())}"
+                    " seconds.")
 
         path: str = os.path.join(
             str(self.input_data.app_settings.workspace_dir), "exports",

@@ -28,6 +28,10 @@ class Graphs:
         os.makedirs(path, exist_ok=True)
         return path
 
+    @property
+    def icicle_assemblage(self):
+        return IciclePlot(self.geoprob_pipe)
+
     def hfreq_graph_in_single_interactive(self, export: bool = False) -> PlotlyFigure:
         graph = GraphHFreqSingleInteractive(self.geoprob_pipe, export=export)
         return graph.fig
@@ -59,10 +63,6 @@ class Graphs:
 
     def river_waterlevel(self) -> PlotlyFigure:
         return river_waterlevel(self.geoprob_pipe, export=False)
-
-    def icicle_assemblage(self) -> PlotlyFigure:
-        graph = IciclePlot(self.geoprob_pipe, export=False)
-        return graph.fig
 
     def export_graphs(self):
         GraphHFreqSingleInteractive(self.geoprob_pipe, export=True)
