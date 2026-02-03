@@ -133,8 +133,8 @@ def dumbbell_beta(comparison: ComparisonCollector,
     if export:
         os.makedirs(comparison.export_dir, exist_ok=True)
         fig.write_html(os.path.join(comparison.export_dir, "dumbbell_beta.html"), include_plotlyjs='cdn')
-        fig.write_image(os.path.join(comparison.export_dir, "dumbbell_beta.png"),
-                        format="png", scale=5, width=1400)
+        # fig.write_image(os.path.join(comparison.export_dir, "dumbbell_beta.png"),
+        #                 format="png", scale=5, width=1400)
 
     return fig
 
@@ -184,11 +184,10 @@ def dumbbell_uplift(comparison: ComparisonCollector,
         if export:
             os.makedirs(comparison.export_dir, exist_ok=True)
             fig.write_html(os.path.join(
-                comparison.export_dir, f"dumbbell_uplift_{scenario}.html"
-                ), include_plotlyjs='cdn')
-            fig.write_image(os.path.join(
-                comparison.export_dir, f"dumbbell_uplift_{scenario}.png"
-                ), format="png", scale=5,  width=1400)
+                comparison.export_dir, f"dumbbell_uplift_{scenario}.html"), include_plotlyjs='cdn')
+            # fig.write_image(os.path.join(
+            #     comparison.export_dir, f"dumbbell_uplift_{scenario}.png"
+            #     ), format="png", scale=5,  width=1400)
     return fig_list
 
 
@@ -237,9 +236,9 @@ def dumbbell_heave(comparison: ComparisonCollector,
             fig.write_html(os.path.join(
                 comparison.export_dir, f"dumbbell_heave_{scenario}.html"
                 ), include_plotlyjs='cdn')
-            fig.write_image(os.path.join(
-                comparison.export_dir, f"dumbbell_heave_{scenario}.png"
-                ), format="png", scale=5, width=1400)
+            # fig.write_image(os.path.join(
+            #     comparison.export_dir, f"dumbbell_heave_{scenario}.png"
+            #     ), format="png", scale=5, width=1400)
     return fig_list
 
 
@@ -290,7 +289,7 @@ def dumbbell_piping(comparison: ComparisonCollector,
             fig.write_html(os.path.join(
                 comparison.export_dir, f"dumbbell_piping_{scenario}.html"
                 ), include_plotlyjs='cdn')
-            fig.write_image(os.path.join(
-                comparison.export_dir, f"dumbbell_piping_{scenario}.png"
-                ), format="png", scale=5, width=1400)
+            # fig.write_image(os.path.join(
+            #     comparison.export_dir, f"dumbbell_piping_{scenario}.png"
+            #     ), format="png", scale=5, width=1400)
     return fig_list

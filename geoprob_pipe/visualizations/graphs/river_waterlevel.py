@@ -181,7 +181,5 @@ def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
 
         fig.write_html(os.path.join(export_dir, "river_waterlevel.html"),
                        include_plotlyjs='cdn')
-        fig.write_image(os.path.join(export_dir, "river_waterlevel.png"),
-                        format="png", scale=5, width=1400, height=800)
 
     return fig

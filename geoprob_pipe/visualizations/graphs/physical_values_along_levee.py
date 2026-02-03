@@ -56,8 +56,5 @@ def physical_values_buitenwaterstand_and_top_zand(geoprob_pipe: GeoProbPipe, exp
         fig.write_html(
             os.path.join(export_dir, f"physical_values_buitenwaterstand_and_top_zand.html"),
             include_plotlyjs='cdn')
-        if geoprob_pipe.software_requirements.chrome_is_installed:
-            fig.write_image(
-                os.path.join(export_dir, f"physical_values_buitenwaterstand_and_top_zand.png"), format="png")
 
     return fig

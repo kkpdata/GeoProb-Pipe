@@ -156,9 +156,9 @@ def map_delta_beta_comparison(comparison: ComparisonCollector,
         fig.write_html(os.path.join(
             comparison.export_dir, "delta_beta_map.html"
             ), include_plotlyjs='cdn', include_mathjax='cdn')
-        fig.write_image(os.path.join(
-            comparison.export_dir, "delta_beta_map.png"
-            ), format="png", scale=5,  width=1400)
+        # fig.write_image(os.path.join(
+        #     comparison.export_dir, "delta_beta_map.png"
+        #     ), format="png", scale=5,  width=1400)
 
     return fig
 
@@ -241,8 +241,8 @@ def map_ratio_beta_comparison(comparison: ComparisonCollector,
         fig.write_html(os.path.join(
             comparison.export_dir, "ratio_beta_map.html"
             ), include_plotlyjs='cdn', include_mathjax='cdn')
-        fig.write_image(os.path.join(
-            comparison.export_dir, "ratio_beta_map.png"
-            ), format="png", scale=5,  width=1400)
+        # fig.write_image(os.path.join(
+        #     comparison.export_dir, "ratio_beta_map.png"
+        #     ), format="png", scale=5,  width=1400)
 
     return fig
