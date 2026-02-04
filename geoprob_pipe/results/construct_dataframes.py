@@ -64,9 +64,7 @@ def collect_df_beta_per_scenario(calc: ParallelSystemReliabilityCalculation) -> 
 
 def combine_df_beta_per_scenario(calc_results: List[CalcResult]) -> pd.DataFrame:
     df = pd.concat((result.df_scenario for result in calc_results), ignore_index=True)
-    df = df.sort_values(
-        ["uittredepunt_id", "ondergrondscenario_id", "vak_id"]
-        ).reset_index(drop=True)
+    df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
 
