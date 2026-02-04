@@ -1,5 +1,8 @@
 
 CHANGELOG = {
+    "1.3.1": "Hotfix. Visualisatie en export issues. Geen issue aan berekeningen. "
+             "1e issue waren foute beta waarden in hover van de betrouwbaarheidsindex.html. "
+             "2e issue was dat de df_limit_states werd geëxporteerd als df_scenarios.",
     "1.3.0": "Probabilistic Library nu toegevoegd als 'setup dependency' nadat Deltares deze heeft vrijgegeven op "
              "PyPI. Eveneens Chrome uitgefaseerd als software requirement. Daardoor zijn beiden geen handmatige "
              "software requirements meer.",
