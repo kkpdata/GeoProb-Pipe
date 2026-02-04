@@ -1,6 +1,5 @@
 from __future__ import annotations
-# import pandas as pd
-from pandas import merge
+from pandas import DataFrame, merge
 import numpy as np
 import os
 from datetime import datetime
@@ -447,6 +446,70 @@ if TYPE_CHECKING:
 #     return fig
 
 
+def _add_beta_per_uittredepunt_points(
+        self, df_for_graph: DataFrame, mask, name: str, color: str, value: bool):
+    """ Visualization of beta of uittredepunten.
+
+    :param self: GraphBetaValuesSingleInteractive-object
+    :param df_for_graph: Data to plot
+    :param mask: Boolean Series for which uittredepunten to plot in graph. Either converged of unconverged points.
+    :param name: Marker name
+    :param color: Marker color
+    :param value: Requested option: converged or not converged
+    """
+
+    self.fig.add_trace(
+        go.Scatter(
+            x=df_for_graph.loc[mask, "metrering"], y=df_for_graph.loc[mask, "beta"],
+            mode='markers', marker=dict(symbol='circle', size=7, color=color), name=name,
+            customdata=df_for_graph[["uittredepunt_id", "beta", "metrering"]],
+            hovertemplate=("ID: %{customdata[0]}<br>" +
+                           "Beta: %{customdata[1]:.3f}<br>" +
+                           "Metrering: %{customdata[2]}"),
+            legendgroup="Beta uittredepunten", showlegend=value))
+
+
+def _add_beta_per_uittredepunt_indication_above_plotting_range(
+        self, df_for_graph: DataFrame, mask, name: str, color: str, value: bool):
+    """ Indication to user that there are Beta results plotted outside the plotting range. In this case above range. """
+
+    self.fig.add_trace(
+        go.Scatter(
+            x=df_for_graph.loc[mask, 'metrering'],
+            y=[self.beta_max - 0.1] * mask.sum(),
+            mode='markers',
+            marker=dict(symbol='triangle-up', size=7, color=color),
+            name=name + " above plotted range",
+            customdata=df_for_graph.loc[mask, ["uittredepunt_id", "beta", "metrering"]],
+            hovertemplate=("ID: %{customdata[0]}<br>" +
+                           "Beta: %{customdata[1]:.3f}<br>" +
+                           "Metrering: %{customdata[2]}"),
+            legendgroup="Beta uittredepunten",
+            showlegend=value
+        )
+    )
+
+def _add_beta_per_uittredepunt_indication_below_plotting_range(
+        self, df_for_graph: DataFrame, mask, name: str, color: str, value: bool):
+    """ Indication to user that there are Beta results plotted outside the plotting range. In this case below range. """
+
+    self.fig.add_trace(
+        go.Scatter(
+            x=df_for_graph.loc[mask, 'metrering'],
+            y=[self.beta_min + 0.1] * mask.sum(),
+            mode='markers',
+            marker=dict(symbol='triangle-down', size=7, color=color),
+            name=name + " below plotted range",
+            customdata=df_for_graph.loc[mask, ["uittredepunt_id", "beta", "metrering"]],
+            hovertemplate=("ID: %{customdata[0]}<br>" +
+                           "Beta: %{customdata[1]:.3f}<br>" +
+                           "Metrering: %{customdata[2]}"),
+            legendgroup="Beta uittredepunten",
+            showlegend=value
+        )
+    )
+
+
 class GraphBetaValuesSingleInteractive:
 
     def __init__(self, geoprob_pipe: GeoProbPipe, export: bool = True):
@@ -613,75 +676,33 @@ class GraphBetaValuesSingleInteractive:
             )
 
     def _add_beta_per_uittredepunt(self):
-        df_results_uittredepunten = (self.geoprob_pipe.results
-                                     .df_beta_uittredepunten)
-        df_for_graph = merge(
+
+        # Gather results to plot
+        df_results_uittredepunten = self.geoprob_pipe.results.df_beta_uittredepunten
+        df_for_graph: DataFrame = merge(
             left=df_results_uittredepunten[["uittredepunt_id", "beta", "converged"]],
             right=self.gdf_uittredepunten[["uittredepunt_id", "metrering"]],
             on="uittredepunt_id",
             how="left"
         )
-        for value, color, name in [(True, "black", "Beta uittredepunt"),
-                             (False, "blue", "Unconverged Beta uittredepunt")]:
+
+        # Plot converged and unconverged Beta values
+        for value, color, name in [
+            (True, "black", "Beta uittredepunt"),
+            (False, "blue", "Unconverged Beta uittredepunt")
+        ]:
+
             mask = df_for_graph["converged"] == value
-            mask_low = df_for_graph["beta"] < self.beta_min
+            _add_beta_per_uittredepunt_points(
+                self=self, df_for_graph=df_for_graph, mask=mask, name=name, color=color, value=value)
+
             mask_high = df_for_graph["beta"] > self.beta_max
-            # In range
-            self.fig.add_trace(
-                go.Scatter(
-                    x=df_for_graph.loc[mask, "metrering"],
-                    y=df_for_graph.loc[mask, "beta"],
-                    mode='markers',
-                    marker=dict(symbol='circle', size=7, color=color),
-                    name=name,
-                    customdata=df_for_graph[
-                        ["uittredepunt_id", "beta", "metrering"]
-                        ],
-                    hovertemplate=("ID: %{customdata[0]}<br>" +
-                                   "Beta: %{customdata[1]:.3f}<br>" +
-                                   "Metrering: %{customdata[2]}"),
-                    legendgroup="Beta uittredepunten",
-                    showlegend=value
-                )
-            )
-            # Above range
-            mask_combi = mask & mask_high
-            self.fig.add_trace(
-                go.Scatter(
-                    x=df_for_graph.loc[mask_combi, 'metrering'],
-                    y=[self.beta_max-0.1] * mask_combi.sum(),
-                    mode='markers',
-                    marker=dict(symbol='triangle-up', size=7, color=color),
-                    name=name + " above plotted range",
-                    customdata=df_for_graph.loc[
-                        mask_combi, ["uittredepunt_id", "beta", "metrering"]
-                        ],
-                    hovertemplate=("ID: %{customdata[0]}<br>" +
-                                   "Beta: %{customdata[1]:.3f}<br>" +
-                                   "Metrering: %{customdata[2]}"),
-                    legendgroup="Beta uittredepunten",
-                    showlegend=value
-                )
-            )
-            # Below range
-            mask_combi = mask & mask_low
-            self.fig.add_trace(
-                go.Scatter(
-                    x=df_for_graph.loc[mask_combi, 'metrering'],
-                    y=[self.beta_min+0.1] * mask_combi.sum(),
-                    mode='markers',
-                    marker=dict(symbol='triangle-down', size=7, color=color),
-                    name=name + " below plotted range",
-                    customdata=df_for_graph.loc[
-                        mask_combi, ["uittredepunt_id", "beta", "metrering"]
-                        ],
-                    hovertemplate=("ID: %{customdata[0]}<br>" +
-                                   "Beta: %{customdata[1]:.3f}<br>" +
-                                   "Metrering: %{customdata[2]}"),
-                    legendgroup="Beta uittredepunten",
-                    showlegend=value
-                )
-            )
+            _add_beta_per_uittredepunt_indication_above_plotting_range(
+                self=self, df_for_graph=df_for_graph, mask=mask & mask_high, name=name, color=color, value=value)
+
+            mask_low = df_for_graph["beta"] < self.beta_min
+            _add_beta_per_uittredepunt_indication_below_plotting_range(
+                self=self, df_for_graph=df_for_graph, mask=mask & mask_low, name=name, color=color, value=value)
 
     def _add_backgrond(self):
         # Oude categorie grenzen
@@ -854,9 +875,7 @@ class GraphBetaValuesSingleInteractive:
             ]
         )
 
-    def _optionally_export(self,
-                           export: bool = False,
-                           add_timestamp: bool = False):
+    def _optionally_export(self, export: bool = False, add_timestamp: bool = False):
         if not export:
             return
         os.makedirs(self.geoprob_pipe.visualizations.graphs.export_dir, exist_ok=True)
