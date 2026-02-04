@@ -313,56 +313,56 @@ inputs_lm_moria = test_data.loc[:, input_keys_lm_moria].to_dict(orient="records"
 expected_outputs_lm_moria = test_data[output_keys_lm_moria].to_dict(orient="records")
 
 
-# @pytest.mark.parametrize(
-#     "input_data, expected", zip(inputs_lm_moria, expected_outputs_lm_moria)
-# )
-# def test_limit_state_moria(input_data, expected):
-#     """Test limit_state_moria function"""
-#     results = piping_lm.limit_state_moria(
-#         L_intrede=input_data["L_intrede"],
-#         L_but=input_data["L_but"],
-#         buitenwaterstand=input_data["buitenwaterstand"],
-#         buitenwaterstand_gemiddeld=input_data["buitenwaterstand_gemiddeld"],
-#         polderpeil=input_data["polderpeil"],
-#         mv_exit=input_data["mv_exit"],
-#         lambda_voorland=input_data["lambda_voorland"],
-#         phi_exit_gemiddeld=input_data["phi_exit_gemiddeld"],
-#         r_exit=input_data["r_exit"],
-#         top_zand=input_data["top_zand"],
-#         k_wvp=input_data["k_wvp"],
-#         D_wvp=input_data["D_wvp"],
-#         d70=input_data["d70"],
-#         gamma_sat_deklaag=input_data["gamma_sat_deklaag"],
-#         modelfactor_u=input_data["modelfactor_u"],
-#         modelfactor_h=input_data["modelfactor_h"],
-#         modelfactor_p=input_data["modelfactor_p"],
-#         modelfactor_ff=input_data["modelfactor_ff"],
-#         modelfactor_3d=input_data["modelfactor_3d"],
-#         modelfactor_aniso=input_data["modelfactor_aniso"],
-#         modelfactor_ml=input_data["modelfactor_ml"],
-#         i_c_h=input_data["i_c_h"],
-#         r_c_deklaag=input_data["r_c_deklaag"],
-#         d70_m=input_data["d70_m"],
-#         gamma_korrel=input_data["gamma_korrel"],
-#         v=input_data["v"],
-#         theta=input_data["theta"],
-#         eta=input_data["eta"],
-#         g=input_data["g"],
-#         gamma_water=input_data["gamma_water"],
-#     )
-#     assert results[0] == pytest.approx(expected["z_u"], rel=1e-3)
-#     assert results[1] == pytest.approx(expected["z_h"], rel=1e-3)
-#     assert results[2] == pytest.approx(expected["z_p"], rel=1e-3)
-#     assert results[3] == pytest.approx(expected["z_combin"], rel=1e-3)
-#     assert results[4] == pytest.approx(expected["h_exit"], rel=1e-3)
-#     assert results[5] == pytest.approx(expected["r_exit"], rel=1)
-#     assert results[6] == pytest.approx(expected["phi_exit"], rel=1e-3)
-#     assert results[7] == pytest.approx(expected["d_deklaag"], rel=1e-3)
-#     assert results[8] == pytest.approx(expected["dphi_c_u"], rel=1e-3)
-#     assert results[9] == pytest.approx(expected["i_exit"], rel=1e-3)
-#     assert results[10] == pytest.approx(expected["L_voorland"], rel=1e-3)
-#     assert results[11] == pytest.approx(expected["W_voorland"], rel=1e-3)
-#     assert results[12] == pytest.approx(expected["L_kwelweg"], rel=1e-3)
-#     assert results[13] == pytest.approx(expected["kD_wvp"], rel=1e-3)
-#     assert results[14] == pytest.approx(expected["dh_c"], rel=1e-3)
-#     assert results[15] == pytest.approx(expected["dh_red"], rel=1e-3)
+@pytest.mark.parametrize(
+    "input_data, expected", zip(inputs_lm_moria, expected_outputs_lm_moria)
+)
+def test_limit_state_moria(input_data, expected):
+    """Test limit_state_moria function"""
+    results = piping_lm.limit_state_moria(
+        L_intrede=input_data["L_intrede"],
+        L_but=input_data["L_but"],
+        buitenwaterstand=input_data["buitenwaterstand"],
+        buitenwaterstand_gemiddeld=input_data["buitenwaterstand_gemiddeld"],
+        polderpeil=input_data["polderpeil"],
+        mv_exit=input_data["mv_exit"],
+        lambda_voorland=input_data["lambda_voorland"],
+        phi_exit_gemiddeld=input_data["phi_exit_gemiddeld"],
+        r_exit=input_data["r_exit"],
+        top_zand=input_data["top_zand"],
+        k_wvp=input_data["k_wvp"],
+        D_wvp=input_data["D_wvp"],
+        d70=input_data["d70"],
+        gamma_sat_deklaag=input_data["gamma_sat_deklaag"],
+        modelfactor_u=input_data["modelfactor_u"],
+        modelfactor_h=input_data["modelfactor_h"],
+        modelfactor_p=input_data["modelfactor_p"],
+        modelfactor_ff=input_data["modelfactor_ff"],
+        modelfactor_3d=input_data["modelfactor_3d"],
+        modelfactor_aniso=input_data["modelfactor_aniso"],
+        modelfactor_ml=input_data["modelfactor_ml"],
+        i_c_h=input_data["i_c_h"],
+        r_c_deklaag=input_data["r_c_deklaag"],
+        d70_m=input_data["d70_m"],
+        gamma_korrel=input_data["gamma_korrel"],
+        v=input_data["v"],
+        theta=input_data["theta"],
+        eta=input_data["eta"],
+        g=input_data["g"],
+        gamma_water=input_data["gamma_water"],
+    )
+    assert results[0] == pytest.approx(expected["z_u"], rel=1e-3)
+    assert results[1] == pytest.approx(expected["z_h"], rel=1e-3)
+    assert results[2] == pytest.approx(expected["z_p"], rel=1e-3)
+    assert results[3] == pytest.approx(expected["z_combin"], rel=1e-3)
+    assert results[4] == pytest.approx(expected["h_exit"], rel=1e-3)
+    assert results[5] == pytest.approx(expected["r_exit"], rel=1)
+    assert results[6] == pytest.approx(expected["phi_exit"], rel=1e-3)
+    assert results[7] == pytest.approx(expected["d_deklaag"], rel=1e-3)
+    assert results[8] == pytest.approx(expected["dphi_c_u"], rel=1e-3)
+    assert results[9] == pytest.approx(expected["i_exit"], rel=1e-3)
+    assert results[10] == pytest.approx(expected["L_voorland"], rel=1e-3)
+    assert results[11] == pytest.approx(expected["W_voorland"], rel=1e-3)
+    assert results[12] == pytest.approx(expected["L_kwelweg"], rel=1e-3)
+    assert results[13] == pytest.approx(expected["kD_wvp"], rel=1e-3)
+    assert results[14] == pytest.approx(expected["dh_c"], rel=1e-3)
+    assert results[15] == pytest.approx(expected["dh_red"], rel=1e-3)
