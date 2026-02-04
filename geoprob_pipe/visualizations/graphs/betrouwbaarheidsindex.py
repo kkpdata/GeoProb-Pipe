@@ -462,7 +462,7 @@ def _add_beta_per_uittredepunt_points(
         go.Scatter(
             x=df_for_graph.loc[mask, "metrering"], y=df_for_graph.loc[mask, "beta"],
             mode='markers', marker=dict(symbol='circle', size=7, color=color), name=name,
-            customdata=df_for_graph[["uittredepunt_id", "beta", "metrering"]],
+            customdata=df_for_graph.loc[mask, ["uittredepunt_id", "beta", "metrering"]],
             hovertemplate=("ID: %{customdata[0]}<br>" +
                            "Beta: %{customdata[1]:.3f}<br>" +
                            "Metrering: %{customdata[2]}"),
@@ -488,6 +488,7 @@ def _add_beta_per_uittredepunt_indication_above_plotting_range(
             showlegend=value
         )
     )
+
 
 def _add_beta_per_uittredepunt_indication_below_plotting_range(
         self, df_for_graph: DataFrame, mask, name: str, color: str, value: bool):
