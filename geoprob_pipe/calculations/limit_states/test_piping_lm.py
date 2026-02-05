@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from . import piping_lm
+from ..system_calculations.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
 
 testset_path = Path(
     Path(__file__).resolve(strict=True).parents[3],
@@ -319,7 +320,6 @@ expected_outputs_lm_moria = test_data[output_keys_lm_moria].to_dict(orient="reco
 def test_limit_state_moria(input_data, expected):
     """Test limit_state_moria function"""
     results = piping_lm.limit_state_moria(**input_data)
-    parameters = ["z_u", "z_h", "z_p", "z_combin", "h_exit", "phi_exit", "d_deklaag", "dphi_c_u", "i_exit",
-                  "L_voorland", "W_voorland", "L_kwelweg", "kD_wvp", "dh_c", "dh_red"]
-    for index, parameter in enumerate(parameters):
-        assert results[index] == pytest.approx(expected[parameter], rel=1e-3)
+    result_keys = SYSTEM_CALCULATION_MAPPER["moria"]["system_return_parameter_keys"]
+    for index, result_key in enumerate(result_keys):
+        assert results[index] == pytest.approx(expected[result_key], rel=1e-3)
