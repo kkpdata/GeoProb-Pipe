@@ -358,9 +358,9 @@ def test_limit_state_moria(input_data, expected):
     print(f"{results=}")
     parameters = ["z_u", "z_h", "z_p", "z_combin", "h_exit", "phi_exit", "d_deklaag", "dphi_c_u", "i_exit",
                   "L_voorland", "W_voorland", "L_kwelweg", "kD_wvp", "dh_c", "dh_red"]
-    results = [f"{label}={value}" for value, label in zip(results, parameters)]
+    results_str = [f"{label}={value}" for value, label in zip(results, parameters)]
 
-    print(f"{results=}")
+    print(f"{results_str=}")
 
     for index, parameter in enumerate(parameters):
         assert results[index] == pytest.approx(expected[parameter], rel=1e-3)
