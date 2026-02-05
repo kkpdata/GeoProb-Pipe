@@ -20,8 +20,6 @@ achtergronden van de methode, API-referenties en voorbeelden.
    installatie_proces
    gebruik
    rekenmethodiek
-   Uittredepuntenmethode
-   Relatie_beslisraamwerk_piping
-   Assembleren
+   assembleren
    references
 
