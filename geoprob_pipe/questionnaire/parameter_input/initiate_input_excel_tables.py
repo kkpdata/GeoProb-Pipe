@@ -2,6 +2,7 @@ from __future__ import annotations
 from geopandas import GeoDataFrame, read_file
 from typing import TYPE_CHECKING
 import sqlite3
+from geoprob_pipe.questionnaire.utils.misc import get_geohydrological_model
 from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
 from pandas import DataFrame
 import numpy as np
@@ -29,19 +30,7 @@ def push_scenario_invoer_tabel(app_settings: ApplicationSettings):
 
 def push_parameter_invoer_tabel(app_settings: ApplicationSettings):
 
-    # Get geohydrological model
-    conn = sqlite3.connect(app_settings.geopackage_filepath)
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT geoprob_pipe_metadata."values" 
-        FROM geoprob_pipe_metadata 
-        WHERE metadata_type='geohydrologisch_model';
-    """)
-    result = cursor.fetchone()
-    if not result:
-        raise ValueError
-    model_string = result[0]
-    conn.close()
+    model_string = get_geohydrological_model(app_settings=app_settings)
 
     # Start base of table
     df_dummy_data = DataFrame(INITIAL_INPUT_MAPPER[model_string]['dummy_invoer'])
