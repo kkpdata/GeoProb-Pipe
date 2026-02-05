@@ -4,7 +4,7 @@ from InquirerPy import inquirer
 from typing import TYPE_CHECKING
 from geopandas import read_file
 import sqlite3
-from geoprob_pipe.calculations.systems.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
+from geoprob_pipe.calculations.systems.mappers.calculation_mapper import CALCULATION_MAPPER
 from pandas import DataFrame
 if TYPE_CHECKING:
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
@@ -21,7 +21,7 @@ def created_model(app_settings: ApplicationSettings) -> bool:
 
     # Check if specified model is legal
     current_specified_model = df[df['metadata_type'] == "geohydrologisch_model"]["values"].iloc[0]
-    if current_specified_model not in SYSTEM_CALCULATION_MAPPER.keys():
+    if current_specified_model not in CALCULATION_MAPPER.keys():
         specify_model_to_use(app_settings, update_record=True)
         return True
 
@@ -31,7 +31,7 @@ def created_model(app_settings: ApplicationSettings) -> bool:
 
 
 def specify_model_to_use(app_settings: ApplicationSettings, update_record: bool = False):
-    model_labels = [value["label"] for key, value in SYSTEM_CALCULATION_MAPPER.items()]
+    model_labels = [value["label"] for key, value in CALCULATION_MAPPER.items()]
 
     choice = inquirer.select(
         message="Welk geohydrologisch model wil je gebruiken? De invoer parameters variëren per model.",

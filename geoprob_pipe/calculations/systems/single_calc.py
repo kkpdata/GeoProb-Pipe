@@ -1,7 +1,7 @@
 from __future__ import annotations
 import sqlite3
-from geoprob_pipe.calculations.systems.system_calculation_mapper\
-    import SYSTEM_CALCULATION_MAPPER
+from geoprob_pipe.calculations.systems.mappers.calculation_mapper\
+    import CALCULATION_MAPPER
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe.calculations.systems.base_objects\
@@ -57,7 +57,7 @@ def reproduce_single_calculation(
 
     # Construct calculation builder
     builder: BaseSystemBuilder = (
-        SYSTEM_CALCULATION_MAPPER[geohydrologisch_model]["system_builder"](
+        CALCULATION_MAPPER[geohydrologisch_model]["system_builder"](
             geopackage_filepath=geopackage_filepath,
             to_run_vakken_ids=None))
 

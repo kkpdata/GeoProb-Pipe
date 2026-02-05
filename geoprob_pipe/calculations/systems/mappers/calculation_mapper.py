@@ -6,7 +6,7 @@ from geoprob_pipe.calculations.systems.piping_system.limit_state_functions impor
 # TODO: Dynamisch maken? Forceren dat naamgeving overeenkomt en we dynamisch importeren?
 
 
-SYSTEM_CALCULATION_MAPPER = {
+CALCULATION_MAPPER = {
     "model4a": {
         "label": "Model 4a",
         "system_builder": PipingSystemBuilder,

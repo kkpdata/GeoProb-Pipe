@@ -4,7 +4,7 @@ from probabilistic_library import DesignPoint, Alpha
 from typing import TYPE_CHECKING, Dict, List, Union, cast
 import numpy as np
 
-from geoprob_pipe.calculations.systems.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
+from geoprob_pipe.calculations.systems.mappers.calculation_mapper import CALCULATION_MAPPER
 
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -71,8 +71,8 @@ def calculate_derived_values(df_scenarios: DataFrame,
     # Calculate the derived values
     def derived_values_single_calculation(model_naam: str, **kwargs):
 
-        return_keys: List[str] = SYSTEM_CALCULATION_MAPPER[model_naam]["system_return_parameter_keys"]
-        system_limit_state_function = SYSTEM_CALCULATION_MAPPER[model_naam]["limit_state_function"]
+        return_keys: List[str] = CALCULATION_MAPPER[model_naam]["system_return_parameter_keys"]
+        system_limit_state_function = CALCULATION_MAPPER[model_naam]["limit_state_function"]
         derived_values = {key: value for key, value in zip(return_keys, system_limit_state_function(**kwargs))}
 
         return {**derived_values}

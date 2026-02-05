@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List
-from geoprob_pipe.calculations.systems.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
+from geoprob_pipe.calculations.systems.mappers.calculation_mapper import CALCULATION_MAPPER
 from multiprocessing import Pool, cpu_count
 import time
 import math
@@ -48,7 +48,7 @@ def _init_worker(geohydrologisch_model, geopackage_filepath,
     global _BUILDER, _MODEL
     _MODEL = geohydrologisch_model
     _BUILDER = (
-        SYSTEM_CALCULATION_MAPPER[geohydrologisch_model]["system_builder"](
+        CALCULATION_MAPPER[geohydrologisch_model]["system_builder"](
             geopackage_filepath=geopackage_filepath, to_run_vakken_ids=to_run_vakken_ids))
 
 
@@ -79,7 +79,7 @@ def build_and_run_system_calculations(
     geopackage_filepath = geoprob_pipe.input_data.app_settings.geopackage_filepath
     to_run_vakken_ids = geoprob_pipe.input_data.app_settings.to_run_vakken_ids
     system_builder: BaseSystemBuilder = (
-        SYSTEM_CALCULATION_MAPPER[geohydrologisch_model]['system_builder'](
+        CALCULATION_MAPPER[geohydrologisch_model]['system_builder'](
             geopackage_filepath=geopackage_filepath, to_run_vakken_ids=to_run_vakken_ids))
 
     logger.info("Now building and running calculations...")
