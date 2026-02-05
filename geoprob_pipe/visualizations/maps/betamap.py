@@ -258,5 +258,5 @@ class BetaMap:
             path = self.geoprob_pipe.visualizations.maps.export_dir
             self.fig.write_html(os.path.join(
                 path, 'Faalkansberekening STPH.html'), include_plotlyjs='cdn')
-            self.fig.write_image(os.path.join(
-                path, 'Faalkansberekening STPH.png'), format='png')
+            # self.fig.write_image(os.path.join(
+            #     path, 'Faalkansberekening STPH.png'), format='png')

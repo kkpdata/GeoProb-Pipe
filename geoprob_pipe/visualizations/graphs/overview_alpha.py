@@ -146,44 +146,36 @@ def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
             include_plotlyjs='cdn'
         )
 
-        if geoprob_pipe.software_requirements.chrome_is_installed:
-            for scen_order in scenario_orders:
-                df_case = df[df["scenario_order"] == scen_order]
-                fig_case = make_subplots(
-                    rows=len(parameters), cols=1,
-                    shared_xaxes=False,
-                    subplot_titles=parameters
+        for scen_order in scenario_orders:
+            df_case = df[df["scenario_order"] == scen_order]
+            fig_case = make_subplots(
+                rows=len(parameters), cols=1,
+                shared_xaxes=False,
+                subplot_titles=parameters
+            )
+            for row_idx, param in enumerate(parameters, start=1):
+                df_param = df_case[df_case["variable"] == param]
+                fig_case.add_trace(
+                    go.Scatter(
+                        x=df_param["metrering"],
+                        y=df_param["physical_value"],
+                        mode="markers",
+                        marker=dict(color="black", symbol="x", size=5),
+                        name=param
+                    ),
+                    row=row_idx, col=1
                 )
-                for row_idx, param in enumerate(parameters, start=1):
-                    df_param = df_case[df_case["variable"] == param]
-                    fig_case.add_trace(
-                        go.Scatter(
-                            x=df_param["metrering"],
-                            y=df_param["physical_value"],
-                            mode="markers",
-                            marker=dict(color="black", symbol="x", size=5),
-                            name=param
-                        ),
-                        row=row_idx, col=1
-                    )
-                    fig_case.update_xaxes(showgrid=True, tickangle=90,
-                                          row=row_idx, col=1)
-                    fig_case.update_yaxes(showgrid=True,
-                                          title_text=f"{param} [{param_units[param]}]"
-                                          + f"<br>({dist_types[param]})",
-                                          row=row_idx, col=1)
+                fig_case.update_xaxes(showgrid=True, tickangle=90,
+                                      row=row_idx, col=1)
+                fig_case.update_yaxes(showgrid=True,
+                                      title_text=f"{param} [{param_units[param]}]"
+                                      + f"<br>({dist_types[param]})",
+                                      row=row_idx, col=1)
 
-                fig_case.update_layout(
-                    height=300*len(parameters),
-                    showlegend=False,
-                    title=f"Overview of parameters for Scenario {scen_order}"
-                )
-                fig_case.write_image(
-                    os.path.join(export_dir,
-                                 f"overview_alphas_scenario_{scen_order}.png"),
-                    format="png",
-                    width=1400,
-                    height=300*len(parameters)
-                )
+            fig_case.update_layout(
+                height=300*len(parameters),
+                showlegend=False,
+                title=f"Overview of parameters for Scenario {scen_order}"
+            )
 
     return fig

@@ -39,14 +39,12 @@ def combine_df_beta_per_limit_state(calc_results: List[CalcResult]) -> pd.DataFr
     return df
 
 
-def collect_df_beta_per_scenario(calc: ParallelSystemReliabilityCalculation
-                                 ) -> pd.DataFrame:
+def collect_df_beta_per_scenario(calc: ParallelSystemReliabilityCalculation) -> pd.DataFrame:
 
     def create_row(calculation):
         return {
             "uittredepunt_id": calculation.metadata["uittredepunt_id"],
             "ondergrondscenario_id": calculation.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
-            # "ondergrondscenario": calculation.metadata["ondergrondscenario"],
             "vak_id": calculation.metadata["vak_id"],
             "system_calculation": calculation,
             "converged": calculation.system_design_point.is_converged,
@@ -66,9 +64,7 @@ def collect_df_beta_per_scenario(calc: ParallelSystemReliabilityCalculation
 
 def combine_df_beta_per_scenario(calc_results: List[CalcResult]) -> pd.DataFrame:
     df = pd.concat((result.df_scenario for result in calc_results), ignore_index=True)
-    df = df.sort_values(
-        ["uittredepunt_id", "ondergrondscenario_id", "vak_id"]
-        ).reset_index(drop=True)
+    df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
 
@@ -97,41 +93,15 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
 
 
 def construct_df_beta_per_vak(results: Results):
+
+    # TODO: Check if all calculations on scenario level are converged?
+    conv = results.df_beta_scenarios.groupby('vak_id', as_index=False)["converged"].all()
+
+    # TODO: Wat doet dit stukje code?
     df = results.df_beta_uittredepunten
-    return df.loc[df.groupby('vak_id')['beta'].idxmin()]
+    df = df.drop(columns=["converged"])  # TODO: Waarom drop converged?
+    df = df.loc[df.groupby('vak_id')['beta'].idxmin()]  # Minimale beta van beta uittredepunten per vak
 
-
-# def collect_df_alphas_influence_factors_and_physical_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
-#     """ Collects all Alphas, Influence factors and Physical values of the stochast input parameters. """
-#
-#     # Create
-#     def create_df_rows_for_design_point(
-#             dp: DesignPoint, calc: ParallelSystemReliabilityCalculation
-#     ) -> List[Dict[str, Union[str, float]]]:
-#         rows_from_dp = []
-#         for alpha in dp.alphas:
-#             alpha: Alpha
-#             rows_from_dp.append({
-#                 "uittredepunt_id": calc.metadata['uittredepunt_id'],
-#                 "ondergrondscenario_id": calc.metadata['ondergrondscenario_id'],
-#                 "vak_id": calc.metadata['vak_id'],
-#                 "design_point": dp.identifier,
-#                 "variable": alpha.identifier,
-#                 "distribution_type": alpha.variable.distribution.value,
-#                 "alpha": alpha.alpha,
-#                 "influence_factor": alpha.alpha * alpha.alpha,
-#                 "physical_value": alpha.x
-#             })
-#         return rows_from_dp
-#
-#     # Gather data
-#     rows = []
-#     for calculation in geoprob_pipe.calculations:
-#         for design_point in calculation.model_design_points:
-#             rows.extend(create_df_rows_for_design_point(dp=design_point, calc=calculation))
-#         rows.extend(create_df_rows_for_design_point(dp=calculation.system_design_point, calc=calculation))
-#
-#     # Generate df from rows
-#     df = DataFrame(rows)
-#
-#     return df
+    # TODO: Waarom de merge?
+    df = df.merge(conv, on="vak_id", how="left")
+    return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability"]]

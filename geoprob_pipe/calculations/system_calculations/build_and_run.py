@@ -65,10 +65,9 @@ def _worker(row_unique: dict):
     df_stochast = collect_stochast_values(calc)
     df_derived = calculate_derived_values(df_scenario, _MODEL)
     df_scenario = df_scenario.drop(columns=["system_calculation"])
+
     # Return results (without calculation object)
-    result = CalcResult(df_limit_state, df_scenario, df_stochast,
-                        df_derived, calc.validation_messages)
-    return result
+    return CalcResult(df_limit_state, df_scenario, df_stochast, df_derived, calc.validation_messages)
 
 
 def build_and_run_system_calculations(
