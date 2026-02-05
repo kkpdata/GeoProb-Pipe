@@ -354,6 +354,9 @@ def test_limit_state_moria(input_data, expected):
         g=input_data["g"],
         gamma_water=input_data["gamma_water"],
     )
+
+    print(f"{results=}")
+
     assert results[0] == pytest.approx(expected["z_u"], rel=1e-3)
     assert results[1] == pytest.approx(expected["z_h"], rel=1e-3)
     assert results[2] == pytest.approx(expected["z_p"], rel=1e-3)
