@@ -2,7 +2,7 @@ from __future__ import annotations
 from geopandas import GeoDataFrame, read_file
 from typing import TYPE_CHECKING
 import sqlite3
-from geoprob_pipe.calculations.system_calculations.dummy_input_mapper import DUMMY_INPUT_MAPPER
+from tests.calculations.system_calculations.dummy_input_mapper import DUMMY_INPUT_MAPPER
 from pandas import DataFrame
 import numpy as np
 if TYPE_CHECKING:

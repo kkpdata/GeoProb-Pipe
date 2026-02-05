@@ -14,7 +14,7 @@ from geopandas import GeoDataFrame
 from geoprob_pipe.questionnaire.utils.misc import get_geoprob_pipe_version_number
 from geoprob_pipe.questionnaire.comparisons.start_comparison import start_comparison
 from geoprob_pipe.utils.validation_messages import BColors
-from geoprob_pipe.calculations.system_calculations.single_calc import (
+from geoprob_pipe.calculations.systems.single_calc import (
     EXAMPLE_SCRIPT_REPRODUCING_SINGLE_CALCULATION, EXPLANATION_REPRODUCING_SINGLE_CALCULATION)
 if TYPE_CHECKING:
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings

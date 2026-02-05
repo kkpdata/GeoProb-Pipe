@@ -18,12 +18,12 @@ from geoprob_pipe.input_data import InputData
 from geoprob_pipe.results import Results
 from geoprob_pipe.spatial import Spatial
 from geoprob_pipe.visualizations import Visualizations
-from geoprob_pipe.calculations.system_calculations.build_and_run import build_and_run_system_calculations
+from geoprob_pipe.calculations.systems.build_and_run import build_and_run_system_calculations
 from geoprob_pipe.software_requirements import SoftwareRequirements
 from geoprob_pipe.utils.update_metadata import update_metadata
 
 if TYPE_CHECKING:
-    from geoprob_pipe.calculations.system_calculations.build_and_run import CalcResult
+    from geoprob_pipe.calculations.systems.build_and_run import CalcResult
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
 

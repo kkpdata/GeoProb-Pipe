@@ -1,13 +1,13 @@
 from typing import Union, Dict, Callable
-from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
-    ParallelSystemReliabilityCalculation)
+from geoprob_pipe.calculations.systems.base_objects.system_calculation import (
+    SystemCalculation)
 from probabilistic_library import DistributionType
 import inspect
 
 
 class DeterministicSystemCalculation:
 
-    def __init__(self, input_object: Union[ParallelSystemReliabilityCalculation]):
+    def __init__(self, input_object: Union[SystemCalculation]):
         self.input_object = input_object
         self.limit_state_results = {}
         self._calculate_limit_states()
@@ -21,7 +21,7 @@ class DeterministicSystemCalculation:
         input_argument_names = signature.parameters.keys()
 
         # Collect deterministic input
-        for distribution in self.input_object.given_system_variable_distributions:
+        for distribution in self.input_object.given_distributions:
             if distribution['name'] not in input_argument_names:
                 continue
 
@@ -38,6 +38,6 @@ class DeterministicSystemCalculation:
     def _calculate_limit_states(self):
         """ For now this method only considers ParallelSystemReliabilityCalculation, in future with other systems
         or types it should anticipate those as well. """
-        for func in self.input_object.given_system_models:
+        for func in self.input_object.given_limit_states:
             deterministic_input = self._collect_deterministic_input(func)
             self.limit_state_results[func.__name__] = func(**deterministic_input)

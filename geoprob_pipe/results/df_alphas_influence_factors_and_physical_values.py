@@ -4,23 +4,23 @@ from probabilistic_library import DesignPoint, Alpha
 from typing import TYPE_CHECKING, Dict, List, Union, cast
 import numpy as np
 
-from geoprob_pipe.calculations.system_calculations.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
+from geoprob_pipe.calculations.systems.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
 
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
-    from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
-        ParallelSystemReliabilityCalculation)
-    from geoprob_pipe.calculations.system_calculations.build_and_run import CalcResult
+    from geoprob_pipe.calculations.systems.base_objects.system_calculation import (
+        SystemCalculation)
+    from geoprob_pipe.calculations.systems.build_and_run import CalcResult
 
 
-def collect_stochast_values(calc: ParallelSystemReliabilityCalculation
+def collect_stochast_values(calc: SystemCalculation
                             ) -> DataFrame:
     """ Collects all Alphas, Influence factors and Physical values of
     the stochast input parameters. """
 
     # Create
     def create_df_rows_for_design_point(
-            dp: DesignPoint, calculation: ParallelSystemReliabilityCalculation
+            dp: DesignPoint, calculation: SystemCalculation
     ) -> List[Dict[str, Union[str, float]]]:
         rows_from_dp = []
         for alpha in dp.alphas:

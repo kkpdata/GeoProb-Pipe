@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from pandas import merge
-from geoprob_pipe.calculations.system_calculations.piping_system.dummy_input import DUMMY_INPUT
+from tests.calculations.system_calculations.system.dummy_input import DUMMY_INPUT
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
