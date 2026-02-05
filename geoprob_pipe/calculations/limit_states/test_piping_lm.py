@@ -318,6 +318,10 @@ expected_outputs_lm_moria = test_data[output_keys_lm_moria].to_dict(orient="reco
 )
 def test_limit_state_moria(input_data, expected):
     """Test limit_state_moria function"""
+
+    print(f"{input_data=}")
+    print(f"{expected=}")
+
     results = piping_lm.limit_state_moria(
         L_intrede=input_data["L_intrede"],
         L_but=input_data["L_but"],
