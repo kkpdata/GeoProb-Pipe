@@ -134,6 +134,7 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 
 
 
+
 ### Op een later moment van belang
 <details>
   <summary>Bekijk de tabel</summary>
@@ -149,15 +150,14 @@ bij de TODO in de code zelf is vaak een uitgebreidere toelichting te vinden.
 | could | middel | De bovenstaande assertion triggert. Maar dat is fout. | /calculations/test_prob_lib_vs_openturns.py | 132 | 
 | must | klein | Check dat een LineString-laag wordt opgegeven. | /questionnaire/spatial_layers/dijktraject.py | 99 | 
 | must | klein | Check dat een LineString-laag wordt opgegeven. | /questionnaire/spatial_layers/dijktraject.py | 128 | 
-| nice | middel | Visualiseer physical design point value in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 24 | 
 | should | klein | Nadenken hoe we binnen een half uur een quick scan piping kunnen uitvoeren met het object. | /calculations/system_calculations/piping_system/test_calculation.py | 4 | 
 | should | klein | Is het echt nodig om een 'FileSystem'-object te maken? Deze functies bestaan al toch? | /utils/file_system.py | 9 | 
 | should | middel | Het zou goed zijn om voor dit simpele systeem ook betas te kunnen reproduceren. | /calculations/test_prob_lib_vs_openturns.py | 175 | 
-| should | middel | Visualiseer WBN waterstand in hfreq-plot ter bewustzijn. | /visualizations/graphs/hfreq.py | 23 | 
 | should | middel | We vragen nu filepath, we kunnen daarnaast de optie geven voor normtrajecten direct. | /questionnaire/spatial_layers/dijktraject.py | 22 | 
 | should | middel | Should validate if AHN grid fully overlaps area | /questionnaire/spatial_layers/ahn.py | 13 | 
 
 <!-- END_TODO_TABLE_LATER --> 
+
 
 
 
