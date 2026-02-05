@@ -1,15 +1,62 @@
 from probabilistic_library import DistributionType
 
 
-DUMMY_INPUT = [
+INITIAL_INPUT = [
     {
-        "name": "L_kwelweg",
-        "description": "TODO",  # TODO
+        "name": "L_achterland",
+        "description": "Afstand van uittredepunten tot achterlandlengte.",
         "remark": "",
         "unit": "m",
-        "distribution_type": DistributionType.deterministic,  # TODO
-        "mean": 150.0,  # TODO
-        "source": "spatial",  # TODO
+        "distribution_type": DistributionType.deterministic,
+        "mean": 3500.0,
+        "source": "excel",
+    },
+    {
+        "name": "c_voorland",
+        "description": "Weerstand van de deklaag in het voorland.",
+        "remark": "",
+        "unit": "dagen",
+        "distribution_type": DistributionType.log_normal,
+        "mean": 10.0,
+        "variation": 0.1,
+        "source": "excel",
+    },
+    {
+        "name": "c_achterland",
+        "description": "Weerstand van de deklaag in het achterland.",
+        "remark": "",
+        "unit": "dagen",
+        "distribution_type": DistributionType.log_normal,
+        "mean": 50.0,
+        "variation": 0.1,
+        "source": "excel",
+    },
+    {
+        "name": "L_intrede",
+        "description": "Afstand van uittredepunten tot geometrische intredelijn.",
+        "remark": "",
+        "unit": "m",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 150.0,
+        "source": "spatial",
+    },
+    {
+        "name": "L_but",
+        "description": "Afstand van uittredepunten tot buitenteenlijn.",
+        "remark": "",
+        "unit": "m",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 65.0,
+        "source": "spatial",
+    },
+    {
+        "name": "L_bit",
+        "description": "Afstand van uittredepunten tot binnenteenlijn.",
+        "remark": "",
+        "unit": "m",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 20.0,
+        "source": "spatial",
     },
     {
         "name": "polderpeil",
@@ -50,24 +97,14 @@ DUMMY_INPUT = [
         "source": "excel",
     },
     {
-        "name": "r_exit",
-        "description": "TODO",  # TODO
+        "name": "kD_wvp",
+        "description": "Transmissiviteit van het watervoerende pakket.",
         "remark": "",
-        "unit": "-",  # TODO
-        "distribution_type": DistributionType.normal,  # TODO
-        "mean": -0.5,  # TODO
-        "deviation": 0.05,  # TODO
-        "source": "excel",  # TODO
-    },
-    {
-        "name": "k_wvp",
-        "description": "",  # TODO
-        "remark": "",  # TODO
-        "unit": "",  # TODO
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 2000.0,  # TODO
-        "variation": 0.35,  # TODO
-        "source": "excel",  # TODO
+        "unit": "m²/dag",
+        "distribution_type": DistributionType.log_normal,
+        "mean": 2000.0,
+        "variation": 0.35,
+        "source": "excel",
     },
     {
         "name": "modelfactor_h",
@@ -81,43 +118,43 @@ DUMMY_INPUT = [
     },
     {
         "name": "modelfactor_ff",
-        "description": "Modelfactor voor fijne fractie.",
+        "description": "Modelfactor fijne fractie.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "modelfactor_3d",
-        "description": "Modelfactor voor 3D effecten.",
+        "description": "Modelfactor 3D effecten.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "modelfactor_aniso",
-        "description": "Modelfactor voor anisotropie.",
+        "description": "Modelfactor aniso.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "modelfactor_ml",
-        "description": "Modelfactor voor meerlaagsheid zandpakket.",
+        "description": "Modelfactor ML.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "i_c_h",

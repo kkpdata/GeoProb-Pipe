@@ -4,7 +4,7 @@ import sqlite3
 import numpy as np
 import os
 from geopandas import GeoDataFrame, read_file
-from tests.calculations.system_calculations.dummy_input_mapper import DUMMY_INPUT_MAPPER
+from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
 from geoprob_pipe.questionnaire.parameter_input.input_parameter_tables import InputParameterTables
 from probabilistic_library import FragilityValue
 
@@ -197,7 +197,7 @@ def _gather_required_input_parameters(geopackage_filepath: str) -> List[str]:
         raise ValueError
     model_string = result[0]
     conn.close()
-    df_dummy_data = DataFrame(DUMMY_INPUT_MAPPER[model_string]['dummy_invoer'])
+    df_dummy_data = DataFrame(INITIAL_INPUT_MAPPER[model_string]['dummy_invoer'])
 
     _ = df_dummy_data.sort_values(by=["name"])
     df_dummy_data = df_dummy_data.sort_values(by=["name"])

@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from pandas import merge
-from tests.calculations.system_calculations.system.dummy_input import DUMMY_INPUT
+from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -38,7 +38,7 @@ def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
             df["variable"] == param, "distribution_type"].unique()[0]
         dist_types.update({param: dist_type})
     # Add units
-    unit_lookup = {item["name"]: item["unit"] for item in DUMMY_INPUT}
+    unit_lookup = {item["name"]: item["unit"] for item in INITIAL_INPUT_MAPPER}
     param_units = {}
     for param in parameters:
         try:

@@ -1,18 +1,9 @@
 from probabilistic_library import DistributionType
 
 
-DUMMY_INPUT = [
+INITIAL_INPUT = [
     {
-        "name": "L_intrede",
-        "description": "TODO",  # TODO
-        "remark": "",
-        "unit": "m",
-        "distribution_type": DistributionType.deterministic,  # TODO
-        "mean": 150.0,  # TODO
-        "source": "spatial",  # TODO
-    },
-    {
-        "name": "L_but",
+        "name": "L_kwelweg",
         "description": "TODO",  # TODO
         "remark": "",
         "unit": "m",
@@ -40,15 +31,6 @@ DUMMY_INPUT = [
         "source": "excel",
     },
     {
-        "name": "buitenwaterstand_gemiddeld",
-        "description": "TODO",  # TODO
-        "remark": "",
-        "unit": "m+NAP",
-        "distribution_type": DistributionType.deterministic,  # TODO
-        "mean": 5.0,  # TODO
-        "source": "excel",  # TODO
-    },
-    {
         "name": "mv_exit",
         "description": "Bodemhoogte ter plaatse van uittredepunten.",
         "remark": "",
@@ -56,15 +38,6 @@ DUMMY_INPUT = [
         "distribution_type": DistributionType.deterministic,
         "mean": 0.5,
         "source": "spatial",
-    },
-    {
-        "name": "lambda_voorland",
-        "description": "",  # TODO
-        "remark": "",  # TODO
-        "unit": "",  # TODO
-        "distribution_type": DistributionType.deterministic,  # TODO
-        "mean": 50,  # TODO
-        "source": "spatial",  # TODO
     },
     {
         "name": "top_zand",
@@ -75,16 +48,6 @@ DUMMY_INPUT = [
         "mean": -3.0,
         "deviation": 0.5,
         "source": "excel",
-    },
-    {
-        "name": "phi_exit_gemiddeld",
-        "description": "TODO",  # TODO
-        "remark": "",
-        "unit": "m+NAP",  # TODO
-        "distribution_type": DistributionType.normal,  # TODO
-        "mean": -3.0,  # TODO
-        "deviation": 0.5,  # TODO
-        "source": "excel",  # TODO
     },
     {
         "name": "r_exit",
@@ -100,10 +63,10 @@ DUMMY_INPUT = [
         "name": "k_wvp",
         "description": "",  # TODO
         "remark": "",  # TODO
-        "unit": "m/dag",
+        "unit": "",  # TODO
         "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 45.0,
-        "variation": 0.35,
+        "mean": 2000.0,  # TODO
+        "variation": 0.35,  # TODO
         "source": "excel",  # TODO
     },
     {
