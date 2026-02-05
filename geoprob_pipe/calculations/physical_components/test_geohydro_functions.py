@@ -31,14 +31,17 @@ def test_calc_lambda():
     assert geohydro_functions.calc_lambda(2000.0, 10.0) == 141.4213562373095
 
 
+# noinspection PyPep8Naming
 def test_calc_W():
     assert geohydro_functions.calc_W(141.4213562373095, 150.0) == 111.14536276273107
 
 
+# noinspection PyPep8Naming
 def test_calc_r_BIT():
     assert geohydro_functions.calc_r_BIT(50.0, 35.0, 85.0) == 0.5
 
 
+# noinspection PyPep8Naming
 def test_calc_r_BUT():
     assert geohydro_functions.calc_r_BUT(50.0, 25.0, 50.0) == 0.6
 
@@ -55,9 +58,11 @@ def test_calc_ang_freq():
     assert geohydro_functions.calc_ang_frequency(math.pi) == 2.0
 
 
+# noinspection PyPep8Naming
 def test_P_from_T_and_vv():
     assert geohydro_functions.calc_P_from_T(100.0) == 50.0
     assert geohydro_functions.calc_T_from_P(200.0) == 400.0
+
 
 def test_lambda_cyclic_from_stationary():
     assert (

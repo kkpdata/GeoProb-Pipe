@@ -43,7 +43,7 @@ class GeoProbPipe:
         self.time_start = datetime.now()
 
         # self.workspace = Workspace(path_to_workspace)
-        self.software_requirements = SoftwareRequirements(app_settings=app_settings)
+        self.software_requirements = SoftwareRequirements()
 
         self.input_data = InputData(app_settings=app_settings)  # TODO: Alter with new option
 

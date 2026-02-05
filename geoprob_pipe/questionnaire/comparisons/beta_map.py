@@ -41,7 +41,7 @@ def _add_line(comparison: ComparisonCollector, fig: go.Figure,
                                 layer=layer)
     gdf_traject = gdf_traject.to_crs("EPSG:4326")
 
-    def plot_linestring(ls, show):
+    def plot_linestring(ls, display):
         xs, ys = ls.xy
         xs = list(xs)
         ys = list(ys)
@@ -53,7 +53,7 @@ def _add_line(comparison: ComparisonCollector, fig: go.Figure,
             hoverinfo="none",
             name=layer,
             legendgroup=layer,
-            showlegend=show
+            showlegend=display
         ))
     show = True
     for geom in gdf_traject.geometry:
@@ -156,9 +156,9 @@ def map_delta_beta_comparison(comparison: ComparisonCollector,
         fig.write_html(os.path.join(
             comparison.export_dir, "delta_beta_map.html"
             ), include_plotlyjs='cdn', include_mathjax='cdn')
-        fig.write_image(os.path.join(
-            comparison.export_dir, "delta_beta_map.png"
-            ), format="png", scale=5,  width=1400)
+        # fig.write_image(os.path.join(
+        #     comparison.export_dir, "delta_beta_map.png"
+        #     ), format="png", scale=5,  width=1400)
 
     return fig
 
@@ -241,8 +241,8 @@ def map_ratio_beta_comparison(comparison: ComparisonCollector,
         fig.write_html(os.path.join(
             comparison.export_dir, "ratio_beta_map.html"
             ), include_plotlyjs='cdn', include_mathjax='cdn')
-        fig.write_image(os.path.join(
-            comparison.export_dir, "ratio_beta_map.png"
-            ), format="png", scale=5,  width=1400)
+        # fig.write_image(os.path.join(
+        #     comparison.export_dir, "ratio_beta_map.png"
+        #     ), format="png", scale=5,  width=1400)
 
     return fig

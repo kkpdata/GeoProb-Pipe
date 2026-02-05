@@ -4,7 +4,6 @@ def test_questionnaire():
 
     ##
 
-    from geoprob_pipe.questionnaire.questionnaire import questionnaire
     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
     from repo_utils.utils import repository_root_path
     import os
@@ -14,10 +13,5 @@ def test_questionnaire():
     repo_root = repository_root_path()
     app_settings.workspace_dir = os.path.join(repo_root, "geoprob_pipe", "questionnaire", "test_files")
     app_settings.geopackage_filename = os.path.basename("Analyse224.geoprob_pipe.gpkg")
-
-    ##
-
-    # Perform test
-    # questionnaire(app_settings=app_settings)
 
     ##

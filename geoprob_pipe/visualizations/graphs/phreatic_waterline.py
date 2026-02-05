@@ -133,36 +133,28 @@ def phreatic_waterline(geoprob_pipe: GeoProbPipe, export: bool = False):
             os.path.join(export_dir, "phreatic_waterline.html"), include_plotlyjs='cdn')
 
         # Export one PNG per scenario_order
-        if geoprob_pipe.software_requirements.chrome_is_installed:
-            for scen_order in scenario_orders:
-                df_case = df[df["scenario_order"] == scen_order]
-                fig_case = go.Figure()
-                for variable in ["buitenwaterstand", "phi_exit",
-                                 "h_exit", "top_zand"]:
-                    df_var = df_case[df_case["variable"] == variable]
-                    fig_case.add_trace(go.Scatter(
-                        x=df_var["metrering"],
-                        y=df_var["physical_value"],
-                        mode="markers",
-                        name=names[variable],
-                        marker=dict(
-                            color=colors[variable],
-                            symbol=symbols[variable],
-                            size=5
-                        )
-                    ))
-                fig_case.update_layout(
-                    title=f"Phreatic waterline for Scenario {scen_order}",
-                    xaxis_title="Metrering",
-                    yaxis_title="Hoogte [m+NAP]",
-                    showlegend=True,
-                )
-                fig_case.write_image(
-                    os.path.join(
-                        export_dir,
-                        f"phreatic_waterline_scenario_{scen_order}.png"
-                        ),
-                    format="png", scale=5, width=1400
-                )
+        for scen_order in scenario_orders:
+            df_case = df[df["scenario_order"] == scen_order]
+            fig_case = go.Figure()
+            for variable in ["buitenwaterstand", "phi_exit",
+                             "h_exit", "top_zand"]:
+                df_var = df_case[df_case["variable"] == variable]
+                fig_case.add_trace(go.Scatter(
+                    x=df_var["metrering"],
+                    y=df_var["physical_value"],
+                    mode="markers",
+                    name=names[variable],
+                    marker=dict(
+                        color=colors[variable],
+                        symbol=symbols[variable],
+                        size=5
+                    )
+                ))
+            fig_case.update_layout(
+                title=f"Phreatic waterline for Scenario {scen_order}",
+                xaxis_title="Metrering",
+                yaxis_title="Hoogte [m+NAP]",
+                showlegend=True,
+            )
 
     return fig

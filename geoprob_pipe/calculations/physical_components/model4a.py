@@ -3,8 +3,10 @@ r""".. _stationair-model:
 Model 4a: Stationair model
 ==========================
 
-Op deze pagina volgt een uitleg van de implementatie van het stationaire model. Achtergronden staan in bijlage 4 van het Technisch rapport Waterspanningen bij Dijken :cite:t:`trw_2004`. 
-Onder de aanname van horizontale stroming in het watervoerende zandpakket en verticale stroming in de weerstandbiedende deklaag is een analytische oplossing beschikbaar voor het debiet en het stijghoogteverloop in het zand.
+Op deze pagina volgt een uitleg van de implementatie van het stationaire model. Achtergronden staan in bijlage 4 van
+het Technisch rapport Waterspanningen bij Dijken :cite:t:`trw_2004`.
+Onder de aanname van horizontale stroming in het watervoerende zandpakket en verticale stroming in de weerstand
+biedende deklaag is een analytische oplossing beschikbaar voor het debiet en het stijghoogteverloop in het zand.
 
 .. figure:: /_static/model4a_trwd.png
    :width: 100%
@@ -12,7 +14,8 @@ Onder de aanname van horizontale stroming in het watervoerende zandpakket en ver
    Schematisering grondwaterstroming stationair model (figuur b4.4 uit :cite:t:`trw_2004`)
 
 
-Het stationaire model houdt in dat de respons op een gegeven locatie :math:`x` constant is. Op elke locatie is het verband tussen de stijghoogte in het watervoerende pakket :math:`\phi(x)` en de respons :math:`r(x)` bekend door:
+Het stationaire model houdt in dat de respons op een gegeven locatie :math:`x` constant is. Op elke locatie is het
+verband tussen de stijghoogte in het watervoerende pakket :math:`\phi(x)` en de respons :math:`r(x)` bekend door:
 
 .. math::
 
@@ -59,17 +62,24 @@ en
 
     r_{bit} = \frac{(W_3)}{\sum W}
 
-Het model neemt aan dat tussen de buitenteen en de binnenteen van de dijk er geen uitwisseling plaatsvindt tussen het zandpakket en de deklaag. Over deze lengte :math:`L_2` wordt lineair geïnterpoleerd. Een bijzonder geval is wanneer :math:`L_2 = 0`. We spreken dan van een kantelpunt. De definitie van de respons in het kantelpunt (zie bladzijde b3-7 van :cite:`trw_2004` is:
+Het model neemt aan dat tussen de buitenteen en de binnenteen van de dijk er geen uitwisseling plaatsvindt tussen het
+zandpakket en de deklaag. Over deze lengte :math:`L_2` wordt lineair geïnterpoleerd. Een bijzonder geval is
+wanneer :math:`L_2 = 0`. We spreken dan van een kantelpunt. De definitie van de respons in het kantelpunt (zie
+bladzijde b3-7 van :cite:`trw_2004)` is:
 
 .. math::
 
     r_{kp} = \frac{1}{(1 + \frac{W_1}{W_3})}
 
-Voor de faalmechanismen piping en macrostabiliteit is het potentiaalverloop verloop in de nabijheid van de dijk van belang. Door de aanname van lineaire interpolatie wordt het potentiaalverloop beschreven door drie formules: één voor het voorland tot de buitenteen, het gebied onder de dijk en een formulering voor het achterland. Hiervoor is het nodig de :math:`x` positie in het dwarsprofiel te kennen. Deze module hanteert hiervoor de volgende definities:
+Voor de faalmechanismen piping en macrostabiliteit is het potentiaalverloop verloop in de nabijheid van de dijk van
+belang. Door de aanname van lineaire interpolatie wordt het potentiaalverloop beschreven door drie formules: één voor
+het voorland tot de buitenteen, het gebied onder de dijk en een formulering voor het achterland. Hiervoor is het nodig
+de :math:`x` positie in het dwarsprofiel te kennen. Deze module hanteert hiervoor de volgende definities:
 
 De :math:`x` loopt op richting het achterland. De dijkzate is dan gedefinieerd als: :math:`L_2 = x_{bit} - x_{but}`.
 
-Als :math:`x < x_{but}` dan ligt :math:`x` in het voorland en als :math:`x > x_{but}` dan ligt :math:`x` in het achterland.
+Als :math:`x < x_{but}` dan ligt :math:`x` in het voorland en als :math:`x > x_{but}` dan ligt :math:`x` in het
+achterland.
 
 Voorland:
 

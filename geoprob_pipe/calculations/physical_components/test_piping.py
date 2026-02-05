@@ -31,6 +31,7 @@ from . import piping
 # D70 = 2.7E-4 m
 
 
+# noinspection PyPep8Naming
 def test_calc_Dcover():
     assert piping.calc_d_deklaag(0.0, 2.0) == 0.1
     assert piping.calc_d_deklaag(2.0, 1.0) == 1.0
@@ -75,6 +76,7 @@ def test_calc_dh_red():
     )
 
 
+# noinspection PyPep8Naming
 def test_calc_W_achterland():
     assert piping.calc_W_achterland(
         piping.calc_lambda_achterland(50.0 * 40.0, 10.0), 150.0
@@ -84,6 +86,7 @@ def test_calc_W_achterland():
     ) == pytest.approx(316.2277623787640000, 0.0001)
 
 
+# noinspection PyPep8Naming
 def test_calc_W_voorland():
     assert piping.calc_W_voorland(
         piping.calc_lambda_achterland(50.0 * 40.0, 10.0), 150.0
@@ -93,6 +96,7 @@ def test_calc_W_voorland():
     ) == pytest.approx(316.2277623787640000, 0.0001)
 
 
+# noinspection PyPep8Naming
 def test_calc_L_kwelweg():
     assert piping.calc_L_kwelweg(500.0, 200.0) == 700.0
     assert piping.calc_L_kwelweg(0.0, 0.0) == 0.0

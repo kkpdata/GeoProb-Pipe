@@ -15,56 +15,6 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
-# Onderstaande grafiek is uitgefaseerd voor nu. De HTML werkt net zo goed. De PNG diende vooral voor mensen die niet
-#   weten hoe een HTML werkt. Heb hem daarom uitgefaseerd omdat we anders twee grafieken moeten onderhouden.
-# def hfreq_graphs_per_location(geoprob_pipe: GeoProbPipe, export: bool = True) -> List[plt.Figure]:
-#     """ Grafiek van de overschrijdingsfrequentielijn van de waterstand per HydraNL uitvoerpunt. """
-#
-#     # TODO Later Should Middel: Visualiseer WBN waterstand in hfreq-plot ter bewustzijn.
-#     # TODO Later Nice Middel: Visualiseer physical design point value in hfreq-plot ter bewustzijn.
-#
-#     export_dir = os.path.join(geoprob_pipe.visualizations.graphs.export_dir, "grafiek_hfreq")
-#     os.makedirs(export_dir, exist_ok=True)
-#     figures = []
-#     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
-#     # hydra_nl_names = geoprob_pipe.input_data.hydra_nl_data.gdf_locations['location_name'].values.tolist()
-#     gdf: GeoDataFrame = read_file(
-#         geoprob_pipe.input_data.app_settings.geopackage_filepath, layer="uittredepunten")
-#     hydra_nl_names = gdf['hrd_name'].unique().tolist()
-#
-#     for hydra_nl_name in hydra_nl_names:
-#
-#         # Collect data for the graph
-#         fragility_values: List[FragilityValue] = geoprob_pipe.input_data.hydra_nl_data.hrd_fragility_values(
-#             ref=hydra_nl_name)  # TODO: Other source
-#         levels = [value.x for value in fragility_values]
-#         freqs = [value.probability_of_failure for value in fragility_values]
-#         uittredepunten = list(gdf_uittredepunten[gdf_uittredepunten['hrd_name'] == hydra_nl_name]['uittredepunt_id'])
-#
-#         # Create the graph
-#         plt.ioff()
-#         fig = plt.figure(figsize=(8, 5))
-#         ax= fig.add_subplot(111)
-#         ax.plot(levels, freqs, marker='o', linestyle='-', color='blue',markersize=1)
-#         ax.set_xscale("linear")  # belasting vaak lineair
-#         ax.set_yscale("log")     # faalkans logaritmisch
-#         ax.set_xlabel("Waterstand (m+NAP)")
-#         ax.set_ylabel("Overschrijdingsfrequentie (log-schaal)")
-#         ax.set_title(f"HydraNL locatie: {hydra_nl_name}\n"
-#                      f"behorend bij uittredepunten: " + ", ".join([str(u) for u in uittredepunten]))
-#         ax.grid(True, which="both", linestyle='--', linewidth=0.5)
-#         fig.tight_layout()
-#         figures.append(fig)
-#
-#         # Export or not?
-#         export_path = os.path.join(export_dir, f"{hydra_nl_name}_hfreq.png")
-#         if export:
-#             plt.savefig(export_path)
-#             plt.close(fig)
-#
-#     return figures
-
-
 class GraphHFreqSingleInteractive:
 
     def __init__(self, geoprob_pipe: GeoProbPipe, export: bool = False):
