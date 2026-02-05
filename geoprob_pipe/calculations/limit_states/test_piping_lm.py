@@ -356,27 +356,27 @@ def test_limit_state_moria(input_data, expected):
     )
 
     print(f"{results=}")
-    print(f"z_u, z_h, z_p, z_combin, h_exit, r_exit, phi_exit, d_deklaag, dphi_c_u, i_exit, L_voorland, W_voorland, "
-          f"L_kwelweg, kD_wvp, dh_c, dh_red")
-    labels = ["z_u", "z_h", "z_p", "z_combin", "h_exit", "r_exit", "phi_exit", "d_deklaag", "dphi_c_u", "i_exit",
-              "L_voorland", "W_voorland", "L_kwelweg", "kD_wvp", "dh_c", "dh_red"]
-    results = [f"{label}={value}" for value, label in zip(results, labels)]
+    parameters = ["z_u", "z_h", "z_p", "z_combin", "h_exit", "phi_exit", "d_deklaag", "dphi_c_u", "i_exit",
+                  "L_voorland", "W_voorland", "L_kwelweg", "kD_wvp", "dh_c", "dh_red"]
+    results = [f"{label}={value}" for value, label in zip(results, parameters)]
 
     print(f"{results=}")
 
-    assert results[0] == pytest.approx(expected["z_u"], rel=1e-3)
-    assert results[1] == pytest.approx(expected["z_h"], rel=1e-3)
-    assert results[2] == pytest.approx(expected["z_p"], rel=1e-3)
-    assert results[3] == pytest.approx(expected["z_combin"], rel=1e-3)
-    assert results[4] == pytest.approx(expected["h_exit"], rel=1e-3)
-    assert results[5] == pytest.approx(expected["r_exit"], rel=1)
-    assert results[6] == pytest.approx(expected["phi_exit"], rel=1e-3)
-    assert results[7] == pytest.approx(expected["d_deklaag"], rel=1e-3)
-    assert results[8] == pytest.approx(expected["dphi_c_u"], rel=1e-3)
-    assert results[9] == pytest.approx(expected["i_exit"], rel=1e-3)
-    assert results[10] == pytest.approx(expected["L_voorland"], rel=1e-3)
-    assert results[11] == pytest.approx(expected["W_voorland"], rel=1e-3)
-    assert results[12] == pytest.approx(expected["L_kwelweg"], rel=1e-3)
-    assert results[13] == pytest.approx(expected["kD_wvp"], rel=1e-3)
-    assert results[14] == pytest.approx(expected["dh_c"], rel=1e-3)
-    assert results[15] == pytest.approx(expected["dh_red"], rel=1e-3)
+    for index, parameter in enumerate(parameters):
+        assert results[index] == pytest.approx(expected[parameter], rel=1e-3)
+
+    # assert results[0] == pytest.approx(expected["z_u"], rel=1e-3)
+    # assert results[1] == pytest.approx(expected["z_h"], rel=1e-3)
+    # assert results[2] == pytest.approx(expected["z_p"], rel=1e-3)
+    # assert results[3] == pytest.approx(expected["z_combin"], rel=1e-3)
+    # assert results[4] == pytest.approx(expected["h_exit"], rel=1e-3)
+    # assert results[6] == pytest.approx(expected["phi_exit"], rel=1e-3)
+    # assert results[7] == pytest.approx(expected["d_deklaag"], rel=1e-3)
+    # assert results[8] == pytest.approx(expected["dphi_c_u"], rel=1e-3)
+    # assert results[9] == pytest.approx(expected["i_exit"], rel=1e-3)
+    # assert results[10] == pytest.approx(expected["L_voorland"], rel=1e-3)
+    # assert results[11] == pytest.approx(expected["W_voorland"], rel=1e-3)
+    # assert results[12] == pytest.approx(expected["L_kwelweg"], rel=1e-3)
+    # assert results[13] == pytest.approx(expected["kD_wvp"], rel=1e-3)
+    # assert results[14] == pytest.approx(expected["dh_c"], rel=1e-3)
+    # assert results[15] == pytest.approx(expected["dh_red"], rel=1e-3)

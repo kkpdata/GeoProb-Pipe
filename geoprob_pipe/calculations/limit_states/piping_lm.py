@@ -225,9 +225,7 @@ def limit_state_moria(  # TODO: Naam moria vervangen voor iets generieks?
         gamma_korrel: float, v: float, theta: float, eta: float,
         # Constants
         g: float, gamma_water: float,
-) -> Tuple[
-    float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float
-]:
+) -> Tuple[float, float, float, float, float, float, float, float, float, float, float, float, float, float, float]:
     """ Grenstoestandsfuncties volgens het WBI-model met grondwaterstroming conform MORIA model.
 
     :param L_intrede:
@@ -283,5 +281,5 @@ def limit_state_moria(  # TODO: Naam moria vervangen voor iets generieks?
     z_p = (modelfactor_p * modelfactor_ff * modelfactor_3d * modelfactor_aniso * modelfactor_ml * dh_c) - dh_red
     z_combin = max(z_u, z_h, z_p)
 
-    return (z_u, z_h, z_p, z_combin, h_exit, r_exit, phi_exit, d_deklaag, dphi_c_u, i_exit, L_voorland, W_voorland,
+    return (z_u, z_h, z_p, z_combin, h_exit, phi_exit, d_deklaag, dphi_c_u, i_exit, L_voorland, W_voorland,
             L_kwelweg, kD_wvp, dh_c, dh_red)
