@@ -41,7 +41,7 @@ van Rode draad #10, terwijl de vervolgstappen hiermee consistent blijven.
 Conceptuele opbouw (hiërarchie)
 -------------------------------
 
-.. figure:: _static/Hierarchie_berekeningen.png
+.. figure:: _static/Hierarchie_berekeningen2.png
    :width: 95%
    :align: center
 
