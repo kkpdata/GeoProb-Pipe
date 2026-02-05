@@ -6,7 +6,7 @@ import plotly.colors as pc
 from plotly.graph_objects import Figure, Scatter
 from typing import TYPE_CHECKING
 
-from geoprob_pipe.questionnaire.parameter_input.expand_input_tables import run_expand_input_tables
+from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
 
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe

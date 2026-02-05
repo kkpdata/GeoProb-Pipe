@@ -4,7 +4,7 @@ def test_questionnaire():
 
     ##
 
-    from geoprob_pipe.questionnaire.cmd import ApplicationSettings
+    from geoprob_pipe.cmd_app.cmd import ApplicationSettings
     from repo_utils.utils import repository_root_path
     import os
 

@@ -4,7 +4,7 @@ from geoprob_pipe.calculations.systems.base_objects.system_calculation import (
 from typing import List, Tuple
 from pandas import DataFrame, Series
 import sqlite3
-from geoprob_pipe.questionnaire.parameter_input.expand_input_tables import run_expand_input_tables
+from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
 # if TYPE_CHECKING:
 #     from geoprob_pipe import GeoProbPipe
 

@@ -5,7 +5,7 @@ from geoprob_pipe.calculations.systems.base_objects.system_calculation import (
 from typing import List, Dict, Union, Tuple
 
 
-class PipingMORIASystemReliabilityCalculation(SystemCalculation):
+class MORIACalculation(SystemCalculation):
     """ Vooraf gedefinieerde System Reliability Calculation voor piping met het WBI-stijghoogtemodel. """
 
     def __init__(

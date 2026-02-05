@@ -4,11 +4,11 @@ def test_calculation():
 
     ##
     from probabilistic_library import Alpha
-    from geoprob_pipe.calculations.systems.piping_wbi.reliability_calculation import  (
-        PipingWBISystemReliabilityCalculation)
+    from geoprob_pipe.calculations.systems.wbi.reliability_calculation import  (
+        WBICalculation)
     from tests.calculations.system_calculations.wbi.dummy_input import DUMMY_INPUT
 
-    obj = PipingWBISystemReliabilityCalculation(system_variable_distributions=DUMMY_INPUT)
+    obj = WBICalculation(system_variable_distributions=DUMMY_INPUT)
 
     # Run prob system
     obj.run()

@@ -7,7 +7,7 @@ def test_system():
         from geoprob_pipe import GeoProbPipe
         import os
         repo_root = repository_root_path()
-        from geoprob_pipe.questionnaire.cmd import ApplicationSettings
+        from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
         file_names = [
             # "Traject224_MORIA_WBN_det_corr.geoprob_pipe.gpkg",

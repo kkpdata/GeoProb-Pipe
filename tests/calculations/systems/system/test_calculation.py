@@ -6,19 +6,13 @@ def test_calculation():
 
     ##
     from probabilistic_library import Alpha
-    from geoprob_pipe.calculations.systems.piping_system.reliability_calculation import  (
-        PipingSystemReliabilityCalculation)
-    from tests.calculations.system_calculations.system.dummy_input import DUMMY_INPUT
-    from geoprob_pipe.deterministic.system import DeterministicSystemCalculation
+    from geoprob_pipe.calculations.systems.model4a.reliability_calculation import  (
+        Model4aCalculation)
+    from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
 
-    obj = PipingSystemReliabilityCalculation(
-        system_variable_distributions=DUMMY_INPUT
-    )
-
-    # Semi prob with mean:
-    det_obj = DeterministicSystemCalculation(input_object=obj)
-    print(det_obj.limit_state_results)
-
+    obj = Model4aCalculation(
+        system_variable_distributions=INITIAL_INPUT_MAPPER)
+ 
     # Run prob system
     obj.run()
 

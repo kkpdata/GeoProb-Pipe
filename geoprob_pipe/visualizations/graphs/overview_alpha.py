@@ -7,7 +7,7 @@ from pandas import merge
 from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
 from typing import TYPE_CHECKING
 
-from geoprob_pipe.questionnaire.utils.misc import get_geohydrological_model
+from geoprob_pipe.cmd_app.utils.misc import get_geohydrological_model
 
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe

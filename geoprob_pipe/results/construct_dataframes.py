@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from geoprob_pipe.calculations.systems.build_and_run import CalcResult
 
 
-def collect_df_beta_per_limit_state(calculation: SystemCalculation) -> pd.DataFrame:
+def collect_df_beta_limit_state(calculation: SystemCalculation) -> pd.DataFrame:
 
     def create_row(calc, dp: DesignPoint, model_name):
         return {
@@ -39,7 +39,7 @@ def combine_df_beta_per_limit_state(calc_results: List[CalcResult]) -> pd.DataFr
     return df
 
 
-def collect_df_beta_per_scenario(calc: SystemCalculation) -> pd.DataFrame:
+def collect_df_beta_scenario(calc: SystemCalculation) -> pd.DataFrame:
 
     def create_row(calculation):
         return {

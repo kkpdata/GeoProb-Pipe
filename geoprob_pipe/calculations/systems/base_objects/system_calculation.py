@@ -1,5 +1,5 @@
 from probabilistic_library import (
-    ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod, CombinerMethod, CombineType, DistributionType,
+    ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod, CombinerMethod, CombineType,
     Stochast, Settings)
 from typing import Optional, Callable, List, Dict, Union, Tuple
 import logging

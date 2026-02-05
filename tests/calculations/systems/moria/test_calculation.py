@@ -5,10 +5,10 @@ def test_calculation():
     ##
     from probabilistic_library import Alpha
     from geoprob_pipe.calculations.systems.moria.reliability_calculation import  (
-        PipingMORIASystemReliabilityCalculation)
+        MORIACalculation)
     from tests.calculations.system_calculations.moria.dummy_input import DUMMY_INPUT
 
-    obj = PipingMORIASystemReliabilityCalculation(system_variable_distributions=DUMMY_INPUT)
+    obj = MORIACalculation(system_variable_distributions=DUMMY_INPUT)
 
     # Run prob system
     obj.run()

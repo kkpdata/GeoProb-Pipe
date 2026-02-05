@@ -1,2 +1,0 @@
-from geoprob_pipe.questionnaire.general.project import created_project
-from geoprob_pipe.questionnaire.general.geohydrologisch_model import created_model

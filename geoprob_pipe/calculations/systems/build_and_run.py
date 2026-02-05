@@ -6,8 +6,8 @@ import time
 import math
 from dataclasses import dataclass
 from geoprob_pipe.results.construct_dataframes import (
-    collect_df_beta_per_limit_state, collect_df_beta_per_scenario)
-from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import (
+    collect_df_beta_limit_state, collect_df_beta_scenario)
+from geoprob_pipe.results.alphas_and_physical_values import (
     collect_stochast_values, calculate_derived_values)
 # noinspection PyPep8Naming
 from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
@@ -60,8 +60,8 @@ def _worker(row_unique: dict):
     calc.run()
 
     # Collect results
-    df_limit_state = collect_df_beta_per_limit_state(calc)
-    df_scenario = collect_df_beta_per_scenario(calc)
+    df_limit_state = collect_df_beta_limit_state(calc)
+    df_scenario = collect_df_beta_scenario(calc)
     df_stochast = collect_stochast_values(calc)
     df_derived = calculate_derived_values(df_scenario, _MODEL)
     df_scenario = df_scenario.drop(columns=["system_calculation"])

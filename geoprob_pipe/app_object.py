@@ -24,7 +24,7 @@ from geoprob_pipe.utils.update_metadata import update_metadata
 
 if TYPE_CHECKING:
     from geoprob_pipe.calculations.systems.build_and_run import CalcResult
-    from geoprob_pipe.questionnaire.cmd import ApplicationSettings
+    from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
 class GeoProbPipe:

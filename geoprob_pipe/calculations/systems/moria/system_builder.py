@@ -1,6 +1,6 @@
 from __future__ import annotations
 from geoprob_pipe.calculations.systems.moria.reliability_calculation import \
-    PipingMORIASystemReliabilityCalculation
+    MORIACalculation
 from geoprob_pipe.calculations.systems.base_objects.base_system_build import BaseSystemBuilder
 # from typing import TYPE_CHECKING
 # if TYPE_CHECKING:
@@ -14,4 +14,4 @@ class MoriaSystemBuilder(BaseSystemBuilder):
                  to_run_vakken_ids: list[int]):
         super().__init__(geopackage_filepath=geopackage_filepath,
                          to_run_vakken_ids=to_run_vakken_ids)
-        self.system_class = PipingMORIASystemReliabilityCalculation
+        self.system_class = MORIACalculation
