@@ -112,7 +112,7 @@ def calc_dh_red(
     r"""Berekening van het gereduceerde verval over de waterkering.
 
     .. math::
-        
+
         \Delta h_{red} = h_{buitenwaterstand} - h_{exit} - r_{c, deklaag} \cdot d_{deklaag}
 
     Args:
@@ -154,7 +154,8 @@ def calc_W_voorland(
         lambda_voorland: float,
         L_voorland: float
 ) -> float:
-    r"""Berekent de geohydrologische weerstand van het voorland in [m]. Dit wordt ook wel de effectieve voorlandlengte genoemd.
+    r""" Berekent de geohydrologische weerstand van het voorland in [m]. Dit wordt ook wel de effectieve voorlandlengte
+    genoemd.
 
     .. math::
 
@@ -199,7 +200,7 @@ def calc_dphi_c_u(
     .. math::
 
         \Delta \phi_{c, u} = \frac{d_{deklaag} \cdot (\gamma_{sat, deklaag} - \gamma_{w})}{\gamma_{w}}
-    
+
     Args:
         d_deklaag (float): Dikte van de cohesieve deklaag [m]
         gamma_sat_deklaag (float): verzadigd volumegewicht van de deklaag [kN/m³]
@@ -235,7 +236,7 @@ def calc_i_exit(
 
 
 # noinspection PyPep8Naming
-#TODO: deze wrapper functie wordt gebruikt in heave_icw_model4a.py en uplift_icw_model4a.py 
+#TODO: deze wrapper functie wordt gebruikt in heave_icw_model4a.py en uplift_icw_model4a.py
 # check of deze limit_state functies ook daadwerkelijk gebruikt worden in de berekeningen.
 # zo niet, verwijder deze functies of roep de model4a klasse direct aan in de limit_state functies.
 def calc_r_exit_model4a(

@@ -1,15 +1,18 @@
 ![Coverage](./readme_images/coverage.svg)
 
 # GeoProb-Pipe
-Applicatie voor het uitvoeren van probabilistische piping berekeningen. De tool maakt gebruik van de probabilistische 
+Applicatie voor het uitvoeren van probabilistische piping berekeningen. De applicatie maakt gebruik van de probabilistische 
 bibliotheek van Deltares. Deze bibliotheek stuurt onder de motorkap de PTK-tool aan. 
 
 
 # Contactpersonen
+
+Het GeoProb-Pipe-team bestaat uit de volgende personen
+
 - Sander Kapinga, S.Kapinga@wsrl.nl
 - Laura van der Doef, L.vanderDoef@wshd.nl
-- Chris Pitzalis, C.Pitzalis@wsrl.nl
-- Vincent Jilesen, V.Jilesen@wshd.nl
+- Chris Pitzalis, ontwikkelaar, C.Pitzalis@wsrl.nl
+- Vincent Jilesen, ontwikkelaar, V.Jilesen@wshd.nl
 
 
 # Installatie
@@ -17,20 +20,15 @@ Op termijn wordt GeoProb-Pipe beschikbaar gesteld middels de Python Package Inde
 installatie via `pip install geoprob-pipe`. Voor nu is de installatie als volgt:
 
  - Kloon de repository middels `git clone repo_weblink`.
- - Maak een virtuele Python environment aan. Deze tool is ontwikkeld met Python versie 3.12. 
+ - Maak een virtuele Python environment aan. Deze applicatie is ontwikkeld met Python versie 3.12. 
  - Installeer alle dependencies middels `pip install -r requirements.txt`. 
 
 
 # Quickstart
-Tool wordt gestart door `main_piping.py` te runnen.
+Start de applicatie als volgt
 
-Benodigdheden:
-- Het `geoprob_pipe.ini` in de root-map. Vul hierin het pad naar de workspace in.
-- Een projectmap in "workspaces" (bijv. .../workspaces/my_project).
-- In de projectmap een submap "input" (.../workspaces/my_project/input).
-- De input-map de volgende bestanden:
-  - input.xlsx (gebruik hiervoor het meegeleverde template input.xlsx).
-  - De hydraulische database bestanden (.sqlite-bestanden).
+- Vanuit de gekloonde repository met het commando `python -m geoprob_pipe.questionnaire.cmd startup_geoprob_pipe`.
+- Wanneer de package/wheel geïnstalleerd is met het commando `geoprob-pipe`. 
 
 
 # Mee ontwikkelen
@@ -42,17 +40,17 @@ ontwikkelaars. Voor PEP8, de IDE PyCharm heeft deze out of the box ingesteld. Py
 
 
 # Documentatie
-De documentatie kan worden gegeneerd middels het commando `sphinx-build -M html docs\ docs\_build`. Je vindt de 
+De documentatie genereer je middels het commando `sphinx-build -M html docs\ docs\_build`. Je vindt de 
 documentatie daarna terug in de map `GeoProb-Pipe\docs\_build\html\index.html`. Dit bestand opent in de browser. Tip: 
 voeg de documentatie toe aan je favorieten van de browser. 
 
 
 
 # Disclaimer
-Het gebruik van deze tool gebeurt volledig op eigen risico. Door deze tool te gebruiken, accepteert de gebruiker 
-volledige verantwoordelijkheid. De ontwikkelaars kunnen geen garanties geven over de werking, nauwkeurigheid of 
-volledigheid van de tool, en kunnen op geen enkele manier verantwoordelijk worden gehouden voor eventuele fouten, 
-schade, of verliezen die voortvloeien uit het gebruik van deze software.
+Het gebruik van deze applicatie gebeurt volledig op eigen risico. Door deze applicatie te gebruiken, accepteert de 
+gebruiker volledige verantwoordelijkheid. Het GeoProb-Pipe-team kan geen garanties geven over de werking, 
+nauwkeurigheid of volledigheid van de applicatie, en kan op geen enkele manier verantwoordelijk worden gehouden voor 
+eventuele fouten, schade, of verliezen die voortvloeien uit het gebruik van deze software.
 
 
 # TODO's

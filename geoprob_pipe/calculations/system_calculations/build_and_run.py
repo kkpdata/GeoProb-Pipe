@@ -87,16 +87,14 @@ def build_and_run_system_calculations(
     # Bepaal de parameters voor de multiprocessing setup en de logger
     n_threads: int = cpu_count() - 1
     n_calc_totaal: int = len(df_unique_combos)
-    # Minimaal 5 berekeningen per chunk en grootte van chunk beperken
-    # zodat er gelogd kan worden.
+    # Minimaal 5 berekeningen per chunk en grootte van chunk beperken zodat er gelogd kan worden.
     chunk_size: int = max(math.ceil(n_calc_totaal / (n_threads * 10)), 5)
     logger.info(
         f"Running {n_calc_totaal} calculations in chunks of {chunk_size} with {n_threads} parallel threads.")
     char_len_total = str(n_calc_totaal).__len__()
     logger.info(f"Progress: {0:>{char_len_total}} / {n_calc_totaal} calculations.")
 
-    # Dicts zijn gemakkelijker te pickelen en daardoor sneller te
-    # verwerken dan pandas series.
+    # Dicts zijn gemakkelijker te pickelen en daardoor sneller te verwerken dan pandas series.
     rows = [dict(zip(df_unique_combos.columns, r)) for r in df_unique_combos.itertuples(index=False, name=None)]
 
     last_report = time.time()

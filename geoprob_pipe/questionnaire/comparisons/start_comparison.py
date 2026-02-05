@@ -1,11 +1,9 @@
 from __future__ import annotations
+# noinspection PyPep8Naming
 from InquirerPy.prompts.input import InputPrompt as inq_text
-# from typing import TYPE_CHECKING
 import os
 from geoprob_pipe.utils.validation_messages import BColors
 from geoprob_pipe.questionnaire.comparisons import ComparisonCollector
-# if TYPE_CHECKING:
-#     from geoprob_pipe.questionnaire.cmd import ApplicationSettings
 
 
 def specify_dir_for_first_file():
