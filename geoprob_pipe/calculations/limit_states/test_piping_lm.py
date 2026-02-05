@@ -358,6 +358,11 @@ def test_limit_state_moria(input_data, expected):
     print(f"{results=}")
     print(f"z_u, z_h, z_p, z_combin, h_exit, r_exit, phi_exit, d_deklaag, dphi_c_u, i_exit, L_voorland, W_voorland, "
           f"L_kwelweg, kD_wvp, dh_c, dh_red")
+    labels = ["z_u", "z_h", "z_p", "z_combin", "h_exit", "r_exit", "phi_exit", "d_deklaag", "dphi_c_u", "i_exit",
+              "L_voorland", "W_voorland", "L_kwelweg", "kD_wvp", "dh_c", "dh_red"]
+    results = [f"{label}={value}" for value, label in zip(results, labels)]
+
+    print(f"{results=}")
 
     assert results[0] == pytest.approx(expected["z_u"], rel=1e-3)
     assert results[1] == pytest.approx(expected["z_h"], rel=1e-3)
