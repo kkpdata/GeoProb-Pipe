@@ -2,7 +2,10 @@ from __future__ import annotations
 import os
 import plotly.graph_objects as go
 import pandas as pd
-from typing import TYPE_CHECKING, cast, Dict, List
+from typing import TYPE_CHECKING, Dict, List, cast
+
+from pandas import Series, DataFrame
+
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
@@ -62,11 +65,11 @@ class IciclePlot:
             "1_" + df_utp["vak_id"].astype(str)
             + "_" + df_utp["uittredepunt_id"].astype(str)
             )
-        df_utp = df_utp.rename(columns={"failure_probability": "pof"})
+        df_utp: DataFrame = df_utp.rename(columns={"failure_probability": "pof"})
 
         # Add value for scaling leaves.
         for pn in df_utp["parent_name"].unique():
-            mask_utp = df_utp["parent_name"] == str(pn)
+            mask_utp: Series = cast(Series, df_utp["parent_name"] == str(pn))
             n_utp: int = mask_utp.sum()
             mask_icicle = df_icicle["id"] == str(pn)
             df_utp.loc[mask_utp, "value"] = (
@@ -98,7 +101,7 @@ class IciclePlot:
             )
         # Add value for scaling leaves.
         for pn in df_scen["parent_name"].unique():
-            mask_scen = df_scen["parent_name"] == str(pn)
+            mask_scen = cast(Series, df_scen["parent_name"] == str(pn))
             n_scen: int = mask_scen.sum()
             mask_icicle = df_icicle["id"] == str(pn)
             df_scen.loc[mask_scen, "value"] = (
@@ -212,7 +215,7 @@ class IciclePlot:
         if self.export:
             path = self.geoprob_pipe.visualizations.graphs.export_dir
 
-            # HTML-template met scrollbare container
+            # HTML-template met scrollbar container
             html_template = f"""
 <!DOCTYPE html>
 <html>

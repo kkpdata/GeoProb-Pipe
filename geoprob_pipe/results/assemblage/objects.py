@@ -10,8 +10,8 @@ from geoprob_pipe.results.assemblage.functions import (
 
 @dataclass
 class KansElement:
-    pof: Optional[float] = None  # Faalkans van het element per jaar
-    beta: Optional[float] = None  # Betrouwbaarheidindex van het element
+    pof: Optional[float] = None  # Probability of failure, Faalkans van het element per jaar
+    beta: Optional[float] = None  # Betrouwbaarheidsindex van het element
 
     def __post_init__(self):
 
@@ -45,7 +45,7 @@ class VakElement:
     M_tot: float  # Locatie van het einde van het element [meters]
     a: float
     dL: float  # Equivalente, onafhankelijke lengte
-    list_dsn: List[UittredepuntElement]  # Doorsnedekansen van het element per jaar
+    list_dsn: List[UittredepuntElement]  # Doorsnede kansen van het element per jaar
     invloedsfactor_belasting: float = 0.5  # Invloedsfactor van de belasting
 
     @property
@@ -56,11 +56,11 @@ class VakElement:
     def N_vak(self) -> float:
         return bepaal_N_vak(self.L, self.a, self.dL)
 
-    # vak: max van dsn met Nvak
+    # vak: Max van dsn met Nvak
     @property
     def Pf_max_dsn(self) -> KansElement:
         list_pof = [cast(float, dsn.pof) for dsn in self.list_dsn]
-        if list_pof != []:
+        if list_pof.__len__() > 0:
             Pf_dsns = max(list_pof)
         else:
             Pf_dsns = 0.0
@@ -74,7 +74,7 @@ class VakElement:
             return False
         return True
 
-    # vak: moving window met variable grootes
+    # vak: moving window met variable lengtes
     @property
     def Pf_window_50m(self) -> tuple[KansElement, KansElement]:
         Pf_vak = window_collect(window_size=50.0, list_dsn=self.list_dsn,
@@ -109,7 +109,7 @@ class VakElement:
 
 
 @dataclass
-class TrajectElement():
+class TrajectElement:
     list_vakken: list[VakElement]
     list_dsn: list[UittredepuntElement]
     dL: float
@@ -139,7 +139,7 @@ class TrajectElement():
             pofs.append(pof)
         return KansElement(pof=corrected_sum(pofs)), KansElement(pof=max(pofs))
 
-    # traject: moving window met variable groote
+    # traject: moving window met variable lengtes
     @property
     def Pf_window_50m(self) -> tuple[KansElement, KansElement]:
         pof = window_collect(window_size=50.0, list_dsn=self.list_dsn,

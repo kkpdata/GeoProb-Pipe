@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 def corrected_sum(list_pof: list[float]) -> float:
     r"""Gecorrigeerde som van de faalkansen. De som van onafhankelijke
-    faalkansen is geljk aan: 1 min het product van 1 min de inviduele
+    faalkansen is gelijk aan: 1 min het product van 1 min de individuele
     faalkans.
 
     Parameters
@@ -22,7 +22,7 @@ def corrected_sum(list_pof: list[float]) -> float:
     float
         Gecorrigeerde som van de faalkansen.
     """
-    if list_pof != []:
+    if list_pof.__len__() > 0:
         corr_inv_pof = 1
         for pof in list_pof:
             corr_inv_pof = corr_inv_pof * (1.0 - pof)
@@ -69,14 +69,14 @@ def bepaal_N_vak(L: float, a: float, dL: float) -> float:
     if L < 0 or dL < 0:
         raise ValueError("De lengte L en dL moeten groter zijn dan 0.")
 
-    N_vak = max(1, (a * L) / dL)
+    N_vak = max(1.00, (a * L) / dL)
     return N_vak
 
 
 def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
                    M_van: float, M_tot: float) -> tuple[float, float]:
     """
-    Agregeert faalkansen (`pof`) per M-venster en somt de bin-maxima op.
+    Aggregeert faalkansen (`pof`) per M-venster en somt de bin-maxima op.
 
     De functie maakt vaste vensters (bins) over het domein van M-waarden met
     breedte `window_size` binnen het bereik ``[M_van, M_tot)``. Voor elk
@@ -132,7 +132,7 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
         .max()
         )
     sum_pof = corrected_sum(bin_df.to_list())
-    if bin_df.to_list() != []:
+    if bin_df.to_list().__len__() > 0:
         max_pof = max(bin_df.to_list())
     else:
         max_pof = 0.0
