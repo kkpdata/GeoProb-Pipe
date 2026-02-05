@@ -23,7 +23,7 @@ SYSTEM_CALCULATION_MAPPER = {
         "label": "MORIA",
         "system_builder": MoriaSystemBuilder,
         "system_return_parameter_keys": [
-            "z_u", "z_h", "z_p", "z_combin", "h_exit", "r_exit", "phi_exit", "d_deklaag", "dphi_c_u", "i_exit",
+            "z_u", "z_h", "z_p", "z_combin", "h_exit", "phi_exit", "d_deklaag", "dphi_c_u", "i_exit",
             "L_voorland", "W_voorland", "L_kwelweg", "kD_wvp", "dh_c", "dh_red"],
         "limit_state_function": limit_state_moria,
     },
