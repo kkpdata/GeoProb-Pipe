@@ -1,5 +1,7 @@
-"""Deze module bevat verschillende geohydrologische methoden die worden gebruikt bij de veiligheidsbeoordeling van dijken.
-Achtergrondinformatie is te vinden in het 'Technisch Rapport Waterspanningen bij dijken' :cite:t:`trw_2004`.
+"""Deze module bevat verschillende geohydrologische methoden die worden
+gebruikt bij de veiligheidsbeoordeling van dijken. Achtergrondinformatie
+is te vinden in het 'Technisch Rapport Waterspanningen bij dijken'
+:cite:t:`trw_2004`.
 """
 
 import math
@@ -44,7 +46,8 @@ def calc_W(lam: float, L: float) -> float:
 
 # noinspection PyPep8Naming
 def calc_r_BIT(w1: float, l2: float, w3: float) -> float:
-    r"""Calculates response in stationary models at inner toe based on given weights. See :cite:t:`trw_2004`.
+    r"""Calculates response in stationary models at inner toe based on
+    given weights. See :cite:t:`trw_2004`.
 
     .. math::
 
@@ -63,7 +66,8 @@ def calc_r_BIT(w1: float, l2: float, w3: float) -> float:
 
 # noinspection PyPep8Naming
 def calc_r_BUT(w1: float, l2: float, w3: float) -> float:
-    r"""Calculates response in stationary models at outer toe based on given weights.
+    r"""Calculates response in stationary models at outer toe based on
+    given weights.
     See :cite:t:`trw_2004`.
 
     .. math::
@@ -104,7 +108,8 @@ def calc_respons2pot(
 def calc_pot2response(
     phi: float, h_ref: float, h_riv: float
 ) -> float:  # Van potentiaal naar respons.
-    r"""Calculates response from given potential. This is the reverse function of `calc_respons2pot`.
+    r"""Calculates response from given potential. This is the reverse
+    function of `calc_respons2pot`.
 
     .. math::
 
@@ -123,7 +128,7 @@ def calc_pot2response(
 
 # noinspection PyPep8Naming
 def calc_ang_frequency(T: float) -> float:
-    r"""Calculates Angular frequency from period of a sinus wave. 
+    r"""Calculates Angular frequency from period of a sinus wave.
     See :cite:t:`trw_2004` for background information.
 
     .. math::
@@ -178,7 +183,8 @@ def calc_T_from_P(P: float) -> float:
     return P * 2.0
 
 
-# functies voor berekening cyclische spreidingslengte op basis van de stationaire spreidingslengte
+# functies voor berekening cyclische spreidingslengte op basis van de
+# stationaire spreidingslengte
 # noinspection PyPep8Naming
 def calc_lambda_cycl_from_stationary(
     LambdaStat: float, d: float, c_v: float, w: float
@@ -191,7 +197,8 @@ def calc_lambda_cycl_from_stationary(
 
         t_{h} = \frac{d^{2}}{c_{v}^{'}}
 
-        \lambda_{\omega} = \frac{1.082 * \lambda_{s}}{\sqrt[4]{t_{h}^{'}\omega}}
+        \lambda_{\omega} = \frac{1.082 * \lambda_{s}}
+        {\sqrt[4]{t_{h}^{'}\omega}}
 
 
     Args:
@@ -210,11 +217,13 @@ def calc_lambda_cycl_from_stationary(
 
 # noinspection PyPep8Naming
 def calc_lambda_cycl(LambdaCycl_1: float, T2: float, T1: float) -> float:
-    r"""Calculates cyclic lambda from one period to another. See :cite:t:`trw_2004`.
+    r"""Calculates cyclic lambda from one period to another.
+    See :cite:t:`trw_2004`.
 
     .. math::
 
-        \lambda_{\omega, T_{2}}^{'} = \lambda_{\omega, T_{1}}^{'} \sqrt[4]{\frac{T_{2}}{T_{1}}}
+        \lambda_{\omega, T_{2}}^{'} = \lambda_{\omega, T_{1}}^{'}
+        \sqrt[4]{\frac{T_{2}}{T_{1}}}
 
     T1 and T2 are in same dimension (e.g. seconds, hours, days)
 
@@ -230,7 +239,8 @@ def calc_lambda_cycl(LambdaCycl_1: float, T2: float, T1: float) -> float:
 
 
 def calc_theta(b: float, lambda_w_vl: float) -> float:
-    r"""Calculates theta, see figure b4.13 from 'Technisch Rapport Waterspanningen bij dijken' :cite:t:`trw_2004`.
+    r"""Calculates theta, see figure b4.13 from 'Technisch Rapport
+    Waterspanningen bij dijken' :cite:t:`trw_2004`.
     Approximation by 5th degree polynomials.
 
     Args:
@@ -260,13 +270,14 @@ def calc_theta(b: float, lambda_w_vl: float) -> float:
 
 
 def calc_f(b: float, lambda_w_vl: float) -> float:
-    """Calculates f, see figure b4.13 from 'Technisch Rapport Waterspanningen bij dijken' :cite:t:`trw_2004`.
+    """Calculates f, see figure b4.13 from 'Technisch Rapport
+    Waterspanningen bij dijken' :cite:t:`trw_2004`.
     Approximation by exponential function.
 
     Args:
-        b (float): with of river [m], 
+        b (float): with of river [m],
         lambda_w_vl (float): cyclic lambda of foreland [m]
-        
+
     Raises:
         ValueError: Only for positive numbers
 
@@ -288,7 +299,7 @@ def calc_mean_pot_gradient(
 ) -> float:
     r"""Approximation of hydraulic head under daily (mean) conditions.
     Uses method from tipping point :cite:t:`trw_2004`.
-    
+
     .. math::
 
        \phi(x) = h_{ref} + r(x) (h_{rivier} - h_{ref})

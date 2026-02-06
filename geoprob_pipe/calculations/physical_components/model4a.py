@@ -3,10 +3,12 @@ r""".. _stationair-model:
 Model 4a: Stationair model
 ==========================
 
-Op deze pagina volgt een uitleg van de implementatie van het stationaire model. Achtergronden staan in bijlage 4 van
-het Technisch rapport Waterspanningen bij Dijken :cite:t:`trw_2004`.
-Onder de aanname van horizontale stroming in het watervoerende zandpakket en verticale stroming in de weerstand
-biedende deklaag is een analytische oplossing beschikbaar voor het debiet en het stijghoogteverloop in het zand.
+Op deze pagina volgt een uitleg van de implementatie van het stationaire
+model. Achtergronden staan in bijlage 4 van het Technisch rapport
+Waterspanningen bij Dijken :cite:t:`trw_2004`.
+Onder de aanname van horizontale stroming in het watervoerende zandpakket
+en verticale stroming in de weerstand biedende deklaag is een analytische
+oplossing beschikbaar voor het debiet en het stijghoogteverloop in het zand.
 
 .. figure:: /_static/model4a_trwd.png
    :width: 100%
@@ -94,7 +96,7 @@ Onder de dijk:
 
     r(x) = r_{bit} + (r_{but} - r_{bit}) \frac{x_{bit} - x}{L_{2}}
 
-Achterland: 
+Achterland:
 
 .. math::
 
@@ -106,12 +108,15 @@ Achterland:
 import math
 from dataclasses import dataclass
 from typing import Tuple
-from geoprob_pipe.calculations.physical_components.geohydro_functions import calc_lambda, calc_r_BIT, calc_r_BUT, calc_W
+from geoprob_pipe.calculations.physical_components.geohydro_functions import (
+    calc_lambda, calc_r_BIT, calc_r_BUT, calc_W
+    )
 
 
 @dataclass
 class Model4a:
-    r"""Class for groundwater model 4A Technisch Rapport Waterspanningen bij Dijken
+    r"""Class for groundwater model 4A Technisch Rapport Waterspanningen
+    bij Dijken.
     """
 
     kD: float
