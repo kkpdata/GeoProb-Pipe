@@ -13,6 +13,6 @@ if __name__ == "__main__":
         r"Analyse16-1_V5.geoprob_pipe\\Analyse16-1_V5.geoprob_pipe.gpkg")
     app_settings.workspace_dir = os.path.dirname(filepath)
     app_settings.geopackage_filename = os.path.basename(filepath)
-    # app_settings.to_run = "vakken:21,22,23,24,25,26,27,28"
+    # app_settings.to_run = "vakken:14"
     geoprob_pipe = GeoProbPipe(app_settings)
     geoprob_pipe.export_archive()

@@ -2,67 +2,25 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 from operator import attrgetter
-from typing import TYPE_CHECKING, cast
+from decimal import Decimal, getcontext
+from typing import TYPE_CHECKING, cast, Tuple, List, Optional
 if TYPE_CHECKING:
-    from geoprob_pipe.results.assemblage.objects import UittredepuntElement
+    from geoprob_pipe.results.assemblage.objects import (
+        UittredepuntElement, WindowElement)
 
 
-def corrected_sum(list_pof: list[float]) -> float:
-    r"""Gecorrigeerde som van de faalkansen. De som van onafhankelijke
-    faalkansen is gelijk aan: 1 min het product van 1 min de individuele
-    faalkans.
-
-    Parameters
-    ----------
-    list_pof : list[float]
-        Lijst van de faalkans die opgeteld moeten worden.
-
-    Returns
-    -------
-    float
-        Gecorrigeerde som van de faalkansen.
-    """
-    if list_pof.__len__() > 0:
-        corr_inv_pof = 1
-        for pof in list_pof:
-            corr_inv_pof = corr_inv_pof * (1.0 - pof)
-        return 1.0 - corr_inv_pof
+def combine_series(list_pf: list[float]) -> Tuple[float, float]:
+    getcontext().prec = 30
+    if list_pf.__len__() > 0:
+        inv_pf = Decimal(1)
+        for pf in list_pf:
+            inv_pf = inv_pf * Decimal(1) - Decimal.from_float(pf)
+        return float(Decimal(1) - inv_pf), max(list_pf)
     else:
-        return 0.0
+        return 0.0, 0.0
 
 
 def bepaal_N_vak(L: float, a: float, dL: float) -> float:
-    r"""Bepaalt de opschaalfactor per vak.
-
-    .. math::
-        N_{vak} = max(1, \frac{a \cdot L}{\Delta L})
-
-    Parameters
-    ----------
-    L : float
-        De lengte van het vak [m]
-    a : float
-        deel van het vak waarvoor de opschaalfactor wordt berekend (0-1).
-    dL : float
-        equivalente onafhankelijke mechanismelengte [m].
-
-    Returns
-    -------
-    float
-        De opschaalfactor van het vak
-
-    Raises
-    ------
-    ValueError
-        Als a niet tussen 0 en 1 ligt, of als L en dL niet positief zijn.
-
-    Examples
-    --------
-    >>> bepaal_N_vak(600.0, 1.0, 300.0)
-    2.0
-    >>> bepaal_N_vak(400.0, 0.5, 300.0)
-    1.0
-    """
     if a < 0:
         raise ValueError("a moet groter zijn dan 0.")
 
@@ -74,137 +32,77 @@ def bepaal_N_vak(L: float, a: float, dL: float) -> float:
 
 
 def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
-                   M_van: float, M_tot: float) -> tuple[float, float]:
-    """
-    Aggregeert faalkansen (`pof`) per M-venster en somt de bin-maxima op.
+                   m_van: float, m_tot: float, vak_id: Optional[int]
+                   ) -> tuple[float, float, List[WindowElement]]:
+    from geoprob_pipe.results.assemblage.objects import WindowElement
+    list_m_value: List[float] = cast(
+        List[float], [dsn.m_value for dsn in list_dsn]
+        )
+    if list_m_value.__len__() == 0:
+        return 0.0, 0.0, []
 
-    De functie maakt vaste vensters (bins) over het domein van M-waarden met
-    breedte `window_size` binnen het bereik ``[M_van, M_tot)``. Voor elk
-    venster wordt de maximale waarde van `pof` bepaald uit de elementen die
-    met hun `M_value` in dat venster vallen. De output is de som van
-    deze venster-maxima.
+    list_pf = [dsn.pf for dsn in list_dsn]
 
-    Parameters
-    ----------
-    window_size : float
-        De breedte van elk M-venster (bin). Moet positief zijn en groter dan 0.
-    list_dsn : list of UittredepuntElement
-        Lijst met uittredepunten die minimaal de attributen bevatten:
-        - ``M_value`` (float): de M-positie van het uittredepunt.
-        - ``pof`` (float): probability of failure (faalkans) behorend bij
-        het uittredepunt.
-    M_van : float
-        Ondergrens van het M-bereik. De bins starten bij ``floor(M_van)``.
-    M_tot : float
-        Bovengrens van het M-bereik (exclusief). De bins lopen tot
-        ``ceil(M_tot)``, waarbij `pandas.cut` met ``right=False``
-        half-open intervallen maakt ``[links, rechts)``.
-
-    Returns
-    -------
-    float
-        De som van de maximale `pof` per niet-lege bin over het bereik.
-        Bins zonder waarnemingen dragen niet bij aan de som.
-    """
-    list_M_value = [dsn.M_value for dsn in list_dsn]
-    list_pof = [dsn.pof for dsn in list_dsn]
-
-    vak_df = pd.DataFrame({
-            "M_value": list_M_value,
-            "pof": list_pof
+    df_vak = pd.DataFrame({
+            "M_value": list_m_value,
+            "pf": list_pf
         })
 
     bins_window = np.arange(
-        M_van, M_tot, window_size
+        m_van, m_tot, window_size
         ).tolist()
+    bins_window.append(m_tot)
 
-    vak_df["bin"] = pd.cut(
-        x=vak_df["M_value"],
+    bin_cat: pd.Categorical = cast(pd.Categorical, pd.cut(
+        list_m_value,
         bins=bins_window,
-        labels=False,
         right=False,
         include_lowest=True
-        )
+        ))
+    df_vak = df_vak.assign(bin=bin_cat)
+    df_bin = (df_vak.groupby("bin", observed=False)["pf"].max()
+              .reindex(bin_cat.categories).fillna(0))
 
-    bin_df: pd.Series[float] = (
-        vak_df.dropna(subset=["bin"])
-        .groupby("bin")["pof"]
-        .max()
-        )
-    sum_pof = corrected_sum(bin_df.to_list())
-    if bin_df.to_list().__len__() > 0:
-        max_pof = max(bin_df.to_list())
-    else:
-        max_pof = 0.0
-    return sum_pof, max_pof
+    sum_pf, max_pf = combine_series(df_bin.to_list())
+    window_elements: List[WindowElement] = []
+    bins_window.append(m_tot)  # add end of final window
+    for i in range(len(bins_window)-2):
+        window_elements.append(WindowElement(
+            m_van=bins_window[i],
+            m_tot=bins_window[i+1],
+            window_size=window_size,
+            window_id=i,
+            pf=df_bin[df_bin.index[i]],
+            vak_id=vak_id,
+        ))
+    return sum_pf, max_pf, window_elements
 
 
 def scaled_collect(dL: float,
                    list_dsn: list[UittredepuntElement],
-                   M_van: float, M_tot: float) -> tuple[float, float]:
-    """
-    Bepaald de totale faalkans door lokale pof-waarden te wegen
-    met een lengtefactor per punt, afgeleid uit de midpoints tot buren.
-
-    De lijst `list_dsn` wordt eerst gesorteerd op `M_value`. Voor elk punt
-    wordt een lokale representatieve lengte L bepaald als de afstand tussen de
-    halve afstand naar de vorige buur (L_van) en de halve afstand naar de
-    volgende buur (L_tot). De lokale faalkans `pof` wordt vervolgens geschaald
-    met een opschaalfactor `N_vak = bepaal_N_vak(L, a, dL)`, waarbij `a` per
-    punt komt uit `dsn.a` en `dL` de equivalente onafhankelijke
-    mechanismelengte is. De uitkomst is de som van `pof * N_vak` over
-    alle punten.
-
-    Parameters
-    ----------
-    dL : float
-        Equivalente onafhankelijke mechanismelengte [m]
-    list_dsn : list of UittredepuntElement
-        Lijst met elementen met minimaal de attributen:
-        - ``M_value`` (float): positie langs M-as (wordt gebruikt voor sorteren
-          en voor afbakenen van de lokale lengte).
-        - ``pof`` (float): lokale probability of failure (faalkans) op het
-        punt.
-        - ``a`` (float): karakteristieke lengte-/vormparameter voor
-        `bepaal_N_vak`.
-    M_van : float
-        Ondergrens van het M-bereik voor de eerste halve-afstand (alleen van
-        toepassing voor de berekening van `L_van` bij de eerste index).
-    M_tot : float
-        Bovengrens van het M-bereik voor de laatste halve-afstand (alleen van
-        toepassing voor de berekening van `L_tot` bij de laatste index).
-
-    Returns
-    -------
-    float
-        De som van `pof * N_vak` over de uittredepunten.
-    """
-    list_dsn.sort(key=attrgetter("M_value"))
+                   m_van: float, m_tot: float) -> tuple[float, float]:
+    list_dsn.sort(key=attrgetter("m_value"))
     pofs: list[float] = []
     for i in range(len(list_dsn)):
         if i == 0:
-            L_van: float = M_van
+            L_van: float = m_van
         else:
-            L_van: float = (cast(float, list_dsn[i-1].M_value)
-                            + (cast(float, list_dsn[i].M_value)
-                               - cast(float, list_dsn[i-1].M_value)) / 2)
+            L_van: float = (cast(float, list_dsn[i-1].m_value)
+                            + (cast(float, list_dsn[i].m_value)
+                               - cast(float, list_dsn[i-1].m_value)) / 2)
         if i == len(list_dsn)-1:
-            L_tot: float = M_tot
+            L_tot: float = m_tot
         else:
-            L_tot: float = (cast(float, list_dsn[i].M_value)
-                            + (cast(float, list_dsn[i+1].M_value)
-                               - cast(float, list_dsn[i].M_value)) / 2)
-        # Absolute incase of reversed order in data of van en tot.
+            L_tot: float = (cast(float, list_dsn[i].m_value)
+                            + (cast(float, list_dsn[i+1].m_value)
+                               - cast(float, list_dsn[i].m_value)) / 2)
+        # Absolute in case of reversed order in data of van en tot.
         L = abs(L_tot - L_van)
         a = cast(float, list_dsn[i].a)
         N_vak = bepaal_N_vak(L, a, dL)
-        pof = cast(float, list_dsn[i].pof) * N_vak
+        pof = cast(float, list_dsn[i].pf) * N_vak
         pofs.append(pof)
 
-    sum_pof = corrected_sum(pofs)
-    if pofs != []:
-        max_pof = max(pofs)
-    else:
-        max_pof = 0.0
+    sum_pf, max_pf = combine_series(pofs)
 
-    return sum_pof, max_pof
+    return sum_pf, max_pf

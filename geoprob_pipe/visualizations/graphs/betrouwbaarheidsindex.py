@@ -535,8 +535,10 @@ class GraphBetaValuesSingleInteractive:
         self._optionally_export(export=export)
 
     def _add_beta_per_vak(self):
-        df_results_vakken = self.geoprob_pipe.results.df_beta_vakken
-        df_results_vakken = df_results_vakken.rename(columns={"vak_id": "id"})
+        df_results_vakken = self.geoprob_pipe.results.df_beta_WBI_vakken
+        df_results_vakken.rename(columns={"beta_dsn": "beta"})
+        df_results_vakken = df_results_vakken.rename(
+            columns={"vak_id": "id", "beta_dsn": "beta"})
         df_for_graph = merge(
             left=df_results_vakken[["id", "beta", "converged"]],
             right=self.gdf_vakken[["id", "m_start", "m_end"]],

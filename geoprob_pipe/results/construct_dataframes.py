@@ -1,8 +1,10 @@
 from __future__ import annotations
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
 import pandas as pd
-from geoprob_pipe.results.assemblage.objects import UittredepuntElement, VakElement, TrajectElement
+from geoprob_pipe.results.assemblage.objects import (
+    UittredepuntElement, VakElement, TrajectElement)
 from typing import TYPE_CHECKING, cast, List
+from decimal import Decimal, getcontext
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe
@@ -116,8 +118,8 @@ def _generate_dsn_list(geoprob_pipe: GeoProbPipe, results: Results
     for _, punt in merge_df.iterrows():
         if punt["vak_id"] in vakken_torun or run_all:
             dsn_list.append(UittredepuntElement(
-                pof=punt["failure_probability"],
-                M_value=punt["metrering"],
+                pf=punt["failure_probability"],
+                m_value=punt["metrering"],
                 a=0.9,  # TODO Haal deze vanuit Input Data via excel
                 converged=punt["converged"]
                 ))
@@ -151,62 +153,162 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
 
             for _, row in df_vak.iterrows():
                 dsn_list.append(UittredepuntElement(
-                    pof=row["failure_probability"],
+                    pf=row["failure_probability"],
                     beta=row["beta"],
-                    M_value=row["metrering"],
+                    m_value=row["metrering"],
                     a=0.9,
                     converged=row["converged"]))
 
             element_list.append(VakElement(
                 id=vak["id"],
-                M_van=vak["m_start"],
-                M_tot=vak["m_end"],
+                m_van=vak["m_start"],
+                m_tot=vak["m_end"],
                 a=0.9,  # TODO Haal deze vanuit Input Data via excel
-                dL=300,
+                delta_length=300,
                 list_dsn=dsn_list
             ))
     return element_list
 
 
-def construct_df_beta_per_vak(geoprob_pipe: GeoProbPipe,
+def construct_df_beta_WBI_vak(geoprob_pipe: GeoProbPipe,
                               results: Results) -> pd.DataFrame:
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
     vakken_list = []
     for element in element_list:
         vakken_dict = {
+            "m_van": element.m_van,
+            "m_tot": element.m_tot,
+            "lengte": element.length,
             "vak_id": element.id,
+            "pf_dsn(max)": element.pf_max_dsn[0].pf,
+            "beta_dsn": element.pf_max_dsn[0].beta,
             "a": element.a,
-            "invloedsfactor_belasting": element.invloedsfactor_belasting,
-            "method": "Max of dsn with N_vak",
-            "converged": element.Conv_max_dsn,
-            "pof": element.Pf_max_dsn.pof,
-            "beta": element.Pf_max_dsn.beta,
-            "method2": "Window 50m over vak",
-            "upper_bound_pof_50m": element.Pf_window_50m[0].pof,
-            "lower_bound_beta_50m": element.Pf_window_50m[0].beta,
-            "lower_bound_pof_50m": element.Pf_window_50m[1].pof,
-            "upper_bound_beta_50m": element.Pf_window_50m[1].beta,
-            "method3": "Window 100m over vak",
-            "upper_bound_pof_100m": element.Pf_window_50m[0].pof,
-            "lower_bound_beta_100m": element.Pf_window_100m[0].beta,
-            "lower_bound_pof_100m": element.Pf_window_50m[1].pof,
-            "upper_bound_beta_100m": element.Pf_window_100m[1].beta,
-            "method4": "Window 200m over vak",
-            "upper_bound_pof_200m": element.Pf_window_50m[0].pof,
-            "lower_bound_beta_200m": element.Pf_window_200m[0].beta,
-            "lower_bound_pof_200m": element.Pf_window_50m[1].pof,
-            "upper_bound_beta_200m": element.Pf_window_200m[1].beta,
-            "method5": "Window 300m over vak",
-            "upper_bound_pof_300m": element.Pf_window_50m[0].pof,
-            "lower_bound_beta_300m": element.Pf_window_300m[0].beta,
-            "lower_bound_pof_300m": element.Pf_window_50m[1].pof,
-            "upper_bound_beta_300m": element.Pf_window_300m[1].beta,
-            "method6": "Scaled over individual sections",
-            "upper_bound_pof_scaled": element.Pf_scaled[0].pof,
-            "lower_bound_beta_scaled": element.Pf_scaled[0].beta,
-            "lower_bound_pof_scaled": element.Pf_scaled[1].pof,
-            "upper_bound_beta_scaled": element.Pf_scaled[1].beta,
+            "delta_L": element.delta_length,
+            "N_vak": element.N_vak,
+            "pf_vak(sum)": element.pf_max_dsn[1].pf,
+            "beta_vak": element.pf_max_dsn[1].beta,
+            "converged": element.conv_max_dsn}
+        vakken_list.append(vakken_dict)
+
+    return pd.DataFrame(vakken_list)
+
+
+def construct_df_beta_window50_vak(geoprob_pipe: GeoProbPipe,
+                                   results: Results) -> pd.DataFrame:
+    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
+                                          results=results)
+    window_list = []
+    for element in element_list:
+        for window in element.pf_window_50m[2]:
+            window_dict = {
+                "m_van": window.m_van,
+                "m_tot": window.m_tot,
+                "lengte": window.length,
+                "window_id": window.window_id,
+                "vak_id": window.vak_id,
+                "pf_dsn": window.pf,
+                "pf_dsn(max)": element.pf_window_50m[1].pf,
+                "beta_dsn": element.pf_window_50m[1].beta,
+                "delta_L": window.window_size,
+                "N_vak": 1,
+                "pf_vak(sum)": element.pf_window_50m[0].pf,
+                "pf_vak": element.pf_window_50m[0].beta
+                }
+            window_list.append(window_dict)
+
+    return pd.DataFrame(window_list)
+
+
+def construct_df_beta_window100_vak(geoprob_pipe: GeoProbPipe,
+                                    results: Results) -> pd.DataFrame:
+    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
+                                          results=results)
+    window_list = []
+    for element in element_list:
+        for window in element.pf_window_100m[2]:
+            window_dict = {
+                "m_van": window.m_van,
+                "m_tot": window.m_tot,
+                "lengte": window.length,
+                "window_id": window.window_id,
+                "vak_id": window.vak_id,
+                "pf_dsn": window.pf,
+                "pf_dsn(max)": element.pf_window_100m[1].pf,
+                "beta_dsn": element.pf_window_100m[1].beta,
+                "delta_L": window.window_size,
+                "N_vak": 1,
+                "pf_vak(sum)": element.pf_window_100m[0].pf,
+                "beta_vak": element.pf_window_100m[0].beta
+                }
+            window_list.append(window_dict)
+
+    return pd.DataFrame(window_list)
+
+
+def construct_df_beta_window200_vak(geoprob_pipe: GeoProbPipe,
+                                    results: Results) -> pd.DataFrame:
+    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
+                                          results=results)
+    window_list = []
+    for element in element_list:
+        for window in element.pf_window_200m[2]:
+            window_dict = {
+                "m_van": window.m_van,
+                "m_tot": window.m_tot,
+                "lengte": window.length,
+                "window_id": window.window_id,
+                "vak_id": window.vak_id,
+                "pf_dsn": window.pf,
+                "pf_dsn(max)": element.pf_window_200m[1].pf,
+                "beta_dsn": element.pf_window_200m[1].beta,
+                "delta_L": window.window_size,
+                "N_vak": 1,
+                "pf_vak(sum)": element.pf_window_200m[0].pf,
+                "beta_vak": element.pf_window_200m[0].beta
+                }
+            window_list.append(window_dict)
+
+    return pd.DataFrame(window_list)
+
+
+def construct_df_beta_window300_vak(geoprob_pipe: GeoProbPipe,
+                                    results: Results) -> pd.DataFrame:
+    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
+                                          results=results)
+    window_list = []
+    for element in element_list:
+        for window in element.pf_window_300m[2]:
+            window_dict = {
+                "m_van": window.m_van,
+                "m_tot": window.m_tot,
+                "lengte": window.length,
+                "window_id": window.window_id,
+                "vak_id": window.vak_id,
+                "pf_dsn": window.pf,
+                "pf_dsn(max)": element.pf_window_300m[1].pf,
+                "beta_dsn": element.pf_window_300m[1].beta,
+                "delta_L": window.window_size,
+                "N_vak": 1,
+                "pf_vak(sum)": element.pf_window_300m[0].pf,
+                "beta_vak": element.pf_window_300m[0].beta
+                }
+            window_list.append(window_dict)
+
+    return pd.DataFrame(window_list)
+
+
+def construct_df_beta_scaled_vak(geoprob_pipe: GeoProbPipe,
+                                 results: Results) -> pd.DataFrame:
+    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
+                                          results=results)
+    vakken_list = []
+    for element in element_list:
+        vakken_dict = {
+            "upper_bound_pof_scaled": element.pf_scaled[0].pf,
+            "lower_bound_beta_scaled": element.pf_scaled[0].beta,
+            "lower_bound_pof_scaled": element.pf_scaled[1].pf,
+            "upper_bound_beta_scaled": element.pf_scaled[1].beta,
             }
         vakken_list.append(vakken_dict)
 
@@ -220,81 +322,169 @@ def construct_df_beta_per_traject(geoprob_pipe: GeoProbPipe,
                                          results=results)
 
     traject = TrajectElement(
-        list_vakken=vakken_list, list_dsn=dsn_list, dL=300.0
+        list_vakken=vakken_list, list_dsn=dsn_list, delta_length=300.0
     )
     traject_list = [
         {
             "method": "Sum of vakken",
-            "upper_bound_pof": traject.Pf_max_vak[0].pof,
-            "lower_bound_beta": traject.Pf_max_vak[0].beta,
-            "lower_boud_pof": traject.Pf_max_vak[1].pof,
-            "upper_bound_beta": traject.Pf_max_vak[1].beta},
+            "upper_bound_pof": traject.pf_max_vak[0].pf,
+            "lower_bound_beta": traject.pf_max_vak[0].beta,
+            "lower_boud_pof": traject.pf_max_vak[1].pf,
+            "upper_bound_beta": traject.pf_max_vak[1].beta},
         {
             "method": "Window 50m over traject",
-            "upper_bound_pof": traject.Pf_window_50m[0].pof,
-            "lower_bound_beta": traject.Pf_window_50m[0].beta,
-            "lower_boud_pof": traject.Pf_window_50m[1].pof,
-            "upper_bound_beta": traject.Pf_window_50m[1].beta
+            "upper_bound_pof": traject.pf_window_50m[0].pf,
+            "lower_bound_beta": traject.pf_window_50m[0].beta,
+            "lower_boud_pof": traject.pf_window_50m[1].pf,
+            "upper_bound_beta": traject.pf_window_50m[1].beta
         }, {
             "method": "Window 100m over traject",
-            "upper_bound_pof": traject.Pf_window_100m[0].pof,
-            "lower_bound_beta": traject.Pf_window_100m[0].beta,
-            "lower_boud_pof": traject.Pf_window_100m[1].pof,
-            "upper_bound_beta": traject.Pf_window_100m[1].beta
+            "upper_bound_pof": traject.pf_window_100m[0].pf,
+            "lower_bound_beta": traject.pf_window_100m[0].beta,
+            "lower_boud_pof": traject.pf_window_100m[1].pf,
+            "upper_bound_beta": traject.pf_window_100m[1].beta
         }, {
             "method": "Window 200m over traject",
-            "upper_bound_pof": traject.Pf_window_200m[0].pof,
-            "lower_bound_beta": traject.Pf_window_200m[0].beta,
-            "lower_boud_pof": traject.Pf_window_200m[1].pof,
-            "upper_bound_beta": traject.Pf_window_200m[1].beta
+            "upper_bound_pof": traject.pf_window_200m[0].pf,
+            "lower_bound_beta": traject.pf_window_200m[0].beta,
+            "lower_boud_pof": traject.pf_window_200m[1].pf,
+            "upper_bound_beta": traject.pf_window_200m[1].beta
         }, {
             "method": "Window 300m over traject",
-            "upper_bound_pof": traject.Pf_window_300m[0].pof,
-            "lower_bound_beta": traject.Pf_window_300m[0].beta,
-            "lower_boud_pof": traject.Pf_window_300m[1].pof,
-            "upper_bound_beta": traject.Pf_window_300m[1].beta
+            "upper_bound_pof": traject.pf_window_300m[0].pf,
+            "lower_bound_beta": traject.pf_window_300m[0].beta,
+            "lower_boud_pof": traject.pf_window_300m[1].pf,
+            "upper_bound_beta": traject.pf_window_300m[1].beta
         }, {
             "method": "Scaled over individual sections",
-            "upper_bound_pof": traject.Pf_scaled[0].pof,
-            "lower_bound_beta": traject.Pf_scaled[0].beta,
-            "lower_boud_pof": traject.Pf_scaled[1].pof,
-            "upper_bound_beta": traject.Pf_scaled[1].beta
+            "upper_bound_pof": traject.pf_scaled[0].pf,
+            "lower_bound_beta": traject.pf_scaled[0].beta,
+            "lower_boud_pof": traject.pf_scaled[1].pf,
+            "upper_bound_beta": traject.pf_scaled[1].beta
         }
     ]
     return pd.DataFrame(traject_list)
 
 
-# def collect_df_alphas_influence_factors_and_physical_values(geoprob_pipe: GeoProbPipe) -> DataFrame:
-#     """ Collects all Alphas, Influence factors and Physical values of the stochast input parameters. """
-#
-#     # Create
-#     def create_df_rows_for_design_point(
-#             dp: DesignPoint, calc: ParallelSystemReliabilityCalculation
-#     ) -> List[Dict[str, Union[str, float]]]:
-#         rows_from_dp = []
-#         for alpha in dp.alphas:
-#             alpha: Alpha
-#             rows_from_dp.append({
-#                 "uittredepunt_id": calc.metadata['uittredepunt_id'],
-#                 "ondergrondscenario_id": calc.metadata['ondergrondscenario_id'],
-#                 "vak_id": calc.metadata['vak_id'],
-#                 "design_point": dp.identifier,
-#                 "variable": alpha.identifier,
-#                 "distribution_type": alpha.variable.distribution.value,
-#                 "alpha": alpha.alpha,
-#                 "influence_factor": alpha.alpha * alpha.alpha,
-#                 "physical_value": alpha.x
-#             })
-#         return rows_from_dp
-#
-#     # Gather data
-#     rows = []
-#     for calculation in geoprob_pipe.calculations:
-#         for design_point in calculation.model_design_points:
-#             rows.extend(create_df_rows_for_design_point(dp=design_point, calc=calculation))
-#         rows.extend(create_df_rows_for_design_point(dp=calculation.system_design_point, calc=calculation))
-#
-#     # Generate df from rows
-#     df = DataFrame(rows)
-#
-#     return df
+def construct_df_beta_window50_traject(geoprob_pipe: GeoProbPipe,
+                                       results: Results
+                                       ) -> pd.DataFrame:
+    dsn_list = _generate_dsn_list(geoprob_pipe=geoprob_pipe, results=results)
+    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
+                                          results=results)
+
+    traject = TrajectElement(
+        list_vakken=element_list, list_dsn=dsn_list, delta_length=300.0
+    )
+    window_list = []
+    for window in traject.pf_window_50m[2]:
+        window_dict = {
+            "m_van": window.m_van,
+            "m_tot": window.m_tot,
+            "lengte": window.length,
+            "window_id": window.window_id,
+            "pf_dsn": window.pf,
+            "pf_dsn(max)": traject.pf_window_50m[1].pf,
+            "beta_dsn": traject.pf_window_50m[1].beta,
+            "a": 1,
+            "delta_L": traject.delta_length,
+            "N_vak": 1,
+            "pf_traject(sum)": traject.pf_window_50m[0].pf,
+            "beta_traject": traject.pf_window_50m[0].beta
+            }
+        window_list.append(window_dict)
+
+    return pd.DataFrame(window_list)
+
+
+def construct_df_beta_window100_traject(geoprob_pipe: GeoProbPipe,
+                                        results: Results
+                                        ) -> pd.DataFrame:
+    dsn_list = _generate_dsn_list(geoprob_pipe=geoprob_pipe, results=results)
+    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
+                                          results=results)
+
+    traject = TrajectElement(
+        list_vakken=element_list, list_dsn=dsn_list, delta_length=300.0
+    )
+    window_list = []
+    for window in traject.pf_window_100m[2]:
+        window_dict = {
+            "m_van": window.m_van,
+            "m_tot": window.m_tot,
+            "lengte": window.length,
+            "window_id": window.window_id,
+            "pf_dsn": window.pf,
+            "pf_dsn(max)": traject.pf_window_100m[1].pf,
+            "beta_dsn": traject.pf_window_100m[1].beta,
+            "a": 1,
+            "delta_L": traject.delta_length,
+            "N_vak": 1,
+            "pf_traject(sum)": traject.pf_window_100m[0].pf,
+            "beta_traject": traject.pf_window_100m[0].beta
+            }
+        window_list.append(window_dict)
+
+    return pd.DataFrame(window_list)
+
+
+def construct_df_beta_window200_traject(geoprob_pipe: GeoProbPipe,
+                                        results: Results
+                                        ) -> pd.DataFrame:
+    dsn_list = _generate_dsn_list(geoprob_pipe=geoprob_pipe, results=results)
+    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
+                                          results=results)
+
+    traject = TrajectElement(
+        list_vakken=element_list, list_dsn=dsn_list, delta_length=300.0
+    )
+    window_list = []
+    for window in traject.pf_window_200m[2]:
+        window_dict = {
+            "m_van": window.m_van,
+            "m_tot": window.m_tot,
+            "lengte": window.length,
+            "window_id": window.window_id,
+            "pf_dsn": window.pf,
+            "pf_dsn(max)": traject.pf_window_200m[1].pf,
+            "beta_dsn": traject.pf_window_200m[1].beta,
+            "a": 1,
+            "delta_L": traject.delta_length,
+            "N_vak": 1,
+            "pf_traject(sum)": traject.pf_window_200m[0].pf,
+            "beta_traject": traject.pf_window_200m[0].beta
+            }
+        window_list.append(window_dict)
+
+    return pd.DataFrame(window_list)
+
+
+def construct_df_beta_window300_traject(geoprob_pipe: GeoProbPipe,
+                                        results: Results
+                                        ) -> pd.DataFrame:
+    dsn_list = _generate_dsn_list(geoprob_pipe=geoprob_pipe, results=results)
+    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
+                                          results=results)
+
+    traject = TrajectElement(
+        list_vakken=element_list, list_dsn=dsn_list, delta_length=300.0
+    )
+    window_list = []
+    for window in traject.pf_window_300m[2]:
+        window_dict = {
+            "m_van": window.m_van,
+            "m_tot": window.m_tot,
+            "lengte": window.length,
+            "window_id": window.window_id,
+            "pf_dsn": window.pf,
+            "pf_dsn(max)": traject.pf_window_300m[1].pf,
+            "beta_dsn": traject.pf_window_300m[1].beta,
+            "a": 1,
+            "delta_L": traject.delta_length,
+            "N_vak": 1,
+            "pf_traject(sum)": traject.pf_window_300m[0].pf,
+            "beta_traject": traject.pf_window_300m[0].beta
+            }
+        window_list.append(window_dict)
+
+    return pd.DataFrame(window_list)

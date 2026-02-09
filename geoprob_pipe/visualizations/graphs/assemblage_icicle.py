@@ -21,12 +21,14 @@ class IciclePlot:
         self._optionally_export()
 
     def _setup_df(self):
-        # Per element parent_name, label, pof, beta
+        # Per element parent_name, label, pf, beta
         df_traject = self.geoprob_pipe.results.df_beta_traject
-        df_vakken = self.geoprob_pipe.results.df_beta_vakken
+        df_vakken = self.geoprob_pipe.results.df_beta_WBI_vakken
+        df_vakken = df_vakken.rename(columns={"beta_dsn": "beta",
+                                              "pf_dsn(max)": "pf"})
 
         # Remove vak without utp
-        mask_vakken = df_vakken["pof"] != 0
+        mask_vakken = df_vakken["pf"] != 0
         df_vakken = df_vakken[mask_vakken].copy()
 
         df_utp = self.geoprob_pipe.results.df_beta_uittredepunten
@@ -42,10 +44,10 @@ class IciclePlot:
         df_icicle["label"] = "Traject"
         df_icicle["id"] = "1"
         df_icicle["value"] = 1.0
-        df_icicle = df_icicle.rename(columns={"upper_bound_pof": "pof",
+        df_icicle = df_icicle.rename(columns={"upper_bound_pof": "pf",
                                               "lower_bound_beta": "beta"})
         # vakken
-        df_vakken["label"] = "Vak_" + df_vakken["vak_id"].astype(str)
+        df_vakken["label"] = "Vak: " + df_vakken["vak_id"].astype(str)
         df_vakken["parent_name"] = "1"
         self.n_vakken: int = len(df_vakken)
         df_vakken["id"] = "1_" + df_vakken["vak_id"].astype(str)
@@ -53,19 +55,19 @@ class IciclePlot:
         # Add value for scaling leaves.
         df_vakken["value"] = 1.0 / self.n_vakken
         self.mdf_vakken = df_vakken[
-            ["parent_name", "label", "id", "value", "beta", "pof"]
+            ["parent_name", "label", "id", "value", "beta", "pf"]
             ].copy()
 
         df_icicle = pd.concat([df_icicle, self.mdf_vakken], ignore_index=True)
 
         # Uittredepunten
-        df_utp["label"] = "UTP_" + df_utp["uittredepunt_id"].astype(str)
+        df_utp["label"] = "Uittredepunt: " + df_utp["uittredepunt_id"].astype(str)
         df_utp["parent_name"] = "1_" + df_utp["vak_id"].astype(str)
         df_utp["id"] = (
             "1_" + df_utp["vak_id"].astype(str)
             + "_" + df_utp["uittredepunt_id"].astype(str)
             )
-        df_utp: DataFrame = df_utp.rename(columns={"failure_probability": "pof"})
+        df_utp: DataFrame = df_utp.rename(columns={"failure_probability": "pf"})
 
         # Add value for scaling leaves.
         for pn in df_utp["parent_name"].unique():
@@ -77,19 +79,17 @@ class IciclePlot:
                 )
 
         self.mdf_utp = df_utp[
-            ["parent_name", "label", "id", "value", "beta", "pof"]
+            ["parent_name", "label", "id", "value", "beta", "pf"]
                          ].copy()
 
         df_icicle = pd.concat([df_icicle, self.mdf_utp], ignore_index=True)
 
         # Scenarios
         df_scen = df_scen.rename(
-            columns={"failure_probability": "pof"}
+            columns={"failure_probability": "pf"}
             )
-        df_scen["label"] = (
-            df_scen["ondergrondscenario_id"].astype(str)
-            + "_" + df_scen["uittredepunt_id"].astype(str)
-            )
+        df_scen["label"] = ("Ondergrondscenario: " +
+                            df_scen["ondergrondscenario_id"].astype(str))
         df_scen["parent_name"] = (
             "1_" + df_scen["vak_id"].astype(str)
             + "_" + df_scen["uittredepunt_id"].astype(str)
@@ -109,7 +109,7 @@ class IciclePlot:
                 )
 
         self.mdf_scenarios = df_scen[
-            ["parent_name", "label", "id", "value", "beta", "pof"]
+            ["parent_name", "label", "id", "value", "beta", "pf"]
             ].copy()
 
         df_icicle = pd.concat([df_icicle, self.mdf_scenarios])
@@ -122,7 +122,7 @@ class IciclePlot:
             )
         df_lim = df_lim.rename(
             columns={"limit_state": "label",
-                     "failure_probability": "pof"}
+                     "failure_probability": "pf"}
             )
         df_lim["id"] = (
             "1_" + df_lim["vak_id"].astype(str)
@@ -139,7 +139,7 @@ class IciclePlot:
                 )
 
         self.mdf_lim = df_lim[
-            ["parent_name", "label", "id", "value", "beta", "pof"]
+            ["parent_name", "label", "id", "value", "beta", "pf"]
         ].copy()
         df_icicle = pd.concat([df_icicle, self.mdf_lim])
         df_icicle["color"] = df_icicle.apply(
@@ -179,12 +179,20 @@ class IciclePlot:
         df_vakken = df.loc[mask_vakken].sort_values(
             by="beta", ascending=True
         )
-
-        df_rest = df.loc[~mask_vakken]
+        mask_utp = df["parent_name"].str.count("_") == 1
+        df_utp = df.loc[mask_utp].sort_values(
+            by="beta", ascending=True
+        )
+        mask_scen = df["parent_name"].str.count("_") == 2
+        df_scen = df.loc[mask_scen].sort_values(
+            by="beta", ascending=True
+        )
+        mask_combined = mask_vakken & mask_utp & mask_vakken
+        df_rest = df.loc[~mask_combined]
         df_traject = df_rest.loc[df_rest["id"].eq("1")]
         df_rest = df_rest.loc[~df_rest["id"].eq("1")]
 
-        df = pd.concat([df_traject, df_vakken, df_rest],
+        df = pd.concat([df_traject, df_vakken, df_utp, df_scen, df_rest],
                        ignore_index=True)
 
         self.fig.add_trace(go.Icicle(
@@ -194,7 +202,7 @@ class IciclePlot:
             values=df["value"],
             sort=False,
             marker=dict(colors=df["color"]),
-            customdata=df[["pof", "beta"]].to_numpy(),
+            customdata=df[["pf", "beta"]].to_numpy(),
             texttemplate=(
                 "%{label}<br>"
                 "Pof: %{customdata[0]:.3e}<br>"
@@ -206,7 +214,7 @@ class IciclePlot:
 
     def _update_layout(self):
         self.fig.update_layout(
-            title="Icicleplot van assemblage faalkansen",
+            title="Icicle plot van assemblage faalkansen",
             height=self.n_vakken*50,
             margin=dict(t=50, l=25, r=25, b=25)
             )

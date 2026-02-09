@@ -2,8 +2,19 @@ from __future__ import annotations
 from pandas import DataFrame
 from typing import TYPE_CHECKING, Optional
 from geoprob_pipe.results.construct_dataframes import (
-    combine_df_beta_per_limit_state, combine_df_beta_per_scenario, calculate_df_beta_per_uittredepunt,
-    construct_df_beta_per_vak, construct_df_beta_per_traject)
+    combine_df_beta_per_limit_state,
+    combine_df_beta_per_scenario,
+    calculate_df_beta_per_uittredepunt,
+    construct_df_beta_WBI_vak,
+    construct_df_beta_window50_vak,
+    construct_df_beta_window100_vak,
+    construct_df_beta_window200_vak,
+    construct_df_beta_window300_vak,
+    construct_df_beta_per_traject,
+    construct_df_beta_window50_traject,
+    construct_df_beta_window100_traject,
+    construct_df_beta_window200_traject,
+    construct_df_beta_window300_traject)
 from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import construct_df
 import os
 if TYPE_CHECKING:
@@ -15,14 +26,46 @@ class Results:
 
     def __init__(self, geoprob_pipe: GeoProbPipe):
         self.geoprob_pipe = geoprob_pipe
-        self.df_beta_limit_states = combine_df_beta_per_limit_state(geoprob_pipe.calc_results)
-        self.df_beta_scenarios = combine_df_beta_per_scenario(geoprob_pipe.calc_results)
+        self.df_beta_limit_states = combine_df_beta_per_limit_state(
+            geoprob_pipe.calc_results
+            )
+        self.df_beta_scenarios = combine_df_beta_per_scenario(
+            geoprob_pipe.calc_results
+            )
         self._df_alphas_influence_factors_and_physical_values: Optional[DataFrame] = None
-        self.df_beta_uittredepunten = calculate_df_beta_per_uittredepunt(geoprob_pipe=geoprob_pipe, results=self)
-        self.df_beta_vakken = construct_df_beta_per_vak(
-            geoprob_pipe=geoprob_pipe, results=self)
+        self.df_beta_uittredepunten = calculate_df_beta_per_uittredepunt(
+            geoprob_pipe=geoprob_pipe, results=self
+            )
+        self.df_beta_WBI_vakken = construct_df_beta_WBI_vak(
+            geoprob_pipe=geoprob_pipe, results=self
+            )
+        self.df_beta_window50m_vakken = construct_df_beta_window50_vak(
+            geoprob_pipe=geoprob_pipe, results=self
+            )
+        self.df_beta_window100m_vakken = construct_df_beta_window100_vak(
+            geoprob_pipe=geoprob_pipe, results=self
+            )
+        self.df_beta_window200m_vakken = construct_df_beta_window200_vak(
+            geoprob_pipe=geoprob_pipe, results=self
+            )
+        self.df_beta_window300m_vakken = construct_df_beta_window300_vak(
+            geoprob_pipe=geoprob_pipe, results=self
+            )
         self.df_beta_traject = construct_df_beta_per_traject(
-            geoprob_pipe=geoprob_pipe, results=self)
+            geoprob_pipe=geoprob_pipe, results=self
+            )
+        self.df_beta_window50m_traject = construct_df_beta_window50_traject(
+            geoprob_pipe=geoprob_pipe, results=self
+            )
+        self.df_beta_window100m_traject = construct_df_beta_window100_traject(
+            geoprob_pipe=geoprob_pipe, results=self
+            )
+        self.df_beta_window200m_traject = construct_df_beta_window200_traject(
+            geoprob_pipe=geoprob_pipe, results=self
+            )
+        self.df_beta_window300m_traject = construct_df_beta_window300_traject(
+            geoprob_pipe=geoprob_pipe, results=self
+            )
 
     def df_alphas_influence_factors_and_physical_values(
             self,
@@ -85,10 +128,39 @@ class Results:
 
         if bool_beta_uittredepunten:
             self.df_beta_uittredepunten.to_excel(
-                excel_writer=os.path.join(self.export_dir, "df_beta_uittredepunten.xlsx"))
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_uittredepunten.xlsx"))
 
         if bool_beta_vakken:
-            self.df_beta_vakken.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_vakken.xlsx"))
+            self.df_beta_WBI_vakken.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_WBI_vakken.xlsx"))
+            self.df_beta_window50m_vakken.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_window50m_vakken.xlsx"))
+            self.df_beta_window100m_vakken.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_window100m_vakken.xlsx"))
+            self.df_beta_window200m_vakken.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_window200m_vakken.xlsx"))
+            self.df_beta_window300m_vakken.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_window300m_vakken.xlsx"))
 
         if bool_beta_traject:
-            self.df_beta_traject.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_traject.xlsx"))
+            self.df_beta_traject.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_traject.xlsx"))
+            self.df_beta_window50m_traject.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_window50m_traject.xlsx"))
+            self.df_beta_window100m_traject.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_window100m_traject.xlsx"))
+            self.df_beta_window200m_traject.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_window200m_traject.xlsx"))
+            self.df_beta_window300m_traject.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_window300m_traject.xlsx"))
