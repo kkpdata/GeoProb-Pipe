@@ -4,7 +4,6 @@ import pandas as pd
 from geoprob_pipe.results.assemblage.objects import (
     UittredepuntElement, VakElement, TrajectElement)
 from typing import TYPE_CHECKING, cast, List
-from decimal import Decimal, getcontext
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe

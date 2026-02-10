@@ -187,7 +187,7 @@ class IciclePlot:
         df_scen = df.loc[mask_scen].sort_values(
             by="beta", ascending=True
         )
-        mask_combined = mask_vakken & mask_utp & mask_vakken
+        mask_combined = mask_vakken | mask_utp | mask_scen
         df_rest = df.loc[~mask_combined]
         df_traject = df_rest.loc[df_rest["id"].eq("1")]
         df_rest = df_rest.loc[~df_rest["id"].eq("1")]
