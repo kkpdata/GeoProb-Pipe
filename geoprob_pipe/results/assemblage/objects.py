@@ -33,10 +33,30 @@ class KansElement:
 
 
 @dataclass
-class UittredepuntElement(KansElement):
-    m_value: Optional[float] = None
-    a: Optional[float] = None
-    converged: Optional[bool] = None
+class UittredepuntElement:
+    m_value: float
+    a: float
+    converged: bool
+    pf: Optional[float] = None
+    beta: Optional[float] = None
+
+    def __post_init__(self):
+
+        if self.pf is not None:
+            if not (0.0 <= self.pf <= 1.0):
+                raise ValueError("pof moet tussen 0.0 en 1.0 liggen.")
+
+        if self.beta is not None:
+            if not math.isfinite(self.beta):
+                raise ValueError("beta moet een eindige waarde zijn.")
+            if (-38.0 <= self.beta <= 38.0) is False:
+                raise ValueError("beta moet tussen -38.0 en 38.0 liggen.")
+
+        if self.pf is None and self.beta is not None:
+            self.pf = float(stats.norm.cdf(-1.0 * self.beta))
+
+        if self.beta is None and self.pf is not None:
+            self.beta = -1.0 * float(stats.norm.ppf(self.pf))
 
 
 @dataclass
@@ -114,11 +134,13 @@ class VakElement:
 
     # vak: som van verschaalde dsn
     @property
-    def pf_scaled(self) -> Tuple[KansElement, KansElement]:
-        pf_sum, pf_max = scaled_collect(
-            self.delta_length, self.list_dsn, self.m_van, self.m_tot
+    def pf_scaled(self) -> Tuple[KansElement, KansElement,
+                                 List[WindowElement]]:
+        pf_sum, pf_max, window_elements = scaled_collect(
+            self.delta_length, self.list_dsn, self.m_van,
+            self.m_tot, vak_id=self.id
         )
-        return KansElement(pf=pf_sum), KansElement(pf=pf_max)
+        return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
 
 @dataclass
@@ -126,9 +148,12 @@ class WindowElement:
     m_van: float
     m_tot: float
     window_size: float
-    vak_id: Optional[int]
     window_id: int
     pf: float
+    _vak_id: Optional[int]
+    _a: Optional[float]
+    _m_uittredepunt: Optional[float]
+    _n_vak: Optional[float]
 
     @property
     def length(self):
@@ -137,6 +162,38 @@ class WindowElement:
     @property
     def kans_dsn(self) -> KansElement:
         return KansElement(pf=self.pf)
+
+    @property
+    def a(self) -> float:
+        if self._a:
+            return cast(float, self._a)
+        else:
+            raise AttributeError("No attribute a specified in object.")
+
+    @property
+    def vak_id(self) -> int:
+        if isinstance(self._vak_id, int):
+            return cast(int, self._vak_id)
+        else:
+            raise AttributeError("No attribute vak_id specified in object.")
+
+    @property
+    def m_uittredepunt(self) -> float:
+        if isinstance(self._m_uittredepunt, float):
+            return self._m_uittredepunt
+        else:
+            raise AttributeError(
+                "No attribute m_uittredepunt specified in object."
+                )
+
+    @property
+    def n_vak(self) -> float:
+        if isinstance(self._n_vak, float):
+            return self._n_vak
+        else:
+            raise AttributeError(
+                "No attribute N_vak specified in object."
+                )
 
 
 @dataclass
@@ -206,8 +263,9 @@ class TrajectElement:
 
     # traject: som van verschaalde dsn
     @property
-    def pf_scaled(self) -> Tuple[KansElement, KansElement]:
-        pf_sum, pf_max = scaled_collect(
+    def pf_scaled(self) -> Tuple[KansElement, KansElement,
+                                 List[WindowElement]]:
+        pf_sum, pf_max, window_elements = scaled_collect(
             dL=self.delta_length, list_dsn=self.list_dsn,
-            m_van=self.m_van, m_tot=self.m_tot)
-        return KansElement(pf=pf_sum), KansElement(pf=pf_max)
+            m_van=self.m_van, m_tot=self.m_tot, vak_id=None)
+        return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements

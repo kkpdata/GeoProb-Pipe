@@ -73,36 +73,77 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
             window_size=window_size,
             window_id=i,
             pf=df_bin[df_bin.index[i]],
-            vak_id=vak_id,
+            _vak_id=vak_id,
+            _a=None,
+            _m_uittredepunt=None,
+            _n_vak=None
         ))
     return sum_pf, max_pf, window_elements
 
 
-def scaled_collect(dL: float,
-                   list_dsn: list[UittredepuntElement],
-                   m_van: float, m_tot: float) -> tuple[float, float]:
+def scaled_collect(
+        dL: float, list_dsn: list[UittredepuntElement],
+        m_van: float, m_tot: float, vak_id: Optional[int]
+        ) -> tuple[float, float, List[WindowElement]]:
+    from geoprob_pipe.results.assemblage.objects import WindowElement
+    if list_dsn.__len__() == 0:
+        return 0.0, 0.0, []
+
     list_dsn.sort(key=attrgetter("m_value"))
-    pofs: list[float] = []
-    for i in range(len(list_dsn)):
+    clusters: List[List[UittredepuntElement]] = []
+    current_cluster: List[UittredepuntElement] = [list_dsn[0]]
+    cluster_start: float = list_dsn[0].m_value
+
+    for dsn in list_dsn[1:]:
+        if dsn.m_value - cluster_start <= 5.0:
+            current_cluster.append(dsn)
+        else:
+            clusters.append(current_cluster)
+            current_cluster = [dsn]
+            cluster_start = dsn.m_value
+    clusters.append(current_cluster)
+
+    selected = [max(cluster, key=lambda x: cast(float, x.pf))
+                for cluster in clusters]
+    pfs: List[float] = []
+    window_elements: List[WindowElement] = []
+
+    for i, sel in enumerate(selected):
+        cluster_start = max(
+            m_van, sel.m_value - (sel.m_value - clusters[i][0].m_value)
+            )
         if i == 0:
-            L_van: float = m_van
+            seg_start = m_van
         else:
-            L_van: float = (cast(float, list_dsn[i-1].m_value)
-                            + (cast(float, list_dsn[i].m_value)
-                               - cast(float, list_dsn[i-1].m_value)) / 2)
-        if i == len(list_dsn)-1:
-            L_tot: float = m_tot
+            seg_start = (
+                clusters[i-1][-1].m_value
+                + (clusters[i][0].m_value - clusters[i-1][-1].m_value)
+                / 2)
+        if i == len(selected)-1:
+            seg_end = m_tot
         else:
-            L_tot: float = (cast(float, list_dsn[i].m_value)
-                            + (cast(float, list_dsn[i+1].m_value)
-                               - cast(float, list_dsn[i].m_value)) / 2)
-        # Absolute in case of reversed order in data of van en tot.
-        L = abs(L_tot - L_van)
-        a = cast(float, list_dsn[i].a)
-        N_vak = bepaal_N_vak(L, a, dL)
-        pof = cast(float, list_dsn[i].pf) * N_vak
-        pofs.append(pof)
+            seg_end = (
+                clusters[i][-1].m_value
+                + (clusters[i+1][0].m_value - clusters[i][-1].m_value)
+                / 2)
 
-    sum_pf, max_pf = combine_series(pofs)
-
-    return sum_pf, max_pf
+        length = seg_end - seg_start
+        a = sel.a
+        N_vak = bepaal_N_vak(length, a, dL)
+        pf = cast(float, sel.pf) * N_vak
+        pfs.append(pf)
+        window_elements.append(
+            WindowElement(
+                m_van=seg_start,
+                m_tot=seg_end,
+                window_size=length,
+                window_id=i,
+                _vak_id=vak_id,
+                pf=pf,
+                _a=a,
+                _m_uittredepunt=sel.m_value,
+                _n_vak=N_vak
+            )
+        )
+    sum_pf, max_pf = combine_series(pfs)
+    return sum_pf, max_pf, window_elements

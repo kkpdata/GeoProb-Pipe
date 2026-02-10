@@ -10,11 +10,13 @@ from geoprob_pipe.results.construct_dataframes import (
     construct_df_beta_window100_vak,
     construct_df_beta_window200_vak,
     construct_df_beta_window300_vak,
+    construct_df_beta_scaled_vak,
     construct_df_beta_per_traject,
     construct_df_beta_window50_traject,
     construct_df_beta_window100_traject,
     construct_df_beta_window200_traject,
-    construct_df_beta_window300_traject)
+    construct_df_beta_window300_traject,
+    construct_df_beta_scaled_traject)
 from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import construct_df
 import os
 if TYPE_CHECKING:
@@ -51,6 +53,9 @@ class Results:
         self.df_beta_window300m_vakken = construct_df_beta_window300_vak(
             geoprob_pipe=geoprob_pipe, results=self
             )
+        self.df_beta_scaled_vakken = construct_df_beta_scaled_vak(
+            geoprob_pipe=geoprob_pipe, results=self
+        )
         self.df_beta_traject = construct_df_beta_per_traject(
             geoprob_pipe=geoprob_pipe, results=self
             )
@@ -64,6 +69,9 @@ class Results:
             geoprob_pipe=geoprob_pipe, results=self
             )
         self.df_beta_window300m_traject = construct_df_beta_window300_traject(
+            geoprob_pipe=geoprob_pipe, results=self
+            )
+        self.df_beta_scaled_traject = construct_df_beta_scaled_traject(
             geoprob_pipe=geoprob_pipe, results=self
             )
 
@@ -147,6 +155,9 @@ class Results:
             self.df_beta_window300m_vakken.to_excel(
                 excel_writer=os.path.join(self.export_dir,
                                           "df_beta_window300m_vakken.xlsx"))
+            self.df_beta_scaled_vakken.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_scaled_vakken.xlsx"))
 
         if bool_beta_traject:
             self.df_beta_traject.to_excel(
@@ -164,3 +175,6 @@ class Results:
             self.df_beta_window300m_traject.to_excel(
                 excel_writer=os.path.join(self.export_dir,
                                           "df_beta_window300m_traject.xlsx"))
+            self.df_beta_scaled_traject.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_scaled_traject.xlsx"))
