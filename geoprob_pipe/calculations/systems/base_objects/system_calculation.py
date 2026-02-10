@@ -1,7 +1,7 @@
 from probabilistic_library import (
-    ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod, CombinerMethod, CombineType,
-    Stochast, Settings)
-from typing import Optional, Callable, List, Dict, Union, Tuple
+    ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod,
+    CombinerMethod, CombineType, Stochast, Settings)
+from typing import Optional, Callable, List, Dict, Union, Tuple, cast
 import logging
 from geoprob_pipe.utils.validation_messages import ValidationMessages
 
@@ -10,8 +10,9 @@ logger = logging.getLogger("geoprob_pipe_logger")
 
 
 class SystemCalculation:
-    """ Pre-defined system reliability calculation for parallel systems. In the example below for a parallel system for
-    Piping. Note however that for Piping there is already a predefined system in
+    """ Pre-defined system reliability calculation for parallel systems.
+    In the example below for a parallel system for Piping. Note however
+    that for Piping there is already a predefined system in
     `geoprob_pipe.calculations.system_calculations.piping_system`.
 
     Usage by
@@ -41,16 +42,19 @@ class SystemCalculation:
             self,
             distributions: List[Dict],
             correlations: List[Tuple[str, str, float]],
-            limit_states: Optional[List[Callable]] = None,  # For assigning in children
-            variables_setup_function: Optional[Callable] = None,  # For assigning in children
-            project_settings: Dict[str, Union[str, float, int]] = None
+            project_settings: Dict[str, Union[str, float, int]],
+            # For assigning in children
+            limit_states: Optional[List[Callable]] = None,
+            variables_setup_function: Optional[Callable] = None
     ):
         """
 
-        :param system_variables_setup_function: Dummy functie waarmee variabele namen worden geïnitieerd.
+        :param system_variables_setup_function: Dummy functie waarmee
+            variabele namen worden geïnitieerd.
         :param system_variable_distributions:
         :param system_models:
-        :param project_settings: ReliabilityProject settings for the limit state design points.
+        :param project_settings: ReliabilityProject settings for the limit
+            state design points.
         """
 
         # Mutable arguments
@@ -63,21 +67,26 @@ class SystemCalculation:
         self.metadata = {}
 
         # Input arguments
-        self.given_project_settings: Dict[str, Union[str, float, int]] = project_settings
-        self.given_variables_setup_function: Callable = variables_setup_function
-        self.given_limit_states: List[Callable] = limit_states
+        self.given_project_settings: Dict[str, Union[str, float, int]] = (
+            project_settings)
+        self.given_variables_setup_function: Callable = cast(
+            Callable, variables_setup_function)
+        self.given_limit_states: List[Callable] = cast(
+            List[Callable], limit_states)
         self.given_distributions: List[Dict] = distributions
         self.given_correlations: List[Tuple[str, str, float]] = correlations
-        # TODO Nu Should Klein: I.p.v. dict maak gebruik van Distributie-objecten. Minder fout gevoelig.
+        # TODO Nu Should Klein: I.p.v. dict maak gebruik van
+        # Distributie-objecten. Minder fout gevoelig.
 
         # Placeholders
-        self.project: Optional[ReliabilityProject] = None
+        # self.project: Optional[ReliabilityProject] = None
         self.model_design_points: List[DesignPoint] = []
-        self.combine_project: Optional[CombineProject] = None
-        self.system_design_point: Optional[DesignPoint] = None
+        # self.combine_project: Optional[CombineProject] = None
+        # self.system_design_point: Optional[DesignPoint] = None
 
     def run(self):
-        """ Performs all logic of the system reliability calculation. """
+        """ Performs all logic of the system reliability calculation.
+        """
         self._setup_project()
         self._apply_settings()
         self._assign_variables()
@@ -86,7 +95,9 @@ class SystemCalculation:
         self._generate_system_design_point()
 
     def _setup_project(self):
-        """ Sets up the ReliabilityProject-object. This will be used for all model design points. """
+        """ Sets up the ReliabilityProject-object. This will be used
+        for all model design points.
+        """
         self.project = ReliabilityProject()
         self.project.settings.reliability_method = ReliabilityMethod.form
 
@@ -100,7 +111,8 @@ class SystemCalculation:
         """
         Set up the settings of the ReliabilityProject
 
-        Note: all supported settings can be found in probabilistic_library.reliability.Settings.__dir__
+        Note: all supported settings can be found in probabilistic_library
+        .reliability.Settings.__dir__
         """
         for attr_name, value in self.given_project_settings.items():
 
@@ -121,8 +133,11 @@ class SystemCalculation:
             var_item: Stochast
             if var_item.name not in system_variable_keys:
                 raise KeyError(
-                    f"The system variable '{var_item.name}' has no distribution provided in "
-                    f"system_variable_distributions-list. Please do so before running the system.")
+                    """
+                               """
+                    f"The system variable '{var_item.name}' has no"
+                    " distribution provided in system_variable_distributions-list."
+                    " Please do so before running the system.")
 
         for item in self.given_distributions:
             name = item['name']
@@ -186,4 +201,3 @@ class SystemCalculation:
 
 def _system_variable_keys(self: SystemCalculation) -> List[str]:
     return [item['name'] for item in self.given_distributions]
-

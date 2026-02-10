@@ -1,5 +1,6 @@
 from __future__ import annotations
-from geoprob_pipe.calculations.systems.base_objects.base_system_build import BaseSystemBuilder
+from geoprob_pipe.calculations.systems.base_objects.base_system_build import (
+    BaseSystemBuilder)
 from geoprob_pipe.calculations.systems.model4a.reliability_calculation import (
     Model4aCalculation)
 

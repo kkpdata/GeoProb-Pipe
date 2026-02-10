@@ -8,8 +8,10 @@ from typing import List, Dict, Union, Tuple
 class Model4aCalculation(SystemCalculation):
     """ Pre-defined system reliability calculation for Piping.
 
-    Usage by calling the object, inserting the variable distributions and after that calling the run-method. The
-    separate limit state models (uplift, heave and piping) are already pre-defined in the class. """
+    Usage by calling the object, inserting the variable distributions and
+    after that calling the run-method. The separate limit state models
+    (uplift, heave and piping) are already pre-defined in the class.
+    """
 
     def __init__(
             self,
@@ -20,6 +22,7 @@ class Model4aCalculation(SystemCalculation):
 
         super().__init__(
             distributions=system_variable_distributions,
-            project_settings=project_settings, correlations=system_variable_correlations)
+            project_settings=project_settings,
+            correlations=system_variable_correlations)
         self.given_variables_setup_function = limit_state_model4a
         self.given_limit_states = [calc_Z_u, calc_Z_h, calc_Z_p]

@@ -33,7 +33,8 @@ INITIAL_INPUT = [
     },
     {
         "name": "L_intrede",
-        "description": "Afstand van uittredepunten tot geometrische intredelijn.",
+        "description": "Afstand van uittredepunten tot geometrische"
+                       " intredelijn.",
         "remark": "",
         "unit": "m",
         "distribution_type": DistributionType.deterministic,
@@ -69,8 +70,10 @@ INITIAL_INPUT = [
     },
     {
         "name": "buitenwaterstand",
-        "description": "Buitenwaterstand. Indien keuze voor 'cdf_curve' als distributie type, dan wordt er een "
-                       "een overschrijdingsfrequentielijn berekend met de Hydra-NL Python wrapper Pydra.",
+        "description": "Buitenwaterstand. Indien keuze voor 'cdf_curve' als"
+                       " distributie type, dan wordt er een"
+                       " overschrijdingsfrequentielijn berekend met de"
+                       " Hydra-NL Python wrapper Pydra.",
         "remark": "",
         "unit": "m+NAP",
         "distribution_type": DistributionType.deterministic,
@@ -254,7 +257,8 @@ INITIAL_INPUT = [
     },
     {
         "name": "eta",
-        "description": "White's weerstandscoëfficiënt (sleepkrachtfactor, constante van White) – Sellmeijer",
+        "description": "White's weerstandscoëfficiënt (sleepkrachtfactor,"
+                       " constante van White) – Sellmeijer",
         "remark": "",
         "unit": "[-]",
         "distribution_type": DistributionType.deterministic,
@@ -263,7 +267,8 @@ INITIAL_INPUT = [
     },
     {
         "name": "d70_m",
-        "description": "Referentiewaarde voor de 70% percentiel van de korrelverdeling – Sellmeijer.",
+        "description": "Referentiewaarde voor de 70% percentiel van de"
+                       " korrelverdeling – Sellmeijer.",
         "remark": "",
         "unit": "m",
         "distribution_type": DistributionType.deterministic,

@@ -288,22 +288,23 @@ def limit_state_moria(  # TODO: Naam moria vervangen voor iets generieks?
     """
 
     kD_wvp = k_wvp * D_wvp
-    L_voorland = pc_piping.calc_lengte_voorland(L_intrede=L_intrede,
-                                                L_but=L_but)
-    W_voorland = pc_piping.calc_W_voorland(lambda_voorland=lambda_voorland,
-                                           L_voorland=L_voorland)
+    L_voorland = pc_piping.calc_lengte_voorland(
+        L_intrede=L_intrede, L_but=L_but)
+    W_voorland = pc_piping.calc_W_voorland(
+        lambda_voorland=lambda_voorland, L_voorland=L_voorland)
     L_kwelweg = pc_piping.calc_L_kwelweg(L_but=L_but, W_voorland=W_voorland)
     h_exit = pc_piping.calc_h_exit(polderpeil=polderpeil, mv_exit=mv_exit)
     d_deklaag = pc_piping.calc_d_deklaag(mv_exit=mv_exit, top_zand=top_zand)
-    phi_exit = (phi_exit_gemiddeld + r_exit
-                * (buitenwaterstand - buitenwaterstand_gemiddeld))
+    phi_exit = (
+        phi_exit_gemiddeld + r_exit * (buitenwaterstand
+                                       - buitenwaterstand_gemiddeld)
+        )
     dphi_c_u = pc_piping.calc_dphi_c_u(
         d_deklaag=d_deklaag,
         gamma_sat_deklaag=gamma_sat_deklaag,
         gamma_water=gamma_water)
-    i_exit = pc_piping.calc_i_exit(phi_exit=phi_exit,
-                                   h_exit=h_exit,
-                                   d_deklaag=d_deklaag)
+    i_exit = pc_piping.calc_i_exit(
+        phi_exit=phi_exit, h_exit=h_exit, d_deklaag=d_deklaag)
     dh_c = pc_piping.calc_dh_c(
         d70=d70, D_wvp=D_wvp, kD_wvp=kD_wvp, L_kwelweg=L_kwelweg,
         gamma_water=gamma_water, g=g, v=v, theta=theta,
