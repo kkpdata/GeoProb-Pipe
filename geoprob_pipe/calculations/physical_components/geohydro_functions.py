@@ -9,18 +9,14 @@ import math
 
 # Functions
 def calc_lambda(kd: float, c: float) -> float:
-    r"""Calculates leakage length
+    r""" Calculates leakage length
 
     .. math::
-
         \lambda = \sqrt{kDc}
 
-    Args:
-        kd (float): transmissivity [m2/day]
-        c (float): resistance of the topsoil [day]
-
-    Returns:
-        float: returns leakage length lambda [m]
+    :param kd: transmissivity [m2/day]
+    :param c: resistance of the topsoil [day]
+    :return: leakage length lambda [m]
     """
     return math.sqrt(kd * c)
 

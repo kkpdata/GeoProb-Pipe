@@ -10,33 +10,7 @@ logger = logging.getLogger("geoprob_pipe_logger")
 
 
 class SystemCalculation:
-    """ Pre-defined system reliability calculation for parallel systems.
-    In the example below for a parallel system for Piping. Note however
-    that for Piping there is already a predefined system in
-    `geoprob_pipe.calculations.system_calculations.piping_system`.
-
-    Usage by
-    - Calling the object;
-    - inserting the system setup variable that initatiates all variable names;
-    - inserting the variable distributions;
-    - inserting the system models, i.e. the parallel limit states;
-    - and after that calling the run-method.
-
-    >>> obj = ParallelSystemReliabilityCalculation(
-    ...     system_variables_setup_function=system_variable_setup,
-    ...     system_variable_distributions=[
-    ...         {
-    ...             "name": "a",
-    ...             "distribution_type": DistributionType.uniform,
-    ...             "minimum": -1,
-    ...             "maximum": 1,
-    ...         },
-    ...         ...,
-    ...     ],
-    ...     system_models=[limit_state_example_1, limit_state_example_2]
-    ... )
-    >>> obj.run()
-    """
+    """ Pre-defined system reliability calculation for parallel systems. """
 
     def __init__(
             self,
@@ -49,12 +23,13 @@ class SystemCalculation:
     ):
         """
 
-        :param system_variables_setup_function: Dummy functie waarmee
-            variabele namen worden geïnitieerd.
-        :param system_variable_distributions:
-        :param system_models:
+        :param distributions:
+        :param correlations:
         :param project_settings: ReliabilityProject settings for the limit
             state design points.
+        :param limit_states:
+        :param variables_setup_function: Dummy functie waarmee variabele namen
+            worden geïnitieerd.
         """
 
         # Mutable arguments

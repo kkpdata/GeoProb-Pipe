@@ -142,37 +142,45 @@ def request_vakindeling_filepath(app_settings: ApplicationSettings):
 
 
 def validate_vakindeling(app_settings: ApplicationSettings, gdf: GeoDataFrame):
-    """ Validates the vakindeling shape, with some conversions if they can applied safely. """
+    """ Validates the vakindeling shape, with some conversions if they can be
+    applied safely. """
     gdf = convert_mls_geom_column_to_ls(gdf=gdf)
     assert gdf.geometry.apply(lambda geom: isinstance(geom, LineString)).all(), \
-        "De opgegeven vakindeling heeft niet voor elk vak een geometry. De applicatie sluit nu af."
+        ("De opgegeven vakindeling heeft niet voor elk vak een geometry. De "
+         "applicatie sluit nu af.")
     specify_column_with_vaknaam(app_settings, gdf=gdf)
 
 
-def specify_column_with_vaknaam(app_settings: ApplicationSettings, gdf: GeoDataFrame):
+def specify_column_with_vaknaam(
+        app_settings: ApplicationSettings, gdf: GeoDataFrame):
     column_name: Optional[str] = None
     column_name_is_valid = False
     while column_name_is_valid is False:
         column_name: str = inquirer.text(
-            message="Specificeer de kolom waarin de vaknaam staat. Type 'listcolumns' om "
-                    "een overzicht te krijgen van de kolommen. ",
+            message="Specificeer de kolom waarin de vaknaam staat. Type "
+                    "'listcolumns' om een overzicht te krijgen van de "
+                    "kolommen. ",
         ).execute()
 
         column_names = gdf.columns
         columns_str = ", ".join(column_names)
         if column_name == "listcolumns":
             print(BColors.OKBLUE,
-                  f"De volgende kolommen zijn beschikbaar in de spatial layer: {columns_str}", BColors.ENDC)
+                  f"De volgende kolommen zijn beschikbaar in de spatial "
+                  f"layer: {columns_str}", BColors.ENDC)
             continue
         elif column_name not in column_names:
-            print(BColors.OKBLUE, f"De kolom naam '{column_name}' bestaat niet. De volgende kolommen zijn beschikbaar "
-                                  f"in de spatial layer: {columns_str}", BColors.ENDC)
+            print(BColors.OKBLUE,
+                  f"De kolom naam '{column_name}' bestaat niet. De volgende "
+                  f"kolommen zijn beschikbaar in de spatial layer: "
+                  f"{columns_str}", BColors.ENDC)
             continue
 
         column_name_is_valid = True
 
     column_name: str
-    specify_column_with_vak_id(app_settings, gdf=gdf, kolom_vak_naam=column_name)
+    specify_column_with_vak_id(
+        app_settings, gdf=gdf, kolom_vak_naam=column_name)
 
 
 def is_numeric_integer(val):
@@ -182,51 +190,60 @@ def is_numeric_integer(val):
         return False
 
 
-def specify_column_with_vak_id(app_settings: ApplicationSettings, gdf: GeoDataFrame, kolom_vak_naam: str):
+def specify_column_with_vak_id(
+        app_settings: ApplicationSettings, gdf: GeoDataFrame,
+        kolom_vak_naam: str):
     kolom_vak_id: Optional[str] = None
     column_name_is_valid = False
     while column_name_is_valid is False:
         kolom_vak_id: str = inquirer.text(
-            message="Specificeer de kolom waarin het vak id staat. Indien onnodig, type 'nvt'. Type 'listcolumns' om "
-                    "een overzicht te krijgen van de kolommen. ",
+            message="Specificeer de kolom waarin het vak id staat. Indien "
+                    "onnodig, type 'nvt'. Type 'listcolumns' om een overzicht "
+                    "te krijgen van de kolommen. ",
         ).execute()
 
         column_names = gdf.columns
         columns_str = ", ".join(column_names)
         if kolom_vak_id.lower() == "nvt":
             align_vak_shp_to_dijktraject(
-                app_settings, gdf_vakindeling=gdf, kolom_vak_naam=kolom_vak_naam, kolom_vak_id=None)
+                app_settings, gdf_vakindeling=gdf,
+                kolom_vak_naam=kolom_vak_naam, kolom_vak_id=None)
             return
         elif kolom_vak_id == "listcolumns":
             print(BColors.OKBLUE,
-                  f"De volgende kolommen zijn beschikbaar in de spatial layer: {columns_str}", BColors.ENDC)
+                  f"De volgende kolommen zijn beschikbaar in de spatial "
+                  f"layer: {columns_str}", BColors.ENDC)
             continue
         elif kolom_vak_id not in column_names:
-            print(BColors.OKBLUE, f"De kolom naam '{kolom_vak_id}' bestaat niet. De volgende kolommen zijn beschikbaar "
-                                  f"in de spatial layer: {columns_str}", BColors.ENDC)
+            print(f"{BColors.OKBLUE}De kolom naam '{kolom_vak_id}' bestaat "
+                  f"niet. De volgende kolommen zijn beschikbaar in de spatial "
+                  f"layer: {columns_str}{BColors.ENDC}")
             continue
 
         # Ensure column values are unique and integers
         if gdf[kolom_vak_id].__len__() != gdf[kolom_vak_id].unique().__len__():
-            print(BColors.OKBLUE, f"De waarden in deze kolom zijn niet uniek. Corrigeer de dubbelingen, of kies een "
-                                  f"andere kolom.", BColors.ENDC)
+            print(f"{BColors.OKBLUE}De waarden in deze kolom zijn niet uniek. "
+                  f"Corrigeer de dubbelingen, of kies een andere kolom."
+                  f"{BColors.ENDC}")
             continue
 
         elif not gdf[kolom_vak_id].apply(is_numeric_integer).all():
-            print(BColors.OKBLUE, f"De waarden in deze kolom zijn niet allen volledige getallen (integers). "
-                                  f"Corrigeer de kolom, of kies een andere.", BColors.ENDC)
+            print(f"{BColors.OKBLUE}De waarden in deze kolom zijn niet allen "
+                  f"volledige getallen (integers). Corrigeer de kolom, of "
+                  f"kies een andere.{BColors.ENDC}")
             continue
 
         column_name_is_valid = True
 
     kolom_vak_id: str
     align_vak_shp_to_dijktraject(
-        app_settings, gdf_vakindeling=gdf, kolom_vak_naam=kolom_vak_naam, kolom_vak_id=kolom_vak_id)
+        app_settings, gdf_vakindeling=gdf, kolom_vak_naam=kolom_vak_naam,
+        kolom_vak_id=kolom_vak_id)
 
 
 def align_vak_shp_to_dijktraject(
-        app_settings: ApplicationSettings, gdf_vakindeling: GeoDataFrame , kolom_vak_naam: str, kolom_vak_id: Optional[str] = None
-):
+        app_settings: ApplicationSettings, gdf_vakindeling: GeoDataFrame ,
+        kolom_vak_naam: str, kolom_vak_id: Optional[str] = None):
 
     # Get dijktraject linestring
     ls_dijktraject = load_dijktraject_linestring(app_settings=app_settings)
@@ -266,8 +283,11 @@ def align_vak_shp_to_dijktraject(
     gdf_new_vakindeling = GeoDataFrame(rows, crs='EPSG:28992')
     if not kolom_vak_id:
         gdf_new_vakindeling['id'] = gdf_new_vakindeling.index + 1
-    gdf_new_vakindeling: GeoDataFrame = gdf_new_vakindeling[["id", "naam", "m_start", "m_end", "geometry"]]
+    gdf_new_vakindeling: GeoDataFrame = gdf_new_vakindeling[
+        ["id", "naam", "m_start", "m_end", "geometry"]]
 
     # Add to geopackage
-    gdf_new_vakindeling.to_file(Path(app_settings.geopackage_filepath), layer="vakindeling", driver="GPKG")
+    gdf_new_vakindeling.to_file(
+        Path(app_settings.geopackage_filepath),
+        layer="vakindeling", driver="GPKG")
     print(BColors.OKBLUE, f"✅  Vakindeling toegevoegd.", BColors.ENDC)

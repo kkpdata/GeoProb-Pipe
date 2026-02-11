@@ -147,7 +147,7 @@ def check_hrd_frag_lines_added_to_geopackage(app_settings: ApplicationSettings):
     for index, location_name in enumerate(location_names):
 
         # Status report
-        if time.time() - last_report >= 10:
+        if time.time() - last_report >= 10.0:
             print(f"Bezig met locatie {index+1} ({location_name}) van in totaal {location_names.__len__()} locaties.")
             last_report = time.time()
 

@@ -68,11 +68,8 @@ class GeoProbPipe:
     #     time.sleep(1)  # Some time to make sure the print below, is printed after the logger print.
 
     def _export_validation_messages(self):
-
-        # Gather validation messages from software requirements
-        df_val: Optional[pd.DataFrame] = self.software_requirements.validation_messages.concat_with_df()
-
         # Gather validation messages from calculations
+        df_val: Optional[pd.DataFrame] = None
         [result.validation_message.concat_with_df(df_to_append_to=df_val) for result in self.calc_results
          if result.validation_message is not None]
 

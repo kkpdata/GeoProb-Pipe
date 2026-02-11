@@ -62,8 +62,6 @@ class Results:
             bool_beta_uittredepunten: bool = True,
             bool_beta_vakken: bool = True):
 
-        df: Optional[DataFrame] = None
-
         # Results of limit state calculations
         if bool_beta_limit_states:
             df = self.df_beta_limit_states
