@@ -87,7 +87,7 @@ class SystemCalculation:
         self.project.settings.reliability_method = 'form'
         self.project.settings.variation_coefficient = 0.02
         self.project.settings.maximum_iterations = 1000
-        self.project.settings.relaxation_factor = 0.75
+        self.project.settings.relaxation_factor = 0.40
 
     def _apply_settings(self):
         """
