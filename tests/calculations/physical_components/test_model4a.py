@@ -1,6 +1,5 @@
 import pytest
-
-from . import model4a
+from geoprob_pipe.calculations.physical_components import model4a
 
 ## testcase model 4a
 # k = 40 #m/d

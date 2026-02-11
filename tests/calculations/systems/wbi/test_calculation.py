@@ -6,9 +6,9 @@ def test_calculation():
     from probabilistic_library import Alpha
     from geoprob_pipe.calculations.systems.wbi.reliability_calculation import  (
         WBICalculation)
-    from tests.calculations.system_calculations.wbi.dummy_input import DUMMY_INPUT
+    from geoprob_pipe.calculations.systems.wbi.initial_input import INITIAL_INPUT
 
-    obj = WBICalculation(system_variable_distributions=DUMMY_INPUT)
+    obj = WBICalculation(system_variable_distributions=INITIAL_INPUT)
 
     # Run prob system
     obj.run()

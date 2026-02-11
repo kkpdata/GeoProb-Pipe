@@ -1,6 +1,6 @@
 import math
 import pytest
-from . import geohydro_functions
+from geoprob_pipe.calculations.physical_components import geohydro_functions
 
 ## testcase model 4a
 # k = 40 #m/d

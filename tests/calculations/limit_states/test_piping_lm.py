@@ -9,8 +9,9 @@ from pathlib import Path
 
 import pytest
 
-from ...geoprob_pipe.calculations.limit_states import piping_lm
-from ...geoprob_pipe.calculations.system_calculations.system_calculation_mapper import SYSTEM_CALCULATION_MAPPER
+from geoprob_pipe.calculations.limit_states import piping_lm
+from geoprob_pipe.calculations.systems.mappers.calculation_mapper import (
+    CALCULATION_MAPPER)
 
 testset_path = Path(
     Path(__file__).resolve(strict=True).parents[3],
@@ -29,97 +30,31 @@ def get_data():
 
 # define input and output keys
 input_keys_lm_wbi = [
-    "L_kwelweg",
-    "buitenwaterstand",
-    "polderpeil",
-    "mv_exit",
-    "top_zand",
-    "r_exit",
-    "k_wvp",
-    "D_wvp",
-    "d70",
-    "gamma_sat_deklaag",
-    "modelfactor_u",
-    "modelfactor_h",
-    "modelfactor_p",
-    "modelfactor_ff",
-    "modelfactor_3d",
-    "modelfactor_aniso",
-    "modelfactor_ml",
-    "i_c_h",
-    "r_c_deklaag",
-    "d70_m",
-    "gamma_korrel",
-    "v",
-    "theta",
-    "eta",
-    "g",
-    "gamma_water",
+    "L_kwelweg", "buitenwaterstand", "polderpeil", "mv_exit", "top_zand",
+    "r_exit", "k_wvp", "D_wvp", "d70", "gamma_sat_deklaag", "modelfactor_u",
+    "modelfactor_h", "modelfactor_p", "modelfactor_ff", "modelfactor_3d",
+    "modelfactor_aniso", "modelfactor_ml", "i_c_h", "r_c_deklaag", "d70_m",
+    "gamma_korrel", "v", "theta", "eta", "g", "gamma_water",
 ]
 
 output_keys_lm_wbi = [
-    "z_u",
-    "z_h",
-    "z_p",
-    "z_combin",
-    "h_exit",
-    "phi_exit",
-    "dphi_c_u",
-    "i_exit",
-    "dh_c",
-    "dh_red",
+    "z_u", "z_h", "z_p", "z_combin", "h_exit", "phi_exit", "dphi_c_u",
+    "i_exit", "dh_c", "dh_red",
 ]
 
 input_keys_lm_model4a = [
-    "L_intrede",
-    "L_but",
-    "L_bit",
-    "L_achterland",
-    "buitenwaterstand",
-    "polderpeil",
-    "mv_exit",
-    "top_zand",
-    "kD_wvp",
-    "D_wvp",
-    "d70",
-    "gamma_sat_deklaag",
-    "c_voorland",
-    "c_achterland",
-    "modelfactor_u",
-    "modelfactor_h",
-    "modelfactor_p",
-    "modelfactor_ff",
-    "modelfactor_3d",
-    "modelfactor_aniso",
-    "modelfactor_ml",
-    "i_c_h",
-    "r_c_deklaag",
-    "d70_m",
-    "gamma_korrel",
-    "v",
-    "theta",
-    "eta",
-    "g",
-    "gamma_water",
+    "L_intrede", "L_but", "L_bit", "L_achterland", "buitenwaterstand",
+    "polderpeil", "mv_exit", "top_zand", "kD_wvp", "D_wvp", "d70",
+    "gamma_sat_deklaag", "c_voorland", "c_achterland", "modelfactor_u",
+    "modelfactor_h", "modelfactor_p", "modelfactor_ff", "modelfactor_3d",
+    "modelfactor_aniso", "modelfactor_ml", "i_c_h", "r_c_deklaag", "d70_m",
+    "gamma_korrel", "v", "theta", "eta", "g", "gamma_water",
 ]
 
 output_keys_lm_model4a = [
-    "z_u",
-    "z_h",
-    "z_p",
-    "z_combin",
-    "h_exit",
-    "r_exit",
-    "phi_exit",
-    "d_deklaag",
-    "dphi_c_u",
-    "i_exit",
-    "L_voorland",
-    "lambda_voorland",
-    "W_voorland",
-    "L_kwelweg",
-    "dh_c",
-    "dh_red",
+    "z_u", "z_h", "z_p", "z_combin", "h_exit", "r_exit", "phi_exit",
+    "d_deklaag", "dphi_c_u", "i_exit", "L_voorland", "lambda_voorland",
+    "W_voorland", "L_kwelweg", "dh_c", "dh_red",
 ]
 
 input_keys_lm_moria = [
@@ -199,7 +134,8 @@ inputs_lm_wbi = test_data.loc[:, input_keys_lm_wbi]
 # inputs_lm_wbi["d70_m"] = D70_M
 
 inputs_lm_wbi_dict = inputs_lm_wbi.to_dict(orient="records")
-expected_outputs_lm_wbi = test_data[output_keys_lm_wbi].to_dict(orient="records")
+expected_outputs_lm_wbi = test_data[output_keys_lm_wbi].to_dict(
+    orient="records")
 
 
 @pytest.mark.parametrize(
@@ -248,7 +184,8 @@ def test_limit_state_wbi(input_data, expected):
 
 
 # extract inputs and expected outputs for limit state_model4a
-inputs_lm_model4a = test_data.loc[:, input_keys_lm_model4a].to_dict(orient="records")
+inputs_lm_model4a = test_data.loc[:, input_keys_lm_model4a].to_dict(
+    orient="records")
 expected_outputs_lm_model4a = test_data[output_keys_lm_model4a].to_dict(
     orient="records"
 )
@@ -310,8 +247,10 @@ def test_limit_state_model4a(input_data, expected):
 
 
 # extract inputs and expected outputs for limit_state_moria
-inputs_lm_moria = test_data.loc[:, input_keys_lm_moria].to_dict(orient="records")
-expected_outputs_lm_moria = test_data[output_keys_lm_moria].to_dict(orient="records")
+inputs_lm_moria = test_data.loc[:, input_keys_lm_moria].to_dict(
+    orient="records")
+expected_outputs_lm_moria = test_data[output_keys_lm_moria].to_dict(
+    orient="records")
 
 
 @pytest.mark.parametrize(
@@ -320,6 +259,6 @@ expected_outputs_lm_moria = test_data[output_keys_lm_moria].to_dict(orient="reco
 def test_limit_state_moria(input_data, expected):
     """Test limit_state_moria function"""
     results = piping_lm.limit_state_moria(**input_data)
-    result_keys = SYSTEM_CALCULATION_MAPPER["moria"]["system_return_parameter_keys"]
+    result_keys = CALCULATION_MAPPER["moria"]["system_return_parameter_keys"]
     for index, result_key in enumerate(result_keys):
         assert results[index] == pytest.approx(expected[result_key], rel=1e-3)

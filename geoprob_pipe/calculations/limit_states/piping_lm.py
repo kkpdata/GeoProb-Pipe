@@ -12,38 +12,21 @@ import geoprob_pipe.calculations.physical_components.piping as pc_piping
 
 # noinspection PyPep8Naming
 def limit_state_wbi(
-    # Geometry parameters
-    L_kwelweg: float,
-    # Boundary condition parameters
-    buitenwaterstand: float,
-    polderpeil: float,
-    mv_exit: float,
-    # Subsoil property parameters
-    top_zand: float,
-    r_exit: float,
-    k_wvp: float,
-    D_wvp: float,
-    d70: float,
-    gamma_sat_deklaag: float,
-    # Model property parameters
-    modelfactor_u: float,
-    modelfactor_h: float,
-    modelfactor_p: float,
-    modelfactor_ff: float,
-    modelfactor_3d: float,
-    modelfactor_aniso: float,
-    modelfactor_ml: float,
-    i_c_h: float,
-    r_c_deklaag: float,
-    # Overige parameters
-    gamma_water: float,
-    # Constants  # TODO: Ombouwen tot globals
-    d70_m: float,
-    gamma_korrel: float,
-    v: float,
-    theta: float,
-    eta: float,
-    g: float,
+        # Geometry parameters
+        L_kwelweg: float,
+        # Boundary condition parameters
+        buitenwaterstand: float, polderpeil: float, mv_exit: float,
+        # Subsoil property parameters
+        top_zand: float, r_exit: float, k_wvp: float, D_wvp: float, d70: float,
+        gamma_sat_deklaag: float,
+        # Model property parameters
+        modelfactor_u: float, modelfactor_h: float, modelfactor_p: float,
+        modelfactor_ff: float, modelfactor_3d: float, modelfactor_aniso: float,
+        modelfactor_ml: float, i_c_h: float, r_c_deklaag: float,
+        # Overige parameters
+        gamma_water: float,
+        # Constants  # TODO: Ombouwen tot globals
+        d70_m: float, gamma_korrel: float, v: float, theta: float, eta: float, g: float,
 ) -> Tuple[float, ...]:
     """Grenstoestandsfuncties volgens het standaard WBI-model.
 

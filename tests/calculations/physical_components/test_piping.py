@@ -1,8 +1,7 @@
 """Test module for piping.py"""
 
 import pytest
-
-from . import piping
+from geoprob_pipe.calculations.physical_components import piping
 
 ## testcase model 4a
 # k = 40 #m/d
