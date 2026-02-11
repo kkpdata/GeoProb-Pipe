@@ -23,7 +23,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements_testing.txt ]; then pip install -r requirements_testing.txt; fi
-          pip install pytest coverage coverage-badge pkg_resources
+          pip install pytest coverage coverage-badge setuptools<82.0.0
 
       - name: Run tests with coverage
         run: |
