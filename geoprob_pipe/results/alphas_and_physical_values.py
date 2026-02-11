@@ -65,7 +65,8 @@ def calculate_derived_values(df_scenarios: DataFrame,
     # Get kwargs per calculation
     df = df_scenarios.copy(deep=True)
     df['physical_values'] = df['system_calculation'].apply(
-        lambda sc: {alpha.variable.name: alpha.x for alpha in sc.system_design_point.alphas}
+        lambda sc: {alpha.variable.name: alpha.x
+                    for alpha in sc.system_design_point.alphas}
     )
 
     # Calculate the derived values

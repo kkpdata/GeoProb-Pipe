@@ -28,14 +28,20 @@ def collect_df_beta_limit_state(calculation: SystemCalculation) -> pd.DataFrame:
         }
 
     rows = []
-    for design_point, model in zip(calculation.model_design_points, calculation.given_limit_states):
-        rows.append(create_row(calc=calculation, dp=design_point, model_name=model.__name__))
-    df = pd.DataFrame(rows).sort_values(by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+    for design_point, model in zip(
+            calculation.model_design_points, calculation.given_ls_separate):
+        rows.append(create_row(
+            calc=calculation, dp=design_point, model_name=model.__name__))
+    df = pd.DataFrame(rows).sort_values(by=[
+        "uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(
+        drop=True)
     return df
 
 
-def combine_df_beta_per_limit_state(calc_results: List[CalcResult]) -> pd.DataFrame:
-    df = pd.concat((result.df_limit_state for result in calc_results), ignore_index=True)
+def combine_df_beta_per_limit_state(
+        calc_results: List[CalcResult]) -> pd.DataFrame:
+    df = pd.concat((result.df_limit_state for result in calc_results),
+                   ignore_index=True)
     return df
 
 
@@ -44,7 +50,8 @@ def collect_df_beta_scenario(calc: SystemCalculation) -> pd.DataFrame:
     def create_row(calculation):
         return {
             "uittredepunt_id": calculation.metadata["uittredepunt_id"],
-            "ondergrondscenario_id": calculation.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
+            "ondergrondscenario_id":
+                calculation.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
             "vak_id": calculation.metadata["vak_id"],
             "system_calculation": calculation,
             "converged": calculation.system_design_point.is_converged,
@@ -62,13 +69,18 @@ def collect_df_beta_scenario(calc: SystemCalculation) -> pd.DataFrame:
     return pd.DataFrame([row])
 
 
-def combine_df_beta_per_scenario(calc_results: List[CalcResult]) -> pd.DataFrame:
-    df = pd.concat((result.df_scenario for result in calc_results), ignore_index=True)
-    df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+def combine_df_beta_per_scenario(
+        calc_results: List[CalcResult]) -> pd.DataFrame:
+    df = pd.concat((
+        result.df_scenario for result in calc_results), ignore_index=True)
+    df = df.sort_values([
+        "uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(
+        drop=True)
     return df
 
 
-def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> pd.DataFrame:
+def calculate_df_beta_per_uittredepunt(
+        geoprob_pipe: GeoProbPipe, results: Results) -> pd.DataFrame:
 
     # Sum
     df = results.df_beta_scenarios.assign(
@@ -77,7 +89,8 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
                 vak_id=row['vak_id'], scenario_naam=row['ondergrondscenario_id']
             ), axis=1)).groupby('uittredepunt_id', as_index=False)[
         'failure_probability'].sum()
-    df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
+    df["beta"] = df["failure_probability"].apply(
+        lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
 
     # Determine when uittredepunt is converged (when all scenarios are converged)
     conv = results.df_beta_scenarios.groupby(
@@ -87,21 +100,28 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     # Add vak id back to it
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df_uittredepunten = gdf_uittredepunten[["uittredepunt_id", "vak_id"]]
-    df = df.merge(df_uittredepunten, left_on="uittredepunt_id", right_on="uittredepunt_id")
+    df = df.merge(
+        df_uittredepunten, left_on="uittredepunt_id",
+        right_on="uittredepunt_id")
 
-    return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability"]]
+    return df[[
+        "uittredepunt_id", "vak_id", "converged",
+        "beta", "failure_probability"]]
 
 
 def construct_df_beta_per_vak(results: Results):
 
     # TODO: Check if all calculations on scenario level are converged?
-    conv = results.df_beta_scenarios.groupby('vak_id', as_index=False)["converged"].all()
+    conv = results.df_beta_scenarios.groupby('vak_id', as_index=False)
+    conv = conv["converged"].all()
 
     # TODO: Wat doet dit stukje code?
     df = results.df_beta_uittredepunten
     df = df.drop(columns=["converged"])  # TODO: Waarom drop converged?
-    df = df.loc[df.groupby('vak_id')['beta'].idxmin()]  # Minimale beta van beta uittredepunten per vak
+    df = df.loc[df.groupby('vak_id')['beta'].idxmin()]
+    # '> Minimale beta van beta uittredepunten per vak
 
     # TODO: Waarom de merge?
     df = df.merge(conv, on="vak_id", how="left")
-    return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability"]]
+    return df[["uittredepunt_id", "vak_id", "converged", "beta",
+               "failure_probability"]]

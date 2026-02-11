@@ -20,4 +20,4 @@ class WBICalculation(SystemCalculation):
             correlations=system_variable_correlations
         )
         self.given_variables_setup_function = system_variable_setup
-        self.given_limit_states = [calc_Z_u, calc_Z_h, calc_Z_p]
+        self.given_ls_separate = [calc_Z_u, calc_Z_h, calc_Z_p]

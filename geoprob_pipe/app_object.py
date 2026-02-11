@@ -28,7 +28,6 @@ if TYPE_CHECKING:
 
 class GeoProbPipe:
     """ GeoProb-Pipe application object. """
-    # TODO Later Could Groot: Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze.
 
     def __init__(self, app_settings: ApplicationSettings) -> None:
 
@@ -47,15 +46,15 @@ class GeoProbPipe:
         # self._read_calculation_settings()  # TODO: Not part of new version
         # TODO: Unsure if the single statement belongs here. Wouldn't it be part of input data?
 
-        self.calc_results: List[CalcResult] = build_and_run_system_calculations(self)
+        self.calc_results: List[CalcResult] = (
+            build_and_run_system_calculations(self))
         self.results = Results(self)
 
         # Log finish
         self.time_end = datetime.now()
         self.time_diff = self.time_end - self.time_start
-        logger.info(f"Calculations were performed successfully in {int(self.time_diff.total_seconds())} seconds.")
-
-        
+        logger.info(f"Calculations were performed successfully in "
+                    f"{int(self.time_diff.total_seconds())} seconds.")
 
         # Append logic classes
         self.visualizations = Visualizations(self)

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from geoprob_pipe.results.construct_dataframes import (
     combine_df_beta_per_limit_state, combine_df_beta_per_scenario, calculate_df_beta_per_uittredepunt,
     construct_df_beta_per_vak)
+from geoprob_pipe.results.df_beta_scenario_v2 import combine_df_beta_per_scenario_v2
 from geoprob_pipe.results.alphas_and_physical_values import construct_df
 import os
 if TYPE_CHECKING:
@@ -17,6 +18,7 @@ class Results:
         self.geoprob_pipe = geoprob_pipe
         self.df_beta_limit_states = combine_df_beta_per_limit_state(geoprob_pipe.calc_results)
         self.df_beta_scenarios = combine_df_beta_per_scenario(geoprob_pipe.calc_results)
+        self.df_beta_scenarios_v2 = combine_df_beta_per_scenario_v2(geoprob_pipe.calc_results)
         self._df_alphas_influence_factors_and_physical_values: Optional[DataFrame] = None
         self.df_beta_uittredepunten = calculate_df_beta_per_uittredepunt(geoprob_pipe=geoprob_pipe, results=self)
         self.df_beta_vakken = construct_df_beta_per_vak(self)
@@ -73,6 +75,8 @@ class Results:
         if bool_beta_scenarios:
             df = self.df_beta_scenarios
             df.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_scenarios.xlsx"))
+            df = self.df_beta_scenarios_v2
+            df.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_scenarios_v2.xlsx"))
 
         if bool_alphas_influence_factors_and_physical_values:
             df = self.df_alphas_influence_factors_and_physical_values()

@@ -8,6 +8,8 @@ import math
 from dataclasses import dataclass
 from geoprob_pipe.results.construct_dataframes import (
     collect_df_beta_limit_state, collect_df_beta_scenario)
+from geoprob_pipe.results.df_beta_scenario_v2 import (
+    collect_df_beta_scenario_v2)
 from geoprob_pipe.results.alphas_and_physical_values import (
     collect_stochast_values, calculate_derived_values)
 # noinspection PyPep8Naming
@@ -37,6 +39,7 @@ class CalcResult:
     """
     df_limit_state: DataFrame
     df_scenario: DataFrame
+    df_scenario_v2: DataFrame
     df_stochast: DataFrame
     df_derived: DataFrame
     validation_message: ValidationMessages
@@ -67,13 +70,16 @@ def _worker(row_unique: dict):
     # Collect results
     df_limit_state = collect_df_beta_limit_state(calc)
     df_scenario = collect_df_beta_scenario(calc)
+    df_scenario_v2 = collect_df_beta_scenario_v2(calc)
     df_stochast = collect_stochast_values(calc)
     df_derived = calculate_derived_values(df_scenario, _MODEL)
     df_scenario = df_scenario.drop(columns=["system_calculation"])
+    df_scenario_v2 = df_scenario_v2.drop(columns=["system_calculation"])
 
     # Return results (without calculation object)
-    return CalcResult(df_limit_state, df_scenario, df_stochast, df_derived,
-                      calc.validation_messages)
+    return CalcResult(
+        df_limit_state, df_scenario, df_scenario_v2, df_stochast,
+        df_derived, calc.validation_messages)
 
 
 def build_and_run_system_calculations(

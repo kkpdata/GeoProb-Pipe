@@ -25,4 +25,4 @@ class Model4aCalculation(SystemCalculation):
             project_settings=project_settings,
             correlations=system_variable_correlations)
         self.given_variables_setup_function = limit_state_model4a
-        self.given_limit_states = [calc_Z_u, calc_Z_h, calc_Z_p]
+        self.given_ls_separate = [calc_Z_u, calc_Z_h, calc_Z_p]

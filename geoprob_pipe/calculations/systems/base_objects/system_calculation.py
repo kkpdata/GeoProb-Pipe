@@ -18,8 +18,8 @@ class SystemCalculation:
             correlations: List[Tuple[str, str, float]],
             project_settings: Dict[str, Union[str, float, int]],
             # For assigning in children
-            limit_states: Optional[List[Callable]] = None,
-            combin_limit_state: Optional[Callable] = None,
+            ls_separate: Optional[List[Callable]] = None,
+            ls_single: Optional[Callable] = None,
             variables_setup_function: Optional[Callable] = None
     ):
         """
@@ -28,7 +28,13 @@ class SystemCalculation:
         :param correlations:
         :param project_settings: ReliabilityProject settings for the limit
             state design points.
-        :param limit_states:
+        :param ls_separate: Limit states (plural) for Uplift, Heave and
+            Sellmeijer that will be calculated separately in
+            ReliabilityProjects and then combined in a CombineProject.
+        :param ls_single: Limit state (singular) that has already combined
+            Uplift, Heave and Sellmeijer in its function, and will be
+            calculated as ReliabilityProject. According to Deltares this
+            method is preferential to ls_separate.
         :param variables_setup_function: Dummy functie waarmee variabele namen
             worden geïnitieerd.
         """
@@ -47,20 +53,17 @@ class SystemCalculation:
             project_settings)
         self.given_variables_setup_function: Callable = cast(
             Callable, variables_setup_function)
-        self.given_limit_states: List[Callable] = cast(
-            List[Callable], limit_states)
-        # self.given_combin_limit_state: Callable = cast(
-        #     Callable, combin_limit_state)
+        self.given_ls_separate: List[Callable] = cast(
+            List[Callable], ls_separate)
+        self.given_ls_single: Callable = cast(Callable, ls_single)
         self.given_distributions: List[Dict] = distributions
         self.given_correlations: List[Tuple[str, str, float]] = correlations
         # TODO Nu Should Klein: I.p.v. dict maak gebruik van
         # Distributie-objecten. Minder fout gevoelig.
 
         # Placeholders
-        # self.project: Optional[ReliabilityProject] = None
         self.model_design_points: List[DesignPoint] = []
-        # self.combine_project: Optional[CombineProject] = None
-        # self.system_design_point: Optional[DesignPoint] = None
+        self.single_design_point: Optional[DesignPoint] = None
 
     def run(self):
         """ Performs all logic of the system reliability calculation.
@@ -71,6 +74,7 @@ class SystemCalculation:
         self._assign_project_correlations()
         self._generate_model_design_points()
         self._generate_system_design_point()
+        self._generate_single_design_point()
 
     def _setup_project(self):
         """ Sets up the ReliabilityProject-object. This will be used
@@ -158,7 +162,7 @@ class SystemCalculation:
             ] = correlation[2]   # Correlation value between 0.0 and 1.0
 
     def _generate_model_design_points(self):
-        for model_callable in self.given_limit_states:
+        for model_callable in self.given_ls_separate:
             self.project.model = model_callable
             self._assign_project_correlations()
             self.project.run()
@@ -176,11 +180,15 @@ class SystemCalculation:
         self.combine_project.design_point.identifier = "system"
         self.system_design_point = self.combine_project.design_point
 
+    def _generate_single_design_point(self):
+        model_callable = self.given_ls_single
+        self.project.model = model_callable
+        self._assign_project_correlations()
+        self.project.run()
+        design_point = self.project.design_point
+        design_point.identifier = model_callable.__name__
+        self.single_design_point = design_point
+
 
 def _system_variable_keys(self: SystemCalculation) -> List[str]:
-    return_array = []
-    for item in self.given_distributions:
-        print(f"{item=}")
-        return_array.append(item['name'])
-    return return_array
-    # return [item['name'] for item in self.given_distributions]
+    return [item['name'] for item in self.given_distributions]
