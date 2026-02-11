@@ -58,66 +58,29 @@ def limit_state_wbi(
     :param g:
     :return:
     """
-    # d_deklaag
-    d_deklaag = pc_piping.calc_d_deklaag(mv_exit=mv_exit,
-                                         top_zand=top_zand)
-
-    # phi_exit
+    d_deklaag = pc_piping.calc_d_deklaag(mv_exit=mv_exit, top_zand=top_zand)
     phi_exit = pc_piping.calc_phi_exit(
         polderpeil=polderpeil, r_exit=r_exit,
-        buitenwaterstand=buitenwaterstand
-    )
-    # h_exit
+        buitenwaterstand=buitenwaterstand)
     h_exit = pc_piping.calc_h_exit(polderpeil=polderpeil, mv_exit=mv_exit)
-    # dc_phi_c_u
     dphi_c_u = pc_piping.calc_dphi_c_u(
-        d_deklaag=d_deklaag,
-        gamma_sat_deklaag=gamma_sat_deklaag,
-        gamma_water=gamma_water,
-    )
-    # i_exit
+        d_deklaag=d_deklaag, gamma_sat_deklaag=gamma_sat_deklaag,
+        gamma_water=gamma_water)
     i_exit = pc_piping.calc_i_exit(
-        phi_exit=phi_exit, h_exit=h_exit, d_deklaag=d_deklaag
-    )
-    # dh_c
+        phi_exit=phi_exit, h_exit=h_exit, d_deklaag=d_deklaag)
     dh_c = pc_piping.calc_dh_c(
-        d70=d70,
-        D_wvp=D_wvp,
-        kD_wvp=k_wvp * D_wvp,
-        L_kwelweg=L_kwelweg,
-        gamma_water=gamma_water,
-        g=g,
-        v=v,
-        theta=theta,
-        eta=eta,
-        d70_m=d70_m,
-        gamma_korrel=gamma_korrel,
-    )
-    # dh_red
+        d70=d70, D_wvp=D_wvp, kD_wvp=k_wvp * D_wvp, L_kwelweg=L_kwelweg,
+        gamma_water=gamma_water, g=g, v=v, theta=theta, eta=eta, d70_m=d70_m,
+        gamma_korrel=gamma_korrel)
     dh_red = pc_piping.calc_dh_red(
-        buitenwaterstand=buitenwaterstand,
-        h_exit=h_exit,
-        r_c_deklaag=r_c_deklaag,
-        d_deklaag=d_deklaag,
-    )
-    # z_u
+        buitenwaterstand=buitenwaterstand, h_exit=h_exit,
+        r_c_deklaag=r_c_deklaag, d_deklaag=d_deklaag)
     z_u = modelfactor_u * dphi_c_u - (phi_exit - h_exit)
-    # z_h
     z_h = (modelfactor_h * i_c_h) - i_exit
-    # z_p
-    z_p = (
-        modelfactor_p
-        * modelfactor_ff
-        * modelfactor_3d
-        * modelfactor_aniso
-        * modelfactor_ml
-        * dh_c
-    ) - dh_red
-    # z_combin
+    z_p = (modelfactor_p * modelfactor_ff * modelfactor_3d * modelfactor_aniso * modelfactor_ml * dh_c) - dh_red
     z_combin = max(z_u, z_h, z_p)
-
-    return (z_u, z_h, z_p, z_combin, h_exit, phi_exit,
-            dphi_c_u, i_exit, dh_c, dh_red)
+    return (z_u, z_h, z_p, z_combin, h_exit, phi_exit, dphi_c_u, i_exit,
+            dh_c, dh_red)
 
 
 # Define the input variables for the model4 limit state
