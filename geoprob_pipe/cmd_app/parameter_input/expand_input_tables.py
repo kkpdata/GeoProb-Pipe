@@ -197,7 +197,7 @@ def _gather_required_input_parameters(geopackage_filepath: str) -> List[str]:
         raise ValueError
     model_string = result[0]
     conn.close()
-    df_dummy_data = DataFrame(INITIAL_INPUT_MAPPER[model_string]['dummy_invoer'])
+    df_dummy_data = DataFrame(INITIAL_INPUT_MAPPER[model_string]['input'])
 
     _ = df_dummy_data.sort_values(by=["name"])
     df_dummy_data = df_dummy_data.sort_values(by=["name"])

@@ -54,7 +54,7 @@ def export_input_parameter_tables(app_settings: ApplicationSettings, tables: Inp
         raise ValueError
     model_string = result[0]
     conn.close()
-    df_dummy_data = DataFrame(INITIAL_INPUT_MAPPER[model_string]['dummy_invoer'])
+    df_dummy_data = DataFrame(INITIAL_INPUT_MAPPER[model_string]['input'])
     df_dummy_data = df_dummy_data.sort_values(by=["name"])
     df_model_parameters = df_dummy_data[["name", "description", "remark", "unit"]].copy()
     with ExcelWriter(dst_path, engine="openpyxl", mode="a", if_sheet_exists="overlay") as writer:

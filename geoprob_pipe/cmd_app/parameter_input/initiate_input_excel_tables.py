@@ -33,7 +33,7 @@ def push_parameter_invoer_tabel(app_settings: ApplicationSettings):
     model_string = get_geohydrological_model(app_settings=app_settings)
 
     # Start base of table
-    df_dummy_data = DataFrame(INITIAL_INPUT_MAPPER[model_string]['dummy_invoer'])
+    df_dummy_data = DataFrame(INITIAL_INPUT_MAPPER[model_string]['input'])
     df_dummy_data = df_dummy_data.sort_values(by=["name"])
     df_parameter_invoer: DataFrame = df_dummy_data[[
         "name", "distribution_type", "mean", "variation", "deviation"]].copy()

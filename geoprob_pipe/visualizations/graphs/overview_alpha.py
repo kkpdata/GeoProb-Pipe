@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
 
     model_string = get_geohydrological_model(app_settings=geoprob_pipe.input_data.app_settings)
-    initial_input_mapper = INITIAL_INPUT_MAPPER[model_string]['dummy_invoer']
+    initial_input_mapper = INITIAL_INPUT_MAPPER[model_string]['input']
 
     # Get data for graphing
     df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
