@@ -22,4 +22,4 @@ class MORIACalculation(SystemCalculation):
         )
         self.given_variables_setup_function = system_variable_setup
         self.given_limit_states = [calc_Z_u, calc_Z_h, calc_Z_p]
-        self.given_combin_limit_state = calc_Z_combin
+        # self.given_combin_limit_state = calc_Z_combin

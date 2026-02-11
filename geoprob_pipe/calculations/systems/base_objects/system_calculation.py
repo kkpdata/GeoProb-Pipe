@@ -19,6 +19,7 @@ class SystemCalculation:
             project_settings: Dict[str, Union[str, float, int]],
             # For assigning in children
             limit_states: Optional[List[Callable]] = None,
+            combin_limit_state: Optional[Callable] = None,
             variables_setup_function: Optional[Callable] = None
     ):
         """
@@ -48,6 +49,8 @@ class SystemCalculation:
             Callable, variables_setup_function)
         self.given_limit_states: List[Callable] = cast(
             List[Callable], limit_states)
+        # self.given_combin_limit_state: Callable = cast(
+        #     Callable, combin_limit_state)
         self.given_distributions: List[Dict] = distributions
         self.given_correlations: List[Tuple[str, str, float]] = correlations
         # TODO Nu Should Klein: I.p.v. dict maak gebruik van
