@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from geoprob_pipe.results.construct_dataframes import (
     combine_df_beta_per_limit_state, combine_df_beta_per_scenario, calculate_df_beta_per_uittredepunt,
     construct_df_beta_per_vak)
-from geoprob_pipe.results.df_alphas_influence_factors_and_physical_values import construct_df
+from geoprob_pipe.results.alphas_and_physical_values import construct_df
 import os
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -61,8 +61,6 @@ class Results:
             bool_alphas_influence_factors_and_physical_values: bool = True,
             bool_beta_uittredepunten: bool = True,
             bool_beta_vakken: bool = True):
-
-        df: Optional[DataFrame] = None
 
         # Results of limit state calculations
         if bool_beta_limit_states:

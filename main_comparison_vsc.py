@@ -1,4 +1,4 @@
-from geoprob_pipe.questionnaire.comparisons import ComparisonCollector
+from geoprob_pipe.cmd_app.comparisons import ComparisonCollector
 import time
 
 filepath1 = r"C:\Users\vinji\Python\GEOprob-Pipe\Bestandenuitwisseling\Analyse16-1_V5.geoprob_pipe\Analyse16-1_V5.geoprob_pipe.gpkg"

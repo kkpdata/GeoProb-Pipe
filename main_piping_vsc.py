@@ -4,7 +4,7 @@ This example works inside the repository. Use the project-object
 directly outside the repository. """
 from geoprob_pipe import GeoProbPipe
 import os
-from geoprob_pipe.questionnaire.cmd import ApplicationSettings
+from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 if __name__ == "__main__":
     app_settings = ApplicationSettings()

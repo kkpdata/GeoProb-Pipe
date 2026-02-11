@@ -8,7 +8,7 @@ from datetime import datetime
 # from probabilistic_library import FragilityValue
 import pydra_core as pydra
 from pandas import Series, concat, DataFrame, read_sql
-from geoprob_pipe.questionnaire.parameter_input.expand_input_tables import run_expand_input_tables
+from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
 import sqlite3
 
 if TYPE_CHECKING:

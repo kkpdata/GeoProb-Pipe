@@ -4,13 +4,20 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from pandas import merge
-from geoprob_pipe.calculations.system_calculations.piping_system.dummy_input import DUMMY_INPUT
+from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
 from typing import TYPE_CHECKING
+
+from geoprob_pipe.cmd_app.utils.misc import get_geohydrological_model
+
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
 def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
+
+    model_string = get_geohydrological_model(app_settings=geoprob_pipe.input_data.app_settings)
+    initial_input_mapper = INITIAL_INPUT_MAPPER[model_string]['input']
+
     # Get data for graphing
     df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
         system_only=True, filter_deterministic=False, filter_derived=False
@@ -38,7 +45,7 @@ def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
             df["variable"] == param, "distribution_type"].unique()[0]
         dist_types.update({param: dist_type})
     # Add units
-    unit_lookup = {item["name"]: item["unit"] for item in DUMMY_INPUT}
+    unit_lookup = {item["name"]: item["unit"] for item in initial_input_mapper}
     param_units = {}
     for param in parameters:
         try:

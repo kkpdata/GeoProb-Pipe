@@ -1,0 +1,295 @@
+from __future__ import annotations
+import os
+import plotly.graph_objects as go
+import pandas as pd
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from geoprob_pipe.cmd_app.comparisons import ComparisonCollector
+
+
+def _add_traces(comparison: ComparisonCollector,
+                df: pd.DataFrame,
+                fig: go.Figure):
+
+    hoverdata = df[["uittredepunt_id", "beta1", "beta2"]].to_numpy()
+    symbol_map = {
+        1: "circle",
+        0: "x"
+    }
+
+    symbols1 = [symbol_map[b] for b in df["converged1"]]
+    symbols2 = [symbol_map[b] for b in df["converged2"]]
+    name1 = "Beta1: " + comparison.name_1 + ".geoprob_pipe.gpkg"
+    name2 = "Beta2: " + comparison.name_2 + ".geoprob_pipe.gpkg"
+
+    for _, row in df.iterrows():
+        fig.add_trace(go.Scatter(
+            x=[row["uittredepunt_id"], row["uittredepunt_id"]],
+            y=[row["beta1"], row["beta2"]],
+            mode="lines",
+            showlegend=False,
+            marker=dict(
+                color="grey"
+            )
+        ))
+
+    fig.add_trace(go.Scatter(
+        x=df["uittredepunt_id"],
+        y=df["beta1"],
+        mode="markers",
+        name=name1,
+        marker=dict(
+            symbol=symbols1,
+            color="green",
+            size=10
+            ),
+        customdata=hoverdata,
+        hovertemplate=(
+            "Uittredepunt ID: %{customdata[0]}<br>"
+            "β1: %{customdata[1]:.2f}<br>"
+            "β2: %{customdata[2]:.2f}<br>"
+            "<extra></extra>"
+        ),
+        legendgroup="beta1",
+        showlegend=False
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=df["uittredepunt_id"], y=df["beta2"], mode="markers",
+        name=name2,
+        marker=dict(symbol=symbols2, color="blue", size=10),
+        customdata=hoverdata,
+        hovertemplate=(
+            "Uittredepunt ID: %{customdata[0]}<br>"
+            "β2: %{customdata[2]:.2f}<br>"
+            "β1: %{customdata[1]:.2f}<br>"
+            "<extra></extra>"
+        ),
+        legendgroup="beta2",
+        showlegend=False
+    ))
+    # Empty trace for legend
+    fig.add_trace(go.Scatter(
+        x=[None], y=[None], mode="markers",
+        marker=dict(symbol="circle", color="green", size=10),
+        name=name1,
+        legendgroup="beta1",
+    ))
+    fig.add_trace(go.Scatter(
+        x=[None], y=[None], mode="markers",
+        marker=dict(symbol="circle", color="blue", size=10),
+        name=name2,
+        legendgroup="beta2"
+    ))
+    fig.add_trace(go.Scatter(
+        x=[None], y=[None], mode="markers", name="Not converged",
+        marker=dict(symbol="x", color="white", size=10, line=dict(color="black", width=0.5))))
+    return fig
+
+
+def _add_vak_id(comparison: ComparisonCollector, fig: go.Figure):
+
+    vak_ids = comparison.df1_beta_uittredepunten["vak_id"].unique()
+    for _, vak_id in enumerate(vak_ids):
+        df_vak = comparison.df1_beta_uittredepunten
+        uit_ids = df_vak.loc[df_vak["vak_id"] == vak_id, ["uittredepunt_id"]]
+
+        min_id: int = uit_ids.min().iloc[0]
+        max_id: int = uit_ids.max().iloc[0]
+
+        fig.add_trace(go.Scatter(
+            x=[min_id, max_id], y=[0, 0], mode="lines",
+            line=dict(color="red", width=2), showlegend=False, name=f"{vak_id}"))
+
+        fig.add_annotation(
+            x=(min_id + max_id) / 2, y=-0.7, text=f"{vak_id}", showarrow=False,
+            font=dict(size=10, color="black"), align="center")
+    return fig
+
+
+def dumbbell_beta(comparison: ComparisonCollector,
+                  export: bool = False):
+
+    df_result1 = (comparison.df1_beta_uittredepunten[
+        ["uittredepunt_id", "converged", "beta"]
+        ].rename(columns={"beta": "beta1", "converged": "converged1"}))
+    df_result2 = (comparison.df2_beta_uittredepunten[
+        ["uittredepunt_id", "converged", "beta"]
+        ].rename(columns={"beta": "beta2", "converged": "converged2"}))
+
+    df = df_result1.merge(df_result2, on="uittredepunt_id")
+
+    fig = go.Figure()
+    fig = _add_traces(comparison, df, fig)
+    fig = _add_vak_id(comparison, fig)
+
+    fig.update_layout(
+        title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+              f"<sup>Voor de <b>gecombineerde limit state</b>, en gevisualiseerd per uittredepunt.</sup>",
+        xaxis_title="Uittredepunt ID",
+        yaxis_title="β-value",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+
+    if export:
+        os.makedirs(comparison.export_dir, exist_ok=True)
+        fig.write_html(os.path.join(comparison.export_dir, "dumbbell_beta.html"), include_plotlyjs='cdn')
+        # fig.write_image(os.path.join(comparison.export_dir, "dumbbell_beta.png"),
+        #                 format="png", scale=5, width=1400)
+
+    return fig
+
+
+def dumbbell_uplift(comparison: ComparisonCollector,
+                    export: bool = False):
+
+    df_result1 = (comparison.df1_beta_limit_states[
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={"beta": "beta1",
+                                       "limit_state": "limit_state1",
+                                       "converged": "converged1"}))
+    df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_u"]
+
+    df_result2 = (comparison.df2_beta_limit_states[
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={"beta": "beta2",
+                                       "limit_state": "limit_state2",
+                                       "converged": "converged2"}))
+    df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_u"]
+
+    df = df_result1.merge(df_result2, on=["uittredepunt_id",
+                                          "ondergrondscenario_id"])
+    fig_list = []
+    for scenario in df["ondergrondscenario_id"].unique():
+        fig = go.Figure()
+        scenario_mask = df["ondergrondscenario_id"] == scenario
+        df_plot = df[scenario_mask]
+        fig = _add_traces(comparison, df_plot, fig)
+        fig = _add_vak_id(comparison, fig)
+
+        fig.update_layout(
+            title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+                  f"<sup>Voor de <b>limit state Uplift</b> en <b>scenario {scenario}</b>, "
+                  f"en gevisualiseerd per uittredepunt.</sup>",
+            xaxis_title="Uittredepunt ID",
+            yaxis_title="β-value",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            )
+        )
+        fig_list.append(fig)
+        if export:
+            os.makedirs(comparison.export_dir, exist_ok=True)
+            fig.write_html(os.path.join(
+                comparison.export_dir, f"dumbbell_uplift_{scenario}.html"), include_plotlyjs='cdn')
+            # fig.write_image(os.path.join(
+            #     comparison.export_dir, f"dumbbell_uplift_{scenario}.png"
+            #     ), format="png", scale=5,  width=1400)
+    return fig_list
+
+
+def dumbbell_heave(comparison: ComparisonCollector,
+                   export: bool = False):
+    df_result1 = (comparison.df1_beta_limit_states[
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={"beta": "beta1",
+                                       "limit_state": "limit_state1",
+                                       "converged": "converged1"}))
+    df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_h"]
+    df_result2 = (comparison.df2_beta_limit_states[
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={"beta": "beta2",
+                                       "limit_state": "limit_state2",
+                                       "converged": "converged2"}))
+    df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_h"]
+
+    df = df_result1.merge(df_result2, on=["uittredepunt_id",
+                                          "ondergrondscenario_id"])
+    fig_list = []
+    for scenario in df["ondergrondscenario_id"].unique():
+        fig = go.Figure()
+        scenario_mask = df["ondergrondscenario_id"] == scenario
+        df_plot = df[scenario_mask]
+        fig = _add_traces(comparison, df_plot, fig)
+        fig = _add_vak_id(comparison, fig)
+
+        fig.update_layout(
+            title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+                  f"<sup>Voor de <b>limit state Heave</b> en <b>scenario {scenario}</b>, "
+                  f"en gevisualiseerd per uittredepunt.</sup>",
+            xaxis_title="Uittredepunt ID",
+            yaxis_title="β-value",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            )
+        )
+        fig_list.append(fig)
+        if export:
+            os.makedirs(comparison.export_dir, exist_ok=True)
+            fig.write_html(os.path.join(
+                comparison.export_dir, f"dumbbell_heave_{scenario}.html"
+                ), include_plotlyjs='cdn')
+            # fig.write_image(os.path.join(
+            #     comparison.export_dir, f"dumbbell_heave_{scenario}.png"
+            #     ), format="png", scale=5, width=1400)
+    return fig_list
+
+
+def dumbbell_piping(comparison: ComparisonCollector,
+                    export: bool = False):
+    df_result1 = (comparison.df1_beta_limit_states[
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={
+             "beta": "beta1",
+             "limit_state": "limit_state1",
+             "converged": "converged1"}))
+    df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_p"]
+    df_result2 = (comparison.df2_beta_limit_states[
+        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
+         "converged"]].rename(columns={
+             "beta": "beta2",
+             "limit_state": "limit_state2",
+             "converged": "converged2"}))
+    df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_p"]
+
+    df = df_result1.merge(df_result2, on=["uittredepunt_id",
+                                          "ondergrondscenario_id"])
+    fig_list = []
+    for scenario in df["ondergrondscenario_id"].unique():
+        fig = go.Figure()
+        scenario_mask = df["ondergrondscenario_id"] == scenario
+        df_plot = df[scenario_mask]
+        fig = _add_traces(comparison, df_plot, fig)
+        fig = _add_vak_id(comparison, fig)
+
+        fig.update_layout(
+            title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+                  f"<sup>Voor de <b>limit state Piping</b> en <b>scenario {scenario}</b>, "
+                  f"en gevisualiseerd per uittredepunt.</sup>",
+            xaxis_title="Uittredepunt ID",
+            yaxis_title="β-value",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            )
+        )
+        fig_list.append(fig)
+        if export:
+            os.makedirs(comparison.export_dir, exist_ok=True)
+            fig.write_html(os.path.join(
+                comparison.export_dir, f"dumbbell_piping_{scenario}.html"
+                ), include_plotlyjs='cdn')
+            # fig.write_image(os.path.join(
+            #     comparison.export_dir, f"dumbbell_piping_{scenario}.png"
+            #     ), format="png", scale=5, width=1400)
+    return fig_list

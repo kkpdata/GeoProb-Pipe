@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe
-    from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import \
-        ParallelSystemReliabilityCalculation
+    from geoprob_pipe.calculations.systems.base_objects.system_calculation import \
+        SystemCalculation
     from probabilistic_library import DesignPoint
-    from geoprob_pipe.calculations.system_calculations.build_and_run import CalcResult
+    from geoprob_pipe.calculations.systems.build_and_run import CalcResult
 
 
-def collect_df_beta_per_limit_state(calculation: ParallelSystemReliabilityCalculation) -> pd.DataFrame:
+def collect_df_beta_limit_state(calculation: SystemCalculation) -> pd.DataFrame:
 
     def create_row(calc, dp: DesignPoint, model_name):
         return {
@@ -28,7 +28,7 @@ def collect_df_beta_per_limit_state(calculation: ParallelSystemReliabilityCalcul
         }
 
     rows = []
-    for design_point, model in zip(calculation.model_design_points, calculation.given_system_models):
+    for design_point, model in zip(calculation.model_design_points, calculation.given_limit_states):
         rows.append(create_row(calc=calculation, dp=design_point, model_name=model.__name__))
     df = pd.DataFrame(rows).sort_values(by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
@@ -39,7 +39,7 @@ def combine_df_beta_per_limit_state(calc_results: List[CalcResult]) -> pd.DataFr
     return df
 
 
-def collect_df_beta_per_scenario(calc: ParallelSystemReliabilityCalculation) -> pd.DataFrame:
+def collect_df_beta_scenario(calc: SystemCalculation) -> pd.DataFrame:
 
     def create_row(calculation):
         return {
