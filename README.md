@@ -20,8 +20,14 @@ GeoProb-Pipe is beschikbaar middels de Python Package Index (https://pypi.org/pr
 installatie: `pip install geoprob_pipe`. Je start vervolgens de applicatie middels het commando `geoprob_pipe`. 
 
 # Development omgeving
+
 Vanuit de development omgeving (kloon van repository) start je de applicatie als volgt: 
 `python -m geoprob_pipe.cmd_app.cmd`.
+
+Het volgende branch-schema wordt aangehouden: 
+
+![Branch-schema](./readme_images/geoprob-pipe-branch-scheme.png)
+
 
 
 # Mee ontwikkelen
