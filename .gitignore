@@ -1,17 +1,6 @@
 # GeoProb-Pipe
 geoprob_pipe.ini
 geoprob_pipe.log
-workspaces/example_new_calculations/output/
-!workspaces/traject_224/input/hlcd.sqlite
-!workspaces/traject_224/input/WBI2017_Bovenrijn_224_v04.config.sqlite
-!workspaces/traject_224/input/WBI2017_Bovenrijn_224_v04.sqlite
-!geoprob_pipe/pre_processing/test_files/hrd_files/hlcd.sqlite
-!geoprob_pipe/pre_processing/test_files/hrd_files/WBI2017_Bovenrijn_224_v04.config.sqlite
-!geoprob_pipe/pre_processing/test_files/hrd_files/WBI2017_Bovenrijn_224_v04.sqlite
-!tests/systeem_testen/224/hrd_files/hlcd.sqlite
-!tests/systeem_testen/224/hrd_files/WBI2017_Bovenrijn_224_v04.config.sqlite
-!tests/systeem_testen/224/hrd_files/WBI2017_Bovenrijn_224_v04.sqlite
-tests/systeem_testen/224/exports/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -29,6 +18,8 @@ dist/
 downloads/
 eggs/
 .eggs/
+workspaces/example_new_calculations/output/
+**/output/
 lib/
 lib64/
 parts/
@@ -186,3 +177,13 @@ _work_dir
 #*.xlsx
 *.gdb
 *.sqlite
+!workspaces/traject_224/input/hlcd.sqlite
+!workspaces/traject_224/input/WBI2017_Bovenrijn_224_v04.config.sqlite
+!workspaces/traject_224/input/WBI2017_Bovenrijn_224_v04.sqlite
+!geoprob_pipe/pre_processing/test_files/hrd_files/hlcd.sqlite
+!geoprob_pipe/pre_processing/test_files/hrd_files/WBI2017_Bovenrijn_224_v04.config.sqlite
+!geoprob_pipe/pre_processing/test_files/hrd_files/WBI2017_Bovenrijn_224_v04.sqlite
+!tests/systeem_testen/224/hrd_files/hlcd.sqlite
+!tests/systeem_testen/224/hrd_files/WBI2017_Bovenrijn_224_v04.config.sqlite
+!tests/systeem_testen/224/hrd_files/WBI2017_Bovenrijn_224_v04.sqlite
+tests/systeem_testen/224/exports/

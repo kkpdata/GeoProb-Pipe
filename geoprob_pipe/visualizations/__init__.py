@@ -1,0 +1,30 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from geoprob_pipe.visualizations.graphs import Graphs
+from geoprob_pipe.visualizations.maps import Maps
+import os
+if TYPE_CHECKING:
+    from geoprob_pipe import GeoProbPipe
+
+
+class Visualizations:
+
+    def __init__(self, app_obj: GeoProbPipe):
+        self.geoprob_pipe = app_obj
+        self.graphs = Graphs(app_obj)
+        self.maps = Maps(app_obj)
+
+    @property
+    def export_dir(self) -> str:
+        path = os.path.join(
+            self.geoprob_pipe.input_data.app_settings.workspace_dir,
+            "exports",
+            self.geoprob_pipe.input_data.app_settings.datetime_stamp,
+            "visualizations"
+        )
+        os.makedirs(path, exist_ok=True)
+        return str(path)
+
+    def export_visualizations(self):
+        self.graphs.export_graphs()
+        self.maps.export_maps()

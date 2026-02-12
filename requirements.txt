@@ -1,8 +1,21 @@
-geopandas~=1.0.1
-matplotlib~=3.10.1
-openpyxl~=3.1.5
-pydra-core~=0.0.9
-scipy~=1.14.1
-./wheels/probabilistic_library-25.1.1-py3-none-any.whl; platform_system == 'Windows'
-# TODO: Inquire if probabilistic_library can be pushed to the repository. Will be useful for unit testing.
+dotenv
+pandas
+pydra-core
+# TODO Later Should Middel: Er bestaat ook een Python-wrapper voor Hydra-Ring. Pydra-core vervangen?
+openpyxl
+colorlog
+plotly
+kaleido
+geopandas
+probabilistic_library
+typer[all]
+InquirerPy
 gitpython
+rasterio
+sphinx
+sphinx-autodoc-typehints
+sphinx-autoapi
+sphinx-mdinclude
+sphinxcontrib-jquery
+sphinx-rtd-theme
+sphinxcontrib-bibtex

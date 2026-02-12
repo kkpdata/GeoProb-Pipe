@@ -1,6 +1,0 @@
-# black==24.4.2 #already in vscode
-# mypy==1.11.0 #already in vscode
-# isort==5.13.2 #already in vscode
-sphinx
-sphinxcontrib-bibtex
-pytest==8.3.4
