@@ -15,34 +15,34 @@ Het GeoProb-Pipe-team bestaat uit de volgende personen
 - Vincent Jilesen, ontwikkelaar, V.Jilesen@wshd.nl
 
 
-# Installatie
-Op termijn wordt GeoProb-Pipe beschikbaar gesteld middels de Python Package Index (https://pypi.org) voor een eenvoudige 
-installatie via `pip install geoprob-pipe`. Voor nu is de installatie als volgt:
+# Installatie en quickstart
+GeoProb-Pipe is beschikbaar middels de Python Package Index (https://pypi.org/project/geoprob_pipe/) voor een eenvoudige 
+installatie: `pip install geoprob_pipe`. Je start vervolgens de applicatie middels het commando `geoprob_pipe`. 
 
- - Kloon de repository middels `git clone repo_weblink`.
- - Maak een virtuele Python environment aan. Deze applicatie is ontwikkeld met Python versie 3.12. 
- - Installeer alle dependencies middels `pip install -r requirements.txt`. 
+# Development omgeving
 
+Vanuit de development omgeving (kloon van repository) start je de applicatie als volgt: 
+`python -m geoprob_pipe.cmd_app.cmd`.
 
-# Quickstart
-Start de applicatie als volgt
+Het volgende branch-schema wordt aangehouden: 
 
-- Vanuit de gekloonde repository met het commando `python -m geoprob_pipe.questionnaire.cmd startup_geoprob_pipe`.
-- Wanneer de package/wheel geïnstalleerd is met het commando `geoprob-pipe`. 
+![Branch-schema](./readme_images/geoprob-pipe-branch-scheme.png)
+
 
 
 # Mee ontwikkelen
 Wil je bijdragen aan de ontwikkeling van GeoProb-Pipe? Dat kan! :)
 
-Maak een nieuwe branch aan vanuit `dev`, ga coden en wanneer je klaar bent, maak een pull en review request aan. Zorg 
+Maak een nieuwe branch aan vanuit `alpha`, ga coden en wanneer je klaar bent, maak een pull en review request aan. Zorg 
 er voor dat de unit tests werken en dat je PEP8 als code stijl hanteert. Bij vragen, neem contact op met één van de 
 ontwikkelaars. Voor PEP8, de IDE PyCharm heeft deze out of the box ingesteld. PyCharm is daarom de geadviseerde IDE.  
 
 
 # Documentatie
-De documentatie genereer je middels het commando `sphinx-build -M html docs\ docs\_build`. Je vindt de 
-documentatie daarna terug in de map `GeoProb-Pipe\docs\_build\html\index.html`. Dit bestand opent in de browser. Tip: 
-voeg de documentatie toe aan je favorieten van de browser. 
+De documentatie genereer je vanuit een kloon van de repository en het volgende commando 
+`sphinx-build -M html docs\ docs\_build`. Je vindt de documentatie daarna terug in de map 
+`GeoProb-Pipe\docs\_build\html\index.html`. Dit bestand opent in de browser. Tip: voeg de documentatie toe aan je 
+favorieten van de browser. 
 
 
 
