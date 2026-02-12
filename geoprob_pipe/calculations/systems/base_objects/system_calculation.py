@@ -86,8 +86,27 @@ class SystemCalculation:
         # Some base settings, may be overwritten through self._apply_settings
         self.project.settings.reliability_method = 'form'
         self.project.settings.variation_coefficient = 0.02
-        self.project.settings.maximum_iterations = 1000
+
+        # FORM specific settings
         self.project.settings.relaxation_factor = 0.40
+        # self.project.settings.relaxation_loops = 10
+        # self.epsilon_beta = ...
+
+        # Importance Sampling settings
+        # self.project.settings.fraction_failed = ...
+
+        # Adaptive Importance Sampling settings
+        # self.project.settings.maximum_variance_loops = ...
+
+        # Directional Sampling settings
+        # self.project.settings.maximum_directions = ...
+
+        # Unsure for which method
+        self.project.settings.maximum_iterations = 1000
+        # self.project.settings.gradient_type = 'single' # or 'double'
+        # self.project.settings.max_steps_sphere_search = ...
+        # self.project.settings.maximum_samples = ...
+
 
     def _apply_settings(self):
         """
