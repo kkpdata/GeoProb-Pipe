@@ -34,8 +34,9 @@ def _query_dijktrajecten(traject_id: str):
 
     [1] https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/fa4cc54e-26b3-4f25-b643-59458622901c
     """
-    with importlib.resources.path('geoprob_pipe.misc.dijktrajecten',
-                                  'dijktrajecten.shp') as shp_path:
+    with importlib.resources.path(
+            package='geoprob_pipe.input_data.dijktrajecten',
+            resource='dijktrajecten.shp') as shp_path:
         gdf: GeoDataFrame = read_file(shp_path)
     gdf = gdf[gdf['TRAJECT_ID'] == traject_id]
     assert gdf.__len__() == 1, ("Only one traject id should have been found."

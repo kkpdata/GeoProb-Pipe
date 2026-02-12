@@ -34,9 +34,11 @@ def question_trajectory_source(app_settings: ApplicationSettings):
 
     if choice == choices_list[0]:
         with importlib.resources.path(
-                'geoprob_pipe.misc.dijktrajecten', 'dijktrajecten.shp') as shp_path:
+                package='geoprob_pipe.input_data.dijktrajecten',
+                resource='dijktrajecten.shp') as shp_path:
             gdf: GeoDataFrame = read_file(shp_path)
-        specify_single_trajectory(app_settings, gdf=gdf, column_name="TRAJECT_ID")
+        specify_single_trajectory(
+            app_settings, gdf=gdf, column_name="TRAJECT_ID")
     elif choice == choices_list[1]:
         request_trajectory_filepath(app_settings)
     return False

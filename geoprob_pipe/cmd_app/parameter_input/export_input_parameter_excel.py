@@ -37,7 +37,8 @@ def export_input_parameter_tables(app_settings: ApplicationSettings, tables: Inp
         datetime_stamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         dst_path = dst_path.replace(".xlsx", f"_{datetime_stamp}.xlsx")
     with importlib.resources.path(
-            'geoprob_pipe.questionnaire.parameter_input', 'parameter_input_template.xlsx'
+            package='geoprob_pipe.cmd_app.parameter_input',
+            resource='parameter_input_template.xlsx'
     ) as src_path:
         shutil.copy2(src=src_path, dst=dst_path)
 
