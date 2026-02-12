@@ -1,3 +1,7 @@
+# GeoProb-Pipe
+geoprob_pipe.ini
+geoprob_pipe.log
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -14,6 +18,8 @@ dist/
 downloads/
 eggs/
 .eggs/
+workspaces/example_new_calculations/output/
+**/output/
 lib/
 lib64/
 parts/
@@ -70,6 +76,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/autoapi/
 
 # PyBuilder
 .pybuilder/
@@ -170,3 +177,13 @@ _work_dir
 #*.xlsx
 *.gdb
 *.sqlite
+!workspaces/traject_224/input/hlcd.sqlite
+!workspaces/traject_224/input/WBI2017_Bovenrijn_224_v04.config.sqlite
+!workspaces/traject_224/input/WBI2017_Bovenrijn_224_v04.sqlite
+!geoprob_pipe/pre_processing/test_files/hrd_files/hlcd.sqlite
+!geoprob_pipe/pre_processing/test_files/hrd_files/WBI2017_Bovenrijn_224_v04.config.sqlite
+!geoprob_pipe/pre_processing/test_files/hrd_files/WBI2017_Bovenrijn_224_v04.sqlite
+!tests/systeem_testen/224/hrd_files/hlcd.sqlite
+!tests/systeem_testen/224/hrd_files/WBI2017_Bovenrijn_224_v04.config.sqlite
+!tests/systeem_testen/224/hrd_files/WBI2017_Bovenrijn_224_v04.sqlite
+tests/systeem_testen/224/exports/

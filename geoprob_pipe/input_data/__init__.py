@@ -1,0 +1,1 @@
+from geoprob_pipe.input_data.input_data_object import InputData
