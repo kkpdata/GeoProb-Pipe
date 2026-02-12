@@ -1,0 +1,43 @@
+#name: Publish to PyPI
+#
+#on:
+#  push:
+#    tags:
+#      - "v*"
+#
+#jobs:
+#  build-and-publish:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v4
+#
+#      - name: Set up Python
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.12"
+#
+#      - name: Install dependencies
+#        run: |
+#          python -m pip install --upgrae pip
+#
+#      # Poetry installeren
+#      - name: Install Poetry
+#        uses: abatilo/actions-poetry@v2
+#        with:
+#          poetry-version: "1.7.1"
+#
+#      # Dependencies installeren, maar niet de hele virtualenv root opnieuw opbouwen
+#      - name: Install dependencies
+#        run: poetry install --no-interaction --no-root
+#
+#      # Build wheel + sdist
+#      - name: Build package
+#        run: poetry build --no-interaction
+#
+#      # Publish naar PyPI
+#      - name: Publish to PyPI
+#        env:
+#          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+#        run: poetry publish --no-interaction
