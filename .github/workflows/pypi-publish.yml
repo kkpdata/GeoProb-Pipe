@@ -101,14 +101,14 @@ jobs:
           echo "Reason: ${{ steps.version_check.outputs.reason }}"
           exit 0
 
-#      - name: Show version change
-#        if: steps.version_check.outputs.changed == 'true'
-#        run: |
-#          echo "Version change detected:"
-#          echo "Previous: ${{ steps.version_check.outputs.previous }}"
-#          echo "Current : ${{ steps.version_check.outputs.current }}"
-#          echo "Reason  : ${{ steps.version_check.outputs.reason }}"
-#
+      - name: Show version change
+        if: steps.version_check.outputs.changed == 'true'
+        run: |
+          echo "Version change detected:"
+          echo "Previous: ${{ steps.version_check.outputs.previous }}"
+          echo "Current : ${{ steps.version_check.outputs.current }}"
+          echo "Reason  : ${{ steps.version_check.outputs.reason }}"
+
 #      - name: Install dependencies (no dev)
 #        if: steps.version_check.outputs.changed == 'true'
 #        run: poetry install --no-interaction --no-root
