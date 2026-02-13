@@ -69,6 +69,7 @@ jobs:
           out = []
           def emit(k, v): out.append(f"{k}={v}")
 
+          print("DEBUG: huidige versie is", curr)
           if curr is None:
             emit("changed", "false")
             emit("reason", "No version field found in current pyproject.toml")
