@@ -94,13 +94,13 @@ jobs:
         env:
           PREV_EXISTS: ${{ steps.version_check.outputs.prev_exists }}
 
-#      - name: Stop if version did not change
-#        if: steps.version_check.outputs.changed == 'false'
-#        run: |
-#          echo "No version bump detected in pyproject.toml → skipping publish."
-#          echo "Reason: ${{ steps.version_check.outputs.reason }}"
-#          exit 0
-#
+      - name: Stop if version did not change
+        if: steps.version_check.outputs.changed == 'false'
+        run: |
+          echo "No version bump detected in pyproject.toml → skipping publish."
+          echo "Reason: ${{ steps.version_check.outputs.reason }}"
+          exit 0
+
 #      - name: Show version change
 #        if: steps.version_check.outputs.changed == 'true'
 #        run: |
