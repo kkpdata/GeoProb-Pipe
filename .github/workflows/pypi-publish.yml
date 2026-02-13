@@ -74,6 +74,7 @@ jobs:
             emit("changed", "false")
             emit("reason", "No version field found in current pyproject.toml")
           else:
+            print("DEBUG: vorige versie is", prev)
             if prev is None:
               # Eerste keer of pyproject.toml bestond nog niet — behandel als change
               emit("changed", "true")
