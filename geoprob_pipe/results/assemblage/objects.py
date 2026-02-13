@@ -150,10 +150,10 @@ class WindowElement:
     window_size: float
     window_id: int
     pf: float
-    _vak_id: Optional[int]
-    _a: Optional[float]
-    _m_uittredepunt: Optional[float]
-    _n_vak: Optional[float]
+    _vak_id: Optional[int] = None
+    _a: Optional[float] = None
+    _m_uittredepunt: Optional[float] = None
+    _n_vak: Optional[float] = None
 
     @property
     def length(self):

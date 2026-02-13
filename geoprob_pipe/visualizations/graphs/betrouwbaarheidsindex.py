@@ -4,7 +4,7 @@ import numpy as np
 import os
 from datetime import datetime
 import plotly.graph_objects as go
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
@@ -447,7 +447,9 @@ if TYPE_CHECKING:
 
 
 def _add_beta_per_uittredepunt_points(
-        self, df_for_graph: DataFrame, mask, name: str, color: str, value: bool):
+        self, df_for_graph: DataFrame, mask,
+        name: str, color: str, value: bool
+        ):
     """ Visualization of beta of uittredepunten.
 
     :param self: GraphBetaValuesSingleInteractive-object
@@ -460,8 +462,10 @@ def _add_beta_per_uittredepunt_points(
 
     self.fig.add_trace(
         go.Scatter(
-            x=df_for_graph.loc[mask, "metrering"], y=df_for_graph.loc[mask, "beta"],
-            mode='markers', marker=dict(symbol='circle', size=7, color=color), name=name,
+            x=df_for_graph.loc[mask, "metrering"],
+            y=df_for_graph.loc[mask, "beta"],
+            mode='markers', marker=dict(symbol='circle', size=7, color=color),
+            name=name,
             customdata=df_for_graph.loc[mask, ["uittredepunt_id", "beta", "metrering"]],
             hovertemplate=("ID: %{customdata[0]}<br>" +
                            "Beta: %{customdata[1]:.3f}<br>" +
@@ -471,7 +475,9 @@ def _add_beta_per_uittredepunt_points(
 
 def _add_beta_per_uittredepunt_indication_above_plotting_range(
         self, df_for_graph: DataFrame, mask, name: str, color: str, value: bool):
-    """ Indication to user that there are Beta results plotted outside the plotting range. In this case above range. """
+    """ Indication to user that there are Beta results plotted outside
+    the plotting range. In this case above range.
+    """
 
     self.fig.add_trace(
         go.Scatter(
@@ -492,7 +498,9 @@ def _add_beta_per_uittredepunt_indication_above_plotting_range(
 
 def _add_beta_per_uittredepunt_indication_below_plotting_range(
         self, df_for_graph: DataFrame, mask, name: str, color: str, value: bool):
-    """ Indication to user that there are Beta results plotted outside the plotting range. In this case below range. """
+    """ Indication to user that there are Beta results plotted outside
+    the plotting range. In this case below range.
+    """
 
     self.fig.add_trace(
         go.Scatter(
@@ -528,11 +536,27 @@ class GraphBetaValuesSingleInteractive:
         self.beta_max = 20
 
         self._add_backgrond()
+        self._add_beta_per_traject()
         self._add_beta_per_vak()
         self._add_beta_per_scenario()
         self._add_beta_per_uittredepunt()
         self._update_layout()
         self._optionally_export(export=export)
+
+    def _add_beta_per_traject(self):
+        # TODO Update met df_beta_traject_aanpassing
+        beta_traject = cast(
+            float, self.geoprob_pipe.results.df_beta_traject[
+                "lower_bound_beta"][0]
+            )
+        self.fig.add_trace(go.Scatter(
+            x=[self.m_start, self.m_end],
+            y=[beta_traject, beta_traject],
+            mode="lines",
+            line=dict(color="black", width=2.5),
+            name="Beta Traject",
+            showlegend=True
+        ))
 
     def _add_beta_per_vak(self):
         df_results_vakken = self.geoprob_pipe.results.df_beta_WBI_vakken
@@ -546,8 +570,10 @@ class GraphBetaValuesSingleInteractive:
             how="left"
         )
         first = True
-        for value, color, name in [(True, "black", "Beta vakken"),
-                             (False, "blue", "Unconverged Beta vakken")]:
+        for value, color, name in [
+                (True, "black", "Beta vakken"),
+                (False, "blue", "Unconverged Beta vakken")
+                ]:
             mask = df_for_graph["converged"] == value
             mask_low = df_for_graph["beta"] < self.beta_min
             mask_high = df_for_graph["beta"] > self.beta_max

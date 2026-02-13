@@ -32,7 +32,7 @@ def bepaal_N_vak(L: float, a: float, dL: float) -> float:
 
 
 def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
-                   m_van: float, m_tot: float, vak_id: Optional[int]
+                   m_van: float, m_tot: float, vak_id: Optional[int] = None
                    ) -> tuple[float, float, List[WindowElement]]:
     from geoprob_pipe.results.assemblage.objects import WindowElement
     list_m_value: List[float] = cast(
@@ -74,16 +74,13 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
             window_id=i,
             pf=df_bin[df_bin.index[i]],
             _vak_id=vak_id,
-            _a=None,
-            _m_uittredepunt=None,
-            _n_vak=None
         ))
     return sum_pf, max_pf, window_elements
 
 
 def scaled_collect(
         dL: float, list_dsn: list[UittredepuntElement],
-        m_van: float, m_tot: float, vak_id: Optional[int]
+        m_van: float, m_tot: float, vak_id: Optional[int] = None
         ) -> tuple[float, float, List[WindowElement]]:
     from geoprob_pipe.results.assemblage.objects import WindowElement
     if list_dsn.__len__() == 0:
