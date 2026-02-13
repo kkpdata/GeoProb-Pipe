@@ -109,10 +109,10 @@ jobs:
           echo "Current : ${{ steps.version_check.outputs.current }}"
           echo "Reason  : ${{ steps.version_check.outputs.reason }}"
 
-#      - name: Install dependencies (no dev)
-#        if: steps.version_check.outputs.changed == 'true'
-#        run: poetry install --no-interaction --no-root
-#
+      - name: Install dependencies (no dev)
+        if: steps.version_check.outputs.changed == 'true'
+        run: poetry install --no-interaction --no-root
+
 #      - name: Build package (wheel + sdist)
 #        if: steps.version_check.outputs.changed == 'true'
 #        run: poetry build --no-interaction
