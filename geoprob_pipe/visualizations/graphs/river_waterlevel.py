@@ -5,15 +5,38 @@ from pandas import DataFrame, concat, Series
 from geopandas import GeoDataFrame
 import plotly.colors as pc
 from plotly.graph_objects import Figure, Scatter
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Dict, List, Tuple
 from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
+TARGET_FREQS = np.array([
+        0.1, 0.033333333, 0.01, 0.003333333, 0.001, 0.000333333, 0.0001, 3.33333E-05, 0.00001, 3.33333E-06])
+
+def _collect_data(geoprob_pipe: GeoProbPipe) -> Tuple[DataFrame, GeoDataFrame, DataFrame, DataFrame]:
+    df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
+        system_only=True, filter_deterministic=False, filter_derived=False)
+    df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id", "variable", "distribution_type", "physical_value"]]
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
+    df = df.merge(gdf_uittredepunten[["uittredepunt_id", "metrering", "hrd_name"]], on="uittredepunt_id", how="left")
+
+    df_beta = geoprob_pipe.results.df_beta_uittredepunten
+
+    df_input: DataFrame = run_expand_input_tables(
+        geoprob_pipe.input_data.app_settings.geopackage_filepath, add_frag_ref=True)
+    df_input = df_input[df_input["parameter_name"] == "buitenwaterstand"]
+    df_input = concat(
+        objs=[df_input.drop(columns=['parameter_input']),   # Removal of parameter_input column
+              df_input['parameter_input'].apply(Series)], # Expansion of dict in parameter_input-column
+        axis=1)
+
+    return df, gdf_uittredepunten, df_beta, df_input
+
+
 def _collect_hydra_curves(
-        df: DataFrame, target_freqs: np.array, gdf_uittredepunten: GeoDataFrame) -> Dict[float, Dict[str, List[float]]]:
-    hydra_curves = {freq: {"metrering": [], "level": []} for freq in target_freqs}
+        df: DataFrame, gdf_uittredepunten: GeoDataFrame) -> Dict[float, Dict[str, List[float]]]:
+    hydra_curves = {freq: {"metrering": [], "level": []} for freq in TARGET_FREQS}
 
     for _, row in df.itterrows():
         if row["distribution_type"] != "deterministic":
@@ -32,22 +55,22 @@ def _collect_hydra_curves(
             levels = levels[sort_idx]
 
             # Interpolate levels for standard frequencies
-            interp_levels = np.interp(target_freqs, freqs, levels)
+            interp_levels = np.interp(TARGET_FREQS, freqs, levels)
 
             # Store values for each frequency
-            for freq, level in zip(target_freqs, interp_levels):
+            for freq, level in zip(TARGET_FREQS, interp_levels):
                 hydra_curves[freq]["metrering"].extend(m_values)
                 hydra_curves[freq]["level"].extend(np.full_like(m_values, level))
     return hydra_curves
 
 
 def _plot_continuous_exceedance_lines(
-        fig: Figure, target_freqs: np.array, hydra_curves: Dict[float, Dict[str, List[float]]]):
+        fig: Figure, hydra_curves: Dict[float, Dict[str, List[float]]]):
 
     # Blue gradient for lines
     line_colors = pc.sample_colorscale(
-        colorscale="Jet", samplepoints=np.linspace(start=0.2, stop=0.9, num=len(target_freqs)))
-    freq_color_map = {f: c for f, c in zip(target_freqs, line_colors)}
+        colorscale="Jet", samplepoints=np.linspace(start=0.2, stop=0.9, num=len(TARGET_FREQS)))
+    freq_color_map = {f: c for f, c in zip(TARGET_FREQS, line_colors)}
 
     for freq, data in hydra_curves.items():
         # Sort by metrering for continuous line plotting
@@ -100,29 +123,15 @@ def _update_layout(fig: Figure) -> Figure:
 def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
 
     # Prepare base data
-    df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
-        system_only=True, filter_deterministic=False, filter_derived=False)
-    df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id", "variable", "distribution_type", "physical_value"]]
-    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
-    df = df.merge(gdf_uittredepunten[["uittredepunt_id", "metrering", "hrd_name"]], on="uittredepunt_id", how="left")
-    df_beta = geoprob_pipe.results.df_beta_uittredepunten
-    df_input: DataFrame = run_expand_input_tables(
-        geoprob_pipe.input_data.app_settings.geopackage_filepath, add_frag_ref=True)
-    df_input = df_input[df_input["parameter_name"] == "buitenwaterstand"]
-    df_input = concat(
-        objs=[df_input.drop(columns=['parameter_input']),   # Removal of parameter_input column
-              df_input['parameter_input'].apply(Series)], # Expansion of dict in parameter_input-column
-        axis=1)
+    df, gdf_uittredepunten, df_beta, df_input = _collect_data(geoprob_pipe=geoprob_pipe)
 
     # Collect Hydra lines (grouped per frequency)
-    target_freqs = np.array([
-        0.1, 0.033333333, 0.01, 0.003333333, 0.001, 0.000333333, 0.0001, 3.33333E-05, 0.00001, 3.33333E-06])
     hydra_curves: Dict[float, Dict[str, List[float]]] = _collect_hydra_curves(
-        df=df_input, target_freqs=target_freqs, gdf_uittredepunten=gdf_uittredepunten)
+        df=df_input, gdf_uittredepunten=gdf_uittredepunten)
 
     # Plot one continuous line per exceedance frequency
     fig = Figure()
-    fig = _plot_continuous_exceedance_lines(fig=fig, target_freqs=target_freqs, hydra_curves=hydra_curves)
+    fig = _plot_continuous_exceedance_lines(fig=fig, hydra_curves=hydra_curves)
 
     # Buitenwaterstand markers with β color scale
     df_filtered = df[df["variable"] == "buitenwaterstand"]
