@@ -180,7 +180,6 @@ class SystemCalculation:
 def _system_variable_keys(self: SystemCalculation) -> List[str]:
     return_array = []
     for item in self.given_distributions:
-        print(f"{item=}")
         return_array.append(item['name'])
     return return_array
     # return [item['name'] for item in self.given_distributions]

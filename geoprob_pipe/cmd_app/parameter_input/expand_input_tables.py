@@ -291,12 +291,13 @@ def _concat_collection(collection: Dict[str, DataFrame]):
 
 
 def run_expand_input_tables(geopackage_filepath: str, add_frag_ref: bool = False) -> DataFrame:
-    """
+    """ Performs logic to expand all parameter input from different levels to input on uittredepunt-level.
 
     :param geopackage_filepath:
     :param add_frag_ref: Indien True, dan wordt voor parameter input met een distribution_type 'cdf_curve' de referentie
         naar de invoer behouden. Deze is niet nodig voor de berekeningen, maar wordt wel gebruikt voor de visualisaties.
-    :return:
+    :return: DataFrame with columns parameter_name, vak_id, uittredepunt_id, ondergrondscenario_naam and
+        parameter_input.
     """
     tables = InputParameterTables(geopackage_filepath=geopackage_filepath)
     df_identifiers = _construct_df_identifiers(geopackage_filepath=geopackage_filepath, tables=tables)
