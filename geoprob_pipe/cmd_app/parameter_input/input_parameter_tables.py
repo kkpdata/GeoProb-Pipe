@@ -35,9 +35,7 @@ def _validate_df_parameter_invoer(df: DataFrame, app_settings: ApplicationSettin
         str(app_settings.datetime_stamp), "parameter_input_process")
 
     obj = DataFrameQueryValidation(df=df, failure_queries=FAILURE_QUERIES)
-    obj.validate(export_dir=export_dir, label_humanized="Parameter invoer")
-
-    return True
+    return obj.validate(export_dir=export_dir, label_humanized="Parameter invoer")
 
 
 class InputParameterTables:

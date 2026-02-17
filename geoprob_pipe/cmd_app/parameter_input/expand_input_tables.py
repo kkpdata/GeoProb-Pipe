@@ -306,12 +306,9 @@ def run_expand_input_tables(geopackage_filepath: str, add_frag_ref: bool = False
     # Construct df_parameter_invoer_combined
     tables = InputParameterTables(geopackage_filepath=geopackage_filepath)
     df_parameter_invoer_combined1 = _combine_parameter_invoer_sources(tables=tables)
-    print(f"{df_parameter_invoer_combined1.columns=}")
     df_parameter_invoer_combined2 = _add_fragility_values_to_combined_parameter_invoer(
         df_parameter_invoer_combined=df_parameter_invoer_combined1, tables=tables,
         geopackage_filepath=geopackage_filepath, drop_ref=add_frag_ref==False)
-    print(f"{df_parameter_invoer_combined2.columns=}")
-    raise ValueError
     df_parameter_invoer_combined3 = _collect_right_columns_combined_parameter_invoer(
         df_parameter_invoer_combined=df_parameter_invoer_combined2)
 

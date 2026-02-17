@@ -21,7 +21,8 @@ class DataFrameQueryValidation:
         for failure_query in self.failure_queries:
 
             # Assess
-            df_failure_rows = self.df.query(failure_query.query)
+            df_failure_rows: DataFrame = self.df.query(failure_query.query)
+            df_failure_rows = df_failure_rows.copy(deep=True)
 
             # Continue if no failures
             if df_failure_rows.__len__() == 0:
