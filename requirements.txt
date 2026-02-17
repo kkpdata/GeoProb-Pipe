@@ -19,3 +19,4 @@ sphinx-mdinclude
 sphinxcontrib-jquery
 sphinx-rtd-theme
 sphinxcontrib-bibtex
+pandera

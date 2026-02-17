@@ -14,18 +14,29 @@ if TYPE_CHECKING:
 TARGET_FREQS = np.array([
         0.1, 0.033333333, 0.01, 0.003333333, 0.001, 0.000333333, 0.0001, 3.33333E-05, 0.00001, 3.33333E-06])
 
+
 def _collect_data(geoprob_pipe: GeoProbPipe) -> Tuple[DataFrame, GeoDataFrame, DataFrame, DataFrame]:
+
+    # Collect uittredepunten
+    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
+
+    # Collect physical values
     df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
         system_only=True, filter_deterministic=False, filter_derived=False)
     df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id", "variable", "distribution_type", "physical_value"]]
-    gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df = df.merge(gdf_uittredepunten[["uittredepunt_id", "metrering", "hrd_name"]], on="uittredepunt_id", how="left")
 
+    # Collect Beta results uittredepunten
     df_beta = geoprob_pipe.results.df_beta_uittredepunten
 
+    # Collect hydra curves (from expansion to uittredepunt-level)
     df_input: DataFrame = run_expand_input_tables(
         geoprob_pipe.input_data.app_settings.geopackage_filepath, add_frag_ref=True)
     df_input = df_input[df_input["parameter_name"] == "buitenwaterstand"]
+    print(f"{df_input=}")
+    print(f"{df_input.iloc[0]=}")
+    print(f"{df_input.iloc[0]['parameter_input']=}")
+    raise ValueError
     df_input = concat(
         objs=[df_input.drop(columns=['parameter_input']),   # Removal of parameter_input column
               df_input['parameter_input'].apply(Series)], # Expansion of dict in parameter_input-column
@@ -38,7 +49,7 @@ def _collect_hydra_curves(
         df: DataFrame, gdf_uittredepunten: GeoDataFrame) -> Dict[float, Dict[str, List[float]]]:
     hydra_curves = {freq: {"metrering": [], "level": []} for freq in TARGET_FREQS}
 
-    for _, row in df.itterrows():
+    for _, row in df.iterrows():
         if row["distribution_type"] != "deterministic":
             df_subset = gdf_uittredepunten[gdf_uittredepunten["vak_id"] == row["vak_id"]]
             if df_subset.empty:
@@ -61,6 +72,7 @@ def _collect_hydra_curves(
             for freq, level in zip(TARGET_FREQS, interp_levels):
                 hydra_curves[freq]["metrering"].extend(m_values)
                 hydra_curves[freq]["level"].extend(np.full_like(m_values, level))
+
     return hydra_curves
 
 
