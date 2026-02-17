@@ -195,7 +195,6 @@ def import_input_tables(geopackage_filepath: str) -> InputParameterTables:
         filepath_is_valid = True
 
     tables = InputParameterTables(path_to_excel=filepath, geopackage_filepath=geopackage_filepath)
-    print(f"{tables.df_parameter_invoer.loc[76]=}")
     print(f"{BColors.UNDERLINE}Tabellen zijn nu geïmporteerd.{BColors.ENDC}")
     return tables
 
