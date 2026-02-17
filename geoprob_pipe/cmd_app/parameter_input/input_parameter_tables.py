@@ -28,35 +28,11 @@ def _load_df_correlatie_invoer_from_geopackage(geopackage_filepath: str) -> Data
     return df_correlatie_invoer
 
 
-# def _validate_df_scenario_invoer(df: DataFrame) -> bool:
-#     return True
-
-
-# class ValidationSchema:
-#
-#     def __init__(self, df: DataFrame, schema: DataFrameSchema):
-#         self.df = df
-#         self.schema = schema
-
-
-# class PerformDataFrameValidation:
-#
-#     def __init__(self, df_label: str, validation_schemas: List[ValidationSchema]):
-#         self._valid: Optional[bool] = None
-#         for validation_schema in validation_schemas:
-#             validation_schema.perform_validate()
-#
-#
-#     @property
-#     def validity(self) -> bool:
-#         assert isinstance(self._valid, bool), "Validity checked before validation is performed"
-#         return self.validity
-
-
 def _validate_df_parameter_invoer(df: DataFrame, app_settings: ApplicationSettings):
     export_dir = os.path.join(
         os.path.dirname(app_settings.geopackage_filepath), "exports",
         str(app_settings.datetime_stamp), "parameter_input_process")
+    print(f"{df.loc[76]=}")
     for dataframe_validation in DF_PARAMETER_INVOER_VALIDATION:
         dataframe_validation.validate(df=df, export_dir=export_dir)
         if dataframe_validation.valid:
@@ -64,58 +40,6 @@ def _validate_df_parameter_invoer(df: DataFrame, app_settings: ApplicationSettin
         return False
     return True
 
-    #
-    # validation = PerformDataFrameValidation(
-    #     df_label="Parameter invoer", validation_schemas=[
-    #         ValidationSchema(
-    #             df=df[df["distribution_type"] == "cdf_curve"],
-    #             schema=DataFrameSchema({
-    #                 "fragility_values_ref": Column(str)
-    #             }),
-    #         )
-    #     ]
-    # )
-    # return validation.validity
-    #
-    # # Define validation schemes
-    # schemas = [
-    #     {
-    #         "filter": df["distribution_type"] == "cdf_curve",
-    #         "schema": DataFrameSchema({
-    #             "fragility_values_ref": Column(str),
-    #         }),
-    #     }
-    # ]
-    #     # Perform validation
-    # for item in schemas:
-    #     try:
-    #         df_to_validate = df[item["filter"]]
-    #         _ = item["schema"].validate(df_to_validate, lazy=True)
-    #     except SchemaErrors as e:
-    #
-    #         df_failure_cases: DataFrame = e.failure_cases
-    #         df_failure_cases = df_failure_cases.sort_values(by=["index"])
-    #
-    #         # Create directory to report issues in
-    #         export_dir = os.path.join(
-    #             os.path.dirname(app_settings.geopackage_filepath),
-    #             "exports",
-    #             str(app_settings.datetime_stamp),
-    #             "parameter_input_process")
-    #         os.makedirs(export_dir, exist_ok=True)
-    #
-    #         # Report issues back
-    #         export_path = os.path.join(export_dir, "validation_input_tables.xlsx")
-    #         if os.path.exists(export_path):
-    #             os.remove(export_path)
-    #         df_failure_cases.to_excel(export_path)
-    #         print(f"{BColors.WARNING}Er zijn {df_failure_cases.__len__()} validatie issues voor de "
-    #               f"parameter_invoer-tabel.\n "
-    #               f"De gedetailleerde lijst is geëxporteerd naar\n"
-    #               f"{export_path}{BColors.ENDC}")
-    #
-    #         return False
-    # return True
 
 class InputParameterTables:
 
@@ -152,6 +76,6 @@ class InputParameterTables:
         self.df_correlatie_invoer = read_excel(path_to_excel, sheet_name="Correlatie invoer", header=3)
 
     def validate_and_report(self, app_settings: ApplicationSettings) -> bool:
-        # if not _validate_df_scenario_invoer(df=self.df_scenario_invoer): return False
+        print(f"{self.df_parameter_invoer.loc[76]=}")
         if not _validate_df_parameter_invoer(df=self.df_parameter_invoer, app_settings=app_settings): return False
         return True

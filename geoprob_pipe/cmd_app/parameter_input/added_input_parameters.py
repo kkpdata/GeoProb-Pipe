@@ -195,6 +195,7 @@ def import_input_tables(geopackage_filepath: str) -> InputParameterTables:
         filepath_is_valid = True
 
     tables = InputParameterTables(path_to_excel=filepath, geopackage_filepath=geopackage_filepath)
+    print(f"{tables.df_parameter_invoer.loc[76]=}")
     print(f"{BColors.UNDERLINE}Tabellen zijn nu geïmporteerd.{BColors.ENDC}")
     return tables
 
@@ -255,6 +256,7 @@ def process_export_input_of_db(
 
 
 def process_import_input(app_settings: ApplicationSettings):
+    """ Questionnaire process for importing a new version of the input table Excel. """
     tables = import_input_tables(app_settings.geopackage_filepath)  # Asks user for path to input-file
 
     # Validate raw tables

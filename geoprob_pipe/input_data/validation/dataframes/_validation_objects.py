@@ -41,18 +41,6 @@ class ValidationSchema:
         for index, row in df_failure_cases.iterrows():
             if row['row_index'] is None:
                 continue
-            # print(f"{row["row_index"]=}")
-            # print(f"{df.index.tolist()=}")
-            # print(f"{df.__len__()=}")
-            # print(f"{df.loc[76].to_dict()=}")
-            # print(f"{df.loc[[76]]=}")
-            # print(f"{df.iloc[0]=}")
-            # print(f"{df.iloc[row["row_index"]]=}")
-            # print(f"{df.iloc[row["row_index"]].to_dict()=}")
-            # raise ValueError
-            print(f"{df.loc[row["row_index"]].to_dict()=}")
-            # df_failure_cases.loc[index, "row"] = "alpha"
-            # print(f"{json.dumps(df.loc[row["row_index"]].to_dict())=}")
             df_failure_cases.loc[index, "row"] = json.dumps(df.loc[row["row_index"]].to_dict())
         return df_failure_cases
 
@@ -84,9 +72,9 @@ class ValidationSchema:
         if os.path.exists(export_path):
             os.remove(export_path)
         self._df_failure_cases.to_excel(export_path)
-        print(f"{BColors.WARNING}Er zijn {self._df_failure_cases.__len__()} validatie issues voor de "
-              f"{df_label}-tabel. De gedetailleerde lijst is geëxporteerd naar onderstaande locatie. Los deze issues "
-              f"s.v.p. eerst op. \n"
+        print(f"{BColors.WARNING}Validatie is (voortijdig) beëindigd omdat er {self._df_failure_cases.__len__()} "
+              f"validatie issues voor de {df_label}-tabel zijn gevonden. De gedetailleerde lijst is geëxporteerd "
+              f"naar onderstaande locatie. Los deze issues s.v.p. eerst op. \n"
               f"{export_path}{BColors.ENDC}")
 
 
@@ -119,4 +107,3 @@ class DataFrameValidation:
                 return  # Stop validation, such that user can fix current validation issues first
 
         self.valid = True
-
