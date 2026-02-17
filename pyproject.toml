@@ -27,7 +27,6 @@ typer = "^0.17.3"
 inquirerpy = "^0.3.4"
 rasterio = "^1.4.3"
 probabilistic-library = "^26.1.1"
-pandera = "^0.29.0"
 
 
 [tool.poetry.scripts]
