@@ -33,10 +33,6 @@ def _collect_data(geoprob_pipe: GeoProbPipe) -> Tuple[DataFrame, GeoDataFrame, D
     df_input: DataFrame = run_expand_input_tables(
         geoprob_pipe.input_data.app_settings.geopackage_filepath, add_frag_ref=True)
     df_input = df_input[df_input["parameter_name"] == "buitenwaterstand"]
-    print(f"{df_input=}")
-    print(f"{df_input.iloc[0]=}")
-    print(f"{df_input.iloc[0]['parameter_input']=}")
-    raise ValueError
     df_input = concat(
         objs=[df_input.drop(columns=['parameter_input']),   # Removal of parameter_input column
               df_input['parameter_input'].apply(Series)], # Expansion of dict in parameter_input-column
