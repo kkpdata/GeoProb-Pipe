@@ -30,3 +30,14 @@ class TmpAppConsoleHandler:
     def info(msg: str):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(BColors.OKGREEN, f"{timestamp} - INFO - {msg}", BColors.ENDC)
+
+    @staticmethod
+    def error(msg: str):
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(BColors.FAIL, f"{timestamp} - ERROR - {msg}", BColors.ENDC)
+
+    @staticmethod
+    def debug(msg: str):
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(BColors.OKBLUE, f"{timestamp} - DEBUG - {msg}", BColors.ENDC)
+

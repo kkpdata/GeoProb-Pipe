@@ -43,6 +43,7 @@ class CalcResult:
     df_derived: DataFrame
     validation_message: ValidationMessages
 
+
 worker_logger = logging.getLogger(__name__)
 
 
@@ -83,11 +84,11 @@ def _worker(row_unique: dict):
 
         # Return results (without calculation object)
         return CalcResult(df_limit_state, df_scenario, df_stochast, df_derived,
-                          calc.validation_messages), None
+                          calc.validation_messages), None, None
     except Exception:
         worker_logger.exception("Fout in de worker!")
         error_logs = log_buffer.getvalue()
-        return None, error_logs
+        return None, error_logs, row_unique
     finally:
         # Handler altijd verwijderen
         worker_logger.removeHandler(buffer_handler)
@@ -139,11 +140,12 @@ def build_and_run_system_calculations(
             geohydrologisch_model, geopackage_filepath, to_run_vakken_ids
             )) as pool:
 
-        for res, error_logs in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
+        for res, error_logs, row in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
             if isinstance(res, CalcResult):
                 results.append(res)
             if isinstance(error_logs, str):
-                worker_logger.debug("Detailed worker logs:\n%s", error_logs)
+                logger.error(f"Worker error in {row}")
+                logger.debug(f"Detailed worker logs:\n{error_logs}")
             done += 1
 
             # Alleen kijken of er gelogd moet worden bij de laatste
