@@ -5,6 +5,7 @@ from geoprob_pipe.calculations.systems.mappers.calculation_mapper import (
 from multiprocessing import Pool, cpu_count
 import logging
 from io import StringIO
+from contextlib import redirect_stdout, redirect_stderr
 import time
 import math
 from dataclasses import dataclass
@@ -44,9 +45,6 @@ class CalcResult:
     validation_message: ValidationMessages
 
 
-worker_logger = logging.getLogger(__name__)
-
-
 def _init_worker(geohydrologisch_model, geopackage_filepath,
                  to_run_vakken_ids):
     """ Initiator voor de worker, dit zorgt ervoor dat de tijdrovende
@@ -68,30 +66,41 @@ def _worker(row_unique: dict):
     buffer_handler = logging.StreamHandler(log_buffer)
     buffer_handler.setLevel(logging.DEBUG)
 
-    # Worker krijgt extra handler
-    worker_logger.addHandler(buffer_handler)
+    buffer_handler.setFormatter(logging.Formatter(
+        "%(asctime)s [%(processName)s %(levelname)s] %(name)s: %(message)s",
+        "%Y-%m-%d %H:%M:%S",
+    ))
+
+    root = logging.getLogger()
+    prev_level = root.level
+    root.setLevel(logging.DEBUG)
+    root.addHandler(buffer_handler)
+    logging.captureWarnings(True)
+
     try:
-        # Build and run calculations
-        calc = _BUILDER.build_instance(row_unique=row_unique)
-        calc.run()
+        with redirect_stdout(log_buffer), redirect_stderr(log_buffer):
+            # Build and run calculations
+            calc = _BUILDER.build_instance(row_unique=row_unique)
+            calc.run()
 
-        # Collect results
-        df_limit_state = collect_df_beta_limit_state(calc)
-        df_scenario = collect_df_beta_scenario(calc)
-        df_stochast = collect_stochast_values(calc)
-        df_derived = calculate_derived_values(df_scenario, _MODEL)
-        df_scenario = df_scenario.drop(columns=["system_calculation"])
+            # Collect results
+            df_limit_state = collect_df_beta_limit_state(calc)
+            df_scenario = collect_df_beta_scenario(calc)
+            df_stochast = collect_stochast_values(calc)
+            df_derived = calculate_derived_values(df_scenario, _MODEL)
+            df_scenario = df_scenario.drop(columns=["system_calculation"])
 
-        # Return results (without calculation object)
-        return CalcResult(df_limit_state, df_scenario, df_stochast, df_derived,
-                          calc.validation_messages), None, None
+            # Return results (without calculation object)
+            return CalcResult(df_limit_state, df_scenario, df_stochast,
+                              df_derived, calc.validation_messages), None, None
     except Exception:
-        worker_logger.exception("Fout in de worker!")
-        error_logs = log_buffer.getvalue()
-        return None, error_logs, row_unique
+        root.exception("Fout in de worker!")
+        buffer_handler.flush()
+        return None, log_buffer.getvalue(), row_unique
     finally:
         # Handler altijd verwijderen
-        worker_logger.removeHandler(buffer_handler)
+        root.removeHandler(buffer_handler)
+        root.setLevel(prev_level)
         buffer_handler.close()
 
 

@@ -40,4 +40,3 @@ class TmpAppConsoleHandler:
     def debug(msg: str):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(BColors.OKBLUE, f"{timestamp} - DEBUG - {msg}", BColors.ENDC)
-

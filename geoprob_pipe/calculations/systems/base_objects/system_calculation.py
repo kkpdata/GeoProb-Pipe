@@ -2,11 +2,8 @@ from probabilistic_library import (
     ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod,
     CombinerMethod, CombineType, Stochast, Settings)
 from typing import Optional, Callable, List, Dict, Union, Tuple, cast
-import logging
 from geoprob_pipe.utils.validation_messages import ValidationMessages
-
-
-logger = logging.getLogger("geoprob_pipe_logger")
+from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 
 
 class SystemCalculation:
@@ -32,7 +29,7 @@ class SystemCalculation:
         :param variables_setup_function: Dummy functie waarmee variabele namen
             worden geïnitieerd.
         """
-
+        
         # Mutable arguments
         if project_settings is None:
             project_settings = {}
