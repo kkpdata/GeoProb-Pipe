@@ -24,14 +24,14 @@ def request_vakken_to_run() -> str:
         try:
             list_vak_nummers_int = [int(vak_id) for vak_id in list_vak_nummers_str]
         except ValueError:
-            print(f"{BColors.WARNING}Het bestand moet of een geopackage, shapefile of geodatabase zijn. Jouw invoer "
-                  f"eindigt op de extensie .{vakken_input.split(sep='.')[-1]}.{BColors.ENDC}")
+            print(f"{BColors.WARNING}Het is niet gelukt om je invoer op te splitsen naar vaknummers. Weet je zeker "
+                  f"dat je een komma (,) gebruikt als separator?{BColors.ENDC}")
             continue
 
         # Assure more than one vak id is given
         if list_vak_nummers_int.__len__() == 0:
-            print(f"{BColors.WARNING}Het bestand moet of een geopackage, shapefile of geodatabase zijn. Jouw invoer "
-                  f"eindigt op de extensie .{vakken_input.split(sep='.')[-1]}.{BColors.ENDC}")
+            print(f"{BColors.WARNING}Je invoer heeft geresulteerd in {list_vak_nummers_int.__len__()} vakken. Weet "
+                  f"je zeker dat je invoer klopt?{BColors.ENDC}")
             continue
 
         vakken_input_is_valid = True

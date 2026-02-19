@@ -1,6 +1,6 @@
 from probabilistic_library import (
     ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod,
-    CombinerMethod, CombineType, Stochast, Settings)
+    CombinerMethod, CombineType, Stochast, Settings, StartMethod, DesignPointMethod)
 from typing import Optional, Callable, List, Dict, Union, Tuple, cast
 import logging
 from geoprob_pipe.utils.validation_messages import ValidationMessages
@@ -77,36 +77,49 @@ class SystemCalculation:
         self._generate_single_design_point()
 
     def _setup_project(self):
-        """ Sets up the ReliabilityProject-object. This will be used
-        for all model design points.
-        """
+        """ Sets up the ReliabilityProject-object. This will be used for all model design points. """
         self.project = ReliabilityProject()
-        self.project.settings.reliability_method = ReliabilityMethod.form
 
         # Some base settings, may be overwritten through self._apply_settings
-        self.project.settings.reliability_method = 'form'
-        self.project.settings.variation_coefficient = 0.02
+        self.project.settings.reliability_method = ReliabilityMethod.form_then_directional_sampling
 
         # FORM specific settings
-        self.project.settings.relaxation_factor = 0.40
+        self.epsilon_beta = 0.005  # Convergence criterion; convergence when B_n - B_n-1 <= epsilon. Bron [1]
+        self.project.settings.relaxation_factor = 0.15  # Bron [1]
         # self.project.settings.relaxation_loops = 10
-        # self.epsilon_beta = ...
+
+        # Monte Carlo family algorithms
+        self.project.settings.variation_coefficient = 0.1
 
         # Importance Sampling settings
         # self.project.settings.fraction_failed = ...
 
         # Adaptive Importance Sampling settings
+        # self.project.settings.fraction_failed = ...
         # self.project.settings.maximum_variance_loops = ...
+        # self.project.settings.minimum_variance_loops = ...
 
         # Directional Sampling settings
-        # self.project.settings.maximum_directions = ...
+        self.project.settings.minimum_directions = 10_000  # Bron [1]
+        self.project.settings.maximum_directions = 100_000  # Bron [1]
 
         # Unsure for which method
-        self.project.settings.maximum_iterations = 1000
+        self.project.settings.design_point_method = DesignPointMethod.center_of_gravity  # Bron [1]
         # self.project.settings.gradient_type = 'single' # or 'double'
         # self.project.settings.max_steps_sphere_search = ...
+        self.project.settings.maximum_iterations = 1000
         # self.project.settings.maximum_samples = ...
+        # self.project.settings.minimum_iterations = ...
+        # self.project.settings.minimum_samples = ...
+        # self.project.settings.random_seed = ...
+        # self.project.settings.sample_method = ...
+        # self.project.settings.save_convergence = ...
+        # self.project.settings.save_messages = ...
+        self.project.settings.start_method = StartMethod.ray_search  # Bron [1]
+        # self.project.settings.step_size = ...
 
+        # Bronnen:
+        # [1] E-mail from Deltares KW to SK and CP. vr 13-02-2026 13:58
 
     def _apply_settings(self):
         """
