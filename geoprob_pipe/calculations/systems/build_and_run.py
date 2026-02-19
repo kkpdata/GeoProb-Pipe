@@ -94,7 +94,6 @@ def _worker(row_unique: dict):
             return CalcResult(df_limit_state, df_scenario, df_stochast,
                               df_derived, calc.validation_messages), None, None
     except Exception:
-        root.exception("Fout in de worker!")
         buffer_handler.flush()
         return None, log_buffer.getvalue(), row_unique
     finally:
