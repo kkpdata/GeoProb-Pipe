@@ -249,18 +249,14 @@ def limit_state_moria(  # TODO: Naam moria vervangen voor iets generieks?
     i_exit = pc_piping.calc_i_exit(
         phi_exit=phi_exit, h_exit=h_exit, d_deklaag=d_deklaag)
     dh_c = pc_piping.calc_dh_c(
-        d70=d70, D_wvp=D_wvp, kD_wvp=kD_wvp, L_kwelweg=L_kwelweg,
-        gamma_water=gamma_water, g=g, v=v, theta=theta,
+        d70=d70, D_wvp=D_wvp, kD_wvp=kD_wvp, L_kwelweg=L_kwelweg, gamma_water=gamma_water, g=g, v=v, theta=theta,
         eta=eta, d70_m=d70_m, gamma_korrel=gamma_korrel)
     dh_red = pc_piping.calc_dh_red(
-        buitenwaterstand=buitenwaterstand, h_exit=h_exit,
-        r_c_deklaag=r_c_deklaag, d_deklaag=d_deklaag)
+        buitenwaterstand=buitenwaterstand, h_exit=h_exit, r_c_deklaag=r_c_deklaag, d_deklaag=d_deklaag)
     z_u = modelfactor_u * dphi_c_u - (phi_exit - h_exit)
     z_h = (modelfactor_h * i_c_h) - i_exit
-    z_p = (modelfactor_p * modelfactor_ff * modelfactor_3d * modelfactor_aniso
-           * modelfactor_ml * dh_c) - dh_red
+    z_p = (modelfactor_p * modelfactor_ff * modelfactor_3d * modelfactor_aniso * modelfactor_ml * dh_c) - dh_red
     z_combin = max(z_u, z_h, z_p)
 
-    return (z_u, z_h, z_p, z_combin, h_exit, phi_exit, d_deklaag,
-            dphi_c_u, i_exit, L_voorland, W_voorland,
+    return (z_u, z_h, z_p, z_combin, h_exit, phi_exit, d_deklaag, dphi_c_u, i_exit, L_voorland, W_voorland,
             L_kwelweg, kD_wvp, dh_c, dh_red)
