@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING, List
 from geoprob_pipe.calculations.systems.mappers.calculation_mapper import (
     CALCULATION_MAPPER)
 from multiprocessing import Pool, cpu_count
+import logging
+from io import StringIO
 import time
 import math
 from dataclasses import dataclass
@@ -41,6 +43,8 @@ class CalcResult:
     df_derived: DataFrame
     validation_message: ValidationMessages
 
+worker_logger = logging.getLogger(__name__)
+
 
 def _init_worker(geohydrologisch_model, geopackage_filepath,
                  to_run_vakken_ids):
@@ -59,21 +63,35 @@ def _init_worker(geohydrologisch_model, geopackage_filepath,
 def _worker(row_unique: dict):
     """ De worker functie die op de parallelle rekenkernen wordt gedraaid.
     """
+    log_buffer = StringIO()
+    buffer_handler = logging.StreamHandler(log_buffer)
+    buffer_handler.setLevel(logging.DEBUG)
 
-    # Build and run calculations
-    calc = _BUILDER.build_instance(row_unique=row_unique)
-    calc.run()
+    # Worker krijgt extra handler
+    worker_logger.addHandler(buffer_handler)
+    try:
+        # Build and run calculations
+        calc = _BUILDER.build_instance(row_unique=row_unique)
+        calc.run()
 
-    # Collect results
-    df_limit_state = collect_df_beta_limit_state(calc)
-    df_scenario = collect_df_beta_scenario(calc)
-    df_stochast = collect_stochast_values(calc)
-    df_derived = calculate_derived_values(df_scenario, _MODEL)
-    df_scenario = df_scenario.drop(columns=["system_calculation"])
+        # Collect results
+        df_limit_state = collect_df_beta_limit_state(calc)
+        df_scenario = collect_df_beta_scenario(calc)
+        df_stochast = collect_stochast_values(calc)
+        df_derived = calculate_derived_values(df_scenario, _MODEL)
+        df_scenario = df_scenario.drop(columns=["system_calculation"])
 
-    # Return results (without calculation object)
-    return CalcResult(df_limit_state, df_scenario, df_stochast, df_derived,
-                      calc.validation_messages)
+        # Return results (without calculation object)
+        return CalcResult(df_limit_state, df_scenario, df_stochast, df_derived,
+                          calc.validation_messages), None
+    except Exception:
+        worker_logger.exception("Fout in de worker!")
+        error_logs = log_buffer.getvalue()
+        return None, error_logs
+    finally:
+        # Handler altijd verwijderen
+        worker_logger.removeHandler(buffer_handler)
+        buffer_handler.close()
 
 
 def build_and_run_system_calculations(
@@ -121,8 +139,11 @@ def build_and_run_system_calculations(
             geohydrologisch_model, geopackage_filepath, to_run_vakken_ids
             )) as pool:
 
-        for res in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
-            results.append(res)
+        for res, error_logs in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
+            if isinstance(res, CalcResult):
+                results.append(res)
+            if isinstance(error_logs, str):
+                worker_logger.debug("Detailed worker logs:\n%s", error_logs)
             done += 1
 
             # Alleen kijken of er gelogd moet worden bij de laatste
