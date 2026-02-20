@@ -81,11 +81,11 @@ class SystemCalculation:
         self.project = ReliabilityProject()
 
         # Some base settings, may be overwritten through self._apply_settings
-        self.project.settings.reliability_method = ReliabilityMethod.form_then_directional_sampling
+        self.project.settings.reliability_method = ReliabilityMethod.form
 
         # FORM specific settings
-        self.epsilon_beta = 0.005  # Convergence criterion; convergence when B_n - B_n-1 <= epsilon. Bron [1]
-        self.project.settings.relaxation_factor = 0.15  # Bron [1]
+        # self.epsilon_beta = 0.005  # Convergence criterion; convergence when B_n - B_n-1 <= epsilon. Bron [1]
+        self.project.settings.relaxation_factor = 0.4  # Bron [1]
         # self.project.settings.relaxation_loops = 10
 
         # Monte Carlo family algorithms
@@ -104,10 +104,10 @@ class SystemCalculation:
         self.project.settings.maximum_directions = 100_000  # Bron [1]
 
         # Unsure for which method
-        self.project.settings.design_point_method = DesignPointMethod.center_of_gravity  # Bron [1]
+        # self.project.settings.design_point_method = DesignPointMethod.center_of_gravity  # Bron [1]
         # self.project.settings.gradient_type = 'single' # or 'double'
         # self.project.settings.max_steps_sphere_search = ...
-        self.project.settings.maximum_iterations = 1000
+        self.project.settings.maximum_iterations = 10_000
         # self.project.settings.maximum_samples = ...
         # self.project.settings.minimum_iterations = ...
         # self.project.settings.minimum_samples = ...
@@ -115,6 +115,7 @@ class SystemCalculation:
         # self.project.settings.sample_method = ...
         # self.project.settings.save_convergence = ...
         # self.project.settings.save_messages = ...
+        print(f"{self.project.settings.start_method=}")
         self.project.settings.start_method = StartMethod.ray_search  # Bron [1]
         # self.project.settings.step_size = ...
 
