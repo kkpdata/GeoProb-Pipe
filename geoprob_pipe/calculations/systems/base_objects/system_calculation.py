@@ -158,8 +158,14 @@ class SystemCalculation:
         for model_callable in self.given_limit_states:
             self.project.model = model_callable
             self._assign_project_correlations()
-            self.project.run()
+            try:
+                self.project.run()
+            except Exception:
+                logger.error("Run failed in _generate_model_design_points")
             design_point = self.project.design_point
+            if design_point is None:
+                logger.debug(f"limit state: {model_callable}")
+                raise TypeError("Design_point is NoneType, run has failed.")
             design_point.identifier = model_callable.__name__
             self.model_design_points.append(design_point)
 

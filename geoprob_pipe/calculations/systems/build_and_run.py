@@ -5,6 +5,7 @@ from geoprob_pipe.calculations.systems.mappers.calculation_mapper import (
 from multiprocessing import Pool, cpu_count
 import logging
 from io import StringIO
+import traceback
 from contextlib import redirect_stdout, redirect_stderr
 import time
 import math
@@ -94,10 +95,13 @@ def _worker(row_unique: dict):
             return CalcResult(df_limit_state, df_scenario, df_stochast,
                               df_derived, calc.validation_messages), None, None
     except Exception:
+        tb = traceback.format_exc()
+        log_buffer.write(tb)
         buffer_handler.flush()
         return None, log_buffer.getvalue(), row_unique
     finally:
         # Handler altijd verwijderen
+        logging.captureWarnings(False)
         root.removeHandler(buffer_handler)
         root.setLevel(prev_level)
         buffer_handler.close()
