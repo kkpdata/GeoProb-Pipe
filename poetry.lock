@@ -1134,6 +1134,22 @@ express = ["numpy"]
 kaleido = ["kaleido (>=1.0.0)"]
 
 [[package]]
+name = "probabilistic-library"
+version = "26.1.1"
+description = "Package which provides probabilistic methods"
+optional = false
+python-versions = ">=3.11"
+groups = ["main"]
+files = [
+    {file = "probabilistic_library-26.1.1-py3-none-any.whl", hash = "sha256:e9a8c9e46dcd410799d12c490472ec3eb2846587d493137d544eb9db0623bfdf"},
+    {file = "probabilistic_library-26.1.1.tar.gz", hash = "sha256:bbfd2a51962721b6eb88c9b4884541ea2cc90def92c39150e4ba40af4165e070"},
+]
+
+[package.dependencies]
+matplotlib = "*"
+numpy = "*"
+
+[[package]]
 name = "prompt-toolkit"
 version = "3.0.52"
 description = "Library for building powerful interactive command lines in Python"
@@ -1723,4 +1739,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "ce077e2a08658cb8db373a9edf4f98d614311dc26e4fbee98133a59d1baa968a"
+content-hash = "a351456285c946a4a2ed28ebb2fa2696ce039796aee7a8c7fbc61d9d759d45b0"
