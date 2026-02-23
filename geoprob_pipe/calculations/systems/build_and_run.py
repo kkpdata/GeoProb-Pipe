@@ -3,6 +3,11 @@ from typing import TYPE_CHECKING, List
 from geoprob_pipe.calculations.systems.mappers.calculation_mapper import (
     CALCULATION_MAPPER)
 from multiprocessing import Pool, cpu_count
+import logging
+from io import StringIO
+import sqlite3
+import traceback
+from contextlib import redirect_stdout, redirect_stderr
 import time
 import math
 from dataclasses import dataclass
@@ -12,9 +17,9 @@ from geoprob_pipe.results.alphas_and_physical_values import (
     collect_stochast_values, calculate_derived_values)
 # noinspection PyPep8Naming
 from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
+from pandas import DataFrame
 
 if TYPE_CHECKING:
-    from pandas import DataFrame
     from geoprob_pipe import GeoProbPipe
     from geoprob_pipe.calculations.systems.base_objects\
         .base_system_build import BaseSystemBuilder
@@ -59,26 +64,52 @@ def _init_worker(geohydrologisch_model, geopackage_filepath,
 def _worker(row_unique: dict):
     """ De worker functie die op de parallelle rekenkernen wordt gedraaid.
     """
+    log_buffer = StringIO()
+    buffer_handler = logging.StreamHandler(log_buffer)
+    buffer_handler.setLevel(logging.DEBUG)
 
-    # Build and run calculations
-    calc = _BUILDER.build_instance(row_unique=row_unique)
-    calc.run()
+    buffer_handler.setFormatter(logging.Formatter(
+        "%(asctime)s [%(processName)s %(levelname)s] %(name)s: %(message)s",
+        "%Y-%m-%d %H:%M:%S",
+    ))
 
-    # Collect results
-    df_limit_state = collect_df_beta_limit_state(calc)
-    df_scenario = collect_df_beta_scenario(calc)
-    df_stochast = collect_stochast_values(calc)
-    df_derived = calculate_derived_values(df_scenario, _MODEL)
-    df_scenario = df_scenario.drop(columns=["system_calculation"])
+    root = logging.getLogger()
+    prev_level = root.level
+    root.setLevel(logging.DEBUG)
+    root.addHandler(buffer_handler)
+    logging.captureWarnings(True)
 
-    # Return results (without calculation object)
-    return CalcResult(df_limit_state, df_scenario, df_stochast, df_derived,
-                      calc.validation_messages)
+    # noinspection PyBroadException
+    try:
+        with redirect_stdout(log_buffer), redirect_stderr(log_buffer):
+            # Build and run calculations
+            calc = _BUILDER.build_instance(row_unique=row_unique)
+            calc.run()
+
+            # Collect results
+            df_limit_state = collect_df_beta_limit_state(calc)
+            df_scenario = collect_df_beta_scenario(calc)
+            df_stochast = collect_stochast_values(calc)
+            df_derived = calculate_derived_values(df_scenario, _MODEL)
+            df_scenario = df_scenario.drop(columns=["system_calculation"])
+
+            # Return results (without calculation object)
+            return CalcResult(df_limit_state, df_scenario, df_stochast,
+                              df_derived, calc.validation_messages), None, None
+    except Exception:
+        tb = traceback.format_exc()
+        log_buffer.write(tb)
+        buffer_handler.flush()
+        return None, log_buffer.getvalue(), row_unique
+    finally:
+        # Handler altijd verwijderen
+        logging.captureWarnings(False)
+        root.removeHandler(buffer_handler)
+        root.setLevel(prev_level)
+        buffer_handler.close()
 
 
-def build_and_run_system_calculations(
-    geoprob_pipe: GeoProbPipe
-        ) -> List[CalcResult]:
+def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe) -> List[CalcResult]:
     """ In deze functie worden de parameters voor de berekeningen verzamelt,
     aan de workers gegeven en vervolgens de resultaten verzameld.
     """
@@ -117,12 +148,21 @@ def build_and_run_system_calculations(
     pool_size = max(min(math.floor(n_calc_totaal / chunk_size), n_threads), 1)
 
     # Multiprocessing setup
+    error_rows = []
     with Pool(processes=pool_size, initializer=_init_worker, initargs=(
             geohydrologisch_model, geopackage_filepath, to_run_vakken_ids
             )) as pool:
 
-        for res in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
-            results.append(res)
+        for res, error_logs, row in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
+            if isinstance(res, CalcResult):
+                results.append(res)
+            if isinstance(error_logs, str):
+                error_rows.append({
+                    "uittredepunt_id": row["uittredepunt_id"],
+                    "ondergrondscenario_naam": row["ondergrondscenario_naam"],
+                    "vak_id": row["vak_id"],
+                    "error_logs": error_logs,
+                })
             done += 1
 
             # Alleen kijken of er gelogd moet worden bij de laatste
@@ -136,8 +176,26 @@ def build_and_run_system_calculations(
                 continue
 
             # Log
-            logger.info(f"Progress: {done:>{char_len_total}} / {n_calc_totaal}"
-                        " calculations.")
+            error_count_append = ""
+            if error_rows.__len__() > 0:
+                error_count_append = f" (of which {error_rows.__len__()} failed calculations)"
+            logger.info(f"Progress: {done:>{char_len_total}} / {n_calc_totaal} calculations{error_count_append}.")
             last_report = now
+
+    # Push errors to database (if any)
+    conn = sqlite3.connect(geoprob_pipe.input_data.app_settings.geopackage_filepath)
+    table_name = "calculation_error_logs"
+    if error_rows.__len__() > 0:
+        df_errors = DataFrame(data=error_rows)
+        df_errors.to_sql(table_name, conn, if_exists="replace", index=False)
+        conn.close()
+        logger.error(f"There are {error_rows.__len__()} failed calculations. Error logs are stored inside the "
+                     f"GeoPacakge in table '{table_name}'.")
+    else:
+        # Remove old table (if exists)
+        cur = conn.cursor()
+        cur.execute(f"DROP TABLE IF EXISTS {table_name};")
+        conn.commit()
+        conn.close()
 
     return results

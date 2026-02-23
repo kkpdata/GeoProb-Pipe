@@ -2,11 +2,9 @@ from probabilistic_library import (
     ReliabilityProject, DesignPoint, CombineProject, ReliabilityMethod,
     CombinerMethod, CombineType, Stochast, Settings)
 from typing import Optional, Callable, List, Dict, Union, Tuple, cast
-import logging
 from geoprob_pipe.utils.validation_messages import ValidationMessages
-
-
-logger = logging.getLogger("geoprob_pipe_logger")
+# noinspection PyPep8Naming
+from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 
 
 class SystemCalculation:
@@ -19,7 +17,7 @@ class SystemCalculation:
             project_settings: Dict[str, Union[str, float, int]],
             # For assigning in children
             limit_states: Optional[List[Callable]] = None,
-            combin_limit_state: Optional[Callable] = None,
+            # combin_limit_state: Optional[Callable] = None,
             variables_setup_function: Optional[Callable] = None
     ):
         """
@@ -32,7 +30,7 @@ class SystemCalculation:
         :param variables_setup_function: Dummy functie waarmee variabele namen
             worden geïnitieerd.
         """
-
+        
         # Mutable arguments
         if project_settings is None:
             project_settings = {}
@@ -161,8 +159,15 @@ class SystemCalculation:
         for model_callable in self.given_limit_states:
             self.project.model = model_callable
             self._assign_project_correlations()
-            self.project.run()
+            # noinspection PyBroadException
+            try:
+                self.project.run()
+            except Exception:
+                logger.error("Run failed in _generate_model_design_points")
             design_point = self.project.design_point
+            if design_point is None:
+                logger.debug(f"For limit state: {model_callable}")
+                raise TypeError("Design_point is NoneType, run has failed.")
             design_point.identifier = model_callable.__name__
             self.model_design_points.append(design_point)
 
