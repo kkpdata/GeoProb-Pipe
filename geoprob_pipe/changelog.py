@@ -1,6 +1,6 @@
 
 CHANGELOG = {
-    "1.3.6":
+    "1.3.18":
         "(a) Hotfix: Nieuwe versie probabilistic_library stond geen Beta van de overschrijdingsfrequentielijn toe "
         "van hoger dan 8.0. Hydra-NL lijkt tot en met 8.0 te gaan, waardoor het laatste punt soms net boven de 8.0 "
         "valt. Er wordt nu afgekapt in GeoProb-Pipe. "
