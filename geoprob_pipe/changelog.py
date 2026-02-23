@@ -1,10 +1,14 @@
 
 CHANGELOG = {
+    "1.3.6":
+        "(a) Hotfix: Nieuwe versie probabilistic_library stond geen Beta van de overschrijdingsfrequentielijn toe "
+        "van hoger dan 8.0. Hydra-NL lijkt tot en met 8.0 te gaan, waardoor het laatste punt soms net boven de 8.0 "
+        "valt. Er wordt nu afgekapt in GeoProb-Pipe. "
+        "(b) New feature: Indien een berekening faalt, wordt er nu een log opgeslagen van deze berekening. Applicatie "
+        "blijft ook doordraaien, i.p.v. crash.",
     "1.3.1":
-        "Hotfix. Visualisatie en export issues. Geen issue aan berekeningen "
-        "zelf. 1e issue: Foute beta waarden in de hover van de "
-        "betrouwbaarheidsindex.html. 2e issue: De df_limit_states werd "
-        "geëxporteerd als df_scenarios.",
+        "Hotfix. Visualisatie en export issues. Geen issue aan berekeningen zelf. 1e issue: Foute beta waarden in de "
+        "hover van de betrouwbaarheidsindex.html. 2e issue: De df_limit_states werd geëxporteerd als df_scenarios.",
     "1.3.0":
         "Probabilistic Library nu toegevoegd als 'setup dependency' nadat "
         "Deltares deze heeft vrijgegeven op PyPI. Eveneens Chrome "
