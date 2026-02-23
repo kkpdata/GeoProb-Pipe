@@ -58,9 +58,6 @@ class GraphHFreqSingleInteractive:
         df = self.df_parameter_input_expanded
         df = df[df["parameter_name"] == "buitenwaterstand"]
         df = concat([df.drop(columns=['parameter_input']), df['parameter_input'].apply(Series)], axis=1)
-        # print(f"{df.__len__()=}")
-        # print(f"{df.columns=}")
-        # print(f"{df=}")
 
         # If fragility_values_ref not in columns, then there are no fragility values needed
         if "fragility_values_ref" not in df.columns:
