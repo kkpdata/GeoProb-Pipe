@@ -2,6 +2,7 @@ from __future__ import annotations
 from InquirerPy import inquirer
 from pathlib import Path
 from typing import TYPE_CHECKING
+import scipy.stats as sct
 from geopandas import GeoDataFrame, read_file
 from shapely import Point
 import os
@@ -160,8 +161,12 @@ def check_hrd_frag_lines_added_to_geopackage(app_settings: ApplicationSettings):
         df_to_append = DataFrame({
             "fragility_values_ref": [location_name] * frequency_line.level.__len__(),
             "waarde": frequency_line.level,
-            "kans": frequency_line.exceedance_frequency})
+            "kans": frequency_line.exceedance_frequency,
+            "beta": -sct.norm.ppf(frequency_line.exceedance_frequency)
+        })
         df_to_append = df_to_append[df_to_append["kans"] < 1.0]
+        df_to_append = df_to_append[df_to_append["beta"] < 8.0]
+        df_to_append = df_to_append.drop(columns=["beta"])
         dfs.append(df_to_append)
 
     # Combine data and push

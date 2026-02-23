@@ -3,6 +3,7 @@ from probabilistic_library import (
     CombinerMethod, CombineType, Stochast, Settings)
 from typing import Optional, Callable, List, Dict, Union, Tuple, cast
 from geoprob_pipe.utils.validation_messages import ValidationMessages
+# noinspection PyPep8Naming
 from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 
 
@@ -16,7 +17,7 @@ class SystemCalculation:
             project_settings: Dict[str, Union[str, float, int]],
             # For assigning in children
             limit_states: Optional[List[Callable]] = None,
-            combin_limit_state: Optional[Callable] = None,
+            # combin_limit_state: Optional[Callable] = None,
             variables_setup_function: Optional[Callable] = None
     ):
         """
@@ -158,6 +159,7 @@ class SystemCalculation:
         for model_callable in self.given_limit_states:
             self.project.model = model_callable
             self._assign_project_correlations()
+            # noinspection PyBroadException
             try:
                 self.project.run()
             except Exception:

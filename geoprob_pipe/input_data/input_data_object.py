@@ -1,5 +1,6 @@
 from __future__ import annotations
 from geopandas import GeoDataFrame, read_file
+import scipy.stats as sct
 from pandas import read_sql, DataFrame
 from probabilistic_library import FragilityValue
 import pydra_core as pydra
@@ -84,6 +85,11 @@ class HydraNLData:
             sql=f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}' AND kans < 1.0;",
             con=conn)
         conn.close()
+
+        # Filter beta > 8 (probabilistic library cannot work with that in 26.1.1)
+        df_frag_line['beta'] = -sct.norm.ppf(df_frag_line['kans'])
+        df_frag_line = df_frag_line[df_frag_line['beta'] < 8.0].copy(deep=True)
+        df_frag_line = df_frag_line.drop(columns=["beta"])
 
         # Construct Fragility Values
         df_frag_line = df_frag_line.sort_values(by=["waarde"])

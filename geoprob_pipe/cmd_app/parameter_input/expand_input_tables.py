@@ -3,6 +3,7 @@ from pandas import DataFrame, isna, notna, concat, read_sql, read_csv
 import sqlite3
 import numpy as np
 import os
+import scipy.stats as sct
 from geopandas import GeoDataFrame, read_file
 from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
@@ -31,10 +32,15 @@ def _combine_parameter_invoer_sources(tables: InputParameterTables) -> DataFrame
 def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
     # Read database
     conn = sqlite3.connect(geopackage_filepath)
-    df_frag_line = read_sql(
+    df_frag_line: DataFrame = read_sql(
         sql=f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}' AND kans < 1.0;",
         con=conn)
     conn.close()
+
+    # Filter beta > 8 (probabilistic library cannot work with that in 26.1.1)
+    df_frag_line['beta'] = -sct.norm.ppf(df_frag_line['kans'])
+    df_frag_line = df_frag_line[df_frag_line['beta'] < 8.0].copy(deep=True)
+    df_frag_line = df_frag_line.drop(columns=["beta"])
 
     # Validate
     assert df_frag_line.__len__() > 2
