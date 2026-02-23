@@ -163,8 +163,6 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe) -> List[CalcRes
                     "vak_id": row["vak_id"],
                     "error_logs": error_logs,
                 })
-                # logger.error(f"Worker error in {row}")
-                # logger.debug(f"Detailed worker logs:\n{error_logs}")
             done += 1
 
             # Alleen kijken of er gelogd moet worden bij de laatste
