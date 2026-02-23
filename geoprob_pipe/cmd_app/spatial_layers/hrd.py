@@ -2,6 +2,7 @@ from __future__ import annotations
 from InquirerPy import inquirer
 from pathlib import Path
 from typing import TYPE_CHECKING
+import scipy.stats as sct
 from geopandas import GeoDataFrame, read_file
 from shapely import Point
 import os
@@ -127,12 +128,6 @@ def check_hrd_frag_lines_added_to_geopackage(app_settings: ApplicationSettings):
         print(BColors.OKBLUE, f"✔  HRD-fragility lines al uitgelezen.", BColors.ENDC)
         return
 
-    # Check if already added
-    # layers = fiona.listlayers(app_settings.geopackage_filepath)
-    # if "fragility_values_invoer_hrd" in layers:
-    #     print(BColors.OKBLUE, f"✔  HRD-fragility lines al uitgelezen.", BColors.ENDC)
-    #     return
-
     # Add frag lines to geopackage
     print(f"{BColors.UNDERLINE}HRD-fragility lines worden nu toegevoegd aan de GeoProb-Pipe GeoPackage.{BColors.ENDC}")
     hrd = pydra.HRDatabase(app_settings.hrd_file_path)
@@ -163,10 +158,16 @@ def check_hrd_frag_lines_added_to_geopackage(app_settings: ApplicationSettings):
             warnings.simplefilter(action='ignore', category=FutureWarning)
             location = hrd.get_location(location_name)
         frequency_line = fl.calculate(location)
-        dfs.append(DataFrame({
+        df_to_append = DataFrame({
             "fragility_values_ref": [location_name] * frequency_line.level.__len__(),
             "waarde": frequency_line.level,
-            "kans": frequency_line.exceedance_frequency}))
+            "kans": frequency_line.exceedance_frequency,
+            "beta": -sct.norm.ppf(frequency_line.exceedance_frequency)
+        })
+        df_to_append = df_to_append[df_to_append["kans"] < 1.0]
+        df_to_append = df_to_append[df_to_append["beta"] < 8.0]
+        df_to_append = df_to_append.drop(columns=["beta"])
+        dfs.append(df_to_append)
 
     # Combine data and push
     df = DataFrame(data=[], columns=["fragility_values_ref", "waarde", "kans"])
