@@ -1,15 +1,14 @@
 
 [tool.poetry]
 name = "geoprob_pipe"
-version = "1.3.11"
+version = "1.3.12"
 description = "Execute probabilistic piping calculations using the Deltares probabilic library."
 authors = [
-    { name = "Sander Kapinga", email = "S.Kapinga@wsrl.nl" },
-    { name = "Laura van der Doef", email = "L.vanderDoef@wshd.nl" },
-    { name = "Chris Pitzalis, ", email = "C.Pitzalis@wsrl.nl" },
-    { name = "Vincent Jilesen", email = "V.Jilesen@wshd.nl" },
+    "Sander Kapinga <S.Kapinga@wsrl.nl>",
+    "Laura van der Doef <L.vanderDoef@wshd.nl>",
+    "Chris Pitzalis <C.Pitzalis@wsrl.nl>",
+    "Vincent Jilesen <V.Jilesen@wshd.nl>",
 ]
-requires-python = ">=3.12"
 license = "GPL-3.0-or-later"
 readme = "README.md"
 classifiers = [
