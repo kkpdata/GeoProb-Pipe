@@ -114,10 +114,10 @@ jobs:
         if: steps.version_check.outputs.changed == 'true'
         run: poetry install --no-interaction --no-root
 
-#      - name: Build package (wheel + sdist)
-#        if: steps.version_check.outputs.changed == 'true'
-#        run: poetry build --no-interaction
-#
+      - name: Build package (wheel + sdist)
+        if: steps.version_check.outputs.changed == 'true'
+        run: poetry build --no-interaction
+
 #      - name: Publish to PyPI
 #        if: steps.version_check.outputs.changed == 'true'
 #        env:
