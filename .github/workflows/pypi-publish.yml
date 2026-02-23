@@ -1,0 +1,125 @@
+name: Publish to PyPI on version bump (Poetry)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (need previous commit too)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: "2.1.4"
+
+      # ✅ Detecteer of het versienummer is veranderd t.o.v. vorige commit
+      - name: Detect version change in pyproject.toml
+        id: version_check
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "👉 Start detectie…"
+
+          # Huidige pyproject.toml
+          cp pyproject.toml /tmp/pyproject_current.toml
+
+          # Vorige pyproject.toml (als die bestond)
+          if git cat-file -e HEAD~1:pyproject.toml 2>/dev/null; then
+            git show HEAD~1:pyproject.toml > /tmp/pyproject_prev.toml
+            PREV_EXISTS="true"
+          else
+            PREV_EXISTS="false"
+          fi
+
+          python - <<'PY'
+          import sys, os, json, pathlib
+
+          def read_version(path):
+            txt = pathlib.Path(path).read_text(encoding="utf-8")
+            # Probeer eerst tomllib (Python 3.11+)
+            import tomllib
+            data = tomllib.loads(txt)
+            # Check PEP 621 of Poetry
+            v = None
+            if "project" in data and isinstance(data["project"], dict):
+              v = data["project"].get("version")
+            if not v and "tool" in data and "poetry" in data["tool"]:
+              v = data["tool"]["poetry"].get("version")
+            return v
+
+          curr = read_version("/tmp/pyproject_current.toml")
+          prev = None
+          if os.environ.get("PREV_EXISTS") == "true":
+            prev = read_version("/tmp/pyproject_prev.toml")
+
+          # Output voor Actions
+          out = []
+          def emit(k, v): out.append(f"{k}={v}")
+
+          print("DEBUG: huidige versie is", curr)
+          if curr is None:
+            emit("changed", "false")
+            emit("reason", "No version field found in current pyproject.toml")
+          else:
+            print("DEBUG: vorige versie is", prev)
+            if prev is None:
+              # Eerste keer of pyproject.toml bestond nog niet — behandel als change
+              emit("changed", "true")
+              emit("reason", "No previous version to compare (first release or file introduced)")
+            else:
+              emit("changed", "true" if curr != prev else "false")
+              emit("previous", prev)
+              emit("current", curr)
+              emit("reason", "version differs" if curr != prev else "same version")
+
+          # Schrijf naar $GITHUB_OUTPUT
+          out_file = os.environ["GITHUB_OUTPUT"]
+          with open(out_file, "a", encoding="utf-8") as f:
+              for line in out:
+                  f.write(line + "\n")
+          PY
+        env:
+          PREV_EXISTS: ${{ steps.version_check.outputs.prev_exists }}
+
+      - name: Stop if version did not change
+        if: steps.version_check.outputs.changed == 'false'
+        run: |
+          echo "No version bump detected in pyproject.toml → skipping publish."
+          echo "Reason: ${{ steps.version_check.outputs.reason }}"
+          exit 0
+
+      - name: Show version change
+        if: steps.version_check.outputs.changed == 'true'
+        run: |
+          echo "Version change detected:"
+          echo "Previous: ${{ steps.version_check.outputs.previous }}"
+          echo "Current : ${{ steps.version_check.outputs.current }}"
+          echo "Reason  : ${{ steps.version_check.outputs.reason }}"
+
+      # Trigger workflow
+      - name: Install dependencies (no dev)
+        if: steps.version_check.outputs.changed == 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Build package (wheel + sdist)
+        if: steps.version_check.outputs.changed == 'true'
+        run: poetry build --no-interaction
+
+      - name: Publish to PyPI
+        if: steps.version_check.outputs.changed == 'true'
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+        run: poetry publish --no-interaction
