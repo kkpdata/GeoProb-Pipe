@@ -118,8 +118,8 @@ jobs:
         if: steps.version_check.outputs.changed == 'true'
         run: poetry build --no-interaction
 
-#      - name: Publish to PyPI
-#        if: steps.version_check.outputs.changed == 'true'
-#        env:
-#          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
-#        run: poetry publish --no-interaction
+      - name: Publish to PyPI
+        if: steps.version_check.outputs.changed == 'true'
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+        run: poetry publish --no-interaction
