@@ -81,9 +81,8 @@ class HydraNLData:
         # Read from geopackage
         conn = sqlite3.connect(self.app_settings.geopackage_filepath)
         df_frag_line = read_sql(
-            "SELECT * FROM fragility_values_invoer_hrd"
-            f" WHERE fragility_values_ref = '{ref}';",
-            conn)
+            sql=f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}' AND kans < 1.0;",
+            con=conn)
         conn.close()
 
         # Construct Fragility Values

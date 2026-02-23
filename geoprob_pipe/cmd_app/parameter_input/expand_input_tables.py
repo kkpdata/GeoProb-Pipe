@@ -32,8 +32,8 @@ def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
     # Read database
     conn = sqlite3.connect(geopackage_filepath)
     df_frag_line = read_sql(
-        f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}';",
-        conn)
+        sql=f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}' AND kans < 1.0;",
+        con=conn)
     conn.close()
 
     # Validate
