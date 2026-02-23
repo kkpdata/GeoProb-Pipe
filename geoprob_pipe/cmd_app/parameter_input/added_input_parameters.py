@@ -266,7 +266,7 @@ def process_import_input(app_settings: ApplicationSettings):
 
     # Validate expanded tables
     validity_extended_tables: Optional[bool] = None
-    if validity_extended_tables: validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings)
+    if validity_raw_tables: validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings)
 
     # Provide user with follow-up options
     inquire_to_store_input_tables_to_db(app_settings=app_settings, tables=tables)
