@@ -81,12 +81,12 @@ class GraphHFreqSingleInteractive:
         df_result['uittredepunt_ids_multiline'] = ""
         df_result['frequency_line'] = ""
         rows = []
-        for index, row in df_result.iterrows():
+        for _, row in df_result.iterrows():
 
             # Uittredepunt ids multiline
             arr = row['uittredepunt_ids'].split(", ")
             lines = [', '.join(arr[i:i + 5]) for i in range(0, len(arr), 5)]
-            df_result.loc[index, 'uittredepunt_ids_multiline'] = '<br>'.join(lines)
+            row['uittredepunt_ids_multiline'] = '<br>'.join(lines)
 
             # Create frequency line
             fragility_values = row['fragility_values']
