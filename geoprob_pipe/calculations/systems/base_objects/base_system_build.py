@@ -72,9 +72,7 @@ def _generate_single_calculation(
     calculation_input = _gather_calculation_input(
         df_expanded=df_expanded, uittredepunt_id=uittredepunt_id,
         ondergrondscenario_naam=ondergrondscenario_naam)
-    calc = system_class(
-        system_variable_distributions=calculation_input,
-        system_variable_correlations=variable_correlations)
+    calc: SystemCalculation = system_class(distributions=calculation_input, correlations=variable_correlations)
     calc.metadata["uittredepunt_id"] = uittredepunt_id
     calc.metadata["ondergrondscenario_naam"] = ondergrondscenario_naam
     calc.metadata["vak_id"] = vak_id

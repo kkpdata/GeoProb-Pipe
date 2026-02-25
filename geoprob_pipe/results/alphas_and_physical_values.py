@@ -40,9 +40,9 @@ def collect_stochast_values(calc: SystemCalculation
 
     # Gather data
     rows = []
-    for design_point in calc.model_design_points:
+    for design_point in calc.results.dps_limit_states:
         rows.extend(create_df_rows_for_design_point(dp=design_point, calculation=calc))
-    sdp = cast(DesignPoint, calc.system_design_point)
+    sdp = cast(DesignPoint, calc.results.dp_combine)
     rows.extend(create_df_rows_for_design_point(dp=sdp, calculation=calc))
 
     # Generate df from rows

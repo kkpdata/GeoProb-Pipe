@@ -13,11 +13,11 @@ if TYPE_CHECKING:
 
 def collect_df_beta_limit_state(calculation: SystemCalculation) -> pd.DataFrame:
 
-    def create_row(calc, dp: DesignPoint, model_name):
+    def create_row(dp: DesignPoint, model_name):
         return {
-            "uittredepunt_id": calc.metadata["uittredepunt_id"],
-            "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
-            "vak_id": calc.metadata["vak_id"],
+            "uittredepunt_id": calculation.metadata["uittredepunt_id"],
+            "ondergrondscenario_id": calculation.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
+            "vak_id": calculation.metadata["vak_id"],
             "limit_state": model_name,
             "converged": dp.is_converged,
             "beta": round(dp.reliability_index, 2),
@@ -28,8 +28,8 @@ def collect_df_beta_limit_state(calculation: SystemCalculation) -> pd.DataFrame:
         }
 
     rows = []
-    for design_point, model in zip(calculation.model_design_points, calculation.given_limit_states):
-        rows.append(create_row(calc=calculation, dp=design_point, model_name=model.__name__))
+    for design_point, model in zip(calculation.results.dps_limit_states, calculation.setup.system_limit_states):
+        rows.append(create_row(dp=design_point, model_name=model.__name__))
     df = pd.DataFrame(rows).sort_values(by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
@@ -40,26 +40,21 @@ def combine_df_beta_per_limit_state(calc_results: List[CalcResult]) -> pd.DataFr
 
 
 def collect_df_beta_scenario(calc: SystemCalculation) -> pd.DataFrame:
-
-    def create_row(calculation):
-        return {
-            "uittredepunt_id": calculation.metadata["uittredepunt_id"],
-            "ondergrondscenario_id": calculation.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
-            "vak_id": calculation.metadata["vak_id"],
-            "system_calculation": calculation,
-            "converged": calculation.system_design_point.is_converged,
-            "beta": round(calculation.system_design_point.reliability_index, 2),
-            "failure_probability": calculation.system_design_point.probability_failure,
-            "convergence": calculation.system_design_point.convergence,
-            "total_model_runs": calculation.system_design_point.total_model_runs,
-            "total_iterations": calculation.system_design_point.total_iterations,
+    return pd.DataFrame([{
+            "uittredepunt_id": calc.metadata["uittredepunt_id"],
+            "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
+            "vak_id": calc.metadata["vak_id"],
+            "system_calculation": calc,
+            "converged": calc.results.dp_combine.is_converged,
+            "beta": round(calc.results.dp_combine.reliability_index, 2),
+            "failure_probability": calc.results.dp_combine.probability_failure,
+            "convergence": calc.results.dp_combine.convergence,
+            "total_model_runs": calc.results.dp_combine.total_model_runs,
+            "total_iterations": calc.results.dp_combine.total_iterations,
             "model_betas": ", ".join([
-                str(round(dp.reliability_index, 2)) for dp in calculation.model_design_points
+                str(round(dp.reliability_index, 2)) for dp in calc.results.dps_limit_states
             ])
-        }
-    row = create_row(calc)
-
-    return pd.DataFrame([row])
+        }])
 
 
 def combine_df_beta_per_scenario(calc_results: List[CalcResult]) -> pd.DataFrame:
