@@ -34,6 +34,8 @@ class SystemSetup:
         self.reliability_settings: Dict[str, Union[str, float, int]] = reliability_settings
         if self.reliability_settings is None or self.reliability_settings.__len__() == 0:
             self.reliability_settings = DEFAULT_RELIABILITY_SETTINGS
+        if self.correlations is None:
+            self.correlations = []
 
         # Assigned by children:
         self.variables_function: Optional[Callable] = variables_function
@@ -107,7 +109,7 @@ def _apply_settings(system_calculation: SystemCalculation):
 
     # Combine Project
     system_calculation.results.combine_project.settings.combiner_method = CombinerMethod.importance_sampling
-    system_calculation.results.combine_project.settings.combiner_method = CombineType.parallel
+    system_calculation.results.combine_project.settings.combine_type = CombineType.parallel
 
 
 def _apply_distributions(system_calculation: SystemCalculation):
