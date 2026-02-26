@@ -56,35 +56,39 @@ def _combine_stochast_values(calc_results: List[CalcResult])  -> DataFrame:
     return df
 
 
-def calculate_derived_values(df_scenarios: DataFrame,
-                             geohydrologisch_model: str):
+def calculate_derived_values(df_scenarios_final: DataFrame, geohydrologisch_model: str):
     """ Re-calculates all derived physical values, i.e. intermediate values that were calculated inside the limit state
-    functions. These are not returned by the probabilistic library, hence we need to re-calculate them.
-    """
+    functions. These are not returned by the probabilistic library, hence we need to re-calculate them. """
 
     # Get kwargs per calculation
-    df = df_scenarios.copy(deep=True)
-    df['physical_values'] = df['system_calculation'].apply(
-        lambda sc: {alpha.variable.name: alpha.x for alpha in sc.system_design_point.alphas}
-    )
+    df = df_scenarios_final.copy(deep=True)
+    assert df.__len__() == 1, \
+        f"Developer note: Assumption that this dataframe must have 1 row at all times. If triggered, then investigate."
+    method_used = df.iloc[0]['method_used']
+    if method_used in ["1: Max Limit States", "2: Reliability Project"]:
+        # physical_values = {alpha.variable.name: alpha.x for alpha in system_calculation.results.dp_reliability.alphas}
+        df['physical_values'] = df['system_calculation'].apply(
+            lambda sc: {alpha.variable.name: alpha.x for alpha in sc.results.dp_reliability.alphas})
+    elif method_used in ["3: Combined Project"]:
+        # physical_values = {alpha.variable.name: alpha.x for alpha in system_calculation.results.dp_combine.alphas}
+        df['physical_values'] = df['system_calculation'].apply(
+            lambda sc: {alpha.variable.name: alpha.x for alpha in sc.results.dp_combine.alphas})
+    else:
+        raise NotImplementedError
 
     # Calculate the derived values
     def derived_values_single_calculation(model_naam: str, **kwargs):
-
         return_keys: List[str] = CALCULATION_MAPPER[model_naam]["system_return_parameter_keys"]
         system_limit_state_function = CALCULATION_MAPPER[model_naam]["limit_state_function"]
         derived_values = {key: value for key, value in zip(return_keys, system_limit_state_function(**kwargs))}
-
         return {**derived_values}
 
     df['derived_physical_values'] = df['physical_values'].apply(
-        lambda kwargs: derived_values_single_calculation(
-            model_naam=geohydrologisch_model, **kwargs)
-    )
+        lambda kwargs: derived_values_single_calculation(model_naam=geohydrologisch_model, **kwargs))
 
     # Create df with row per derived physical value
     df_new = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id", "derived_physical_values"]].copy(deep=True)
-    df_new['design_point'] = "system"
+    df_new['design_point'] = "system"  # TODO: Consider using the method_user here instead of just 'system'.
     df_new['distribution_type'] = "derived"
     df_new['alpha'] = np.nan
     df_new['influence_factor'] = np.nan

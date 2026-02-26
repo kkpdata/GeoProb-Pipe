@@ -12,7 +12,8 @@ import time
 import math
 from dataclasses import dataclass
 from geoprob_pipe.results.construct_dataframes import (
-    collect_df_beta_limit_state, collect_df_beta_scenario)
+    collect_df_beta_limit_state, collect_df_beta_scenario_rp, collect_df_beta_scenario_cp,
+    collect_df_beta_scenario_final)
 from geoprob_pipe.results.alphas_and_physical_values import (
     collect_stochast_values, calculate_derived_values)
 # noinspection PyPep8Naming
@@ -35,13 +36,17 @@ class CalcResult:
     Dataclass om de resultaten te verzamelen vanuit de calculation.
     Bevat de volgende attributen:
     Dataframe: df_limit_state,
-    Dataframe: df_scenario,
+    Dataframe: df_scenario_rp,
+    Dataframe: df_scenario_cp,
+    Dataframe: df_scenario_final,
     Dataframe: df_stochast,
     Dataframe: df_derived,
     ValidationMessages: validation_message
     """
     df_limit_state: DataFrame
-    df_scenario: DataFrame
+    df_scenario_rp: DataFrame
+    df_scenario_cp: DataFrame
+    df_scenario_final: DataFrame
     df_stochast: DataFrame
     df_derived: DataFrame
     validation_message: ValidationMessages
@@ -88,14 +93,24 @@ def _worker(row_unique: dict):
 
             # Collect results
             df_limit_state = collect_df_beta_limit_state(calc)
-            df_scenario = collect_df_beta_scenario(calc)
+            df_scenario_rp = collect_df_beta_scenario_rp(calc)
+            df_scenario_cp = collect_df_beta_scenario_cp(calc)
+            df_scenario_final = collect_df_beta_scenario_final(calc)
             df_stochast = collect_stochast_values(calc)
-            df_derived = calculate_derived_values(df_scenario, _MODEL)
-            df_scenario = df_scenario.drop(columns=["system_calculation"])
+            df_derived = calculate_derived_values(df_scenarios_final=df_scenario_final, geohydrologisch_model=_MODEL)
+            df_scenario_rp = df_scenario_rp.drop(columns=["system_calculation"])
+            df_scenario_cp = df_scenario_cp.drop(columns=["system_calculation"])
+            df_scenario_final = df_scenario_final.drop(columns=["system_calculation"])
 
             # Return results (without calculation object)
-            return CalcResult(df_limit_state, df_scenario, df_stochast,
-                              df_derived, calc.validation_messages), None, None
+            return CalcResult(
+                df_limit_state=df_limit_state, df_scenario_rp=df_scenario_rp, df_scenario_cp=df_scenario_cp,
+                df_scenario_final=df_scenario_final, df_stochast=df_stochast, df_derived=df_derived,
+                validation_message=calc.validation_messages
+            ), None, None
+            # return CalcResult(
+            #     df_limit_state, df_scenario_rp, df_scenario_cp, df_scenario_final, df_stochast,
+            #     df_derived, calc.validation_messages), None, None
     except Exception:
         tb = traceback.format_exc()
         log_buffer.write(tb)

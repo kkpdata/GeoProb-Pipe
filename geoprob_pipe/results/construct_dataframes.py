@@ -1,6 +1,7 @@
 from __future__ import annotations
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
 import pandas as pd
+import numpy as np
 from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
@@ -39,25 +40,104 @@ def combine_df_beta_per_limit_state(calc_results: List[CalcResult]) -> pd.DataFr
     return df
 
 
-def collect_df_beta_scenario(calc: SystemCalculation) -> pd.DataFrame:
+def collect_df_beta_scenario_rp(calc: SystemCalculation) -> pd.DataFrame:
     return pd.DataFrame([{
-            "uittredepunt_id": calc.metadata["uittredepunt_id"],
-            "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
-            "vak_id": calc.metadata["vak_id"],
-            "system_calculation": calc,
-            "converged": calc.results.dp_combine.is_converged,
-            "beta": round(calc.results.dp_combine.reliability_index, 2),
-            "failure_probability": calc.results.dp_combine.probability_failure,
-            "convergence": calc.results.dp_combine.convergence,
-            "total_model_runs": calc.results.dp_combine.total_model_runs,
-            "total_iterations": calc.results.dp_combine.total_iterations,
-            "model_betas": ", ".join([
-                str(round(dp.reliability_index, 2)) for dp in calc.results.dps_limit_states
-            ])
-        }])
+        "uittredepunt_id": calc.metadata["uittredepunt_id"],
+        "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
+        "vak_id": calc.metadata["vak_id"],
+        "system_calculation": calc,
+        "converged": calc.results.dp_reliability.is_converged,
+        "beta": round(calc.results.dp_reliability.reliability_index, 2),
+        "failure_probability": calc.results.dp_reliability.probability_failure,
+        "convergence": calc.results.dp_reliability.convergence,
+        "total_model_runs": calc.results.dp_reliability.total_model_runs,
+        "total_iterations": calc.results.dp_reliability.total_iterations,
+    }])
 
 
-def combine_df_beta_per_scenario(calc_results: List[CalcResult]) -> pd.DataFrame:
+def collect_df_beta_scenario_cp(calc: SystemCalculation) -> pd.DataFrame:
+    return pd.DataFrame([{
+        "uittredepunt_id": calc.metadata["uittredepunt_id"],
+        "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
+        "vak_id": calc.metadata["vak_id"],
+        "system_calculation": calc,
+        "converged": calc.results.dp_combine.is_converged,
+        "beta": round(calc.results.dp_combine.reliability_index, 2),
+        "failure_probability": calc.results.dp_combine.probability_failure,
+        "convergence": calc.results.dp_combine.convergence,
+        "total_model_runs": calc.results.dp_combine.total_model_runs,
+    }])
+
+
+def collect_df_beta_scenario_final(calc: SystemCalculation) -> pd.DataFrame:
+
+    converged_pofs = []
+    all_pofs = []
+    converged_methods = []
+    all_methods = []
+
+    beta1: float = max([dp.reliability_index for dp in calc.results.dps_limit_states])
+    converged1: bool = all([dp.is_converged for dp in calc.results.dps_limit_states])
+    pof1: float = min([dp.probability_failure for dp in calc.results.dps_limit_states])
+    all_methods.append("1: Max Limit States")
+    all_pofs.append(pof1)
+    if converged1:
+        converged_methods.append("1: Max Limit States")
+        converged_pofs.append(pof1)
+
+    beta2: float = calc.results.dp_reliability.reliability_index
+    converged2: bool = calc.results.dp_reliability.is_converged
+    pof2: float = calc.results.dp_reliability.probability_failure
+    all_methods.append("2: Reliability Project")
+    all_pofs.append(pof2)
+    if converged2:
+        converged_methods.append("2: Reliability Project")
+        converged_pofs.append(pof2)
+
+    beta3: float = calc.results.dp_combine.reliability_index
+    converged3: bool = calc.results.dp_combine.is_converged
+    pof3: float = calc.results.dp_combine.probability_failure
+    all_methods.append("3: Combined Project")
+    all_pofs.append(pof3)
+    if converged3:
+        converged_methods.append("3: Combined Project")
+        converged_pofs.append(pof2)
+
+    method_used = all_methods[np.argmax(all_pofs)]
+    method_pof = max(all_pofs)
+    if converged_pofs.__len__() > 0:
+        method_used = converged_methods[np.argmax(converged_pofs)]
+        method_pof = max(converged_pofs)
+
+    return pd.DataFrame([{
+        "uittredepunt_id": calc.metadata["uittredepunt_id"],
+        "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
+        "vak_id": calc.metadata["vak_id"],
+        "system_calculation": calc,
+        "beta1": max([dp.reliability_index for dp in calc.results.dps_limit_states]),
+        "converged1": all([dp.is_converged for dp in calc.results.dps_limit_states]),
+        "beta2": calc.results.dp_reliability.reliability_index,
+        "converged2": calc.results.dp_reliability.is_converged,
+        "beta3": calc.results.dp_combine.reliability_index,
+        "converged3": calc.results.dp_combine.is_converged,
+        "method_used": method_used,
+        "failure_probability": method_pof,
+    }])
+
+
+def combine_df_beta_per_scenario_rp(calc_results: List[CalcResult]) -> pd.DataFrame:
+    df = pd.concat((result.df_scenario for result in calc_results), ignore_index=True)
+    df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+    return df
+
+
+def combine_df_beta_per_scenario_cp(calc_results: List[CalcResult]) -> pd.DataFrame:
+    df = pd.concat((result.df_scenario for result in calc_results), ignore_index=True)
+    df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+    return df
+
+
+def combine_df_beta_per_scenario_final(calc_results: List[CalcResult]) -> pd.DataFrame:
     df = pd.concat((result.df_scenario for result in calc_results), ignore_index=True)
     df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
