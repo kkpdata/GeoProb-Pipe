@@ -162,9 +162,9 @@ class GraphBetaValuesSingleInteractive:
                 first = False
 
     def _add_beta_per_scenario(self):
-        df_results_combined = self.geoprob_pipe.results.df_beta_scenarios
+        df_beta_scenarios_final = self.geoprob_pipe.results.df_beta_scenarios_final
         df_for_graph = merge(
-            left=df_results_combined[["uittredepunt_id", "beta", "converged"]],
+            left=df_beta_scenarios_final[["uittredepunt_id", "beta", "converged"]],
             right=self.gdf_uittredepunten[["uittredepunt_id", "metrering"]],
             on="uittredepunt_id",
             how="left"
@@ -346,7 +346,7 @@ class GraphBetaValuesSingleInteractive:
                 name=grens,
                 mode="lines",
                 line=dict(width=0),        # geen bovenrand zichtbaar
-                fill="toexec",
+                fill="tonexty",
                 fillcolor=colors[i % len(colors)],  # kleur uit lijst
                 hoverinfo="skip",
                 showlegend=False,

@@ -2,8 +2,8 @@ from __future__ import annotations
 from pandas import DataFrame
 from typing import TYPE_CHECKING, Optional
 from geoprob_pipe.results.construct_dataframes import (
-    combine_df_beta_per_limit_state, collect_df_beta_scenario_rp, collect_df_beta_scenario_cp,
-    collect_df_beta_scenario_final, calculate_df_beta_per_uittredepunt, construct_df_beta_per_vak)
+    combine_df_beta_per_limit_state, combine_df_beta_per_scenario_rp, combine_df_beta_per_scenario_cp,
+    combine_df_beta_per_scenario_final, calculate_df_beta_per_uittredepunt, construct_df_beta_per_vak)
 from geoprob_pipe.results.alphas_and_physical_values import construct_df
 import os
 if TYPE_CHECKING:
@@ -17,8 +17,11 @@ class Results:
         self.geoprob_pipe = geoprob_pipe
         self.df_beta_limit_states = combine_df_beta_per_limit_state(geoprob_pipe.calc_results)
         self.df_beta_scenarios_rp = combine_df_beta_per_scenario_rp(geoprob_pipe.calc_results)
+        # Scenario calculations as a single Reliability Project.
         self.df_beta_scenarios_cp = combine_df_beta_per_scenario_cp(geoprob_pipe.calc_results)
+        # Scenario calculations as a single Combine Project.
         self.df_beta_scenarios_final = combine_df_beta_per_scenario_final(geoprob_pipe.calc_results)
+        # Worst result from scenario calculations, either combine project, reliability project or max of limit states.
         self._df_alphas_influence_factors_and_physical_values: Optional[DataFrame] = None
         self.df_beta_uittredepunten = calculate_df_beta_per_uittredepunt(geoprob_pipe=geoprob_pipe, results=self)
         self.df_beta_vakken = construct_df_beta_per_vak(self)

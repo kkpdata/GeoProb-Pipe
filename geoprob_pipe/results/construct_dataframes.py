@@ -71,74 +71,87 @@ def collect_df_beta_scenario_cp(calc: SystemCalculation) -> pd.DataFrame:
 
 def collect_df_beta_scenario_final(calc: SystemCalculation) -> pd.DataFrame:
 
-    converged_pofs = []
-    all_pofs = []
-    converged_methods = []
-    all_methods = []
+    converged_pofs: List[float] = []
+    converged_methods: List[str] = []
+    converged_betas: List[float] = []
+    all_pofs: List[float] = []
+    all_methods: List[str] = []
+    all_betas: List[float] = []
+    all_converged: List[bool] = []
 
     beta1: float = max([dp.reliability_index for dp in calc.results.dps_limit_states])
     converged1: bool = all([dp.is_converged for dp in calc.results.dps_limit_states])
     pof1: float = min([dp.probability_failure for dp in calc.results.dps_limit_states])
+    all_converged.append(converged1)
     all_methods.append("1: Max Limit States")
     all_pofs.append(pof1)
+    all_betas.append(beta1)
     if converged1:
         converged_methods.append("1: Max Limit States")
         converged_pofs.append(pof1)
+        converged_betas.append(beta1)
 
     beta2: float = calc.results.dp_reliability.reliability_index
     converged2: bool = calc.results.dp_reliability.is_converged
     pof2: float = calc.results.dp_reliability.probability_failure
+    all_converged.append(converged2)
     all_methods.append("2: Reliability Project")
     all_pofs.append(pof2)
+    all_betas.append(beta2)
     if converged2:
         converged_methods.append("2: Reliability Project")
         converged_pofs.append(pof2)
+        converged_betas.append(beta2)
 
     beta3: float = calc.results.dp_combine.reliability_index
     converged3: bool = calc.results.dp_combine.is_converged
     pof3: float = calc.results.dp_combine.probability_failure
+    all_converged.append(converged3)
     all_methods.append("3: Combined Project")
     all_pofs.append(pof3)
+    all_betas.append(beta3)
     if converged3:
         converged_methods.append("3: Combined Project")
         converged_pofs.append(pof2)
+        converged_betas.append(beta3)
 
-    method_used = all_methods[np.argmax(all_pofs)]
-    method_pof = max(all_pofs)
+    index_max_pof = np.argmax(all_pofs)
+    method_used = all_methods[index_max_pof]
+    method_pof = all_pofs[index_max_pof]
+    method_beta = all_betas[index_max_pof]
+    converged: bool = all_converged[index_max_pof]
     if converged_pofs.__len__() > 0:
         method_used = converged_methods[np.argmax(converged_pofs)]
         method_pof = max(converged_pofs)
+        method_beta = min(converged_betas)
+        converged = True
 
     return pd.DataFrame([{
         "uittredepunt_id": calc.metadata["uittredepunt_id"],
         "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
         "vak_id": calc.metadata["vak_id"],
         "system_calculation": calc,
-        "beta1": max([dp.reliability_index for dp in calc.results.dps_limit_states]),
-        "converged1": all([dp.is_converged for dp in calc.results.dps_limit_states]),
-        "beta2": calc.results.dp_reliability.reliability_index,
-        "converged2": calc.results.dp_reliability.is_converged,
-        "beta3": calc.results.dp_combine.reliability_index,
-        "converged3": calc.results.dp_combine.is_converged,
-        "method_used": method_used,
-        "failure_probability": method_pof,
+        "beta1": beta1, "converged1": converged1,
+        "beta2": beta2, "converged2": converged2,
+        "beta3": beta3, "converged3": converged3,
+        "method_used": method_used, "failure_probability": method_pof, "beta": method_beta, "converged": converged,
     }])
 
 
 def combine_df_beta_per_scenario_rp(calc_results: List[CalcResult]) -> pd.DataFrame:
-    df = pd.concat((result.df_scenario for result in calc_results), ignore_index=True)
+    df = pd.concat((result.df_scenario_rp for result in calc_results), ignore_index=True)
     df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
 
 def combine_df_beta_per_scenario_cp(calc_results: List[CalcResult]) -> pd.DataFrame:
-    df = pd.concat((result.df_scenario for result in calc_results), ignore_index=True)
+    df = pd.concat((result.df_scenario_cp for result in calc_results), ignore_index=True)
     df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
 
 def combine_df_beta_per_scenario_final(calc_results: List[CalcResult]) -> pd.DataFrame:
-    df = pd.concat((result.df_scenario for result in calc_results), ignore_index=True)
+    df = pd.concat((result.df_scenario_final for result in calc_results), ignore_index=True)
     df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
@@ -146,8 +159,8 @@ def combine_df_beta_per_scenario_final(calc_results: List[CalcResult]) -> pd.Dat
 def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> pd.DataFrame:
 
     # Sum
-    df = results.df_beta_scenarios.assign(
-        failure_probability=results.df_beta_scenarios.apply(
+    df = results.df_beta_scenarios_final.assign(
+        failure_probability=results.df_beta_scenarios_final.apply(
             lambda row: row['failure_probability'] * geoprob_pipe.input_data.scenarios.scenario_kans(
                 vak_id=row['vak_id'], scenario_naam=row['ondergrondscenario_id']
             ), axis=1)).groupby('uittredepunt_id', as_index=False)[
@@ -155,7 +168,7 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
 
     # Determine when uittredepunt is converged (when all scenarios are converged)
-    conv = results.df_beta_scenarios.groupby(
+    conv = results.df_beta_scenarios_final.groupby(
         'uittredepunt_id', as_index=False)["converged"].all()
     df = df.merge(conv, on="uittredepunt_id", how="left")
 
@@ -170,7 +183,7 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
 def construct_df_beta_per_vak(results: Results):
 
     # TODO: Check if all calculations on scenario level are converged?
-    conv = results.df_beta_scenarios.groupby('vak_id', as_index=False)["converged"].all()
+    conv = results.df_beta_scenarios_final.groupby('vak_id', as_index=False)["converged"].all()
 
     # TODO: Wat doet dit stukje code?
     df = results.df_beta_uittredepunten
