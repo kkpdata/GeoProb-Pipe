@@ -3,6 +3,7 @@ from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
 import pandas as pd
 import numpy as np
 from typing import TYPE_CHECKING, List
+# from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe
@@ -10,6 +11,7 @@ if TYPE_CHECKING:
         SystemCalculation
     from probabilistic_library import DesignPoint
     from geoprob_pipe.calculations.systems.build_and_run import CalcResult
+
 
 
 def collect_df_beta_limit_state(calculation: SystemCalculation) -> pd.DataFrame:
@@ -112,21 +114,32 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> pd.DataFrame:
     all_betas.append(beta3)
     if converged3:
         converged_methods.append("3: Combined Project")
-        converged_pofs.append(pof2)
+        converged_pofs.append(pof3)
         converged_betas.append(beta3)
 
-    index_max_pof = np.argmax(all_pofs)
-    method_used = all_methods[index_max_pof]
-    method_pof = all_pofs[index_max_pof]
-    method_beta = all_betas[index_max_pof]
-    converged: bool = all_converged[index_max_pof]
+    # Determine final result
     if converged_pofs.__len__() > 0:
-        method_used = converged_methods[np.argmax(converged_pofs)]
-        method_pof = max(converged_pofs)
-        method_beta = min(converged_betas)
-        converged = True
+        converged: bool = True
+        index_max_pof = np.argmax(converged_pofs)
+        method_used = converged_methods[index_max_pof]
+        method_pof = converged_pofs[index_max_pof]
+        method_beta = converged_betas[index_max_pof]
+        final_reason = "Converged"
+    else:
+        converged: bool = False
+        index_max_pof = np.argmax(all_pofs)
+        method_used = all_methods[index_max_pof]
+        method_pof = all_pofs[index_max_pof]
+        method_beta = all_betas[index_max_pof]
+        final_reason = ""  # No reason, because unconverged can be considered not final.
 
-    return pd.DataFrame([{
+    # Alternative final reasons
+    if final_reason == "" and converged_pofs.__len__() == 0 and method_beta >= 8.0:
+        final_reason = "Beta >= 8.0"
+    if converged and method_used == "1: Max Limit States":
+        final_reason = "Approximation (converged)"
+
+    return_df = pd.DataFrame([{
         "uittredepunt_id": calc.metadata["uittredepunt_id"],
         "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
         "vak_id": calc.metadata["vak_id"],
@@ -135,7 +148,10 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> pd.DataFrame:
         "beta2": beta2, "converged2": converged2,
         "beta3": beta3, "converged3": converged3,
         "method_used": method_used, "failure_probability": method_pof, "beta": method_beta, "converged": converged,
+        "final": final_reason,
     }])
+
+    return return_df
 
 
 def combine_df_beta_per_scenario_rp(calc_results: List[CalcResult]) -> pd.DataFrame:
