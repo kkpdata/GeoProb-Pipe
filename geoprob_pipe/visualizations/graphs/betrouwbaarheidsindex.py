@@ -108,7 +108,7 @@ class GraphBetaValuesSingleInteractive:
         )
         first = True
         for value, color, name in [(True, "black", "Beta vakken"),
-                             (False, "blue", "Unconverged Beta vakken")]:
+                             (False, "blue", "Verder rekenen geadviseerd (vakken)")]:
             mask = df_for_graph["converged"] == value
             mask_low = df_for_graph["beta"] < self.beta_min
             mask_high = df_for_graph["beta"] > self.beta_max
@@ -168,13 +168,9 @@ class GraphBetaValuesSingleInteractive:
             right=self.gdf_uittredepunten[["uittredepunt_id", "metrering"]],
             on="uittredepunt_id", how="left")
         df_for_graph["converged_alt"] = df_for_graph["final"] != ""
-        # df_for_graph["converged_reason"] = "Unconverged"
-        # df_for_graph.loc[df_for_graph["converged"], "converged_reason"] = "Converged"
-        # mask_series = (df_for_graph["beta"] >= 8.0) & (~df_for_graph["converged"])
-        # df_for_graph.loc[mask_series, "converged_reason"] = "Beta >= 8.0"
 
         for value, color, name in [(True, "black", 'Beta scenarios'),
-                                   (False, "blue", "Unconverged Beta scenarios")]:
+                                   (False, "blue", "Verder rekenen geadviseerd (scenarios)")]:
             mask = df_for_graph["converged_alt"] == value
             mask_low = df_for_graph["beta"] < self.beta_min
             mask_high = df_for_graph["beta"] > self.beta_max
@@ -184,17 +180,17 @@ class GraphBetaValuesSingleInteractive:
                 go.Scatter(
                     x=df_for_graph.loc[mask, 'metrering'], y=df_for_graph.loc[mask, "beta"],
                     mode='markers',
-                    marker=dict(symbol='diamond', size=7, color=color, line=dict(color="white", width=1)),
+                    marker=dict(symbol='diamond', size=7, color=color),
                     legendgroup="Beta scenarios", showlegend=value, name=name,
                     customdata=df_for_graph.loc[mask, [
-                        "uittredepunt_id", "beta", "metrering", "method_used", "converged"
+                        "uittredepunt_id", "beta", "metrering", "method_used", "converged", "final"
                     ]],
                     hovertemplate=(
                         "ID: %{customdata[0]}<br>"
                         "Beta: %{customdata[1]:.3f}<br>"
                         "Metrering: %{customdata[2]}<br>"
                         "Methode: %{customdata[3]}<br>"
-                        "Converged: %{customdata[4]}<br>"
+                        "Converged: %{customdata[4]} (%{customdata[5]})"
                     )))
 
             # Above range
@@ -237,19 +233,20 @@ class GraphBetaValuesSingleInteractive:
         # Gather results to plot
         df_results_uittredepunten = self.geoprob_pipe.results.df_beta_uittredepunten
         df_for_graph: DataFrame = merge(
-            left=df_results_uittredepunten[["uittredepunt_id", "beta", "converged"]],
+            left=df_results_uittredepunten[["uittredepunt_id", "beta", "converged", "final"]],
             right=self.gdf_uittredepunten[["uittredepunt_id", "metrering"]],
             on="uittredepunt_id",
             how="left"
         )
+        df_for_graph["converged_alt"] = df_for_graph["final"] != ""
 
-        # Plot converged and unconverged Beta values
+        # Plot converged and 'Verder rekenen geadviseerd' values
         for value, color, name in [
             (True, "black", "Beta uittredepunt"),
-            (False, "blue", "Unconverged Beta uittredepunt")
+            (False, "blue", "Verder rekenen geadviseerd (uittredepunten)")
         ]:
 
-            mask = df_for_graph["converged"] == value
+            mask = df_for_graph["converged_alt"] == value
             _add_beta_per_uittredepunt_points(
                 self=self, df_for_graph=df_for_graph, mask=mask, name=name, color=color, value=value)
 
@@ -359,14 +356,8 @@ class GraphBetaValuesSingleInteractive:
 
     def _update_layout(self):
         self.fig.add_trace(go.Scatter(
-            x=[0],
-            y=[0],
-            mode="markers",
-            marker=dict(color="blue",
-                        symbol="square"),
-            name="Unconverged",
-            showlegend=True
-        ))
+            x=[0], y=[0], name="Verder rekenen geadviseerd", showlegend=True,
+            mode="markers", marker=dict(color="blue", symbol="square")))
         annotation = self.annotation_vak + self.annotation_label
         self.fig.update_layout(
             title="Betrouwbaarheidsindex STPH",

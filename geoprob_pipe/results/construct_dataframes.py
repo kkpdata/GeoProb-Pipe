@@ -174,9 +174,16 @@ def combine_df_beta_per_scenario_final(calc_results: List[CalcResult]) -> pd.Dat
 
 def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> pd.DataFrame:
 
+    df_beta_scenarios_final = results.df_beta_scenarios_final.copy(deep=True)
+    df_beta_scenarios_final['final_number'] = df_beta_scenarios_final['final'].map({
+        'Beta >= 8.0': 4,
+        'Converged': 3,
+        'Approximation (converged)': 2,
+    }).fillna(1)
+
     # Sum
-    df = results.df_beta_scenarios_final.assign(
-        failure_probability=results.df_beta_scenarios_final.apply(
+    df = df_beta_scenarios_final.assign(
+        failure_probability=df_beta_scenarios_final.apply(
             lambda row: row['failure_probability'] * geoprob_pipe.input_data.scenarios.scenario_kans(
                 vak_id=row['vak_id'], scenario_naam=row['ondergrondscenario_id']
             ), axis=1)).groupby('uittredepunt_id', as_index=False)[
@@ -184,28 +191,43 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
 
     # Determine when uittredepunt is converged (when all scenarios are converged)
-    conv = results.df_beta_scenarios_final.groupby(
-        'uittredepunt_id', as_index=False)["converged"].all()
+    conv = df_beta_scenarios_final.groupby('uittredepunt_id', as_index=False)["converged"].all()
     df = df.merge(conv, on="uittredepunt_id", how="left")
+
+    # Determine uittredepunt final reason
+    final_nr = df_beta_scenarios_final.groupby('uittredepunt_id', as_index=False)["final_number"].min()
+    df = df.merge(final_nr, on="uittredepunt_id", how="left")
+    df['final'] = df['final_number'].map({
+        4: "Beta >= 8.0",
+        3: "Converged",
+        2: "Approximation (converged)",
+    }).fillna("")
 
     # Add vak id back to it
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df_uittredepunten = gdf_uittredepunten[["uittredepunt_id", "vak_id"]]
     df = df.merge(df_uittredepunten, left_on="uittredepunt_id", right_on="uittredepunt_id")
 
-    return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability"]]
+    return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability", "final"]]
 
 
 def construct_df_beta_per_vak(results: Results):
 
-    # TODO: Check if all calculations on scenario level are converged?
-    conv = results.df_beta_scenarios_final.groupby('vak_id', as_index=False)["converged"].all()
+    # Gather data
+    df_beta_scenarios_final = results.df_beta_uittredepunten.copy(deep=True)
+    df_beta_scenarios_final = df_beta_scenarios_final.drop(columns=["converged"])  # B > 8 can have no convergence, but is considered final. Therefore, drop col
+    df_beta_scenarios_final['final_number'] = df_beta_scenarios_final['final'].map({
+        'Beta >= 8.0': 4,
+        'Converged': 3,
+        'Approximation (converged)': 2,
+    }).fillna(1)
 
-    # TODO: Wat doet dit stukje code?
-    df = results.df_beta_uittredepunten
-    df = df.drop(columns=["converged"])  # TODO: Waarom drop converged?
-    df = df.loc[df.groupby('vak_id')['beta'].idxmin()]  # Minimale beta van beta uittredepunten per vak
+    # Minimale beta van beta uittredepunten per vak
+    df = df_beta_scenarios_final.loc[df_beta_scenarios_final.groupby('vak_id')['beta'].idxmin()]
 
-    # TODO: Waarom de merge?
-    df = df.merge(conv, on="vak_id", how="left")
-    return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability"]]
+    # Add advise to further calculate where necessary
+    final_number = df_beta_scenarios_final.groupby('vak_id', as_index=False)["final_number"].min()
+    df = df.merge(final_number, on="vak_id", how="left")
+    df['advies_verder_rekenen'] = df['final_number'].map({1: "Ja"}).fillna("")
+
+    return df[["uittredepunt_id", "vak_id", "beta", "failure_probability", "advies_verder_rekenen"]]
