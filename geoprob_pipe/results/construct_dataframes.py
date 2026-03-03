@@ -1,6 +1,6 @@
 from __future__ import annotations
 from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
-import pandas as pd
+from pandas import DataFrame, concat
 import numpy as np
 from typing import TYPE_CHECKING, List
 # from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 
-def collect_df_beta_limit_state(calculation: SystemCalculation) -> pd.DataFrame:
+def collect_df_beta_limit_state(calculation: SystemCalculation) -> DataFrame:
 
     def create_row(dp: DesignPoint, model_name):
         return {
@@ -33,17 +33,17 @@ def collect_df_beta_limit_state(calculation: SystemCalculation) -> pd.DataFrame:
     rows = []
     for design_point, model in zip(calculation.results.dps_limit_states, calculation.setup.system_limit_states):
         rows.append(create_row(dp=design_point, model_name=model.__name__))
-    df = pd.DataFrame(rows).sort_values(by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+    df = DataFrame(rows).sort_values(by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
 
-def combine_df_beta_per_limit_state(calc_results: List[CalcResult]) -> pd.DataFrame:
-    df = pd.concat((result.df_limit_state for result in calc_results), ignore_index=True)
+def combine_df_beta_per_limit_state(calc_results: List[CalcResult]) -> DataFrame:
+    df = concat((result.df_limit_state for result in calc_results), ignore_index=True)
     return df
 
 
-def collect_df_beta_scenario_rp(calc: SystemCalculation) -> pd.DataFrame:
-    return pd.DataFrame([{
+def collect_df_beta_scenario_rp(calc: SystemCalculation) -> DataFrame:
+    return DataFrame([{
         "uittredepunt_id": calc.metadata["uittredepunt_id"],
         "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
         "vak_id": calc.metadata["vak_id"],
@@ -57,8 +57,8 @@ def collect_df_beta_scenario_rp(calc: SystemCalculation) -> pd.DataFrame:
     }])
 
 
-def collect_df_beta_scenario_cp(calc: SystemCalculation) -> pd.DataFrame:
-    return pd.DataFrame([{
+def collect_df_beta_scenario_cp(calc: SystemCalculation) -> DataFrame:
+    return DataFrame([{
         "uittredepunt_id": calc.metadata["uittredepunt_id"],
         "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
         "vak_id": calc.metadata["vak_id"],
@@ -71,7 +71,7 @@ def collect_df_beta_scenario_cp(calc: SystemCalculation) -> pd.DataFrame:
     }])
 
 
-def collect_df_beta_scenario_final(calc: SystemCalculation) -> pd.DataFrame:
+def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
 
     converged_pofs: List[float] = []
     converged_methods: List[str] = []
@@ -139,7 +139,7 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> pd.DataFrame:
     if converged and method_used == "1: Max Limit States":
         final_reason = "Approximation (converged)"
 
-    return_df = pd.DataFrame([{
+    return_df = DataFrame([{
         "uittredepunt_id": calc.metadata["uittredepunt_id"],
         "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
         "vak_id": calc.metadata["vak_id"],
@@ -154,25 +154,25 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> pd.DataFrame:
     return return_df
 
 
-def combine_df_beta_per_scenario_rp(calc_results: List[CalcResult]) -> pd.DataFrame:
-    df = pd.concat((result.df_scenario_rp for result in calc_results), ignore_index=True)
+def combine_df_beta_per_scenario_rp(calc_results: List[CalcResult]) -> DataFrame:
+    df = concat((result.df_scenario_rp for result in calc_results), ignore_index=True)
     df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
 
-def combine_df_beta_per_scenario_cp(calc_results: List[CalcResult]) -> pd.DataFrame:
-    df = pd.concat((result.df_scenario_cp for result in calc_results), ignore_index=True)
+def combine_df_beta_per_scenario_cp(calc_results: List[CalcResult]) -> DataFrame:
+    df = concat((result.df_scenario_cp for result in calc_results), ignore_index=True)
     df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
 
-def combine_df_beta_per_scenario_final(calc_results: List[CalcResult]) -> pd.DataFrame:
-    df = pd.concat((result.df_scenario_final for result in calc_results), ignore_index=True)
+def combine_df_beta_per_scenario_final(calc_results: List[CalcResult]) -> DataFrame:
+    df = concat((result.df_scenario_final for result in calc_results), ignore_index=True)
     df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
     return df
 
 
-def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> pd.DataFrame:
+def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> DataFrame:
 
     df_beta_scenarios_final = results.df_beta_scenarios_final.copy(deep=True)
     df_beta_scenarios_final['final_number'] = df_beta_scenarios_final['final'].map({
@@ -198,10 +198,7 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     final_nr = df_beta_scenarios_final.groupby('uittredepunt_id', as_index=False)["final_number"].min()
     df = df.merge(final_nr, on="uittredepunt_id", how="left")
     df['final'] = df['final_number'].map({
-        4: "Beta >= 8.0",
-        3: "Converged",
-        2: "Approximation (converged)",
-    }).fillna("")
+        4: "Beta >= 8.0", 3: "Converged", 2: "Approximation (converged)"}).fillna("")
 
     # Add vak id back to it
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
@@ -215,15 +212,14 @@ def construct_df_beta_per_vak(results: Results):
 
     # Gather data
     df_beta_scenarios_final = results.df_beta_uittredepunten.copy(deep=True)
-    df_beta_scenarios_final = df_beta_scenarios_final.drop(columns=["converged"])  # B > 8 can have no convergence, but is considered final. Therefore, drop col
+    df_beta_scenarios_final = df_beta_scenarios_final.drop(columns=["converged"])
+    # B > 8 can have no convergence, but is considered final. Therefore, drop col
     df_beta_scenarios_final['final_number'] = df_beta_scenarios_final['final'].map({
-        'Beta >= 8.0': 4,
-        'Converged': 3,
-        'Approximation (converged)': 2,
-    }).fillna(1)
+        'Beta >= 8.0': 4, 'Converged': 3, 'Approximation (converged)': 2}).fillna(1)
 
     # Minimale beta van beta uittredepunten per vak
-    df = df_beta_scenarios_final.loc[df_beta_scenarios_final.groupby('vak_id')['beta'].idxmin()]
+    df: DataFrame = df_beta_scenarios_final.loc[df_beta_scenarios_final.groupby('vak_id')['beta'].idxmin()]
+    df = df.drop(columns=["final_number"])
 
     # Add advise to further calculate where necessary
     final_number = df_beta_scenarios_final.groupby('vak_id', as_index=False)["final_number"].min()
