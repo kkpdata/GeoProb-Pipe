@@ -301,9 +301,8 @@ class GraphBetaValuesSingleInteractive:
             for _, row in df_for_graph.loc[mask].iterrows():
                 self.fig.add_trace(go.Scatter(
                     x=[row["m_start"], row["m_end"]], y=[row["beta"], row["beta"]],
-                    mode="lines", line=dict(color=color, width=2.5),
-                    name=name, legendgroup="Beta vakken", showlegend=first & value,
-                    customdata=[[row["id"], row["beta"]]] * 2,
+                    mode="lines", line=dict(color=color, width=2.5), name=name, legendgroup="Beta vakken",
+                    showlegend=first & value, customdata=[[row["id"], row["beta"]]] * 2,
                     hovertemplate="ID: %{customdata[0]}<br>" +
                                   "Beta: %{customdata[1]:.3f}"))
                 first = False
