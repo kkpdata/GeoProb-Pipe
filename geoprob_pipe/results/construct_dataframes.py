@@ -72,6 +72,17 @@ def collect_df_beta_scenario_cp(calc: SystemCalculation) -> DataFrame:
 
 
 def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
+    """ Converts a SystemCalculation-object to a single-row DataFrame with the final result of the scenario
+    calculations. Because there are several calculation methods, and the preferred result also depends on convergence,
+    we use the below flow chart to determine the final result.
+
+    .. image:: /image/flow-chart-final-result-scenario-calculations.png
+       :alt: Flow chart final result scenario calculations
+       :align: center
+
+    :param calc:
+    :return:
+    """
 
     # Base DataFrame-row to return
     beta1: float = max([dp.reliability_index for dp in calc.results.dps_limit_states])
