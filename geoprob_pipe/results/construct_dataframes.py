@@ -103,7 +103,7 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
     # Flow chart step 1: Combine Project converged?
     pof3: float = calc.results.dp_combine.probability_failure
     if converged3:
-        return_dict["method_used"] = "3: Combined Project"
+        return_dict["method_used"] = "1: Combine Project"
         return_dict["flow_chart_number"] = 1
         return_dict["failure_probability"] = pof3
         return_dict["beta"] = beta3
@@ -125,7 +125,7 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
     # Flow chart step 3: Separate Limit States all converged?
     pof1: float = min([dp.probability_failure for dp in calc.results.dps_limit_states])
     if converged1:
-        return_dict["method_used"] = "1: Max Limit States"
+        return_dict["method_used"] = "3: Max Limit States"
         return_dict["flow_chart_number"] = 3
         return_dict["failure_probability"] = pof1
         return_dict["beta"] = beta1
@@ -136,7 +136,7 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
 
     # Flow chart step 4: B >= 8.0 (of all methods)?
     all_pofs: List[float] = [pof1, pof2, pof3]
-    all_methods: List[str] = ["1: Max Limit States", "2: Reliability Project", "3: Combined Project"]
+    all_methods: List[str] = ["3: Max Limit States", "2: Reliability Project", "1: Combine Project"]
     all_betas: List[float] = [beta1, beta2, beta3]
     index_max_pof = np.argmax(all_pofs)
     if beta1 >= 8.0 and beta2 >= 8.0 and beta3 >= 8.0:

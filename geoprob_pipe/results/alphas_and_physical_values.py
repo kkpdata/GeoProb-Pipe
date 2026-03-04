@@ -42,7 +42,7 @@ def collect_stochast_values(calc: SystemCalculation, df_scenario_final: DataFram
 
     rows = []
 
-    if method_used == "1: Max Limit States":
+    if method_used == "3: Max Limit States":
         # Gather for separate limit states
         for design_point in calc.results.dps_limit_states:
             rows.extend(create_df_rows_for_design_point(dp=design_point, append=design_point.identifier))
@@ -52,7 +52,7 @@ def collect_stochast_values(calc: SystemCalculation, df_scenario_final: DataFram
         dp_reliability = cast(DesignPoint, calc.results.dp_reliability)
         rows.extend(create_df_rows_for_design_point(dp=dp_reliability))
 
-    elif method_used == "3: Combined Project":
+    elif method_used == "1: Combine Project":
         # Gather for combine project
         dp_combine = cast(DesignPoint, calc.results.dp_combine)
         rows.extend(create_df_rows_for_design_point(dp=dp_combine))
@@ -80,15 +80,18 @@ def calculate_derived_values(df_scenarios_final: DataFrame, geohydrologisch_mode
     assert df.__len__() == 1, \
         f"Developer note: Assumption that this dataframe must have 1 row at all times. If triggered, then investigate."
     method_used = df.iloc[0]['method_used']
-    if method_used == "1: Max Limit States":
+
+    if method_used == "3: Max Limit States":
         df['physical_values'] = df['system_calculation'].apply(
             lambda sc: {alpha.variable.name: alpha.x
                         for dp in sc.results.dps_limit_states
                         for alpha in dp.alphas})
+
     elif method_used == "2: Reliability Project":
         df['physical_values'] = df['system_calculation'].apply(
             lambda sc: {alpha.variable.name: alpha.x for alpha in sc.results.dp_reliability.alphas})
-    elif method_used == "3: Combined Project":
+
+    elif method_used == "1: Combine Project":
         df['physical_values'] = df['system_calculation'].apply(
             lambda sc: {alpha.variable.name: alpha.x for alpha in sc.results.dp_combine.alphas})
     else:
