@@ -35,10 +35,10 @@ class CalcResult:
     """
     Dataclass om de resultaten te verzamelen vanuit de calculation.
     Bevat de volgende attributen:
-    Dataframe: df_limit_state,
-    Dataframe: df_scenario_rp,
-    Dataframe: df_scenario_cp,
-    Dataframe: df_scenario_final,
+    Dataframe: df_limit_state bevat resultaten van de afzonderlijke grenstoestandsfuncties (Z_u, Z_h en Z_p)
+    Dataframe: df_scenario_rp bevat resultaten van max(Z_u, Z_h, Z_p).
+    Dataframe: df_scenario_cp bevat resultaten van de combinatie van de afzonderlijke grenstoestandsfuncties
+    Dataframe: df_scenario_final bevat resultaten op basis van beslisregels van de afzonderlijke berekeningsmethoden. Zie construct_dataframes.py voor meer details.
     Dataframe: df_stochast,
     Dataframe: df_derived,
     ValidationMessages: validation_message

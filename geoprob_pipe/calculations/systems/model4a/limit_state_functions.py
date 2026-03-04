@@ -80,7 +80,7 @@ def calc_Z_p(
         gamma_korrel: float, v: float, theta: float, eta: float, g: float,
         gamma_water: float
 ) -> float:
-    r"""Grenstoestandfunctie voor het mechanisme piping
+    r"""Grenstoestandfunctie voor het mechanisme terugschrijdende erosie (piping).
 
     Returns:
         float: Z waarde van de grenstoestandfunctie voor piping
@@ -112,7 +112,9 @@ def calc_Z_project(
         gamma_korrel: float, v: float, theta: float, eta: float, g: float,
         gamma_water: float
 ) -> float:
-    r"""Grenstoestandfunctie voor het mechanisme piping
+    r"""Grenstoestandfunctie voor het mechanisme piping. Deze grenstoestandfunctie bepaalt de Z waarde 
+    op basis van de afzonderlijke Z waarden van de mechanismen uplift, heave en terugschrijdende erosie door
+    max(Z_u, Z_h, Z_p).
 
     Returns:
         float: Z waarde van de grenstoestandfunctie voor piping
