@@ -10,12 +10,6 @@ def test_calculation():
     from geoprob_pipe.calculations.systems.model4a.reliability_calculation import  (
         Model4aCalculation)
     from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
-    # from pprint import pprint
-    # pprint(f"{INITIAL_INPUT_MAPPER['model4a']=}")
-    # pprint(f"{INITIAL_INPUT_MAPPER['model4a']['label']=}")
-    # pprint(f"{INITIAL_INPUT_MAPPER['model4a']['input']=}")
-    # pprint(f"{INITIAL_INPUT_MAPPER['model4a'].keys()=}")
-    # raise ValueError
     obj = Model4aCalculation(distributions=INITIAL_INPUT_MAPPER['model4a']['input'])
  
     # Run prob system

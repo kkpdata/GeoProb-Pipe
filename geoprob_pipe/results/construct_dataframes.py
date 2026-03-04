@@ -3,7 +3,6 @@ from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
 from pandas import DataFrame, concat
 import numpy as np
 from typing import TYPE_CHECKING, List
-# from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe

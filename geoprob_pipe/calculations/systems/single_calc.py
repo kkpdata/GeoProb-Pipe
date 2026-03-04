@@ -36,9 +36,7 @@ Let op: Deze feature vergt enige ervaring met Python.
 
 
 def reproduce_single_calculation(
-        geopackage_filepath: str,
-        uittredepunt_id: int,
-        ondergrondscenario_naam: str,
+        geopackage_filepath: str, uittredepunt_id: int, ondergrondscenario_naam: str,
 ) -> SystemCalculation:
 
     # Fetch geohydrological model
@@ -59,8 +57,7 @@ def reproduce_single_calculation(
     # Construct calculation builder
     builder: BaseSystemBuilder = (
         CALCULATION_MAPPER[geohydrologisch_model]["system_builder"](
-            geopackage_filepath=geopackage_filepath,
-            to_run_vakken_ids=None))
+            geopackage_filepath=geopackage_filepath, to_run_vakken_ids=None))
 
     # Construct calculation
     row = {"uittredepunt_id": uittredepunt_id,

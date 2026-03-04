@@ -108,9 +108,7 @@ def _worker(row_unique: dict):
                 df_scenario_final=df_scenario_final, df_stochast=df_stochast, df_derived=df_derived,
                 validation_message=calc.validation_messages
             ), None, None
-            # return CalcResult(
-            #     df_limit_state, df_scenario_rp, df_scenario_cp, df_scenario_final, df_stochast,
-            #     df_derived, calc.validation_messages), None, None
+
     except Exception:
         tb = traceback.format_exc()
         log_buffer.write(tb)

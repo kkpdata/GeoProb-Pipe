@@ -13,10 +13,8 @@ if TYPE_CHECKING:
     from geoprob_pipe.calculations.systems.build_and_run import CalcResult
 
 
-def collect_stochast_values(calc: SystemCalculation
-                            ) -> DataFrame:
-    """ Collects all Alphas, Influence factors and Physical values of
-    the stochast input parameters. """
+def collect_stochast_values(calc: SystemCalculation) -> DataFrame:
+    """ Collects all Alphas, Influence factors and Physical values of the stochast input parameters. """
 
     # Create
     def create_df_rows_for_design_point(

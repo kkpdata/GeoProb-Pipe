@@ -94,10 +94,7 @@ class TrajectNormering:
             self.w * self.faalkanseis_ondergrens) / self.n_dsn
         self.beta_ond_dsn = sct.norm.ppf(self.faalkanseis_ond_dsn)
         self.beta_categorie_grenzen = {
-            "I": [
-                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 30),
-                50
-            ],
+            "I": [-1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 30), 50],
             "II": [
                 -1 * sct.norm.ppf(self.faalkanseis_sign_dsn),
                 -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 30),
