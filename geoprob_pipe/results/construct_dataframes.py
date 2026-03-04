@@ -76,7 +76,7 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
     calculations. Because there are several calculation methods, and the preferred result also depends on convergence,
     we use the below flow chart to determine the final result.
 
-    .. image:: /image/flow-chart-final-result-scenario-calculations.png
+    .. image:: /_static/flow-chart-final-result-scenario-calculations.png
        :alt: Flow chart final result scenario calculations
        :align: center
 
@@ -178,6 +178,19 @@ def combine_df_beta_per_scenario_final(calc_results: List[CalcResult]) -> DataFr
 
 
 def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> DataFrame:
+    """ Generates the DataFrame of the final result for the exit points.
+
+    Because there is an automated decision-making in the scenario calculations (see flow chart over there), for the exit
+    points the flow chart is extended below.
+
+    .. image:: /_static/flow-chart-final-result-uittredepunt-calculations.png
+       :alt: Flow chart final result exit point calculations
+       :align: center
+
+    :param geoprob_pipe:
+    :param results:
+    :return:
+    """
 
     df_beta_scenarios_final = results.df_beta_scenarios_final.copy(deep=True)
 
@@ -208,7 +221,20 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     return df[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability", "advise", "flow_chart_number"]]
 
 
-def construct_df_beta_per_vak(results: Results):
+def construct_df_beta_per_vak(results: Results) -> DataFrame:
+    """ Constructs the DataFrame of the final result for the vakken.
+
+    Because there is an automated decision-making in the scenario and exit point calculations (see flow charts over
+    there), for the vakken the flow chart is extended below.
+
+    .. image:: /_static/flow-chart-final-result-vak-calculations.png
+       :alt: Flow chart final result vak calculations
+       :align: center
+
+
+    :param results:
+    :return:
+    """
 
     # Gather data
     df_beta_uittredepunten = results.df_beta_uittredepunten.copy(deep=True)
