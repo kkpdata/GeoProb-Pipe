@@ -28,7 +28,6 @@ class Results:
 
     def df_alphas_influence_factors_and_physical_values(
             self,
-            system_only: bool = True,
             filter_deterministic: bool = True,
             filter_derived: bool = False,
     ) -> DataFrame:
@@ -42,8 +41,6 @@ class Results:
         df = self._df_alphas_influence_factors_and_physical_values
         if filter_deterministic:
             df = df[df['distribution_type'] != "deterministic"]
-        if system_only:
-            df = df[df['design_point'] == "system"]
         if filter_derived:
             df = df[df['distribution_type'] != "derived"]
 

@@ -229,5 +229,5 @@ def _generate_dp_combine(system_calculation: SystemCalculation):
     for design_point in system_calculation.results.dps_limit_states:
         system_calculation.results.combine_project.design_points.append(design_point)
     system_calculation.results.combine_project.run()
-    system_calculation.results.combine_project.design_point.identifier = "system"
+    system_calculation.results.combine_project.design_point.identifier = "combine"
     system_calculation.results.dp_combine = system_calculation.results.combine_project.design_point

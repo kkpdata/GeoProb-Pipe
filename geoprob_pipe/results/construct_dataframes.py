@@ -230,7 +230,6 @@ def construct_df_beta_per_vak(results: Results) -> DataFrame:
        :alt: Flow chart final result vak calculations
        :align: center
 
-
     :param results:
     :return:
     """

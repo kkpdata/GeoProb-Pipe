@@ -96,7 +96,7 @@ def _worker(row_unique: dict):
             df_scenario_rp = collect_df_beta_scenario_rp(calc)
             df_scenario_cp = collect_df_beta_scenario_cp(calc)
             df_scenario_final = collect_df_beta_scenario_final(calc)
-            df_stochast = collect_stochast_values(calc)
+            df_stochast = collect_stochast_values(calc, df_scenario_final=df_scenario_final)
             df_derived = calculate_derived_values(df_scenarios_final=df_scenario_final, geohydrologisch_model=_MODEL)
             df_scenario_rp = df_scenario_rp.drop(columns=["system_calculation"])
             df_scenario_cp = df_scenario_cp.drop(columns=["system_calculation"])
