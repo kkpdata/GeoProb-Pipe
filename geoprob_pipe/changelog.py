@@ -1,5 +1,8 @@
 
 CHANGELOG = {
+    "1.3.21":
+        "Start met validatie van invoer Excel-sheets. Bewuste keuze voor SQL-queries (leesbaarheid), in plaats van "
+        "pandera.",
     "1.3.20":
         "New feature: Methode geïmplementeerd om input_parameters.xlsx te valideren op invoer. Methode is voor nu "
         "een start. Validatie moet nog toegevoegd worden.",
