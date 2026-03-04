@@ -80,22 +80,23 @@ class GraphHFreqSingleInteractive:
         # Create multiline item for uittredepunten ids
         df_result['uittredepunt_ids_multiline'] = ""
         df_result['frequency_line'] = ""
-        for index, row in df_result.iterrows():
+        rows = []
+        for _, row in df_result.iterrows():
 
             # Uittredepunt ids multiline
             arr = row['uittredepunt_ids'].split(", ")
             lines = [', '.join(arr[i:i + 5]) for i in range(0, len(arr), 5)]
-            df_result.loc[index, 'uittredepunt_ids_multiline'] = '<br>'.join(lines)
+            row['uittredepunt_ids_multiline'] = '<br>'.join(lines)
 
             # Create frequency line
-            fragility_values = df_result.loc[index, 'fragility_values']
+            fragility_values = row['fragility_values']
             levels = [item.x for item in fragility_values]
             exceedance_frequencies = [item.probability_of_failure for item in fragility_values]
             # noinspection PyUnresolvedReferences
-            df_result.loc[index, 'frequency_line'] = pydra.core.datamodels.frequency_line.FrequencyLine(
+            row['frequency_line'] = pydra.core.datamodels.frequency_line.FrequencyLine(
                 level=levels, exceedance_frequency=exceedance_frequencies)
-
-        return df_result
+            rows.append(row)
+        return DataFrame(rows)
 
     def _collect_used_fragility_refs(self) -> List[str]:
         df = self.df_parameter_input_expanded
