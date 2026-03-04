@@ -1,7 +1,6 @@
 from __future__ import annotations
 from InquirerPy import inquirer
 import sqlite3
-
 from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
 from geoprob_pipe.cmd_app.parameter_input.initiate_input_excel_tables import initiate_input_excel_tables
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_figures import InputParameterFigures
@@ -10,7 +9,6 @@ from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputPar
 from typing import TYPE_CHECKING, Optional
 import os
 import sys
-
 from geoprob_pipe.utils.loggers import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
@@ -44,13 +42,9 @@ def load_tables_from_db(app_settings: ApplicationSettings) -> InputParameterTabl
 
 
 def validate_raw_input_tables(
-        # app_settings: ApplicationSettings, tables: InputParameterTables
+        app_settings: ApplicationSettings, tables: InputParameterTables
 ) -> bool:
-    valid: bool = True  # TODO
-    if not valid:
-        print(f"Input Excel tables are not valid. Validation messages are exported to \n"
-              f"TODO")  # TODO: Specify path to exported validation messages.
-    return valid
+    return tables.validate_and_report(app_settings=app_settings)
 
 
 def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSettings, tables: InputParameterTables):
@@ -93,7 +87,6 @@ def validate_expanded_input_tables(app_settings: ApplicationSettings) -> bool:
         "parameter_input_process")
     os.makedirs(export_dir, exist_ok=True)
     export_path = os.path.join(export_dir, "validation_missing_parameter_input.xlsx")
-    print(f"{export_path=}")
     if os.path.exists(export_path):
         os.remove(export_path)
     df_nans.to_excel(export_path)
@@ -238,7 +231,7 @@ def process_input_exist_in_db(app_settings: ApplicationSettings):
     tables: InputParameterTables = load_tables_from_db(app_settings=app_settings)
 
     # Validate raw tables
-    validity_raw_tables = validate_raw_input_tables()
+    validity_raw_tables = validate_raw_input_tables(app_settings=app_settings, tables=tables)
 
     # Validate expanded tables
     validity_extended_tables: Optional[bool] = None
@@ -262,10 +255,11 @@ def process_export_input_of_db(
 
 
 def process_import_input(app_settings: ApplicationSettings):
+    """ Questionnaire process for importing a new version of the input table Excel. """
     tables = import_input_tables(app_settings.geopackage_filepath)  # Asks user for path to input-file
 
     # Validate raw tables
-    validity_raw_tables = validate_raw_input_tables()
+    validity_raw_tables = validate_raw_input_tables(app_settings=app_settings, tables=tables)
 
     # Ask to export overview pictures
     if validity_raw_tables: inquire_if_input_figures_should_be_exported(app_settings=app_settings, tables=tables)

@@ -131,7 +131,8 @@ def _collect_fragility_values(
 
 
 def _add_fragility_values_to_combined_parameter_invoer(
-        df_parameter_invoer_combined: DataFrame, tables: InputParameterTables, geopackage_filepath: str, drop_ref: bool = True) -> DataFrame:
+        df_parameter_invoer_combined: DataFrame, tables: InputParameterTables,
+        geopackage_filepath: str, drop_ref: bool = True) -> DataFrame:
     """ Haalt uit de fragility values Excel de arrays op en vervang in de df_parameter_invoer_combined de referentie
     met de daadwerkelijke fragility values. """
 
@@ -227,7 +228,9 @@ def _gather_required_input_parameters(geopackage_filepath: str) -> List[str]:
     # return ["gamma_sat_deklaag"]  # TODO
 
 
-def _expand(df_parameter_invoer_combined: DataFrame, df_identifiers: DataFrame, geopackage_filepath: str) -> Dict[str, DataFrame]:
+def _expand(
+        df_parameter_invoer_combined: DataFrame, df_identifiers: DataFrame, geopackage_filepath: str
+) -> Dict[str, DataFrame]:
 
     # Add parameter invoer: op uittredepunten niveau
     required_input_parameters = _gather_required_input_parameters(geopackage_filepath=geopackage_filepath)
@@ -297,17 +300,17 @@ def _concat_collection(collection: Dict[str, DataFrame]):
 
 
 def run_expand_input_tables(geopackage_filepath: str, add_frag_ref: bool = False) -> DataFrame:
-    """
+    """ Performs logic to expand all parameter input from different levels to input on uittredepunt-level.
 
     :param geopackage_filepath:
     :param add_frag_ref: Indien True, dan wordt voor parameter input met een distribution_type 'cdf_curve' de referentie
         naar de invoer behouden. Deze is niet nodig voor de berekeningen, maar wordt wel gebruikt voor de visualisaties.
-    :return:
+    :return: DataFrame with columns parameter_name, vak_id, uittredepunt_id, ondergrondscenario_naam and
+        parameter_input.
     """
-    tables = InputParameterTables(geopackage_filepath=geopackage_filepath)
-    df_identifiers = _construct_df_identifiers(geopackage_filepath=geopackage_filepath, tables=tables)
 
     # Construct df_parameter_invoer_combined
+    tables = InputParameterTables(geopackage_filepath=geopackage_filepath)
     df_parameter_invoer_combined1 = _combine_parameter_invoer_sources(tables=tables)
     df_parameter_invoer_combined2 = _add_fragility_values_to_combined_parameter_invoer(
         df_parameter_invoer_combined=df_parameter_invoer_combined1, tables=tables,
@@ -316,6 +319,7 @@ def run_expand_input_tables(geopackage_filepath: str, add_frag_ref: bool = False
         df_parameter_invoer_combined=df_parameter_invoer_combined2)
 
     # Expand
+    df_identifiers = _construct_df_identifiers(geopackage_filepath=geopackage_filepath, tables=tables)
     collection: Dict[str, DataFrame] = _expand(
         df_parameter_invoer_combined=df_parameter_invoer_combined3,
         df_identifiers=df_identifiers,
