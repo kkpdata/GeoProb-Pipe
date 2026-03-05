@@ -12,7 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_PUSH_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -34,8 +36,8 @@ jobs:
 
       - name: Commit changes
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Actions"
+          git config --local user.email "chrispitzalis@gmail.com"
+          git config --local user.name "chrispijo"
           git pull
           git add .
           if ! git diff --cached --quiet; then
@@ -44,5 +46,3 @@ jobs:
           else
             echo "No changes to commit"
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
