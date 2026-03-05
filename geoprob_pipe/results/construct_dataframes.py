@@ -84,12 +84,12 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
     """
 
     # Base DataFrame-row to return
-    beta1: float = max([dp.reliability_index for dp in calc.results.dps_limit_states])
-    converged1: bool = all([dp.is_converged for dp in calc.results.dps_limit_states])
+    beta1: float = calc.results.dp_combine.reliability_index
+    converged1: bool = calc.results.dp_combine.is_converged
     beta2: float = calc.results.dp_reliability.reliability_index
     converged2: bool = calc.results.dp_reliability.is_converged
-    beta3: float = calc.results.dp_combine.reliability_index
-    converged3: bool = calc.results.dp_combine.is_converged
+    beta3: float = max([dp.reliability_index for dp in calc.results.dps_limit_states])
+    converged3: bool = all([dp.is_converged for dp in calc.results.dps_limit_states])
     return_dict = {
         "uittredepunt_id": calc.metadata["uittredepunt_id"],
         "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
@@ -101,13 +101,13 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
     }
 
     # Flow chart step 1: Combine Project converged?
-    pof3: float = calc.results.dp_combine.probability_failure
-    if converged3:
+    pof1: float = calc.results.dp_combine.probability_failure
+    if converged1:
         return_dict["method_used"] = "1: Combine Project"
         return_dict["flow_chart_number"] = 1
-        return_dict["failure_probability"] = pof3
-        return_dict["beta"] = beta3
-        return_dict["converged"] = converged3
+        return_dict["failure_probability"] = pof1
+        return_dict["beta"] = beta1
+        return_dict["converged"] = converged1
         return_dict["advise"] = "-"
         return DataFrame([return_dict])
 
@@ -123,21 +123,21 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
         return DataFrame([return_dict])
 
     # Flow chart step 3: Separate Limit States all converged?
-    pof1: float = min([dp.probability_failure for dp in calc.results.dps_limit_states])
-    if converged1:
+    pof3: float = min([dp.probability_failure for dp in calc.results.dps_limit_states])
+    if converged3:
         return_dict["method_used"] = "3: Max Limit States"
         return_dict["flow_chart_number"] = 3
-        return_dict["failure_probability"] = pof1
-        return_dict["beta"] = beta1
-        return_dict["converged"] = converged1
+        return_dict["failure_probability"] = pof3
+        return_dict["beta"] = beta3
+        return_dict["converged"] = converged3
         return_dict["advise"] = ("Result is probably a conservative approximation.You could consider to find "
                                  "convergence for the Combine or Reliability method.")
         return DataFrame([return_dict])
 
     # Flow chart step 4: B >= 8.0 (of all methods)?
-    all_pofs: List[float] = [pof1, pof2, pof3]
+    all_pofs: List[float] = [pof3, pof2, pof1]
     all_methods: List[str] = ["3: Max Limit States", "2: Reliability Project", "1: Combine Project"]
-    all_betas: List[float] = [beta1, beta2, beta3]
+    all_betas: List[float] = [beta3, beta2, beta1]
     index_max_pof = np.argmax(all_pofs)
     if beta1 >= 8.0 and beta2 >= 8.0 and beta3 >= 8.0:
         return_dict["method_used"] = all_methods[index_max_pof]

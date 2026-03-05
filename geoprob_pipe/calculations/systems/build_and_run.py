@@ -163,8 +163,7 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe) -> List[CalcRes
     # Multiprocessing setup
     error_rows = []
     with Pool(processes=pool_size, initializer=_init_worker, initargs=(
-            geohydrologisch_model, geopackage_filepath, to_run_vakken_ids
-            )) as pool:
+            geohydrologisch_model, geopackage_filepath, to_run_vakken_ids)) as pool:
 
         for res, error_logs, row in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
             if isinstance(res, CalcResult):
