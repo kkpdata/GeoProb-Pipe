@@ -4,13 +4,14 @@ name = "geoprob_pipe"
 version = "1.4.0"
 description = "Execute probabilistic piping calculations using the Deltares probabilic library."
 authors = [
-    "Sander Kapinga <S.Kapinga@wsrl.nl>",
-    "Laura van der Doef <L.vanderDoef@wshd.nl>",
     "Chris Pitzalis <C.Pitzalis@wsrl.nl>",
     "Vincent Jilesen <V.Jilesen@wshd.nl>",
+    "Sander Kapinga <S.Kapinga@wsrl.nl>",
+    "Laura van der Doef <L.vanderDoef@wshd.nl>",
 ]
 license = "GPL-3.0-or-later"
 readme = "README.md"
+repository = "https://github.com/kkpdata/GeoProb-Pipe"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
