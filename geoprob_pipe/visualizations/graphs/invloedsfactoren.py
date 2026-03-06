@@ -39,30 +39,75 @@ def get_plot_order(geoprob_pipe: GeoProbPipe) -> DataFrame:
     return df
 
 
+def _get_method_used(geoprob_pipe: GeoProbPipe, worst_uittredepunt_id: int, worst_scenario_id: str):
+    df_scenario_final: DataFrame = geoprob_pipe.results.df_beta_scenarios_final
+    df_scenario_final = df_scenario_final[
+        (df_scenario_final["uittredepunt_id"] == worst_uittredepunt_id) &
+        (df_scenario_final["ondergrondscenario_id"] == worst_scenario_id)
+    ]
+    assert df_scenario_final.__len__() == 1
+
+    method_used_str: str = df_scenario_final['method_used'].iloc[0]
+    method_used_nr = int(method_used_str[0])
+
+    # If Combine Project or Reliability Project
+    if method_used_nr == 1:
+        return "CP"
+    if method_used_nr == 2:
+        return "RP"
+
+    # Else look up which Limit State Triggered
+    df_limit_states: DataFrame = geoprob_pipe.results.df_beta_limit_states
+    df_limit_states = df_limit_states[
+        (df_limit_states["uittredepunt_id"] == worst_uittredepunt_id) &
+        (df_limit_states["ondergrondscenario_id"] == worst_scenario_id)
+    ]
+    assert df_limit_states.__len__() == 3
+    df_limit_states = df_limit_states.sort_values(by=["beta"], ascending=False)
+    limit_state_used = df_limit_states["limit_state"].iloc[0]
+    possible_return_values = {"calc_Z_u": "Zu", "calc_Z_h": "Zh", "calc_Z_p": "Zp"}
+    return possible_return_values[limit_state_used]
+
+
 def get_influence_factors_for_vak(
         geoprob_pipe: GeoProbPipe, df_invloedsfactoren: DataFrame, vak_id: int
-) -> Tuple[Optional[DataFrame], int, str]:
+) -> Tuple[Optional[DataFrame], int, str, str]:
     """ Returns the influence factors for the worst result of a scenario within the vak. May be empty dataframe if
     vak has no results.
 
     In the past weigh it for the uittredepunt, or average is among all uittredepunten, as was done in the past. The
     choice was made to keep the actual resulting influence factors because they sum up to 100%. There is also no
-    physical reason to average them, and the worst case scenario is normative for the final result anyway. """
+    physical reason to average them, and the worst case scenario is normative for the final result anyway.
+
+    :param geoprob_pipe:
+    :param df_invloedsfactoren:
+    :param vak_id:
+    :return: Influence factors, worst case uittredepunt ID, worst case scenario label and method used.
+    """
+    """  """
     df_result = geoprob_pipe.results.df_beta_scenarios_final
     df_result = df_result[df_result["vak_id"] == vak_id]
 
     # Check if results for vak
     if df_result.__len__() == 0:
-        return None, -1, ""
+        return None, -1, "", ""
 
     df_result = df_result.sort_values(by=["beta"], ascending=True)
     worst_uittredepunt_id = df_result.iloc[0]['uittredepunt_id']
     worst_scenario_id = df_result.iloc[0]['ondergrondscenario_id']
     df = df_invloedsfactoren[
         (df_invloedsfactoren["uittredepunt_id"] == worst_uittredepunt_id) &
-        (df_invloedsfactoren["ondergrondscenario_id"] == worst_scenario_id)
-    ]
-    return df.sort_values(by=["plot_order"]), worst_uittredepunt_id, worst_scenario_id
+        (df_invloedsfactoren["ondergrondscenario_id"] == worst_scenario_id)]
+    df = df.sort_values(by=["plot_order"])
+
+    # Determine method used
+    method_used = _get_method_used(
+        geoprob_pipe=geoprob_pipe, worst_uittredepunt_id=worst_uittredepunt_id, worst_scenario_id=worst_scenario_id)
+    mapper = {"Zp": "3: Max Limit States (calc_Z_p)", "Zu": "3: Max Limit States (calc_Z_u)",
+              "Zh": "3: Max Limit States (calc_Z_h)", "CP": "1: Combine Project", "RP": "2: Reliability Project"}
+    df = df[df["design_point"] == mapper[method_used]]
+
+    return df, worst_uittredepunt_id, worst_scenario_id, method_used
 
 
 def _get_data(geoprob_pipe: GeoProbPipe) -> DataFrame:
@@ -87,9 +132,12 @@ def _plot_data(geoprob_pipe: GeoProbPipe, df_invloedsfactoren: DataFrame) -> Fig
     for vak_id, vak_naam in vakken.items():
 
         # Get invloedsfactoren data
-        df_factoren, worst_uittredepunt_id, worst_scenario_id = get_influence_factors_for_vak(
+        df_factoren, worst_uittredepunt_id, worst_scenario_id, method_used = get_influence_factors_for_vak(
             geoprob_pipe=geoprob_pipe, df_invloedsfactoren=df_invloedsfactoren, vak_id=vak_id)
-        x_axis_label = f"{vak_id} ({worst_uittredepunt_id}, {worst_scenario_id})"
+        vak_has_results = worst_uittredepunt_id != -1
+        x_axis_label = f"{vak_id}"
+        if vak_has_results:
+            x_axis_label = f"{vak_id} ({worst_uittredepunt_id}, {worst_scenario_id})"
 
         # If not results/factors
         if df_factoren is None:
@@ -101,7 +149,7 @@ def _plot_data(geoprob_pipe: GeoProbPipe, df_invloedsfactoren: DataFrame) -> Fig
 
         # Plot data
         stochasten = df_factoren['variable'].unique().tolist()
-        for stochast in stochasten:
+        for index, stochast in enumerate(stochasten):
             if stochast not in picked_colors.keys():
                 color = f"rgb{DISTINCTIVE_COLORS[picked_colors.__len__()]}"
                 picked_colors[stochast] = color
@@ -111,11 +159,20 @@ def _plot_data(geoprob_pipe: GeoProbPipe, df_invloedsfactoren: DataFrame) -> Fig
             if stochast not in added_to_legend:
                 added_to_legend.append(stochast)
                 show_legend = True
-            fig.add_trace(Bar(
-                x=[x_axis_label],
-                y=[df_factoren[df_factoren['variable'] == stochast].iloc[0]['influence_factor'] * 100],
-                name=stochast, marker_color=color, showlegend=show_legend, legendgroup=stochast,
-            ))
+
+            # Plot, including label?
+            if index + 1 == stochasten.__len__():
+                fig.add_trace(Bar(
+                    x=[x_axis_label],
+                    y=[df_factoren[df_factoren['variable'] == stochast].iloc[0]['influence_factor'] * 100],
+                    text=method_used, textposition='outside',
+                    name=stochast, marker_color=color, showlegend=show_legend, legendgroup=stochast))
+            else:
+                fig.add_trace(Bar(
+                    x=[x_axis_label],
+                    y=[df_factoren[df_factoren['variable'] == stochast].iloc[0]['influence_factor'] * 100],
+                    name=stochast, marker_color=color, showlegend=show_legend, legendgroup=stochast))
+
     return fig
 
 
@@ -126,9 +183,10 @@ def _update_layout(fig: Figure) -> Figure:
         bargroupgap=0,  # Geen ruimte tussen individuele bars binnen een groep
         title='Invloedsfactoren<br>'
               '<sup>Invloedsfactoren zijn van het worstcase uittredepunt en ondergrondscenario (zie x-axis '
-              'label).</sup>',
+              'label). De labels boven de barchart (CP, RP, Zu, Zh of Zp) zijn een verwijzing naar de gebruikte '
+              'design points.</sup>',
         xaxis_title='Vak ID',
-        yaxis=dict(title="Percentage"))
+        yaxis=dict(title="Percentage", ticksuffix="%"))
     return fig
 
 
