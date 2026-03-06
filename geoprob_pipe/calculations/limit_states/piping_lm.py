@@ -79,8 +79,7 @@ def limit_state_wbi(
     z_h = (modelfactor_h * i_c_h) - i_exit
     z_p = (modelfactor_p * modelfactor_ff * modelfactor_3d * modelfactor_aniso * modelfactor_ml * dh_c) - dh_red
     z_combin = max(z_u, z_h, z_p)
-    return (z_u, z_h, z_p, z_combin, h_exit, phi_exit, dphi_c_u, i_exit,
-            dh_c, dh_red)
+    return z_u, z_h, z_p, z_combin, h_exit, phi_exit, dphi_c_u, i_exit, dh_c, dh_red
 
 
 # Define the input variables for the model4 limit state

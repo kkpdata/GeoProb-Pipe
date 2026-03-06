@@ -1,7 +1,6 @@
 from geoprob_pipe.calculations.systems.model4a.limit_state_functions import (
-    limit_state_model4a, calc_Z_h, calc_Z_p, calc_Z_u)
-from geoprob_pipe.calculations.systems.base_objects.system_calculation import (
-    SystemCalculation)
+    limit_state_model4a, calc_Z_h, calc_Z_p, calc_Z_u, calc_Z_project)
+from geoprob_pipe.calculations.systems.base_objects.system_calculation import SystemCalculation
 from typing import List, Dict, Union, Tuple
 
 
@@ -15,14 +14,15 @@ class Model4aCalculation(SystemCalculation):
 
     def __init__(
             self,
-            system_variable_distributions: List[Dict],
-            system_variable_correlations: List[Tuple[str, str, float]] = None,
-            project_settings: Dict[str, Union[str, float, int]] = None
+            distributions: List[Dict],
+            correlations: List[Tuple[str, str, float]] = None,
+            reliability_settings: Dict[str, Union[str, float, int]] = None
     ):
 
         super().__init__(
-            distributions=system_variable_distributions,
-            project_settings=project_settings,
-            correlations=system_variable_correlations)
-        self.given_variables_setup_function = limit_state_model4a
-        self.given_limit_states = [calc_Z_u, calc_Z_h, calc_Z_p]
+            distributions=distributions,
+            correlations=correlations,
+            reliability_settings=reliability_settings)
+        self.setup.variables_function = limit_state_model4a
+        self.setup.system_limit_states = [calc_Z_u, calc_Z_h, calc_Z_p]
+        self.setup.project_limit_state = calc_Z_project

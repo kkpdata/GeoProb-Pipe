@@ -2,8 +2,6 @@
 TODO Later Should Klein: Controleer of de binnenteenlijn ook echt aan de binnenzijde is.
 TODO Later Should Klein: Niet voor elk geohydrologisch model is de binnen/buiten/intredelijn benodigd.
  Maak het toevoegen van deze lijnen afhankelijk van de model keuze.
-
-
 """
 
 from __future__ import annotations

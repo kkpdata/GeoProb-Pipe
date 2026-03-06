@@ -3,7 +3,7 @@ name: Automated testing and coverage (in protected branches)
 
 on:
   push:
-    branches: [ "main", "beta", "alpha" ]
+    branches: [ "main", "beta" ]
   workflow_dispatch:
 
 
@@ -12,7 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_PUSH_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -29,20 +31,3 @@ jobs:
         run: |
           coverage run --source=geoprob_pipe -m pytest --ignore=_deprecated/tests
           coverage report -m
-          if [ -f readme_images/coverage.svg ]; then rm readme_images/coverage.svg; fi
-          coverage-badge -o readme_images/coverage.svg
-
-      - name: Commit changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Actions"
-          git pull
-          git add .
-          if ! git diff --cached --quiet; then
-            git commit -m "Testing and coverage"
-            git push
-          else
-            echo "No changes to commit"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

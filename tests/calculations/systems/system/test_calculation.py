@@ -10,21 +10,14 @@ def test_calculation():
     from geoprob_pipe.calculations.systems.model4a.reliability_calculation import  (
         Model4aCalculation)
     from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
-    # from pprint import pprint
-    # pprint(f"{INITIAL_INPUT_MAPPER['model4a']=}")
-    # pprint(f"{INITIAL_INPUT_MAPPER['model4a']['label']=}")
-    # pprint(f"{INITIAL_INPUT_MAPPER['model4a']['input']=}")
-    # pprint(f"{INITIAL_INPUT_MAPPER['model4a'].keys()=}")
-    # raise ValueError
-    obj = Model4aCalculation(
-        system_variable_distributions=INITIAL_INPUT_MAPPER['model4a']['input'])
+    obj = Model4aCalculation(distributions=INITIAL_INPUT_MAPPER['model4a']['input'])
  
     # Run prob system
     obj.run()
 
     # Model resultaten
     print(f"\nModellen:")
-    for design_point in obj.model_design_points:
+    for design_point in obj.results.dps_limit_states:
         print(f"{design_point.identifier=}")
         print(f"  {design_point.is_converged=}")
         print(f"  {design_point.reliability_index=}")
@@ -41,13 +34,13 @@ def test_calculation():
 
     # Systeem resultaten
     print(f"\nSysteem:")
-    beta = obj.system_design_point.reliability_index
+    beta = obj.results.dp_combine.reliability_index
     print(f"  {beta=}")
-    for alpha in obj.system_design_point.alphas:
+    for alpha in obj.results.dp_combine.alphas:
         alpha: Alpha
         print(f"  {alpha.variable.name=}, {alpha.alpha=}, "
               f"{alpha.alpha*alpha.alpha=}")
-    alphas_values = [alpha.alpha for alpha in obj.system_design_point.alphas]
+    alphas_values = [alpha.alpha for alpha in obj.results.dp_combine.alphas]
     invloedsfactoren = [value * value for value in alphas_values]
     sum_invloedsfactoren = round(sum(invloedsfactoren), 2)
     assert sum_invloedsfactoren == 1.00, \

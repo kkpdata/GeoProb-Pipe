@@ -1,5 +1,16 @@
 
 CHANGELOG = {
+    "1.4.0":
+        "Implementatie van een nieuwe versie van de System Calculation. Van af nu worden er drie scenario analyses "
+        "uitgevoerd: een Combine Project en Reliability project over een gezamenlijke grenstoestandsfuncties voor "
+        "uplift, heave en piping, en een Reliability Project over de grenstoestandsfuncties apart. Vervolgens wordt "
+        "op basis van een stroomschema (zie documentatie) de meest optimale berekening geselecteerd.",
+    "1.3.21":
+        "Start met validatie van invoer Excel-sheets. Bewuste keuze voor SQL-queries (leesbaarheid), in plaats van "
+        "pandera.",
+    "1.3.20":
+        "New feature: Methode geïmplementeerd om input_parameters.xlsx te valideren op invoer. Methode is voor nu "
+        "een start. Validatie moet nog toegevoegd worden.",
     "1.3.19":
         "(a) Hotfix: Nieuwe versie probabilistic_library stond geen Beta van de overschrijdingsfrequentielijn toe "
         "van hoger dan 8.0. Hydra-NL lijkt tot en met 8.0 te gaan, waardoor het laatste punt soms net boven de 8.0 "

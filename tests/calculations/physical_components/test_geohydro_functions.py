@@ -50,7 +50,7 @@ def test_calc_respons2pot():
     assert geohydro_functions.calc_respons2pot(1.0, 0.5, 6.0) == (1.0 + 2.5)
 
 
-def test_calc_pot2reponse():
+def test_calc_pot2response():
     assert geohydro_functions.calc_pot2response(3.5, 1.0, 6.0) == 0.5
 
 
