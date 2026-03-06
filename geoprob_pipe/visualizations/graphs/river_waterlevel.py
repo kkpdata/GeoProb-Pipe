@@ -22,7 +22,7 @@ def _collect_data(geoprob_pipe: GeoProbPipe) -> Tuple[DataFrame, GeoDataFrame, D
 
     # Collect physical values
     df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
-        system_only=True, filter_deterministic=False, filter_derived=False)
+        filter_deterministic=False, filter_derived=False)
     df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id", "variable", "distribution_type", "physical_value"]]
     df = df.merge(gdf_uittredepunten[["uittredepunt_id", "metrering", "hrd_name"]], on="uittredepunt_id", how="left")
 

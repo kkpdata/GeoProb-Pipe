@@ -1,5 +1,10 @@
 
 CHANGELOG = {
+    "1.4.0":
+        "Implementatie van een nieuwe versie van de System Calculation. Van af nu worden er drie scenario analyses "
+        "uitgevoerd: een Combine Project en Reliability project over een gezamenlijke grenstoestandsfuncties voor "
+        "uplift, heave en piping, en een Reliability Project over de grenstoestandsfuncties apart. Vervolgens wordt "
+        "op basis van een stroomschema (zie documentatie) de meest optimale berekening geselecteerd.",
     "1.3.21":
         "Start met validatie van invoer Excel-sheets. Bewuste keuze voor SQL-queries (leesbaarheid), in plaats van "
         "pandera.",

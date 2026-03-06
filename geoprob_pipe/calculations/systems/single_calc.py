@@ -4,10 +4,8 @@ from geoprob_pipe.calculations.systems.mappers.calculation_mapper\
     import CALCULATION_MAPPER
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from geoprob_pipe.calculations.systems.base_objects\
-        .base_system_build import BaseSystemBuilder
-    from geoprob_pipe.calculations.systems.base_objects\
-        .system_calculation import SystemCalculation
+    from geoprob_pipe.calculations.systems.base_objects.base_system_build import BaseSystemBuilder
+    from geoprob_pipe.calculations.systems.base_objects.system_calculation import SystemCalculation
 
 
 EXAMPLE_SCRIPT_REPRODUCING_SINGLE_CALCULATION = r"""
@@ -23,28 +21,23 @@ calc: ParallelSystemReliabilityCalculation = reproduce_single_calculation(
 
 
 EXPLANATION_REPRODUCING_SINGLE_CALCULATION = """
-Met de onderstaande code kun je in de Python console een enkele berekening
-reproduceren en inspecteren. Dit is bijvoorbeeld handig wanneer je de Python
-objecten wilt vergelijken met de gegenereerde in- en uitvoer. Of wanneer je een
-vergelijk maakt met de PTK-tool.
+Met de onderstaande code kun je in de Python console een enkele berekening reproduceren en inspecteren. Dit is 
+bijvoorbeeld handig wanneer je de Python objecten wilt vergelijken met de gegenereerde in- en uitvoer. Of wanneer je 
+een vergelijk maakt met de PTK-tool.
 
-Om dit te doen kopieer je de onderstaande code naar de Python console.
-Zorg er voor dat je de Python console gebruikt waarin je GeoProb-Pipe
-ook hebt geïnstalleerd. Vervang eveneens het uittredepunt id met het id
-wat je wilt bekijken. Hetzelfde doe je voor de ondergrondscenario_naam.
+Om dit te doen kopieer je de onderstaande code naar de Python console. Zorg er voor dat je de Python console gebruikt 
+waarin je GeoProb-Pipe ook hebt geïnstalleerd. Vervang eveneens het uittredepunt id met het id wat je wilt bekijken. 
+Hetzelfde doe je voor de ondergrondscenario_naam.
 
-Het reproduceren en herberekenen duurt slechts enkele seconden. Daarna
-kun je de objecten inspecteren.
+Het reproduceren en herberekenen duurt slechts enkele seconden. Daarna kun je de objecten inspecteren.
 
 Let op: Deze feature vergt enige ervaring met Python.
 """
 
 
 def reproduce_single_calculation(
-        geopackage_filepath: str,
-        uittredepunt_id: int,
-        ondergrondscenario_naam: str,
-        ) -> SystemCalculation:
+        geopackage_filepath: str, uittredepunt_id: int, ondergrondscenario_naam: str,
+) -> SystemCalculation:
 
     # Fetch geohydrological model
     conn = sqlite3.connect(geopackage_filepath)
@@ -64,8 +57,7 @@ def reproduce_single_calculation(
     # Construct calculation builder
     builder: BaseSystemBuilder = (
         CALCULATION_MAPPER[geohydrologisch_model]["system_builder"](
-            geopackage_filepath=geopackage_filepath,
-            to_run_vakken_ids=None))
+            geopackage_filepath=geopackage_filepath, to_run_vakken_ids=None))
 
     # Construct calculation
     row = {"uittredepunt_id": uittredepunt_id,

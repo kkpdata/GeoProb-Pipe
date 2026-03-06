@@ -94,10 +94,7 @@ class TrajectNormering:
             self.w * self.faalkanseis_ondergrens) / self.n_dsn
         self.beta_ond_dsn = sct.norm.ppf(self.faalkanseis_ond_dsn)
         self.beta_categorie_grenzen = {
-            "I": [
-                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 30),
-                50
-            ],
+            "I": [-1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 30), 50],
             "II": [
                 -1 * sct.norm.ppf(self.faalkanseis_sign_dsn),
                 -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 30),
@@ -120,32 +117,26 @@ class TrajectNormering:
             ],
         }
         self.riskeer_categorie_grenzen = {
-            "+III": [
-                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 1000),
-                20
-            ],
+            "+III": [-1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 1000),20],
             "+II": [
-                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 100),
-                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 1000)
+                -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 100),
+                -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 1000)
             ],
             "+I": [
-                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 10),
-                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 100)
+                -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 10),
+                -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 100)
             ],
             "0": [
-                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn),
-                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn / 10)
+                -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde),
+                -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 10)
             ],
             "-I": [
-                -1 * sct.norm.ppf(self.faalkanseis_ond_dsn),
-                -1 * sct.norm.ppf(self.faalkanseis_sign_dsn),
+                -1 * sct.norm.ppf(self.faalkanseis_ondergrens),
+                -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde),
             ],
             "-II": [
-                -1 * sct.norm.ppf(self.faalkanseis_ond_dsn * 10),
-                -1 * sct.norm.ppf(self.faalkanseis_ond_dsn)
+                -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 10),
+                -1 * sct.norm.ppf(self.faalkanseis_ondergrens)
             ],
-            "-III": [
-                2,
-                -1 * sct.norm.ppf(self.faalkanseis_ond_dsn * 10)
-            ],
+            "-III": [2, -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 10)],
         }

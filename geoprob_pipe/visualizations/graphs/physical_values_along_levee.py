@@ -11,7 +11,7 @@ def physical_values_buitenwaterstand_and_top_zand(geoprob_pipe: GeoProbPipe, exp
 
     # Get data for graphing
     df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
-        system_only=True, filter_deterministic=False, filter_derived=True)
+        filter_deterministic=False, filter_derived=True)
     df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id", "variable", "distribution_type", "physical_value"]]
 
     # Attach measure

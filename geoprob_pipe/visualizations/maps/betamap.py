@@ -79,7 +79,7 @@ class BetaMap:
     def _import_results(self):
         # results import
         self.inp_point = self.geoprob_pipe.input_data.uittredepunten.gdf
-        self.res_sc = self.geoprob_pipe.results.df_beta_scenarios
+        self.res_sc = self.geoprob_pipe.results.df_beta_scenarios_final
         mask = self.inp_point["uittredepunt_id"].isin(self.res_sc["uittredepunt_id"])
         self.inp_point = self.inp_point[mask]
 
@@ -112,7 +112,7 @@ class BetaMap:
                         - self.cg[self.labels[6]][0]) / self.len_cg)
 
     def _setup_gdf(self):
-        self.hoverdata = ["uittredepunt_id", "converged", "beta", "model_betas"]
+        self.hoverdata = ["uittredepunt_id", "converged", "beta"]
 
         self.df = self.res_sc.merge(self.inp_point, on="uittredepunt_id",
                                     how="inner")

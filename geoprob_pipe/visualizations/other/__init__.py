@@ -19,7 +19,7 @@ class Other:
         return path
 
     def export_visualizations(self):
-        df = self.geoprob_pipe.results.df_beta_scenarios
+        df = self.geoprob_pipe.results.df_beta_scenarios_final
         lowest_beta_row: DataFrame  = df.loc[df['beta'].idxmin()]
         generate_overview_flow_chart_with_betas(
             app_obj=self.geoprob_pipe,

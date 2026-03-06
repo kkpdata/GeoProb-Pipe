@@ -8,7 +8,7 @@ def test_calculation():
         WBICalculation)
     from geoprob_pipe.calculations.systems.wbi.initial_input import INITIAL_INPUT
 
-    obj = WBICalculation(system_variable_distributions=INITIAL_INPUT)
+    obj = WBICalculation(distributions=INITIAL_INPUT)
 
     # Run prob system
     obj.run()
@@ -16,7 +16,7 @@ def test_calculation():
 
     # Model resultaten
     print(f"\nModellen:")
-    for design_point in obj.model_design_points:
+    for design_point in obj.results.dps_limit_states:
         print(f"{design_point.identifier=}")
         print(f"  {design_point.is_converged=}")
         print(f"  {design_point.reliability_index=}")
@@ -31,12 +31,12 @@ def test_calculation():
 
     # Systeem resultaten
     print(f"\nSysteem:")
-    beta = obj.system_design_point.reliability_index
+    beta = obj.results.dp_combine.reliability_index
     print(f"  {beta=}")
-    for alpha in obj.system_design_point.alphas:
+    for alpha in obj.results.dp_combine.alphas:
         alpha: Alpha
         print(f"  {alpha.variable.name=}, {alpha.alpha=}, {alpha.alpha*alpha.alpha=}")
-    alphas_values = [alpha.alpha for alpha in obj.system_design_point.alphas]
+    alphas_values = [alpha.alpha for alpha in obj.results.dp_combine.alphas]
     invloedsfactoren = [value * value for value in alphas_values]
     sum_invloedsfactoren = round(sum(invloedsfactoren), 2)
     assert sum_invloedsfactoren == 1.00, \

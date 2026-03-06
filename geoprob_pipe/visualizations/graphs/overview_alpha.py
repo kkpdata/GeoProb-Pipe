@@ -20,20 +20,15 @@ def overview_alpha(geoprob_pipe: GeoProbPipe, export: bool = False):
 
     # Get data for graphing
     df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
-        system_only=True, filter_deterministic=False, filter_derived=False
-    )
-    df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id",
-             "variable", "distribution_type", "physical_value"]]
+        filter_deterministic=False, filter_derived=False)
+    df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id", "variable", "distribution_type", "physical_value"]]
 
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
-    df = merge(df, gdf_uittredepunten[["uittredepunt_id", "metrering"]],
-               on="uittredepunt_id", how="left")
+    df = merge(df, gdf_uittredepunten[["uittredepunt_id", "metrering"]], on="uittredepunt_id", how="left")
 
     # Determine scenario order per uittredepunt_id
     df["scenario_order"] = (
-        df.groupby("uittredepunt_id")["ondergrondscenario_id"]
-        .transform(lambda x: pd.factorize(x)[0] + 1)
-    )
+        df.groupby("uittredepunt_id")["ondergrondscenario_id"].transform(lambda x: pd.factorize(x)[0] + 1))
     scenario_orders = sorted(df["scenario_order"].unique())
 
     # List of all alphas that can be shown
