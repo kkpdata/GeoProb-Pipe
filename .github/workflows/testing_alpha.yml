@@ -9,6 +9,7 @@ on:
 
 jobs:
   test:
+    if: "!contains(github.event.head_commit.message, '[auto]')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -41,7 +42,7 @@ jobs:
           git pull
           git add .
           if ! git diff --cached --quiet; then
-            git commit -m "Testing and coverage"
+            git commit -m "[auto] Testing and coverage"
             git push
           else
             echo "No changes to commit"
