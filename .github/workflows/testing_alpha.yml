@@ -3,7 +3,7 @@ name: Automated testing and coverage (in protected branches)
 
 on:
   push:
-    branches: [ alpha" ]
+    branches: [ "alpha" ]
   workflow_dispatch:
 
 
