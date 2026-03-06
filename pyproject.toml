@@ -21,7 +21,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.12"
-pandas = "^2.3.1"
+pandas = "<3.0"  # pydra-core is not update to the latest version of pandas
 scipy = "^1.16.1"
 pydra-core = "^0.0.9"
 geopandas = "^1.1.1"
