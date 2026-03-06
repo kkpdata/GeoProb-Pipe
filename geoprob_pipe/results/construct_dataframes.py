@@ -247,4 +247,4 @@ def construct_df_beta_per_vak(results: Results) -> DataFrame:
     df['advise'] = df['flow_chart_number'].map({11: "Consider fine tuning on scenario-level."}).fillna("-")
     df['flow_chart_number'] = df['flow_chart_number'].map({11: 21}).fillna(22)
 
-    return df[["uittredepunt_id", "vak_id", "beta", "failure_probability", "advise"]]
+    return df[["vak_id", "beta", "failure_probability", "advise"]]
