@@ -182,9 +182,9 @@ def _update_layout(fig: Figure) -> Figure:
         bargap=0,       # Geen ruimte tussen groepen
         bargroupgap=0,  # Geen ruimte tussen individuele bars binnen een groep
         title='Invloedsfactoren<br>'
-              '<sup>Invloedsfactoren zijn van het worstcase uittredepunt en ondergrondscenario (zie x-axis '
-              'label). De labels boven de barchart (CP, RP, Zu, Zh of Zp) zijn een verwijzing naar de gebruikte '
-              'design points.</sup>',
+              '<sup>Invloedsfactoren zijn van de worstcase Beta (combinatie uittredepunt en ondergrondscenario, '
+              'zie x-axis label). De labels boven de barchart (CP, RP, Zu, Zh of Zp) zijn een verwijzing naar de '
+              'gebruikte design points.</sup>',
         xaxis_title='Vak ID',
         yaxis=dict(title="Percentage", ticksuffix="%"))
     return fig
