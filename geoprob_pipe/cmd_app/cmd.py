@@ -9,7 +9,7 @@ from typing import Optional, List
 from geoprob_pipe.cmd_app.utils.misc import get_geoprob_pipe_version_number
 
 
-app = typer.Typer(help="GeoProb-Pipe - CLI applicatie voor probabilistische piping berekeningen.")
+app = typer.Typer(help="GeoProb-Pipe - CLI applicatie voor probabilistische piping berekeningen.", add_completion=False)
 
 
 class ApplicationSettings:
@@ -54,7 +54,6 @@ class ApplicationSettings:
         return [int(vak_id_str) for vak_id_str in vak_ids_str]
 
 
-@app.command()
 def startup_geoprob_pipe():
     """ Starts up the GeoProb-Pipe console application. """
     clear_terminal()
@@ -62,10 +61,10 @@ def startup_geoprob_pipe():
     console = Console()
     console.print(Panel(
         """
-Welkom bij GeoProb-Pipe! Deze applicatie voert probabilistische pipingberekeningen uit met de uittredepuntenmethode en 
-een geohydrologisch model naar keuze (zoals model4a). GeoProb-Pipe maakt gebruik van de probabilistische bibliotheek 
-van Deltares, die onder de motorkap de PTK-tool aanstuurt. Met de onderstaande interactieve vragenmodule neemt 
-GeoProb-Pipe je stap voor stap mee door het opzetten van de invoer en het uitvoeren van de berekeningen. 
+Welkom bij GeoProb-Pipe! Deze applicatie voert probabilistische pipingberekeningen uit met de uittredepuntenmethode en
+een geohydrologisch model naar keuze (zoals model4a). GeoProb-Pipe maakt gebruik van de probabilistische bibliotheek
+van Deltares, die onder de motorkap de PTK-tool aanstuurt. Met de onderstaande interactieve vragenmodule neemt
+GeoProb-Pipe je stap voor stap mee door het opzetten van de invoer en het uitvoeren van de berekeningen.
 """,
         title=f"GeoProb-Pipe ({get_geoprob_pipe_version_number()})".upper(),
         title_align="left",
@@ -76,5 +75,18 @@ GeoProb-Pipe je stap voor stap mee door het opzetten van de invoer en het uitvoe
     start_questionnaire(ApplicationSettings())
 
 
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context):
+    """ Default entry point for `geoprob-pipe`. Runs when no subcommand is specified. """
+    if ctx.invoked_subcommand is None:
+        startup_geoprob_pipe()
+
+
+@app.command()
+def debug():
+    """ Start GeoProb-Pipe in debug mode. """
+    typer.echo("Debug mode activated.")
+
+
 if __name__ == "__main__":
-    startup_geoprob_pipe()
+    app()
