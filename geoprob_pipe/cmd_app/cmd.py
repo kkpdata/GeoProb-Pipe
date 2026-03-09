@@ -20,6 +20,7 @@ class ApplicationSettings:
         self.datetime_stamp: str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         self.to_run = "all"
         # -> or vakken:1,2,3,4,5
+        self.debug: bool = os.getenv("GEOPROB_DEBUG") == "1"
 
     @property
     def geopackage_filepath(self) -> str:
@@ -56,8 +57,14 @@ class ApplicationSettings:
 
 def startup_geoprob_pipe():
     """ Starts up the GeoProb-Pipe console application. """
-    clear_terminal()
 
+    app_settings = ApplicationSettings()
+
+    debug_label: str = ""
+    if app_settings.debug:
+        debug_label = f", DEBUG=TRUE"
+
+    clear_terminal()
     console = Console()
     console.print(Panel(
         """
@@ -66,13 +73,12 @@ een geohydrologisch model naar keuze (zoals model4a). GeoProb-Pipe maakt gebruik
 van Deltares, die onder de motorkap de PTK-tool aanstuurt. Met de onderstaande interactieve vragenmodule neemt
 GeoProb-Pipe je stap voor stap mee door het opzetten van de invoer en het uitvoeren van de berekeningen.
 """,
-        title=f"GeoProb-Pipe ({get_geoprob_pipe_version_number()})".upper(),
+        title=f"GeoProb-Pipe ({get_geoprob_pipe_version_number()}{debug_label})".upper(),
         title_align="left",
         border_style="bright_blue",
-        padding=(0, 2),
-    ))
+        padding=(0, 2)))
 
-    start_questionnaire(ApplicationSettings())
+    start_questionnaire(app_settings=app_settings)
 
 
 @app.callback(invoke_without_command=True)
@@ -85,7 +91,8 @@ def main(ctx: typer.Context):
 @app.command()
 def debug():
     """ Start GeoProb-Pipe in debug mode. """
-    typer.echo("Debug mode activated.")
+    os.environ["GEOPROB_DEBUG"] = "1"
+    startup_geoprob_pipe()
 
 
 if __name__ == "__main__":
