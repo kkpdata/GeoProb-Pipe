@@ -16,8 +16,7 @@ from geoprob_pipe.results.construct_dataframes import (
     collect_df_beta_scenario_final)
 from geoprob_pipe.results.alphas_and_physical_values import (
     collect_stochast_values, calculate_derived_values)
-# noinspection PyPep8Naming
-from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
+import logging
 from pandas import DataFrame
 
 if TYPE_CHECKING:
@@ -25,6 +24,10 @@ if TYPE_CHECKING:
     from geoprob_pipe.calculations.systems.base_objects\
         .base_system_build import BaseSystemBuilder
     from geoprob_pipe.utils.validation_messages import ValidationMessages
+
+
+logger = logging.getLogger("geoprob-pipe")
+
 
 _BUILDER: BaseSystemBuilder
 _MODEL: str

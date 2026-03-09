@@ -1,5 +1,6 @@
 from __future__ import annotations
-from geoprob_pipe.cmd_app.general import created_project, created_model
+from geoprob_pipe.cmd_app.general.project import created_project
+from geoprob_pipe.cmd_app.general.geohydrologisch_model import created_model
 from geoprob_pipe.cmd_app.spatial_layers import (
     added_dijktraject, added_vakindeling, added_uittredepunten, added_hrd, added_polderpeil, added_binnenteenlijn,
     added_buitenteenlijn, added_intredelijn, added_ahn)

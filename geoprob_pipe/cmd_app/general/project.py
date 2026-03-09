@@ -16,8 +16,14 @@ from geoprob_pipe.cmd_app.comparisons.start_comparison import start_comparison
 from geoprob_pipe.utils.validation_messages import BColors
 from geoprob_pipe.calculations.systems.single_calc import (
     EXAMPLE_SCRIPT_REPRODUCING_SINGLE_CALCULATION, EXPLANATION_REPRODUCING_SINGLE_CALCULATION)
+import logging
+from geoprob_pipe.utils.loggers import enable_geopackage_logging
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
+
+
+
+logger = logging.getLogger("geoprob-pipe")
 
 
 def created_project(app_settings: ApplicationSettings) -> bool:
@@ -27,8 +33,7 @@ def created_project(app_settings: ApplicationSettings) -> bool:
         "Nieuw project starten",
         "Twee projectbestanden vergelijken",
         "Inspecteer een enkele berekening",
-        "Applicatie afsluiten"
-    ]
+        "Applicatie afsluiten"]
     choice = inquirer.select(
         message="Wil je verder gaan met een bestaand project, "
                 "een nieuw project starten, "
@@ -39,13 +44,18 @@ def created_project(app_settings: ApplicationSettings) -> bool:
 
     if choice == choices_list[0]:
         specify_path_to_existing_project(app_settings)
+        enable_geopackage_logging(app_settings=app_settings)
         return True
+
     elif choice == choices_list[1]:
         specify_dir_for_new_project(app_settings)
+        enable_geopackage_logging(app_settings=app_settings)
         return True
+
     elif choice == choices_list[2]:
         start_comparison()
         sys.exit("Applicatie afgesloten")
+
     elif choice == choices_list[3]:
         clear_terminal()
         console = Console()
@@ -57,6 +67,7 @@ def created_project(app_settings: ApplicationSettings) -> bool:
             padding=(0, 2)))
         print(EXAMPLE_SCRIPT_REPRODUCING_SINGLE_CALCULATION)
         sys.exit("Applicatie afgesloten")
+
     return False
 
 

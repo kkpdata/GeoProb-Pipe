@@ -7,6 +7,7 @@ from rich.panel import Panel
 from geoprob_pipe.cmd_app.questionnaire import start_questionnaire
 from typing import Optional, List
 from geoprob_pipe.cmd_app.utils.misc import get_geoprob_pipe_version_number
+from geoprob_pipe.utils.loggers import setup_base_logging
 
 
 app = typer.Typer(help="GeoProb-Pipe - CLI applicatie voor probabilistische piping berekeningen.", add_completion=False)
@@ -59,6 +60,8 @@ def startup_geoprob_pipe():
     """ Starts up the GeoProb-Pipe console application. """
 
     app_settings = ApplicationSettings()
+
+    setup_base_logging()
 
     debug_label: str = ""
     if app_settings.debug:
