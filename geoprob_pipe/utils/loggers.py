@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class SQLiteHandler(Handler):
 
-    def __init__(self, db_path: str, app_version: str = "DEV"):
+    def __init__(self, db_path: str):
         super().__init__()
         self.db_path = db_path
         self.app_version = get_geoprob_pipe_version_number()
