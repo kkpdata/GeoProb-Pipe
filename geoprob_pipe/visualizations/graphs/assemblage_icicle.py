@@ -32,7 +32,7 @@ class IciclePlot:
         df_vakken = df_vakken[mask_vakken].copy()
 
         df_utp = self.geoprob_pipe.results.df_beta_uittredepunten
-        df_scen = self.geoprob_pipe.results.df_beta_scenarios
+        df_scen = self.geoprob_pipe.results.df_beta_scenarios_final
         df_lim = self.geoprob_pipe.results.df_beta_limit_states
 
         # traject

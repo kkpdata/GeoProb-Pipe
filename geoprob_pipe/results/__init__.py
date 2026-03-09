@@ -7,6 +7,7 @@ from geoprob_pipe.results.construct_dataframes import (
     combine_df_beta_per_scenario_rp,
     combine_df_beta_per_scenario_final,
     calculate_df_beta_per_uittredepunt,
+    construct_df_beta_per_vak,
     construct_df_beta_WBI_vak,
     construct_df_beta_window50_vak,
     construct_df_beta_window100_vak,
@@ -41,6 +42,7 @@ class Results:
         self.df_beta_uittredepunten = calculate_df_beta_per_uittredepunt(
             geoprob_pipe=geoprob_pipe, results=self
             )
+        self.df_beta_vakken_new = construct_df_beta_per_vak(self)
         self.df_beta_WBI_vakken = construct_df_beta_WBI_vak(
             geoprob_pipe=geoprob_pipe, results=self
             )
@@ -108,6 +110,26 @@ class Results:
         os.makedirs(path, exist_ok=True)
         return path
 
+    @property
+    def export_dir_vakken(self) -> str:
+        path: str = os.path.join(
+            str(self.geoprob_pipe.input_data.app_settings.workspace_dir),
+            "exports",
+            str(self.geoprob_pipe.input_data.app_settings.datetime_stamp),
+            "results/vakken")
+        os.makedirs(path, exist_ok=True)
+        return path
+
+    @property
+    def export_dir_traject(self) -> str:
+        path: str = os.path.join(
+            str(self.geoprob_pipe.input_data.app_settings.workspace_dir),
+            "exports",
+            str(self.geoprob_pipe.input_data.app_settings.datetime_stamp),
+            "results/traject")
+        os.makedirs(path, exist_ok=True)
+        return path
+
     def export_results(
             self,
             bool_beta_limit_states: bool = True,
@@ -150,23 +172,26 @@ class Results:
                                           "df_beta_uittredepunten.xlsx"))
 
         if bool_beta_vakken:
+            self.df_beta_vakken_new.to_excel(
+                excel_writer=os.path.join(self.export_dir,
+                                          "df_beta_new_vakken.xlsx"))
             self.df_beta_WBI_vakken.to_excel(
                 excel_writer=os.path.join(self.export_dir,
                                           "df_beta_WBI_vakken.xlsx"))
             self.df_beta_window50m_vakken.to_excel(
-                excel_writer=os.path.join(self.export_dir,
+                excel_writer=os.path.join(self.export_dir_vakken,
                                           "df_beta_window50m_vakken.xlsx"))
             self.df_beta_window100m_vakken.to_excel(
-                excel_writer=os.path.join(self.export_dir,
+                excel_writer=os.path.join(self.export_dir_vakken,
                                           "df_beta_window100m_vakken.xlsx"))
             self.df_beta_window200m_vakken.to_excel(
-                excel_writer=os.path.join(self.export_dir,
+                excel_writer=os.path.join(self.export_dir_vakken,
                                           "df_beta_window200m_vakken.xlsx"))
             self.df_beta_window300m_vakken.to_excel(
-                excel_writer=os.path.join(self.export_dir,
+                excel_writer=os.path.join(self.export_dir_vakken,
                                           "df_beta_window300m_vakken.xlsx"))
             self.df_beta_scaled_vakken.to_excel(
-                excel_writer=os.path.join(self.export_dir,
+                excel_writer=os.path.join(self.export_dir_vakken,
                                           "df_beta_scaled_vakken.xlsx"))
 
         if bool_beta_traject:
@@ -174,17 +199,17 @@ class Results:
                 excel_writer=os.path.join(self.export_dir,
                                           "df_beta_traject.xlsx"))
             self.df_beta_window50m_traject.to_excel(
-                excel_writer=os.path.join(self.export_dir,
+                excel_writer=os.path.join(self.export_dir_traject,
                                           "df_beta_window50m_traject.xlsx"))
             self.df_beta_window100m_traject.to_excel(
-                excel_writer=os.path.join(self.export_dir,
+                excel_writer=os.path.join(self.export_dir_traject,
                                           "df_beta_window100m_traject.xlsx"))
             self.df_beta_window200m_traject.to_excel(
-                excel_writer=os.path.join(self.export_dir,
+                excel_writer=os.path.join(self.export_dir_traject,
                                           "df_beta_window200m_traject.xlsx"))
             self.df_beta_window300m_traject.to_excel(
-                excel_writer=os.path.join(self.export_dir,
+                excel_writer=os.path.join(self.export_dir_traject,
                                           "df_beta_window300m_traject.xlsx"))
             self.df_beta_scaled_traject.to_excel(
-                excel_writer=os.path.join(self.export_dir,
+                excel_writer=os.path.join(self.export_dir_traject,
                                           "df_beta_scaled_traject.xlsx"))

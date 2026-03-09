@@ -201,6 +201,21 @@ class GraphBetaValuesSingleInteractive:
                 align="right"
             ))
 
+    def _add_beta_per_traject(self):
+        # TODO Update met df_beta_traject_aanpassing
+        beta_traject = cast(
+            float, self.geoprob_pipe.results.df_beta_traject[
+                "lower_bound_beta"][0]
+            )
+        self.fig.add_trace(go.Scatter(
+            x=[self.m_start, self.m_end],
+            y=[beta_traject, beta_traject],
+            mode="lines",
+            line=dict(color="black", width=2.5),
+            name="Beta Traject",
+            showlegend=True
+        ))
+
     def _add_beta_per_scenario(self):
         df_beta_scenarios_final = self.geoprob_pipe.results.df_beta_scenarios_final
         df_for_graph = merge(
@@ -291,7 +306,7 @@ class GraphBetaValuesSingleInteractive:
     def _add_beta_per_vak(self):
 
         # Gather data
-        df_results_vakken = self.geoprob_pipe.results.df_beta_vakken
+        df_results_vakken = self.geoprob_pipe.results.df_beta_vakken_new
         df_results_vakken = df_results_vakken.rename(columns={"vak_id": "id"})
         df_for_graph = merge(
             left=df_results_vakken[["id", "beta", "advise"]],

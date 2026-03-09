@@ -203,7 +203,7 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
             lambda row: row['failure_probability'] * geoprob_pipe.input_data.scenarios.scenario_kans(
                 vak_id=row['vak_id'], scenario_naam=row['ondergrondscenario_id']
             ), axis=1)).groupby('uittredepunt_id', as_index=False)[
-        'failure_probability'].sum())
+        'failure_probability'].sum()
     df_scen["beta"] = df_scen["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
 
     # Determine when uittredepunt is converged (when all scenarios are converged)
@@ -662,6 +662,7 @@ def construct_df_beta_scaled_traject(
         window_list.append(window_dict)
 
     return pd.DataFrame(window_list)
+
 
 def construct_df_beta_per_vak(results: Results) -> DataFrame:
     """ Constructs the DataFrame of the final result for the vakken.

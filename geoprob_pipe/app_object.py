@@ -89,7 +89,7 @@ class GeoProbPipe:
         # add run metadata to geopackage
         update_metadata(self)
         self._export_validation_messages()
-        
+
         export_end = datetime.now()
         export_diff = export_end - export_start
         logger.info(f"Archive exported in {int(export_diff.total_seconds())}"
