@@ -18,13 +18,12 @@ from geoprob_pipe.input_data import InputData
 from geoprob_pipe.results import Results
 from geoprob_pipe.spatial import Spatial
 from geoprob_pipe.visualizations import Visualizations
-from geoprob_pipe.calculations.system_calculations.build_and_run import build_and_run_system_calculations
-from geoprob_pipe.software_requirements import SoftwareRequirements
+from geoprob_pipe.calculations.systems.build_and_run import build_and_run_system_calculations
 from geoprob_pipe.utils.update_metadata import update_metadata
 
 if TYPE_CHECKING:
-    from geoprob_pipe.calculations.system_calculations.build_and_run import CalcResult
-    from geoprob_pipe.questionnaire.cmd import ApplicationSettings
+    from geoprob_pipe.calculations.systems.build_and_run import CalcResult
+    from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
 class GeoProbPipe:
@@ -41,9 +40,6 @@ class GeoProbPipe:
 
         logger.info("Initiating project.")
         self.time_start = datetime.now()
-
-        # self.workspace = Workspace(path_to_workspace)
-        self.software_requirements = SoftwareRequirements()
 
         self.input_data = InputData(app_settings=app_settings)  # TODO: Alter with new option
 
@@ -70,11 +66,8 @@ class GeoProbPipe:
     #     time.sleep(1)  # Some time to make sure the print below, is printed after the logger print.
 
     def _export_validation_messages(self):
-
-        # Gather validation messages from software requirements
-        df_val: Optional[pd.DataFrame] = self.software_requirements.validation_messages.concat_with_df()
-
         # Gather validation messages from calculations
+        df_val: Optional[pd.DataFrame] = None
         [result.validation_message.concat_with_df(df_to_append_to=df_val) for result in self.calc_results
          if result.validation_message is not None]
 

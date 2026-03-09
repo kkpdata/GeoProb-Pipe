@@ -1,4 +1,4 @@
 from geoprob_pipe.app_object import GeoProbPipe
-from geoprob_pipe.calculations.system_calculations.system_base_objects.parallel_system_reliability_calculation import (
-    ParallelSystemReliabilityCalculation)
-from geoprob_pipe.calculations.system_calculations.single_calc import reproduce_single_calculation
+from geoprob_pipe.calculations.systems.base_objects.system_calculation import (
+    SystemCalculation)
+from geoprob_pipe.calculations.systems.single_calc import reproduce_single_calculation
