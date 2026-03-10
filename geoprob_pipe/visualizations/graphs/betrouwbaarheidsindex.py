@@ -385,8 +385,8 @@ class GraphBetaValuesSingleInteractive:
             line=dict(color="black", width=2.5, ),
             name="Beta Traject",
             showlegend=True,
-            customdata=[beta_traject] * 2,
-            hovertemplate="Beta: %{customdata[0]}"
+            customdata=[[beta_traject]] * 2,
+            hovertemplate="Beta: %{customdata[0]:.3f}"
         ))
 
     def _update_layout(self):
