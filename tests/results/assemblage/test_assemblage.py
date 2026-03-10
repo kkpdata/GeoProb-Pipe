@@ -23,7 +23,7 @@ def test_window():
         UittredepuntElement(m_value=30, a=0.9, converged=True, pf=3e-14)
     ]
     sum_pf, max_pf, elements = window_collect(
-        window_size=10, list_dsn=list_dsn,
+        window_size=10, point_list=list_dsn,
         m_van=0, m_tot=40
         )
     assert sum_pf == 1.78e-12
@@ -42,7 +42,7 @@ def test_scaled():
         UittredepuntElement(m_value=30, a=0.9, converged=True, pf=3e-14)
     ]
     sum_pf, max_pf, elements = scaled_collect(
-        dL=200, list_dsn=list_dsn,
+        dL=200, point_list=list_dsn,
         m_van=0, m_tot=50
         )
     assert sum_pf == 1.78e-12

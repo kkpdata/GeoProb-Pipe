@@ -301,13 +301,14 @@ class GraphBetaValuesSingleInteractive:
 
             mask_low = df_for_graph["beta"] < self.beta_min
             _add_beta_per_uittredepunt_indication_below_plotting_range(
-                self=self, df_for_graph=df_for_graph, mask=mask & mask_low, name=name, color=color, value=value)
+                self=self, df_for_graph=df_for_graph, mask=mask & mask_low,
+                name=name, color=color, value=value)
 
     def _add_beta_per_vak(self):
-
         # Gather data
-        df_results_vakken = self.geoprob_pipe.results.df_beta_vakken_new
-        df_results_vakken = df_results_vakken.rename(columns={"vak_id": "id"})
+        df_results_vakken = self.geoprob_pipe.results.df_beta_WBI_vakken
+        df_results_vakken = df_results_vakken.rename(
+            columns={"vak_id": "id", "beta_vak": "beta"})
         df_for_graph = merge(
             left=df_results_vakken[["id", "beta", "advise"]],
             right=self.gdf_vakken[["id", "m_start", "m_end"]],
@@ -342,8 +343,8 @@ class GraphBetaValuesSingleInteractive:
                     marker=dict(color=color, symbol="triangle-up", size=9),
                     name=name + " above plotted range",
                     customdata=[[row["id"], row["beta"]]],
-                    hovertemplate=("ID: %{customdata[0]}<br>" +
-                                   "Beta: %{customdata[1]:.3f}<br>"),
+                    hovertemplate="ID: %{customdata[0]}<br>" +
+                                  "Beta: %{customdata[1]:.3f}<br>",
                     legendgroup="Beta vakken",
                     showlegend=first & value
                 ))

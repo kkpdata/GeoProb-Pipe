@@ -3,7 +3,6 @@ from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
 import pandas as pd
 from geoprob_pipe.results.assemblage.objects import (
     UittredepuntElement, VakElement, TrajectElement)
-from typing import TYPE_CHECKING, List
 from pandas import DataFrame, concat
 import numpy as np
 from typing import TYPE_CHECKING, List
@@ -198,17 +197,17 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     df_beta_scenarios_final = results.df_beta_scenarios_final.copy(deep=True)
 
     # Sum
-    df_scen = df_beta_scenarios_final.assign(
+    df = df_beta_scenarios_final.assign(
         failure_probability=df_beta_scenarios_final.apply(
             lambda row: row['failure_probability'] * geoprob_pipe.input_data.scenarios.scenario_kans(
                 vak_id=row['vak_id'], scenario_naam=row['ondergrondscenario_id']
             ), axis=1)).groupby('uittredepunt_id', as_index=False)[
         'failure_probability'].sum()
-    df_scen["beta"] = df_scen["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
+    df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
 
     # Determine when uittredepunt is converged (when all scenarios are converged)
     conv = df_beta_scenarios_final.groupby('uittredepunt_id', as_index=False)["converged"].all()
-    df_scen = df_scen.merge(conv, on="uittredepunt_id", how="left")
+    df_scen: pd.DataFrame = df.merge(conv, on="uittredepunt_id", how="left")
 
     # Determine uittredepunt flow_chart_number
     flow_chart_number = df_beta_scenarios_final.groupby('uittredepunt_id', as_index=False)["flow_chart_number"].max()
@@ -222,17 +221,28 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
     df_scen = df_scen.merge(df_uittredepunten, left_on="uittredepunt_id",
                             right_on="uittredepunt_id")
 
-    return df_scen[["uittredepunt_id", "vak_id", "converged", "beta", "failure_probability", "advise", "flow_chart_number"]]
+    return df_scen[["uittredepunt_id", "vak_id", "converged", "beta",
+                    "failure_probability", "advise", "flow_chart_number"]]
 
 
-def _generate_dsn_list(geoprob_pipe: GeoProbPipe, results: Results
-                       ) -> List[UittredepuntElement]:
+def _generate_point_list(geoprob_pipe: GeoProbPipe, results: Results
+                         ) -> List[UittredepuntElement]:
+    """Generates a list of all the points as a list `UittredepuntElement`
+    objects.
+
+    Args:
+        geoprob_pipe: GeoprobPipe object.
+        results: Resutls object.
+
+    Returns:
+        List[UittredepuntElement]: List with all generated objects.
+    """
     punt_df = results.df_beta_uittredepunten
     punt_gdf = geoprob_pipe.input_data.uittredepunten.gdf
 
     merge_df = pd.merge(
-        left=punt_df[["uittredepunt_id", "vak_id", "beta",
-                      "failure_probability", "converged"]],
+        left=punt_df[["uittredepunt_id", "vak_id", "beta", "flow_chart_number",
+                      "failure_probability", "converged", "advise"]],
         right=punt_gdf[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id", how="left"
         )
@@ -243,25 +253,37 @@ def _generate_dsn_list(geoprob_pipe: GeoProbPipe, results: Results
     else:
         run_all = True
     dsn_list: List[UittredepuntElement] = []
-    for _, punt in merge_df.iterrows():
-        if punt["vak_id"] in vakken_torun or run_all:
+    for _, point in merge_df.iterrows():
+        if point["vak_id"] in vakken_torun or run_all:
             dsn_list.append(UittredepuntElement(
-                pf=punt["failure_probability"],
-                m_value=punt["metrering"],
+                pf=point["failure_probability"],
+                m_value=point["metrering"],
                 a=0.9,  # TODO Haal deze vanuit Input Data via excel
-                converged=punt["converged"]
+                converged=point["converged"],
+                flow_chart_number=point["flow_chart_number"],
+                advise=point["advise"]
                 ))
     return dsn_list
 
 
 def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
                            ) -> list[VakElement]:
+    """Generates a lsit of all elements in a traject as `VakElement` objects.
+
+    Args:
+        geoprob_pipe: GeoprobPipe object.
+        results: Resutls object.
+
+    Returns:
+        list[VakElement]: List of generated objects.
+    """
     punt_df = results.df_beta_uittredepunten
     punt_gdf = geoprob_pipe.input_data.uittredepunten.gdf
 
     df = pd.merge(
         left=punt_df[["uittredepunt_id", "vak_id", "beta",
-                      "failure_probability", "converged"]],
+                      "failure_probability", "converged",
+                      "flow_chart_number", "advise"]],
         right=punt_gdf[["uittredepunt_id", "metrering"]],
         on="uittredepunt_id", how="left"
         )
@@ -279,13 +301,15 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
             df_vak = df.loc[df["vak_id"] == vak["id"]]
             dsn_list = []
 
-            for _, row in df_vak.iterrows():
+            for _, point in df_vak.iterrows():
                 dsn_list.append(UittredepuntElement(
-                    pf=row["failure_probability"],
-                    beta=row["beta"],
-                    m_value=row["metrering"],
+                    pf=point["failure_probability"],
+                    beta=point["beta"],
+                    m_value=point["metrering"],
                     a=0.9,
-                    converged=row["converged"]))
+                    converged=point["converged"],
+                    flow_chart_number=point["flow_chart_number"],
+                    advise=point["advise"]))
 
             element_list.append(VakElement(
                 id=vak["id"],
@@ -293,7 +317,7 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
                 m_tot=vak["m_end"],
                 a=0.9,  # TODO Haal deze vanuit Input Data via excel
                 delta_length=300,
-                list_dsn=dsn_list
+                point_list=dsn_list
             ))
     return element_list
 
@@ -317,7 +341,9 @@ def construct_df_beta_WBI_vak(
             "N_vak": element.N_vak,
             "pf_vak(sum)": element.pf_max_dsn[1].pf,
             "beta_vak": element.pf_max_dsn[1].beta,
-            "converged": element.conv_max_dsn}
+            "converged": element.conv_max_dsn,
+            "flow_chart_number": element.flow_chart_number,
+            "advise": element.advise}
         vakken_list.append(vakken_dict)
 
     return pd.DataFrame(vakken_list)
@@ -340,10 +366,13 @@ def construct_df_beta_window50_vak(
                 "pf_dsn": window.pf,
                 "pf_dsn(max)": element.pf_window_50m[1].pf,
                 "beta_dsn": element.pf_window_50m[1].beta,
+                "flow_chart_number_dsn": window.flow_chart_number,
                 "delta_L": window.window_size,
                 "N_vak": 1,
                 "pf_vak(sum)": element.pf_window_50m[0].pf,
-                "pf_vak": element.pf_window_50m[0].beta
+                "pf_vak": element.pf_window_50m[0].beta,
+                "flow_chart_number": element.flow_chart_number,
+                "advise": element.advise
                 }
             window_list.append(window_dict)
 
@@ -367,10 +396,13 @@ def construct_df_beta_window100_vak(
                 "pf_dsn": window.pf,
                 "pf_dsn(max)": element.pf_window_100m[1].pf,
                 "beta_dsn": element.pf_window_100m[1].beta,
+                "flow_chart_number_dsn": window.flow_chart_number,
                 "delta_L": window.window_size,
                 "N_vak": 1,
                 "pf_vak(sum)": element.pf_window_100m[0].pf,
-                "beta_vak": element.pf_window_100m[0].beta
+                "beta_vak": element.pf_window_100m[0].beta,
+                "flow_chart_number": element.flow_chart_number,
+                "advise": element.advise
                 }
             window_list.append(window_dict)
 
@@ -394,10 +426,13 @@ def construct_df_beta_window200_vak(
                 "pf_dsn": window.pf,
                 "pf_dsn(max)": element.pf_window_200m[1].pf,
                 "beta_dsn": element.pf_window_200m[1].beta,
+                "flow_chart_number_dsn": window.flow_chart_number,
                 "delta_L": window.window_size,
                 "N_vak": 1,
                 "pf_vak(sum)": element.pf_window_200m[0].pf,
-                "beta_vak": element.pf_window_200m[0].beta
+                "beta_vak": element.pf_window_200m[0].beta,
+                "flow_chart_number": element.flow_chart_number,
+                "advise": element.advise
                 }
             window_list.append(window_dict)
 
@@ -421,10 +456,13 @@ def construct_df_beta_window300_vak(
                 "pf_dsn": window.pf,
                 "pf_dsn(max)": element.pf_window_300m[1].pf,
                 "beta_dsn": element.pf_window_300m[1].beta,
+                "flow_chart_number_dsn": window.flow_chart_number,
                 "delta_L": window.window_size,
                 "N_vak": 1,
                 "pf_vak(sum)": element.pf_window_300m[0].pf,
-                "beta_vak": element.pf_window_300m[0].beta
+                "beta_vak": element.pf_window_300m[0].beta,
+                "flow_chart_number": element.flow_chart_number,
+                "advise": element.advise
                 }
             window_list.append(window_dict)
 
@@ -447,11 +485,14 @@ def construct_df_beta_scaled_vak(
                 "window_id": window.window_id,
                 "vak_id": window.vak_id,
                 "pf_dsn": window.pf,
+                "flow_chart_number_dsn": window.flow_chart_number,
                 "a": window.a,
                 "delta_L": element.delta_length,
                 "N_vak": window.n_vak,
                 "pf_vak": element.pf_scaled[0].pf,
-                "beta_vak": element.pf_scaled[0].beta
+                "beta_vak": element.pf_scaled[0].beta,
+                "flow_chart_number": element.flow_chart_number,
+                "advise": element.advise
                 }
             window_list.append(window_dict)
 
@@ -461,7 +502,7 @@ def construct_df_beta_scaled_vak(
 def construct_df_beta_per_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
-    dsn_list = _generate_dsn_list(geoprob_pipe=geoprob_pipe, results=results)
+    dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     vakken_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                          results=results)
 
@@ -513,12 +554,12 @@ def construct_df_beta_per_traject(
 def construct_df_beta_window50_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
-    dsn_list = _generate_dsn_list(geoprob_pipe=geoprob_pipe, results=results)
+    dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
 
     traject = TrajectElement(
-        list_vakken=element_list, list_dsn=dsn_list, delta_length=300.0
+        list_vakken=element_list, list_dsn=dsn_list, delta_length=50.0
     )
     window_list = []
     for window in traject.pf_window_50m[2]:
@@ -530,11 +571,14 @@ def construct_df_beta_window50_traject(
             "pf_dsn": window.pf,
             "pf_dsn(max)": traject.pf_window_50m[1].pf,
             "beta_dsn": traject.pf_window_50m[1].beta,
+            "flow_chart_number_dsn": window.flow_chart_number,
             "a": 1,
             "delta_L": traject.delta_length,
             "N_vak": 1,
             "pf_traject(sum)": traject.pf_window_50m[0].pf,
-            "beta_traject": traject.pf_window_50m[0].beta
+            "beta_traject": traject.pf_window_50m[0].beta,
+            "flow_chart_number": window.flow_chart_number,
+            "advise": window.advise
             }
         window_list.append(window_dict)
 
@@ -544,12 +588,12 @@ def construct_df_beta_window50_traject(
 def construct_df_beta_window100_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
-    dsn_list = _generate_dsn_list(geoprob_pipe=geoprob_pipe, results=results)
+    dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
 
     traject = TrajectElement(
-        list_vakken=element_list, list_dsn=dsn_list, delta_length=300.0
+        list_vakken=element_list, list_dsn=dsn_list, delta_length=100.0
     )
     window_list = []
     for window in traject.pf_window_100m[2]:
@@ -561,11 +605,14 @@ def construct_df_beta_window100_traject(
             "pf_dsn": window.pf,
             "pf_dsn(max)": traject.pf_window_100m[1].pf,
             "beta_dsn": traject.pf_window_100m[1].beta,
+            "flow_chart_number_dsn": window.flow_chart_number,
             "a": 1,
             "delta_L": traject.delta_length,
             "N_vak": 1,
             "pf_traject(sum)": traject.pf_window_100m[0].pf,
-            "beta_traject": traject.pf_window_100m[0].beta
+            "beta_traject": traject.pf_window_100m[0].beta,
+            "flow_chart_number": window.flow_chart_number,
+            "advise": window.advise
             }
         window_list.append(window_dict)
 
@@ -575,12 +622,12 @@ def construct_df_beta_window100_traject(
 def construct_df_beta_window200_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
-    dsn_list = _generate_dsn_list(geoprob_pipe=geoprob_pipe, results=results)
+    dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
 
     traject = TrajectElement(
-        list_vakken=element_list, list_dsn=dsn_list, delta_length=300.0
+        list_vakken=element_list, list_dsn=dsn_list, delta_length=200.0
     )
     window_list = []
     for window in traject.pf_window_200m[2]:
@@ -592,11 +639,14 @@ def construct_df_beta_window200_traject(
             "pf_dsn": window.pf,
             "pf_dsn(max)": traject.pf_window_200m[1].pf,
             "beta_dsn": traject.pf_window_200m[1].beta,
+            "flow_chart_number_dsn": window.flow_chart_number,
             "a": 1,
             "delta_L": traject.delta_length,
             "N_vak": 1,
             "pf_traject(sum)": traject.pf_window_200m[0].pf,
-            "beta_traject": traject.pf_window_200m[0].beta
+            "beta_traject": traject.pf_window_200m[0].beta,
+            "flow_chart_number": window.flow_chart_number,
+            "advise": window.advise
             }
         window_list.append(window_dict)
 
@@ -606,7 +656,7 @@ def construct_df_beta_window200_traject(
 def construct_df_beta_window300_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
-    dsn_list = _generate_dsn_list(geoprob_pipe=geoprob_pipe, results=results)
+    dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
 
@@ -623,11 +673,14 @@ def construct_df_beta_window300_traject(
             "pf_dsn": window.pf,
             "pf_dsn(max)": traject.pf_window_300m[1].pf,
             "beta_dsn": traject.pf_window_300m[1].beta,
+            "flow_chart_number_dsn": window.flow_chart_number,
             "a": 1,
             "delta_L": traject.delta_length,
             "N_vak": 1,
             "pf_traject(sum)": traject.pf_window_300m[0].pf,
-            "beta_traject": traject.pf_window_300m[0].beta
+            "beta_traject": traject.pf_window_300m[0].beta,
+            "flow_chart_number": window.flow_chart_number,
+            "advise": window.advise
             }
         window_list.append(window_dict)
 
@@ -637,7 +690,7 @@ def construct_df_beta_window300_traject(
 def construct_df_beta_scaled_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
-    dsn_list = _generate_dsn_list(geoprob_pipe=geoprob_pipe, results=results)
+    dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
 
@@ -653,42 +706,49 @@ def construct_df_beta_scaled_traject(
             "lengte": window.length,
             "window_id": window.window_id,
             "pf_dsn": window.pf,
+            "flow_chart_number_dsn": window.flow_chart_number,
             "a": window.a,
             "delta_L": traject.delta_length,
             "N_vak": window.n_vak,
-            "pf_vak": traject.pf_scaled[0].pf,
-            "beta_vak": traject.pf_scaled[0].beta
+            "pf_traject": traject.pf_scaled[0].pf,
+            "beta_traject": traject.pf_scaled[0].beta,
+            "flow_chart_number": window.flow_chart_number,
+            "advise": window.advise
             }
         window_list.append(window_dict)
 
     return pd.DataFrame(window_list)
 
 
-def construct_df_beta_per_vak(results: Results) -> DataFrame:
-    """ Constructs the DataFrame of the final result for the vakken.
+# def construct_df_beta_per_vak(results: Results) -> DataFrame:
+#     """ Constructs the DataFrame of the final result for the vakken.
 
-    Because there is an automated decision-making in the scenario and exit point calculations (see flow charts over
-    there), for the vakken the flow chart is extended below.
+#     Because there is an automated decision-making in the scenario and exit
+#     point calculations (see flow charts over there), for the vakken the flow
+#     chart is extended below.
 
-    .. image:: /_static/flow-chart-final-result-vak-calculations.png
-       :alt: Flow chart final result vak calculations
-       :align: center
+#     .. image:: /_static/flow-chart-final-result-vak-calculations.png
+#        :alt: Flow chart final result vak calculations
+#        :align: center
 
-    :param results:
-    :return:
-    """
+#     :param results:
+#     :return:
+#     """
 
-    # Gather data
-    df_beta_uittredepunten = results.df_beta_uittredepunten.copy(deep=True)
+#     # Gather data
+#     df_beta_uittredepunten = results.df_beta_uittredepunten.copy(deep=True)
 
-    # Minimale beta van beta uittredepunten per vak
-    df: DataFrame = df_beta_uittredepunten.loc[df_beta_uittredepunten.groupby('vak_id')['beta'].idxmin()]
-    df = df.drop(columns=["flow_chart_number"])
+#     # Minimale beta van beta uittredepunten per vak
+#     df: DataFrame = df_beta_uittredepunten.loc[
+#         df_beta_uittredepunten.groupby('vak_id')['beta'].idxmin()]
+#     df = df.drop(columns=["flow_chart_number"])
 
-    # Determine vak flow chart number
-    flow_chart_number = df_beta_uittredepunten.groupby('uittredepunt_id', as_index=False)["flow_chart_number"].min()
-    df = df.merge(flow_chart_number, on="uittredepunt_id", how="left")
-    df['advise'] = df['flow_chart_number'].map({11: "Consider fine tuning on scenario-level."}).fillna("-")
-    df['flow_chart_number'] = df['flow_chart_number'].map({11: 21}).fillna(22)
+#     # Determine vak flow chart number
+#     flow_chart_number = df_beta_uittredepunten.groupby(
+#         'uittredepunt_id', as_index=False)["flow_chart_number"].min()
+#     df = df.merge(flow_chart_number, on="uittredepunt_id", how="left")
+#     df['advise'] = df['flow_chart_number'].map(
+#         {11: "Consider fine tuning on scenario-level."}).fillna("-")
+#     df['flow_chart_number'] = df['flow_chart_number'].map({11: 21}).fillna(22)
 
-    return df[["vak_id", "beta", "failure_probability", "advise"]]
+#     return df[["vak_id", "beta", "failure_probability", "advise"]]

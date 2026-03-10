@@ -31,21 +31,28 @@ def bepaal_N_vak(L: float, a: float, dL: float) -> float:
     return N_vak
 
 
-def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
+def window_collect(window_size: float, point_list: list[UittredepuntElement],
                    m_van: float, m_tot: float, vak_id: Optional[int] = None
                    ) -> tuple[float, float, List[WindowElement]]:
     from geoprob_pipe.results.assemblage.objects import WindowElement
     list_m_value: List[float] = cast(
-        List[float], [dsn.m_value for dsn in list_dsn]
+        List[float], [dsn.m_value for dsn in point_list]
         )
     if list_m_value.__len__() == 0:
         return 0.0, 0.0, []
 
-    list_pf = [dsn.pf for dsn in list_dsn]
+    pf_list = [p.pf for p in point_list]
+    fcn_list = [p.flow_chart_number for p in point_list]
+    if min(fcn_list) == 11:
+        flow_chart_numer = 21
+        advise = "Consider fine tuning on scenario-level."
+    else:
+        flow_chart_numer = 22
+        advise = "-"
 
     df_vak = pd.DataFrame({
             "M_value": list_m_value,
-            "pf": list_pf
+            "pf": pf_list
         })
 
     bins_window = np.arange(
@@ -74,30 +81,38 @@ def window_collect(window_size: float, list_dsn: list[UittredepuntElement],
             window_id=i,
             pf=df_bin[df_bin.index[i]],
             _vak_id=vak_id,
+            flow_chart_number=flow_chart_numer,
+            advise=advise
         ))
     return sum_pf, max_pf, window_elements
 
 
 def scaled_collect(
-        dL: float, list_dsn: list[UittredepuntElement],
+        dL: float, point_list: list[UittredepuntElement],
         m_van: float, m_tot: float, vak_id: Optional[int] = None
         ) -> tuple[float, float, List[WindowElement]]:
     from geoprob_pipe.results.assemblage.objects import WindowElement
-    if list_dsn.__len__() == 0:
+    if point_list.__len__() == 0:
         return 0.0, 0.0, []
-
-    list_dsn.sort(key=attrgetter("m_value"))
+    fcn_list = [p.flow_chart_number for p in point_list]
+    if min(fcn_list) == 11:
+        flow_chart_numer = 21
+        advise = "Consider fine tuning on scenario-level."
+    else:
+        flow_chart_numer = 22
+        advise = "-"
+    point_list.sort(key=attrgetter("m_value"))
     clusters: List[List[UittredepuntElement]] = []
-    current_cluster: List[UittredepuntElement] = [list_dsn[0]]
-    cluster_start: float = list_dsn[0].m_value
+    current_cluster: List[UittredepuntElement] = [point_list[0]]
+    cluster_start: float = point_list[0].m_value
 
-    for dsn in list_dsn[1:]:
-        if dsn.m_value - cluster_start <= 5.0:
-            current_cluster.append(dsn)
+    for point in point_list[1:]:
+        if point.m_value - cluster_start <= 5.0:
+            current_cluster.append(point)
         else:
             clusters.append(current_cluster)
-            current_cluster = [dsn]
-            cluster_start = dsn.m_value
+            current_cluster = [point]
+            cluster_start = point.m_value
     clusters.append(current_cluster)
 
     selected = [max(cluster, key=lambda x: cast(float, x.pf))
@@ -139,8 +154,10 @@ def scaled_collect(
                 pf=pf,
                 _a=a,
                 _m_uittredepunt=sel.m_value,
-                _n_vak=N_vak
+                _n_vak=N_vak,
+                flow_chart_number=flow_chart_numer,
+                advise=advise
+                )
             )
-        )
     sum_pf, max_pf = combine_series(pfs)
     return sum_pf, max_pf, window_elements

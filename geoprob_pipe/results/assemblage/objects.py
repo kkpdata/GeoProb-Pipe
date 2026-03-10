@@ -34,9 +34,13 @@ class KansElement:
 
 @dataclass
 class UittredepuntElement:
+    """DataClass om alle relevante data van een uittredepunt te verzamelen.
+    """
     m_value: float
     a: float
     converged: bool
+    flow_chart_number: int
+    advise: str
     pf: Optional[float] = None
     beta: Optional[float] = None
 
@@ -61,12 +65,14 @@ class UittredepuntElement:
 
 @dataclass
 class VakElement:
+    """DataClass om alle relevante data van een vak te verzamelen.
+    """
     id: int
     m_van: float  # Locatie van het begin van het element [meters]
     m_tot: float  # Locatie van het einde van het element [meters]
     a: float
     delta_length: float  # Equivalente, onafhankelijke lengte
-    list_dsn: List[UittredepuntElement]  # Doorsnede kansen van het element per jaar
+    point_list: List[UittredepuntElement]  # Doorsnede kansen van het element per jaar
 
     @property
     def length(self) -> float:
@@ -76,10 +82,27 @@ class VakElement:
     def N_vak(self) -> float:
         return bepaal_N_vak(self.length, self.a, self.delta_length)
 
+    @property
+    def advise(self):
+        if self.flow_chart_number == 21:
+            return "Consider fine tuning on scenario-level."
+        else:
+            return "-"
+
+    @property
+    def flow_chart_number(self) -> int:
+        fcn_list = [p.flow_chart_number for p in self.point_list]
+        if fcn_list.__len__() == 0:
+            return 0
+        if min(fcn_list) == 11:
+            return 21
+        else:
+            return 22
+
     # vak: Max van dsn met N_vak
     @property
     def pf_max_dsn(self) -> Tuple[KansElement, KansElement]:
-        list_pf = [cast(float, dsn.pf) for dsn in self.list_dsn]
+        list_pf = [cast(float, dsn.pf) for dsn in self.point_list]
         if list_pf.__len__() > 0:
             pf_dsn = max(list_pf)
         else:
@@ -90,7 +113,7 @@ class VakElement:
 
     @property
     def conv_max_dsn(self) -> bool:
-        list_conv = [cast(bool, dsn.converged) for dsn in self.list_dsn]
+        list_conv = [cast(bool, dsn.converged) for dsn in self.point_list]
         if False in list_conv:
             return False
         return True
@@ -100,7 +123,7 @@ class VakElement:
     def pf_window_50m(self) -> Tuple[KansElement, KansElement,
                                      List[WindowElement]]:
         pf_sum, pf_max, window_elements = window_collect(
-            window_size=50.0, list_dsn=self.list_dsn,
+            window_size=50.0, point_list=self.point_list,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=self.id
             )
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
@@ -109,7 +132,7 @@ class VakElement:
     def pf_window_100m(self) -> Tuple[KansElement, KansElement,
                                       List[WindowElement]]:
         pf_sum, pf_max, window_elements = window_collect(
-            window_size=100.0, list_dsn=self.list_dsn,
+            window_size=100.0, point_list=self.point_list,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=self.id
             )
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
@@ -118,7 +141,7 @@ class VakElement:
     def pf_window_200m(self) -> Tuple[KansElement, KansElement,
                                       List[WindowElement]]:
         pf_sum, pf_max, window_elements = window_collect(
-            window_size=200.0, list_dsn=self.list_dsn,
+            window_size=200.0, point_list=self.point_list,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=self.id
             )
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
@@ -127,7 +150,7 @@ class VakElement:
     def pf_window_300m(self) -> Tuple[KansElement, KansElement,
                                       List[WindowElement]]:
         pf_sum, pf_max, window_elements = window_collect(
-            window_size=300.0, list_dsn=self.list_dsn,
+            window_size=300.0, point_list=self.point_list,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=self.id
             )
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
@@ -137,7 +160,7 @@ class VakElement:
     def pf_scaled(self) -> Tuple[KansElement, KansElement,
                                  List[WindowElement]]:
         pf_sum, pf_max, window_elements = scaled_collect(
-            self.delta_length, self.list_dsn, self.m_van,
+            self.delta_length, self.point_list, self.m_van,
             self.m_tot, vak_id=self.id
         )
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
@@ -150,6 +173,8 @@ class WindowElement:
     window_size: float
     window_id: int
     pf: float
+    flow_chart_number: int
+    advise: str
     _vak_id: Optional[int] = None
     _a: Optional[float] = None
     _m_uittredepunt: Optional[float] = None
@@ -233,7 +258,7 @@ class TrajectElement:
     def pf_window_50m(self) -> Tuple[KansElement, KansElement,
                                      List[WindowElement]]:
         pf_sum, pf_max, window_elements = window_collect(
-            window_size=50.0, list_dsn=self.list_dsn,
+            window_size=50.0, point_list=self.list_dsn,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=None)
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
@@ -241,7 +266,7 @@ class TrajectElement:
     def pf_window_100m(self) -> Tuple[KansElement, KansElement,
                                       List[WindowElement]]:
         pf_sum, pf_max, window_elements = window_collect(
-            window_size=100.0, list_dsn=self.list_dsn,
+            window_size=100.0, point_list=self.list_dsn,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=None)
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
@@ -249,7 +274,7 @@ class TrajectElement:
     def pf_window_200m(self) -> Tuple[KansElement, KansElement,
                                       List[WindowElement]]:
         pf_sum, pf_max, window_elements = window_collect(
-            window_size=200.0, list_dsn=self.list_dsn,
+            window_size=200.0, point_list=self.list_dsn,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=None)
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
@@ -257,7 +282,7 @@ class TrajectElement:
     def pf_window_300m(self) -> Tuple[KansElement, KansElement,
                                       List[WindowElement]]:
         pf_sum, pf_max, window_elements = window_collect(
-            window_size=300.0, list_dsn=self.list_dsn,
+            window_size=300.0, point_list=self.list_dsn,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=None)
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
@@ -266,6 +291,6 @@ class TrajectElement:
     def pf_scaled(self) -> Tuple[KansElement, KansElement,
                                  List[WindowElement]]:
         pf_sum, pf_max, window_elements = scaled_collect(
-            dL=self.delta_length, list_dsn=self.list_dsn,
+            dL=self.delta_length, point_list=self.list_dsn,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=None)
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
