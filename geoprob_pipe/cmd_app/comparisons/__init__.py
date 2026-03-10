@@ -5,10 +5,10 @@ from datetime import datetime
 import pandas as pd
 import geopandas as gpd
 from plotly.graph_objects import Figure as PlotlyFigure
-from geoprob_pipe.cmd_app.comparisons.beta_dumbbell import \
-    dumbbell_beta, dumbbell_uplift, dumbbell_heave, dumbbell_piping
-from geoprob_pipe.cmd_app.comparisons.beta_map import map_delta_beta_comparison, \
-    map_ratio_beta_comparison
+from geoprob_pipe.cmd_app.comparisons.beta_dumbbell import (
+    dumbbell_beta, dumbbell_uplift, dumbbell_heave, dumbbell_piping)
+from geoprob_pipe.cmd_app.comparisons.beta_map import (
+    map_delta_beta_comparison, map_ratio_beta_comparison)
 
 
 class ComparisonCollector:
@@ -59,10 +59,10 @@ class ComparisonCollector:
             raise ValueError("De beta_limit_states tables hebben niet hetzelfde formaat")
 
         self.df1_beta_scenarios = pd.read_sql(
-            "SELECT * FROM beta_scenarios;", conn_1
+            "SELECT * FROM beta_scenarios_final;", conn_1
             )
         self.df2_beta_scenarios = pd.read_sql(
-            "SELECT * FROM beta_scenarios;", conn_2
+            "SELECT * FROM beta_scenarios_final;", conn_2
             )
         if len(self.df1_beta_scenarios) != len(self.df2_beta_scenarios):
             raise ValueError("De beta_scenario tables hebben niet hetzelfde formaat")

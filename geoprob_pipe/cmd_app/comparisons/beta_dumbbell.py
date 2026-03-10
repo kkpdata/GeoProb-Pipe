@@ -83,7 +83,8 @@ def _add_traces(comparison: ComparisonCollector,
     ))
     fig.add_trace(go.Scatter(
         x=[None], y=[None], mode="markers", name="Not converged",
-        marker=dict(symbol="x", color="white", size=10, line=dict(color="black", width=0.5))))
+        marker=dict(symbol="x", color="white", size=10,
+                    line=dict(color="black", width=0.5))))
     return fig
 
 
@@ -99,10 +100,11 @@ def _add_vak_id(comparison: ComparisonCollector, fig: go.Figure):
 
         fig.add_trace(go.Scatter(
             x=[min_id, max_id], y=[0, 0], mode="lines",
-            line=dict(color="red", width=2), showlegend=False, name=f"{vak_id}"))
+            line=dict(color="red", width=2),
+            showlegend=False, name=f"{vak_id}"))
 
         fig.add_annotation(
-            x=(min_id + max_id) / 2, y=-0.7, text=f"{vak_id}", showarrow=False,
+            x=(min_id + max_id) / 2, y=0.2, text=f"{vak_id}", showarrow=False,
             font=dict(size=10, color="black"), align="center")
     return fig
 
@@ -124,8 +126,9 @@ def dumbbell_beta(comparison: ComparisonCollector,
     fig = _add_vak_id(comparison, fig)
 
     fig.update_layout(
-        title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
-              f"<sup>Voor de <b>gecombineerde limit state</b>, en gevisualiseerd per uittredepunt.</sup>",
+        title="Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+              "<sup>Voor de <b>gecombineerde limit state</b>, en "
+              "gevisualiseerd per uittredepunt.</sup>",
         xaxis_title="Uittredepunt ID",
         yaxis_title="β-value",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
@@ -143,17 +146,19 @@ def dumbbell_uplift(comparison: ComparisonCollector,
                     export: bool = False):
 
     df_result1 = (comparison.df1_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
-         "converged"]].rename(columns={"beta": "beta1",
-                                       "limit_state": "limit_state1",
-                                       "converged": "converged1"}))
+        ["uittredepunt_id", "limit_state", "beta",
+         "ondergrondscenario_id", "converged"]
+        ].rename(columns={"beta": "beta1",
+                          "limit_state": "limit_state1",
+                          "converged": "converged1"}))
     df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_u"]
 
     df_result2 = (comparison.df2_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
-         "converged"]].rename(columns={"beta": "beta2",
-                                       "limit_state": "limit_state2",
-                                       "converged": "converged2"}))
+        ["uittredepunt_id", "limit_state", "beta",
+         "ondergrondscenario_id", "converged"]
+        ].rename(columns={"beta": "beta2",
+                          "limit_state": "limit_state2",
+                          "converged": "converged2"}))
     df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_u"]
 
     df = df_result1.merge(df_result2, on=["uittredepunt_id",
@@ -167,9 +172,9 @@ def dumbbell_uplift(comparison: ComparisonCollector,
         fig = _add_vak_id(comparison, fig)
 
         fig.update_layout(
-            title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+            title="Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
                   f"<sup>Voor de <b>limit state Uplift</b> en <b>scenario {scenario}</b>, "
-                  f"en gevisualiseerd per uittredepunt.</sup>",
+                  "en gevisualiseerd per uittredepunt.</sup>",
             xaxis_title="Uittredepunt ID",
             yaxis_title="β-value",
             legend=dict(
@@ -194,16 +199,18 @@ def dumbbell_uplift(comparison: ComparisonCollector,
 def dumbbell_heave(comparison: ComparisonCollector,
                    export: bool = False):
     df_result1 = (comparison.df1_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
-         "converged"]].rename(columns={"beta": "beta1",
+        ["uittredepunt_id", "limit_state", "beta",
+         "ondergrondscenario_id", "converged"]
+        ].rename(columns={"beta": "beta1",
                                        "limit_state": "limit_state1",
                                        "converged": "converged1"}))
     df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_h"]
     df_result2 = (comparison.df2_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
-         "converged"]].rename(columns={"beta": "beta2",
-                                       "limit_state": "limit_state2",
-                                       "converged": "converged2"}))
+        ["uittredepunt_id", "limit_state", "beta",
+         "ondergrondscenario_id", "converged"]
+        ].rename(columns={"beta": "beta2",
+                          "limit_state": "limit_state2",
+                          "converged": "converged2"}))
     df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_h"]
 
     df = df_result1.merge(df_result2, on=["uittredepunt_id",
@@ -217,9 +224,9 @@ def dumbbell_heave(comparison: ComparisonCollector,
         fig = _add_vak_id(comparison, fig)
 
         fig.update_layout(
-            title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+            title="Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
                   f"<sup>Voor de <b>limit state Heave</b> en <b>scenario {scenario}</b>, "
-                  f"en gevisualiseerd per uittredepunt.</sup>",
+                  "en gevisualiseerd per uittredepunt.</sup>",
             xaxis_title="Uittredepunt ID",
             yaxis_title="β-value",
             legend=dict(
@@ -228,8 +235,8 @@ def dumbbell_heave(comparison: ComparisonCollector,
                 y=1.02,
                 xanchor="right",
                 x=1
+                )
             )
-        )
         fig_list.append(fig)
         if export:
             os.makedirs(comparison.export_dir, exist_ok=True)
@@ -245,18 +252,20 @@ def dumbbell_heave(comparison: ComparisonCollector,
 def dumbbell_piping(comparison: ComparisonCollector,
                     export: bool = False):
     df_result1 = (comparison.df1_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
-         "converged"]].rename(columns={
-             "beta": "beta1",
-             "limit_state": "limit_state1",
-             "converged": "converged1"}))
+        ["uittredepunt_id", "limit_state", "beta",
+         "ondergrondscenario_id", "converged"]
+        ].rename(columns={
+            "beta": "beta1",
+            "limit_state": "limit_state1",
+            "converged": "converged1"}))
     df_result1 = df_result1[df_result1["limit_state1"] == "calc_Z_p"]
     df_result2 = (comparison.df2_beta_limit_states[
-        ["uittredepunt_id", "limit_state", "beta", "ondergrondscenario_id",
-         "converged"]].rename(columns={
-             "beta": "beta2",
-             "limit_state": "limit_state2",
-             "converged": "converged2"}))
+        ["uittredepunt_id", "limit_state", "beta",
+         "ondergrondscenario_id", "converged"]
+        ].rename(columns={
+            "beta": "beta2",
+            "limit_state": "limit_state2",
+            "converged": "converged2"}))
     df_result2 = df_result2[df_result2["limit_state2"] == "calc_Z_p"]
 
     df = df_result1.merge(df_result2, on=["uittredepunt_id",
@@ -270,9 +279,9 @@ def dumbbell_piping(comparison: ComparisonCollector,
         fig = _add_vak_id(comparison, fig)
 
         fig.update_layout(
-            title=f"Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
+            title="Vergelijk Beta tussen GeoProb-Pipe bestanden<br>"
                   f"<sup>Voor de <b>limit state Piping</b> en <b>scenario {scenario}</b>, "
-                  f"en gevisualiseerd per uittredepunt.</sup>",
+                  "en gevisualiseerd per uittredepunt.</sup>",
             xaxis_title="Uittredepunt ID",
             yaxis_title="β-value",
             legend=dict(
@@ -281,8 +290,8 @@ def dumbbell_piping(comparison: ComparisonCollector,
                 y=1.02,
                 xanchor="right",
                 x=1
+                )
             )
-        )
         fig_list.append(fig)
         if export:
             os.makedirs(comparison.export_dir, exist_ok=True)
