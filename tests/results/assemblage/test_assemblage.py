@@ -17,10 +17,14 @@ def test_window():
     """Test window on selecting max in window and combining.
     """
     list_dsn = [
-        UittredepuntElement(m_value=11, a=0.9, converged=True, pf=1e-12),
-        UittredepuntElement(m_value=12, a=0.9, converged=True, pf=2e-13),
-        UittredepuntElement(m_value=20, a=0.9, converged=True, pf=7.5e-13),
-        UittredepuntElement(m_value=30, a=0.9, converged=True, pf=3e-14)
+        UittredepuntElement(m_value=11, a=0.9, converged=True, pf=1e-12,
+                            flow_chart_number=11, advise="-"),
+        UittredepuntElement(m_value=12, a=0.9, converged=True, pf=2e-13,
+                            flow_chart_number=11, advise="-"),
+        UittredepuntElement(m_value=20, a=0.9, converged=True, pf=7.5e-13,
+                            flow_chart_number=11, advise="-"),
+        UittredepuntElement(m_value=30, a=0.9, converged=True, pf=3e-14,
+                            flow_chart_number=11, advise="-")
     ]
     sum_pf, max_pf, elements = window_collect(
         window_size=10, point_list=list_dsn,
@@ -36,10 +40,14 @@ def test_scaled():
     """Test scaled on taking max in cluster and combining.
     """
     list_dsn = [
-        UittredepuntElement(m_value=11, a=0.9, converged=True, pf=1e-12),
-        UittredepuntElement(m_value=12, a=0.9, converged=True, pf=2e-13),
-        UittredepuntElement(m_value=20, a=0.9, converged=True, pf=7.5e-13),
-        UittredepuntElement(m_value=30, a=0.9, converged=True, pf=3e-14)
+        UittredepuntElement(m_value=11, a=0.9, converged=True, pf=1e-12,
+                            flow_chart_number=11, advise="-"),
+        UittredepuntElement(m_value=12, a=0.9, converged=True, pf=2e-13,
+                            flow_chart_number=11, advise="-"),
+        UittredepuntElement(m_value=20, a=0.9, converged=True, pf=7.5e-13,
+                            flow_chart_number=11, advise="-"),
+        UittredepuntElement(m_value=30, a=0.9, converged=True, pf=3e-14,
+                            flow_chart_number=11, advise="-")
     ]
     sum_pf, max_pf, elements = scaled_collect(
         dL=200, point_list=list_dsn,
