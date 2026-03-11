@@ -24,7 +24,7 @@ def collect_df_beta_limit_state(calculation: SystemCalculation) -> DataFrame:
             "vak_id": calculation.metadata["vak_id"],
             "limit_state": model_name,
             "converged": dp.is_converged,
-            "beta": round(dp.reliability_index, 2),
+            "beta": round(dp.reliability_index, 3),
             "failure_probability": dp.probability_failure,
             "convergence": dp.convergence,
             "total_iterations": dp.total_iterations,
@@ -51,7 +51,7 @@ def collect_df_beta_scenario_rp(calc: SystemCalculation) -> DataFrame:
         "vak_id": calc.metadata["vak_id"],
         "system_calculation": calc,
         "converged": calc.results.dp_reliability.is_converged,
-        "beta": round(calc.results.dp_reliability.reliability_index, 2),
+        "beta": round(calc.results.dp_reliability.reliability_index, 3),
         "failure_probability": calc.results.dp_reliability.probability_failure,
         "convergence": calc.results.dp_reliability.convergence,
         "total_model_runs": calc.results.dp_reliability.total_model_runs,
@@ -66,7 +66,7 @@ def collect_df_beta_scenario_cp(calc: SystemCalculation) -> DataFrame:
         "vak_id": calc.metadata["vak_id"],
         "system_calculation": calc,
         "converged": calc.results.dp_combine.is_converged,
-        "beta": round(calc.results.dp_combine.reliability_index, 2),
+        "beta": round(calc.results.dp_combine.reliability_index, 3),
         "failure_probability": calc.results.dp_combine.probability_failure,
         "convergence": calc.results.dp_combine.convergence,
         "total_model_runs": calc.results.dp_combine.total_model_runs,
@@ -196,7 +196,7 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
 
     df_beta_scenarios_final = results.df_beta_scenarios_final.copy(deep=True)
 
-    # Sum
+    # Sum TODO: also sum scenario probabilities here, error when sum != 1.0
     df = df_beta_scenarios_final.assign(
         failure_probability=df_beta_scenarios_final.apply(
             lambda row: row['failure_probability'] * geoprob_pipe.input_data.scenarios.scenario_kans(
@@ -306,7 +306,7 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
                     pf=point["failure_probability"],
                     beta=point["beta"],
                     m_value=point["metrering"],
-                    a=0.9,
+                    a=1.0,  # TODO Haal deze vanuit Input Data via excel
                     converged=point["converged"],
                     flow_chart_number=point["flow_chart_number"],
                     advise=point["advise"]))
@@ -315,7 +315,7 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
                 id=vak["id"],
                 m_van=vak["m_start"],
                 m_tot=vak["m_end"],
-                a=0.9,  # TODO Haal deze vanuit Input Data via excel
+                a=1.0,  # TODO Haal deze vanuit Input Data via excel
                 delta_length=300,
                 point_list=dsn_list
             ))
@@ -339,7 +339,7 @@ def construct_df_beta_WBI_vak(
             "a": element.a,
             "delta_L": element.delta_length,
             "N_vak": element.N_vak,
-            "pf_vak(sum)": element.pf_max_dsn[1].pf,
+            "pf_vak": element.pf_max_dsn[1].pf,
             "beta_vak": element.pf_max_dsn[1].beta,
             "converged": element.conv_max_dsn,
             "flow_chart_number": element.flow_chart_number,
@@ -369,8 +369,8 @@ def construct_df_beta_window50_vak(
                 "flow_chart_number_dsn": window.flow_chart_number,
                 "delta_L": window.window_size,
                 "N_vak": 1,
-                "pf_vak(sum)": element.pf_window_50m[0].pf,
-                "pf_vak": element.pf_window_50m[0].beta,
+                "pf_vak": element.pf_window_50m[0].pf,
+                "beta_vak": element.pf_window_50m[0].beta,
                 "flow_chart_number": element.flow_chart_number,
                 "advise": element.advise
                 }
@@ -398,8 +398,8 @@ def construct_df_beta_window100_vak(
                 "beta_dsn": element.pf_window_100m[1].beta,
                 "flow_chart_number_dsn": window.flow_chart_number,
                 "delta_L": window.window_size,
-                "N_vak": 1,
-                "pf_vak(sum)": element.pf_window_100m[0].pf,
+                "N_vak": 1.0,
+                "pf_vak": element.pf_window_100m[0].pf,
                 "beta_vak": element.pf_window_100m[0].beta,
                 "flow_chart_number": element.flow_chart_number,
                 "advise": element.advise
@@ -429,7 +429,7 @@ def construct_df_beta_window200_vak(
                 "flow_chart_number_dsn": window.flow_chart_number,
                 "delta_L": window.window_size,
                 "N_vak": 1,
-                "pf_vak(sum)": element.pf_window_200m[0].pf,
+                "pf_vak": element.pf_window_200m[0].pf,
                 "beta_vak": element.pf_window_200m[0].beta,
                 "flow_chart_number": element.flow_chart_number,
                 "advise": element.advise
@@ -458,7 +458,7 @@ def construct_df_beta_window300_vak(
                 "beta_dsn": element.pf_window_300m[1].beta,
                 "flow_chart_number_dsn": window.flow_chart_number,
                 "delta_L": window.window_size,
-                "N_vak": 1,
+                "N_vak": 1.0,
                 "pf_vak(sum)": element.pf_window_300m[0].pf,
                 "beta_vak": element.pf_window_300m[0].beta,
                 "flow_chart_number": element.flow_chart_number,
@@ -511,7 +511,7 @@ def construct_df_beta_per_traject(
     )
     traject_list = [
         {
-            "method": "Sum of vakken",
+            "method": "WBI methode over traject",
             "upper_bound_pof": traject.pf_max_vak[0].pf,
             "lower_bound_beta": traject.pf_max_vak[0].beta,
             "lower_boud_pof": traject.pf_max_vak[1].pf,
@@ -572,9 +572,9 @@ def construct_df_beta_window50_traject(
             "pf_dsn(max)": traject.pf_window_50m[1].pf,
             "beta_dsn": traject.pf_window_50m[1].beta,
             "flow_chart_number_dsn": window.flow_chart_number,
-            "a": 1,
+            "a": 1.0,
             "delta_L": traject.delta_length,
-            "N_vak": 1,
+            "N_vak": 1.0,
             "pf_traject(sum)": traject.pf_window_50m[0].pf,
             "beta_traject": traject.pf_window_50m[0].beta,
             "flow_chart_number": window.flow_chart_number,
@@ -606,9 +606,9 @@ def construct_df_beta_window100_traject(
             "pf_dsn(max)": traject.pf_window_100m[1].pf,
             "beta_dsn": traject.pf_window_100m[1].beta,
             "flow_chart_number_dsn": window.flow_chart_number,
-            "a": 1,
+            "a": 1.0,
             "delta_L": traject.delta_length,
-            "N_vak": 1,
+            "N_vak": 1.0,
             "pf_traject(sum)": traject.pf_window_100m[0].pf,
             "beta_traject": traject.pf_window_100m[0].beta,
             "flow_chart_number": window.flow_chart_number,
@@ -640,9 +640,9 @@ def construct_df_beta_window200_traject(
             "pf_dsn(max)": traject.pf_window_200m[1].pf,
             "beta_dsn": traject.pf_window_200m[1].beta,
             "flow_chart_number_dsn": window.flow_chart_number,
-            "a": 1,
+            "a": 1.0,
             "delta_L": traject.delta_length,
-            "N_vak": 1,
+            "N_vak": 1.0,
             "pf_traject(sum)": traject.pf_window_200m[0].pf,
             "beta_traject": traject.pf_window_200m[0].beta,
             "flow_chart_number": window.flow_chart_number,
@@ -674,9 +674,9 @@ def construct_df_beta_window300_traject(
             "pf_dsn(max)": traject.pf_window_300m[1].pf,
             "beta_dsn": traject.pf_window_300m[1].beta,
             "flow_chart_number_dsn": window.flow_chart_number,
-            "a": 1,
+            "a": 1.0,
             "delta_L": traject.delta_length,
-            "N_vak": 1,
+            "N_vak": 1.0,
             "pf_traject(sum)": traject.pf_window_300m[0].pf,
             "beta_traject": traject.pf_window_300m[0].beta,
             "flow_chart_number": window.flow_chart_number,
