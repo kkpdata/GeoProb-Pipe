@@ -175,7 +175,7 @@ class Results:
         if bool_beta_vakken:
             self.df_beta_WBI_vakken.to_excel(
                 excel_writer=os.path.join(
-                    self.export_dir, "df_beta_WBI_vakken.xlsx"))
+                    self.export_dir, "df_beta_vakken.xlsx"))
             self.df_beta_window50m_vakken.to_excel(
                 excel_writer=os.path.join(
                     self.export_dir_vakken, "df_beta_window50m_vakken.xlsx"))
