@@ -1,6 +1,9 @@
 Stap 2: Uittredepunt → vak
 --------------------------
 
+In deze stap worden de uittredepuntfaalkansen uit Stap 1 gecombineerd
+tot één faalkans per vak
+
 Een dijkvak bevat meerdere uittredepunten waar piping kan initiëren.
 De faalkans per vak volgt uit het combineren van deze bijdragen,
 rekening houdend met het lengte-effect.

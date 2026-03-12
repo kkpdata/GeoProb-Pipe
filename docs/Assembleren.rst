@@ -23,11 +23,12 @@ levert aan de totale faalkans, omdat α-vectoren niet lineair
 optelbaar zijn.
 
 .. toctree::
-    :maxdepth: 2
-    :caption: Inhoud
-    :titlesonly:
-
-    assembleren/overzicht
-    assembleren/stap1_sc_up
-    assembleren/stap2_up_vak
-    assembleren/stap3_vak_tra
+   :maxdepth: 2
+   :caption: Inhoud
+   :titlesonly:
+    
+   assembleren/overzicht
+   assembleren/stap0_sc
+   assembleren/stap1_sc_up
+   assembleren/stap2_up_vak
+   assembleren/stap3_vak_tra

@@ -1,6 +1,9 @@
 Stap 3: Vak → traject
 ========================
 
+In deze stap worden de faalkansen van de dijkvakken uit Stap 2 gecombineerd
+tot één faalkans voor het traject.
+
 Een dijktraject bestaat uit meerdere dijkvakken en wordt beschouwd als
 een seriesysteem: falen van één vak leidt tot falen van het traject.
 
