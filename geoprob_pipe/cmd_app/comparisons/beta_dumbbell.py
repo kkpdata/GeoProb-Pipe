@@ -2,15 +2,24 @@ from __future__ import annotations
 import os
 import plotly.graph_objects as go
 import pandas as pd
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.comparisons import ComparisonCollector
 
 
 def _add_traces(comparison: ComparisonCollector,
                 df: pd.DataFrame,
-                fig: go.Figure):
+                fig: go.Figure) -> go.Figure:
+    """Helper functie om de punten en lijnen van de dumbbell plot te tekenen.
 
+    Args:
+        comparison: ComparisonCollecter object.
+        df: DataFrame met de data van de uittredepunten.
+        fig: Plotly figuur object om punten en lijnen in te tekenen.
+
+    Returns:
+        PlotlyFigure:
+    """
     hoverdata = df[["uittredepunt_id", "beta1", "beta2"]].to_numpy()
     symbol_map = {
         1: "circle",
@@ -88,8 +97,16 @@ def _add_traces(comparison: ComparisonCollector,
     return fig
 
 
-def _add_vak_id(comparison: ComparisonCollector, fig: go.Figure):
+def _add_vak_id(comparison: ComparisonCollector, fig: go.Figure) -> go.Figure:
+    """Helper functie om de vakken in de dumbell plot te tekenen.
 
+    Args:
+        comparison: ComparisonCollecter object.
+        fig: Plotly figuur object om punten en lijnen in te tekenen.
+
+    Returns:
+        PlotlyFigure:
+    """
     vak_ids = comparison.df1_beta_uittredepunten["vak_id"].unique()
     for _, vak_id in enumerate(vak_ids):
         df_vak = comparison.df1_beta_uittredepunten
@@ -110,7 +127,17 @@ def _add_vak_id(comparison: ComparisonCollector, fig: go.Figure):
 
 
 def dumbbell_beta(comparison: ComparisonCollector,
-                  export: bool = False):
+                  export: bool = False) -> go.Figure:
+    """Maak een dumbbell plot van de beta waardes van de twee pakketten om
+    te kunnen vergelijken. Dit is plot voor de gecombineerde beta voor de
+    uittredepunten.
+    Args:
+        comparison: _description_
+        export: _description_. Defaults to False.
+
+    Returns:
+        _description_
+    """
 
     df_result1 = (comparison.df1_beta_uittredepunten[
         ["uittredepunt_id", "converged", "beta"]
@@ -143,7 +170,18 @@ def dumbbell_beta(comparison: ComparisonCollector,
 
 
 def dumbbell_uplift(comparison: ComparisonCollector,
-                    export: bool = False):
+                    export: bool = False) -> List[go.Figure]:
+    """Maak een dumbbell plot van de beta waardes van de twee pakketten om
+    te kunnen vergelijken. Dit is plot voor de uplift limit state beta voor de
+    uittredepunten.
+
+    Args:
+        comparison: _description_
+        export: _description_. Defaults to False.
+
+    Returns:
+        _description_
+    """
 
     df_result1 = (comparison.df1_beta_limit_states[
         ["uittredepunt_id", "limit_state", "beta",
@@ -183,8 +221,8 @@ def dumbbell_uplift(comparison: ComparisonCollector,
                 y=1.02,
                 xanchor="right",
                 x=1
+                )
             )
-        )
         fig_list.append(fig)
         if export:
             os.makedirs(comparison.export_dir, exist_ok=True)
@@ -197,7 +235,18 @@ def dumbbell_uplift(comparison: ComparisonCollector,
 
 
 def dumbbell_heave(comparison: ComparisonCollector,
-                   export: bool = False):
+                   export: bool = False) -> List[go.Figure]:
+    """Maak een dumbbell plot van de beta waardes van de twee pakketten om
+    te kunnen vergelijken. Dit is plot voor de heave limit state beta voor de
+    uittredepunten.
+
+    Args:
+        comparison: _description_
+        export: _description_. Defaults to False.
+
+    Returns:
+        _description_
+    """
     df_result1 = (comparison.df1_beta_limit_states[
         ["uittredepunt_id", "limit_state", "beta",
          "ondergrondscenario_id", "converged"]
@@ -250,7 +299,18 @@ def dumbbell_heave(comparison: ComparisonCollector,
 
 
 def dumbbell_piping(comparison: ComparisonCollector,
-                    export: bool = False):
+                    export: bool = False) -> List[go.Figure]:
+    """Maak een dumbbell plot van de beta waardes van de twee pakketten om
+    te kunnen vergelijken. Dit is plot voor de piping limit state beta voor
+    de uittredepunten.
+
+    Args:
+        comparison: _description_
+        export: _description_. Defaults to False.
+
+    Returns:
+        _description_
+    """
     df_result1 = (comparison.df1_beta_limit_states[
         ["uittredepunt_id", "limit_state", "beta",
          "ondergrondscenario_id", "converged"]

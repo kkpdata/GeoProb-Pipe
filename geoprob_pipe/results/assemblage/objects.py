@@ -10,6 +10,15 @@ from geoprob_pipe.results.assemblage.functions import (
 
 @dataclass
 class KansElement:
+    """DataClass voor het opslaan van de faalkans pf en de
+    betrouwbaarheidsindex beta. Een van deze twee parameters is nodig om deze
+    class te initialiseren.
+
+    Raises:
+        ValueError: Als de pf niet tussen de 0 en de 1 ligt.
+        ValueError: Als beta geen eindige waarde heeft.
+        ValueError: Als beta groter is dan 38 of kleiner dan -38.
+    """
     pf: Optional[float] = None  # Probability of failure, Faalkans van het element per jaar
     beta: Optional[float] = None  # Betrouwbaarheidsindex van het element
 
@@ -66,6 +75,8 @@ class UittredepuntElement:
 @dataclass
 class VakElement:
     """DataClass om alle relevante data van een vak te verzamelen.
+    Vanuit deze class kunnen de verschillende methoden om tot een faalkans van
+    het vak worden bepaald.
     """
     id: int
     m_van: float  # Locatie van het begin van het element [meters]

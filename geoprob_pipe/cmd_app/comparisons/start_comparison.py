@@ -7,19 +7,28 @@ from geoprob_pipe.cmd_app.comparisons import ComparisonCollector
 
 
 def specify_dir_for_first_file():
+    """Bericht voor de app om te vragen naar de locatie van het eerste
+    `.geoprob_pipe.gpkg` bestand.
+
+    Returns:
+        filepath:
+    """
     filepath: str = ""
     filepath_is_valid = False
     while filepath_is_valid is False:
         filepath: str = inq_text(
-            message="Specificeer het volledige bestandspad naar het eerste .geoprob_pipe.gpkg-bestand.",
+            message=("Specificeer het volledige bestandspad naar het eerste "
+                     ".geoprob_pipe.gpkg-bestand."),
         ).execute()
 
         filepath = filepath.replace('"', '')
 
         if not filepath.endswith(".geoprob_pipe.gpkg"):
             print(BColors.WARNING,
-                  f"Het bestand moet een .geoprob_pipe.gpkg-bestand zijn. Jouw invoer "
-                  f"{os.path.basename(filepath)} eindigt niet op deze extensie.", BColors.ENDC)
+                  "Het bestand moet een .geoprob_pipe.gpkg-bestand zijn."
+                  f"Jouw invoer {os.path.basename(filepath)} eindigt niet op "
+                  "deze extensie.",
+                  BColors.ENDC)
             continue
         if not os.path.exists(filepath):
             print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.",
@@ -32,19 +41,28 @@ def specify_dir_for_first_file():
 
 
 def specify_dir_for_second_file():
+    """Bericht voor de app om te vragen naar de locatie van het tweede
+    `.geoprob_pipe.gpkg` bestand.
+
+    Returns:
+        filepath:
+    """
     filepath: str = ""
     filepath_is_valid = False
     while filepath_is_valid is False:
         filepath: str = inq_text(
-            message="Specificeer het volledige bestandspad naar het tweede .geoprob_pipe.gpkg-bestand.",
+            message=("Specificeer het volledige bestandspad naar het tweede "
+                     ".geoprob_pipe.gpkg-bestand."),
         ).execute()
 
         filepath = filepath.replace('"', '')
 
         if not filepath.endswith(".geoprob_pipe.gpkg"):
             print(BColors.WARNING,
-                  f"Het bestand moet een .geoprob_pipe.gpkg-bestand zijn. Jouw invoer "
-                  f"{os.path.basename(filepath)} eindigt niet op deze extensie.", BColors.ENDC)
+                  "Het bestand moet een .geoprob_pipe.gpkg-bestand zijn."
+                  f"Jouw invoer {os.path.basename(filepath)} eindigt niet op "
+                  "deze extensie.",
+                  BColors.ENDC)
             continue
         if not os.path.exists(filepath):
             print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.",
@@ -57,6 +75,12 @@ def specify_dir_for_second_file():
 
 
 def specify_dir_for_comparison():
+    """Bericht voor de app om te vragen naar de map om de
+    vergelijking in op te slaan.
+
+    Returns:
+        workspace_dir:
+    """
     workspace_dir: str = ""
     workspace_dir_is_valid = False
     while workspace_dir_is_valid is False:
@@ -81,6 +105,14 @@ def specify_dir_for_comparison():
 
 
 def run_comparison(filepath1, filepath2, export_dir):
+    """Functie om de vergelijking uit te voeren op basis van de twee opgegeven
+    pakketten.
+
+    Args:
+        filepath1: Locatie van het eerste pakket.
+        filepath2: Locatie van het tweede pakket.
+        export_dir: Uitvoer map.
+    """
     print(BColors.OKBLUE, "Vergelijking wordt uitgevoerd.", BColors.ENDC)
     comparison = ComparisonCollector(filepath1, filepath2, export_dir)
     comparison.create_and_export_figures()
@@ -90,6 +122,8 @@ def run_comparison(filepath1, filepath2, export_dir):
 
 
 def start_comparison():
+    """Startpunt van de vergelijking voor gebruik in de app.
+    """
     filepath1 = specify_dir_for_first_file()
     filepath2 = specify_dir_for_second_file()
     export_dir = specify_dir_for_comparison()
