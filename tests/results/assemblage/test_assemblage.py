@@ -2,6 +2,7 @@ from geoprob_pipe.results.assemblage.functions import combine_series
 from geoprob_pipe.results.assemblage.functions import window_collect
 from geoprob_pipe.results.assemblage.functions import scaled_collect
 from geoprob_pipe.results.assemblage.objects import UittredepuntElement
+import pytest
 
 
 def test_combine():
@@ -9,8 +10,8 @@ def test_combine():
     """
     pfs = [1.123e-17, 3.78e-15, 6.7e-15]
     sum_pf, max_pf = combine_series(pfs)
-    assert sum_pf == 1.049123e-14
-    assert max_pf == 6.7e-15
+    assert sum_pf == pytest.approx(1.049123e-14)
+    assert max_pf == pytest.approx(6.7e-15)
 
 
 def test_window():
@@ -30,8 +31,8 @@ def test_window():
         window_size=10, point_list=list_dsn,
         m_van=0, m_tot=40
         )
-    assert sum_pf == 1.78e-12
-    assert max_pf == 1e-12
+    assert sum_pf == pytest.approx(1.78e-12)
+    assert max_pf == pytest.approx(1e-12)
     assert elements.__len__() == 4
     assert elements[0].kans_dsn.pf == 0.0
 
@@ -53,6 +54,6 @@ def test_scaled():
         dL=200, point_list=list_dsn,
         m_van=0, m_tot=50
         )
-    assert sum_pf == 1.78e-12
-    assert max_pf == 1e-12
+    assert sum_pf == pytest.approx(1.78e-12)
+    assert max_pf == pytest.approx(1e-12)
     assert elements.__len__() == 3

@@ -196,7 +196,6 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
 
     df_beta_scenarios_final = results.df_beta_scenarios_final.copy(deep=True)
 
-    # Sum TODO: also sum scenario probabilities here, error when sum != 1.0
     df = df_beta_scenarios_final.assign(
         failure_probability=df_beta_scenarios_final.apply(
             lambda row: row['failure_probability'] * geoprob_pipe.input_data.scenarios.scenario_kans(
@@ -317,7 +316,7 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
                 m_tot=vak["m_end"],
                 a=1.0,  # TODO Haal deze vanuit Input Data via excel
                 delta_length=300,
-                point_list=dsn_list
+                dsn_list=dsn_list
             ))
     return element_list
 

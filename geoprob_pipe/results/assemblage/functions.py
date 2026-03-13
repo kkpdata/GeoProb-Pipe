@@ -11,13 +11,16 @@ if TYPE_CHECKING:
 
 def combine_series(list_pf: list[float]) -> Tuple[float, float]:
     getcontext().prec = 30
-    if list_pf.__len__() > 0:
-        inv_pf = Decimal(1)
-        for pf in list_pf:
-            inv_pf = inv_pf * Decimal(1) - Decimal.from_float(pf)
-        return float(Decimal(1) - inv_pf), max(list_pf)
-    else:
+    if len(list_pf) == 0:
         return 0.0, 0.0
+    list_pf_dec = [Decimal(1) - Decimal(str(pf)) for pf in list_pf]
+    arr = np.array(list_pf_dec, dtype=object)
+    inv_pf = cast(Decimal, np.prod(arr))
+
+    ondergrens = max(list_pf)
+    bovengrens = float(Decimal(1) - inv_pf)
+
+    return bovengrens, ondergrens
 
 
 def bepaal_N_vak(L: float, a: float, dL: float) -> float:
