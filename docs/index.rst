@@ -20,6 +20,6 @@ achtergronden van de methode, API-referenties en voorbeelden.
    installatie_proces
    gebruik
    rekenmethodiek
-   Assembleren
+   assembleren
    references
 
