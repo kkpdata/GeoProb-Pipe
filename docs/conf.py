@@ -120,6 +120,7 @@ extensions = [
 
 bibtex_bibfiles = ["bibliography.bib"]
 
+
 source_suffix = [".rst", ".md"]
 
 templates_path = ["_templates"]
@@ -148,7 +149,9 @@ html_theme_options = {
     "titles_only": True,
     "display_version": True,
 }
-
+bibtex_ignore_labels = {
+    "trw_2004)"
+}
 
 # -- Hooks ---------------------------------------------------------------------
 

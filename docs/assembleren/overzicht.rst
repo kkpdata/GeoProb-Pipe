@@ -1,4 +1,4 @@
-Bron en hiërarchie
+Kader
 ===================
 
 De assemblage van faalkansen in GeoProb-Pipe is conceptueel gebaseerd op de bottom-up assemblage zoals beschreven door
@@ -11,17 +11,7 @@ bouwsteen**:
 
     *De assemblage start niet bij een doorsnede, maar bij een uittredepunt,
     waarin meerdere deelfaalmechanismen van STPH en ondergrondscenario’s
-    probabilistisch worden gecombineerd.*
+    probabilistisch zijn gecombineerd.*
 
 Hierdoor wijkt met name de eerste stap van de assemblage inhoudelijk af
 van Rode draad #10, terwijl de vervolgstappen hiermee consistent blijven.
-
-Conceptuele opbouw (hiërarchie)
--------------------------------
-
-.. figure:: ../_static/Hierarchie_berekeningen.png
-   :width: 95%
-   :align: center
-
-   Hiërarchische opbouw van faalkansen in GeoProb-Pipe van uittredepunt
-   tot trajectniveau.
