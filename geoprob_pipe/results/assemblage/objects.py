@@ -134,6 +134,9 @@ class VakElement:
             window_size=window_size, point_list=self.dsn_list,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=self.id
             )
+        """Helper om de `window_collect` functie op te zetten voor alle
+        attributen.
+        """
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
     # vak: moving window met variable lengtes
@@ -170,11 +173,19 @@ class VakElement:
 
 @dataclass
 class WindowElement:
-    m_van: float
-    m_tot: float
-    window_size: float
-    window_id: int
-    pf: float
+    """DataClass voor het verzamelen va alle data uit een window dat wordt
+    opgezet in `window_collect` of `scaled_collect`.
+
+    Raises:
+        AttributeError: Als een attribute wordt opgevraagt dat niet is
+        toegevoegd.
+    """
+
+    m_van: float  # Begin punt in meters
+    m_tot: float  # Eindpunt in meters
+    window_size: float  # Groote van de window
+    window_id: int  # Id nummer toegewezen aan window
+    pf: float  # Faalkans toegewezen aan de window
     flow_chart_number: int
     advise: str
     _vak_id: Optional[int] = None
@@ -225,6 +236,8 @@ class WindowElement:
 
 @dataclass
 class TrajectElement:
+    """DataClass om de data van het traject te verzamelen.
+    """
     list_vakken: list[VakElement]
     list_dsn: list[UittredepuntElement]
     delta_length: float
@@ -260,6 +273,9 @@ class TrajectElement:
             window_size=window_size, point_list=self.list_dsn,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=None
             )
+        """Helper om de `window_collect` functie op te zetten voor alle
+        attributen.
+        """
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
     # traject: moving window met variable lengtes
