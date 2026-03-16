@@ -271,7 +271,7 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
 
     Args:
         geoprob_pipe: GeoprobPipe object.
-        results: Resutls object.
+        results: Results object.
 
     Returns:
         list[VakElement]: List of generated objects.
@@ -324,6 +324,15 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
 def construct_df_beta_WBI_vak(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans per vak volgens de WBI methode.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
     vakken_list = []
@@ -351,6 +360,15 @@ def construct_df_beta_WBI_vak(
 def construct_df_beta_window50_vak(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans per vak met een window van 50m.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
     window_list = []
@@ -381,6 +399,15 @@ def construct_df_beta_window50_vak(
 def construct_df_beta_window100_vak(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans per vak met een window van 100m.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
     window_list = []
@@ -411,6 +438,15 @@ def construct_df_beta_window100_vak(
 def construct_df_beta_window200_vak(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans per vak met een window van 200m.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
     window_list = []
@@ -441,6 +477,15 @@ def construct_df_beta_window200_vak(
 def construct_df_beta_window300_vak(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans per vak met een window van 300m.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
     window_list = []
@@ -471,6 +516,16 @@ def construct_df_beta_window300_vak(
 def construct_df_beta_scaled_vak(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans per vak op basis van de afstand
+    tussen de uittredepunten.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
     window_list = []
@@ -501,6 +556,16 @@ def construct_df_beta_scaled_vak(
 def construct_df_beta_per_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans over het traject volgens de WBI
+    methode.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     vakken_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                          results=results)
@@ -553,6 +618,16 @@ def construct_df_beta_per_traject(
 def construct_df_beta_window50_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans voor het gehele traject met een
+    window van 50m ipv vakken.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
@@ -587,6 +662,16 @@ def construct_df_beta_window50_traject(
 def construct_df_beta_window100_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans voor het gehele traject met een
+    window van 100m ipv vakken.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
@@ -621,6 +706,16 @@ def construct_df_beta_window100_traject(
 def construct_df_beta_window200_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans voor het gehele traject met een
+    window van 200m ipv vakken.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
@@ -655,6 +750,16 @@ def construct_df_beta_window200_traject(
 def construct_df_beta_window300_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans voor het gehele traject met een
+    window van 300m ipv vakken.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
@@ -689,6 +794,16 @@ def construct_df_beta_window300_traject(
 def construct_df_beta_scaled_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
+    """Beplaalde de samengestelde faalkans voor het gehele traject op basis van
+    de afstand tussen de uittredepunten ipv de vakken.
+
+    Args:
+        geoprob_pipe: GeoProbPipe object voor data collectie.
+        results: Results object voor data collectie.
+
+    Returns:
+        Dataframe:
+    """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
