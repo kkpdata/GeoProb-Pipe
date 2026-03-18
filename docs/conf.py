@@ -102,7 +102,16 @@ def run_post_processing():
 project = "GeoProb-Pipe"
 copyright = f"{datetime.date.today().year}, WSRL & WSHD"
 author = "WSRL & WSHD"
-release = "0.0.1"
+
+
+# Get release version
+import tomllib
+import pathlib
+pyproject_path = pathlib.Path(__file__).resolve().parents[1] / "pyproject.toml"
+with pyproject_path.open("rb") as f:
+    pyproject = tomllib.load(f)
+release = pyproject["project"]["version"]
+
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
