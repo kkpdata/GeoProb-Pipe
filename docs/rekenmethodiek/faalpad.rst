@@ -9,7 +9,7 @@ zijn de bijbehorende grenstoestandsfuncties beschreven die in het BOI en in `Geo
 
 .. _faalpad-STPH:
 
-.. figure:: _static/faalpad_piping.png
+.. figure:: ../_static/faalpad_piping.png
    :alt: Veelvoorkomend faalpad voor het faalmechanisme piping.
    :align: center
 

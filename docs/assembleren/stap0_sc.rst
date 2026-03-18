@@ -1,0 +1,108 @@
+Stap 0: Scenarioberekening
+===========================
+Piping treedt op als opbarsten én heave én terugschrijdende erosie optreedt.
+Deze mechanismen zijn beschreven door grenstoestandsfuncties (``Zu``, ``Zh`` en ``Zp``).
+Probabilistische rekentechnieken zoeken naar de combinatie van mogelijke realisaties 
+van onzekere parameters waarbij de kans op falen het grootst is. Dit is voor elke 
+grenstoestandfunctie een andere combinatie. Omdat we in de analyse van de resultaten 
+graag de invloedsfactoren van de afzonderlijke grenstoestandsfuncties willen beschouwen,
+niet elke rekentechniek convergeert naar een betrouwbare oplossing en een herleidbare 
+oplossing vereist is, is het volgende rekenprotocol bedacht.
+
+Rekenprotocol 'Bepalen betrouwbaarheidsindex β'
+-----------------------------------------------
+
+Per scenarioberekening en gegeven een set van (onzekere) invoervariabelen, worden 
+altijd de volgende drie rekenblokken uitgevoerd. Deze blokken verschillen in 
+probabilistische methode en in benodigde invoer.
+
+Het resultaat van de (gecombineerde) kans op piping wordt bepaald door convergentie 
+van deze rekenblokken.
+
+.. _fig-rekenprotocol:
+.. figure:: ../_static/rekenprotocol.png
+   :width: 95%
+   :align: center
+
+   De drie verschillende rekenblokken voor de scenario berekeningen.
+
+\
+
+Reliability Project (RP) – afzonderlijke limit states (geelblok links)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Het Reliability Project wordt altijd eerst uitgevoerd, omdat dit benodigde invoer levert voor de overige methoden. In
+dit blok worden de drie afzonderlijke limit state functies (``Zu``, ``Zh``, ``Zp``) onafhankelijk van elkaar opgelost
+met FORM (default). Hierbij worden dezelfde stochasten en kansverdelingen gebruikt, maar voor iedere limit state worden
+zelfstandige trekkingen uitgevoerd.
+
+Dit resulteert in:
+
+- 3 × β‑waarde  
+- 3 × α‑vector (invloedsfactoren)
+- 3 × design point
+
+(dus één set per limit state)
+
+
+Reliability Project (RP) – samengestelde limit state (geelblok midden)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Het tweede rekenblok maakt opnieuw gebruik van het Reliability Project, maar nu met 
+één samengestelde limit state: ``Z = max(Zu, Zh, Zp)``.
+
+Dezelfde stochasten, verdelingen en probabilistische methode als voorgaand wordt toegepast. 
+Alle deelmechanismen gecombineerd tot één samengestelde limit state die wordt opgelost 
+en leidt tot
+
+- 1 × β‑waarde  
+- 1 × α‑vector
+- 1 × design point
+
+voor de betreffende scenarioberekening. De invloedsfactoren van de afzonderlijke 
+grenstoestandsfuncties zijn in dit geval niet beschikbaar.
+
+
+Combine Project (CP) – importance sampling (geelblok rechts)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In het Combine Project worden de drie design points uit het eerste Reliability Project (de afzonderlijke limit states)
+als invoer gebruikt. Op basis hiervan wordt met importance sampling (default) een gecombineerde β‑waarde bepaald.
+
+Rekenprotocol bij niet-convergerende berekeningen
+--------------------------------------------------
+
+Alle drie de rekenblokken leveren een betrouwbaarheidsindex (β), maar het komt ook voor dat 1, 2 of alle 3, hun
+convergentiecriterium niet bereiken en het resultaat onbetrouwbaar kan zijn. Om een herleidbaar en zo betrouwbaar
+mogelijk resultaat te bereiken, al dan niet met advies om verder te rekenen, geeft onderstaand protocol (groene blokjes
+in :numref:`fig-rekenprotocol` en de flowchart in :numref:`fig-bepalenbeta_convergentie`) aan welk antwoord GeoProb‑Pipe
+als resultaat geeft.
+
+.. _fig-bepalenbeta_convergentie:
+.. figure:: ../_static/bepalenbeta_convergentie.png
+   :width: 95%
+   :align: center
+
+   Rekenprotocol ‘Bepalen betrouwbaarheidsindex β’.
+
+De figuur toont de volgorde waarin de methoden worden beoordeeld. De logica is als volgt:
+
+Stap 1 – Combine Project geconvergeerd?
+    → Gebruik het resultaat uit het Combine Project. Voorwaarde is dat de afzonderlijke 
+    grenstoestandsfuncties ook geconvergeerd zijn
+    (snelste methode én geldig indien geconvergeerd).
+
+Stap 2 – Reliability Project (samengestelde limit state) geconvergeerd?
+    → Gebruikt de β‑waarde uit de gecombineerde limit state.
+
+Stap 3 – Alle afzonderlijke limit states geconvergeerd?
+    → Gebruik het minimum van de drie β‑waarden.  
+    Dit is een conservatieve benadering.
+
+Stap 4 – Alle methodes zijn niet geconvergeerd, maar voor elk is de β‑waarden > 8?
+    → Gebruik de minimum β‑waarde van de drie. Het resultaat is dan zo positief dat verdere verfijning niet zinvol is.
+
+Stap 5 – Alle methodes zijn niet geconvergeerd, én β < 8?
+    → Controleer de invoervariabelen en verfijn zo nodig de rekeninstellingen (bijvoorbeeld FORM‑instellingen of
+    Importance Sampling-parameters). Wisselen van probabilistische methode is in de gebruikersinterface momenteel
+    nog niet mogelijk.
