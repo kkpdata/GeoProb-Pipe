@@ -1,0 +1,16 @@
+# core
+sphinx>=7
+
+# theme
+sphinx-rtd-theme
+
+# your extensions
+sphinx-autodoc-typehints
+sphinx-autoapi
+sphinx-mdinclude
+sphinxcontrib-jquery
+sphinxcontrib-bibtex
+
+# used in your environment (likely for code or templates)
+inflection
+beautifulsoup4

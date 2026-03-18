@@ -1,22 +1,15 @@
 from __future__ import annotations
 from geopandas import GeoDataFrame, read_file
+import scipy.stats as sct
 from pandas import read_sql, DataFrame
 from probabilistic_library import FragilityValue
 import pydra_core as pydra
 from shapely import Point
-# from geoprob_pipe.input_data.vak import VakCollection
-# from geoprob_pipe.input_data.ondergrond_scenario import OndergrondScenarioCollection
-# from geoprob_pipe.input_data.uittredepunt import UittredepuntCollection
-# from geoprob_pipe.input_data.overschrijdingsfrequentielijn import OverschrijdingsfrequentielijnCollection
-# from geoprob_pipe.utils.workspace import Workspace
-# from geoprob_pipe.input_data.data_validation import checks_input_parameters, checks_overview_parameters
-# noinspection PyPep8Naming
-# from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 from typing import Optional, TYPE_CHECKING, List
 import sqlite3
-from geoprob_pipe.misc.traject_normering import TrajectNormering
+from geoprob_pipe.input_data.traject_normering import TrajectNormering
 if TYPE_CHECKING:
-    from geoprob_pipe.questionnaire.cmd import ApplicationSettings
+    from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
 class Vak:
@@ -30,10 +23,13 @@ class Uittredepunten:
 
     def __init__(self, app_settings: ApplicationSettings):
         self.app_settings: ApplicationSettings = app_settings
-        self.gdf: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")
+        self.gdf: GeoDataFrame = read_file(app_settings.geopackage_filepath,
+                                           layer="uittredepunten")
 
     def uittredepunt(self, uittredepunt_id: int):
-        row = self.gdf.loc[self.gdf['uittredepunt_id'] == uittredepunt_id].iloc[0]
+        row = self.gdf.loc[
+            self.gdf['uittredepunt_id'] == uittredepunt_id
+            ].iloc[0]
         kwargs = row.to_dict()
         return Uittredepunt(self.app_settings, **kwargs)
 
@@ -41,7 +37,8 @@ class Uittredepunten:
 class Uittredepunt:
 
     def __init__(
-            self, app_settings: ApplicationSettings, geometry: Point, uittredepunt_id: int, vak_id: int, **_):
+            self, app_settings: ApplicationSettings, geometry: Point,
+            uittredepunt_id: int, vak_id: int, **_):
         self.app_settings: ApplicationSettings = app_settings
         self.geometry: Point = geometry
         self.uittredepunt_id: int = uittredepunt_id
@@ -77,21 +74,27 @@ class HydraNLData:
 
     def __init__(self, app_settings: ApplicationSettings):
         self.app_settings: ApplicationSettings = app_settings
-        self.gdf_locations: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="hrd_locaties")
+        self.gdf_locations: GeoDataFrame = read_file(
+            app_settings.geopackage_filepath, layer="hrd_locaties")
 
     def hrd_fragility_values(self, ref: str) -> List[FragilityValue]:
 
         # Read from geopackage
         conn = sqlite3.connect(self.app_settings.geopackage_filepath)
         df_frag_line = read_sql(
-            f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}';",
-            conn)
+            sql=f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}' AND kans < 1.0;",
+            con=conn)
         conn.close()
+
+        # Filter beta > 8 (probabilistic library cannot work with that in 26.1.1)
+        df_frag_line['beta'] = -sct.norm.ppf(df_frag_line['kans'])
+        df_frag_line = df_frag_line[df_frag_line['beta'] < 8.0].copy(deep=True)
+        df_frag_line = df_frag_line.drop(columns=["beta"])
 
         # Construct Fragility Values
         df_frag_line = df_frag_line.sort_values(by=["waarde"])
         frag_points = []
-        for index, row in df_frag_line.iterrows():
+        for _, row in df_frag_line.iterrows():
             fc = FragilityValue()
             fc.x = row["waarde"]
             fc.probability_of_failure = row["kans"]
@@ -100,10 +103,13 @@ class HydraNLData:
         return frag_points
 
     # noinspection PyUnresolvedReferences
-    def hrd_frequency_line(self, ref: str) -> pydra.core.datamodels.frequency_line.FrequencyLine:
+    def hrd_frequency_line(
+            self, ref: str
+            ) -> pydra.core.datamodels.frequency_line.FrequencyLine:
         hrd_fragility_values = self.hrd_fragility_values(ref=ref)
         level = [item.x for item in hrd_fragility_values]
-        exceedance_frequency = [item.probability_of_failure for item in hrd_fragility_values]
+        exceedance_frequency = [item.probability_of_failure
+                                for item in hrd_fragility_values]
         # noinspection PyUnresolvedReferences
         return pydra.core.datamodels.frequency_line.FrequencyLine(
             level=level, exceedance_frequency=exceedance_frequency)
@@ -113,12 +119,14 @@ class Vakken:
 
     def __init__(self, app_settings: ApplicationSettings):
         self.app_settings: ApplicationSettings = app_settings
-        self.gdf: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="vakindeling")
+        self.gdf: GeoDataFrame = read_file(app_settings.geopackage_filepath,
+                                           layer="vakindeling")
 
 
 class InputData:
-    """ Subclass to group input data of vakken, uittredepunten and ondergrondscenarios. Data is retrieved from the input
-    Excel-file. """
+    """ Subclass to group input data of vakken, uittredepunten and
+    ondergrondscenarios. Data is retrieved from the input Excel-file.
+    """
 
     def __init__(
             self,
@@ -141,8 +149,8 @@ class InputData:
         conn = sqlite3.connect(self.app_settings.geopackage_filepath)
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT geoprob_pipe_metadata."values" 
-            FROM geoprob_pipe_metadata 
+            SELECT geoprob_pipe_metadata."values"
+            FROM geoprob_pipe_metadata
             WHERE metadata_type='geohydrologisch_model';
         """)
         result = cursor.fetchone()
@@ -155,5 +163,6 @@ class InputData:
     @property
     def traject_normering(self):
         if self._traject_normering is None:
-            self._traject_normering = TrajectNormering(hrd_path=self.app_settings.hrd_file_path)
+            self._traject_normering = TrajectNormering(
+                hrd_path=self.app_settings.hrd_file_path)
         return self._traject_normering

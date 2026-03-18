@@ -26,12 +26,30 @@ def get_gdf_beta_limit_states(geoprob_pipe: GeoProbPipe, export: bool = False) -
     return gdf
 
 
-def get_gdf_beta_scenarios(geoprob_pipe: GeoProbPipe, export: bool = False) -> GeoDataFrame:
-    gdf = _get_uittredepunten_gdf_beta_results(geoprob_pipe, geoprob_pipe.results.df_beta_scenarios)
+def get_gdf_beta_scenarios_final(geoprob_pipe: GeoProbPipe, export: bool = False) -> GeoDataFrame:
+    gdf = _get_uittredepunten_gdf_beta_results(geoprob_pipe, geoprob_pipe.results.df_beta_scenarios_final)
     if export:
         gdf.to_file(
             geoprob_pipe.input_data.app_settings.geopackage_filepath,
-            layer="beta_scenarios", driver="GPKG", mode="w")
+            layer="beta_scenarios_final", driver="GPKG", mode="w")
+    return gdf
+
+
+def get_gdf_beta_scenarios_cp(geoprob_pipe: GeoProbPipe, export: bool = False) -> GeoDataFrame:
+    gdf = _get_uittredepunten_gdf_beta_results(geoprob_pipe, geoprob_pipe.results.df_beta_scenarios_cp)
+    if export:
+        gdf.to_file(
+            geoprob_pipe.input_data.app_settings.geopackage_filepath,
+            layer="beta_scenarios_cp", driver="GPKG", mode="w")
+    return gdf
+
+
+def get_gdf_beta_scenarios_rp(geoprob_pipe: GeoProbPipe, export: bool = False) -> GeoDataFrame:
+    gdf = _get_uittredepunten_gdf_beta_results(geoprob_pipe, geoprob_pipe.results.df_beta_scenarios_rp)
+    if export:
+        gdf.to_file(
+            geoprob_pipe.input_data.app_settings.geopackage_filepath,
+            layer="beta_scenarios_rp", driver="GPKG", mode="w")
     return gdf
 
 

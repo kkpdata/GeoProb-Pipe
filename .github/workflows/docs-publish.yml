@@ -1,0 +1,55 @@
+name: Build and Deploy Sphinx Docs
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f docs/requirements.txt ]; then pip install -r docs/requirements.txt; else pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints sphinx-autoapi sphinx-mdinclude sphinxcontrib-jquery sphinxcontrib-bibtex inflection beautifulsoup4; fi
+
+      # Build with your exact command
+      - name: Build Sphinx HTML
+        run: |
+          # Ensure posix paths that mirror your command semantics:
+          sphinx-build -M html docs docs/_build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_build/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
