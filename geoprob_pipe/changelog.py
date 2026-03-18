@@ -1,5 +1,7 @@
 
 CHANGELOG = {
+    "1.4.2":
+        "Documentation update.",
     "1.4.1":
         "Documentation update.",
     "1.4.0":
