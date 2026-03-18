@@ -110,7 +110,7 @@ import pathlib
 pyproject_path = pathlib.Path(__file__).resolve().parents[1] / "pyproject.toml"
 with pyproject_path.open("rb") as f:
     pyproject = tomllib.load(f)
-release = pyproject["project"]["version"]
+release = pyproject["tool"]["poetry"]["version"]
 
 
 # -- General configuration ---------------------------------------------------
