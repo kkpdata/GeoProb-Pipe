@@ -98,12 +98,6 @@ def run_post_processing():
                 file_path = os.path.join(root, filename)
                 simplify_anchor_text_in_file(file_path)
 
-
-project = "GeoProb-Pipe"
-copyright = f"{datetime.date.today().year}, WSRL & WSHD"
-author = "WSRL & WSHD"
-
-
 # Get release version
 import tomllib
 import pathlib
@@ -112,6 +106,10 @@ with pyproject_path.open("rb") as f:
     pyproject = tomllib.load(f)
 release = pyproject["tool"]["poetry"]["version"]
 
+
+project = f"GeoProb-Pipe"
+copyright = f"{datetime.date.today().year}, WSRL & WSHD. Application version is {release}"
+author = "WSRL & WSHD"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -151,6 +149,7 @@ numfig_format = {"figure": "Figuur %s"}
 
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
+html_last_updated_fmt = "%Y-%m-%d"
 html_theme_options = {
     "collapse_navigation": False,
     "sticky_navigation": True,
