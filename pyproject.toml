@@ -1,7 +1,7 @@
 
 [tool.poetry]
 name = "geoprob_pipe"
-version = "1.4.0"
+version = "1.4.1"
 description = "Execute probabilistic piping calculations using the Deltares probabilic library."
 authors = [
     "Chris Pitzalis <C.Pitzalis@wsrl.nl>",
