@@ -186,3 +186,7 @@ def setup(app):
         run_post_processing()
 
     app.connect("build-finished", on_build_finished)
+
+rst_epilog = f"""
+.. |version| replace:: {release}
+"""
