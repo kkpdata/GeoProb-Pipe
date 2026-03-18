@@ -10,9 +10,10 @@ een seriesysteem: falen van één vak leidt tot falen van het traject.
 Bepaling van de trajectfaalkans
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Het lengte-effect is volledig verwerkt op vakniveau via
-:math:`N_{\mathrm{vak}}`.
-Daarom worden vakkansen op trajectniveau **niet opnieuw opgeschaald**.
+Het lengte-effect is volledig verwerkt op vakniveau via :math:`N_{\mathrm{vak}}`. Daarom worden vakkansen op
+trajectniveau **niet opnieuw opgeschaald**.
+
+.. TODO: Wat wordt bedoeld met dit opschalen?
 
 Voor STPH wordt de trajectfaalkans benaderd met:
 
@@ -27,14 +28,19 @@ De bijbehorende betrouwbaarheidsindex volgt uit:
 
    \beta_{\mathrm{traject}} = -\Phi^{-1}(P_{f,\mathrm{traject}})
 
-De α-vector op trajectniveau wordt overgenomen uit het
-**meest ongunstige vak**.
+De α-vector op trajectniveau wordt overgenomen uit het **meest ongunstige vak**.
+
+.. TODO: Doen we dat met de a-vector? En hoe gaat dit op vakniveau? Want dat is niet vermeld in stap 2 volgens mij.
+ Wat gaan we verder doen met deze a-vector?
 
 Bepaling van β en α bij assemblage
 ----------------------------------
 
-Bij het combineren van kansen in GeoProb-Pipe wordt onderscheid gemaakt
-tussen:
+Bij het combineren van kansen in GeoProb-Pipe wordt onderscheid gemaakt tussen:
+
+.. TODO: Ik ben toch een beetje in verwarring. We zeggen hierboven ergens hoe we de trajectfaalkans berekenen, en nu
+ gaan we onder dit nieuwe kopje opnieuw bespreken hoe we combineren? Het zal vast een reden hebben, maar dit wordt niet
+ duidelijk uit de voorgaande tekst (inleiding bijvoorbeeld).
 
 - de **grootte van de faalkans** (:math:`P_f`, β);
 - de **richting van falen** (α).
@@ -54,4 +60,7 @@ Concreet betekent dit:
 
 - α\ :sub:`uittredepunt` ← meest ongunstige scenario  
 - α\ :sub:`vak` ← meest ongunstige uittredepunt  
-- α\ :sub:`traject` ← meest ongunstige vak  
+- α\ :sub:`traject` ← meest ongunstige vak
+
+.. TODO: De meerwaarde van deze paragraaf (stap 3) wordt niet echt duidelijk. Ik denk dat we nog eens goed moeten
+ nadenken welke boodschap we willen overbrengen.
