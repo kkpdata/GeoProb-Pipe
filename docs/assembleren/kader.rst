@@ -2,8 +2,9 @@ Kader
 ===================
 
 De assemblage van faalkansen in GeoProb-Pipe is conceptueel gebaseerd op de bottom-up assemblage zoals beschreven door
-het Adviesteam Dijkontwerp in :cite:`ADO2024Assembleren`. In deze publicatie wordt de assemblage beschreven vanuit een
-klassieke opzet, waarbij faalkansen op doorsnedeniveau worden opgeschaald naar vak- en trajectniveau.
+het Adviesteam Dijkontwerp in Rode Draad #10 :cite:`ADO2024Assembleren`. In deze publicatie wordt de assemblage
+beschreven vanuit een klassieke opzet, waarbij faalkansen op doorsnedeniveau worden opgeschaald naar vak- en
+trajectniveau.
 
 GeoProb-Pipe volgt dezelfde **systemische principes** (seriesysteem, lengte-effect, SOM/MAX), maar hanteert een
 **andere elementaire bouwsteen**:

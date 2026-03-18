@@ -1,4 +1,4 @@
-Stap 2: Uittredepunt → vak
+Stap 2: Uittredepunt → Vak
 --------------------------
 
 In deze stap worden de uittredepuntfaalkansen uit Stap 1 gecombineerd

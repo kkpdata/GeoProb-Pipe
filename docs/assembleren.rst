@@ -27,7 +27,7 @@ optelbaar zijn.
    :caption: Inhoud
    :titlesonly:
     
-   assembleren/overzicht
+   assembleren/kader
    assembleren/stap0_sc
    assembleren/stap1_sc_up
    assembleren/stap2_up_vak

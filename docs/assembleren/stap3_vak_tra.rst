@@ -1,4 +1,4 @@
-Stap 3: Vak → traject
+Stap 3: Vak → Traject
 ========================
 
 In deze stap worden de faalkansen van de dijkvakken uit Stap 2 gecombineerd
