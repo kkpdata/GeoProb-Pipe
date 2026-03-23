@@ -96,7 +96,3 @@ def debug():
     """ Start GeoProb-Pipe in debug mode. """
     os.environ["GEOPROB_DEBUG"] = "1"
     startup_geoprob_pipe()
-
-
-if __name__ == "__main__":
-    app()
