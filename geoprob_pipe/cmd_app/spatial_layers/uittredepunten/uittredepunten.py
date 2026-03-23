@@ -2,6 +2,7 @@ from __future__ import annotations
 from InquirerPy import inquirer
 from typing import TYPE_CHECKING, Optional
 import os
+import sys
 from geoprob_pipe.cmd_app.spatial_layers.uittredepunten.alg_walking_circles import algorithm_walking_circles
 from shapely import Point
 from geopandas import GeoDataFrame, read_file
@@ -30,7 +31,8 @@ def added_uittredepunten(app_settings: ApplicationSettings) -> bool:
 
 
 def define_method_of_adding_uittredepunten(app_settings: ApplicationSettings):
-    choices_list = ["Nu klikken in ArcGIS/QGIS", "Importeren uit GIS-bestand", "Automatische suggestie"]
+    choices_list = [
+        "Nu klikken in ArcGIS/QGIS", "Importeren uit GIS-bestand", "Automatische suggestie", "Applicatie afsluiten"]
     choice = inquirer.select(
         message="Er zijn nog geen uittredepunten toegevoegd. Hoe wil je deze toevoegen?",
         choices=choices_list,
@@ -43,6 +45,8 @@ def define_method_of_adding_uittredepunten(app_settings: ApplicationSettings):
         import_uittredepunten_gis_file(app_settings)
     elif choice == choices_list[2]:
         generate_uittredepunten_suggestions(app_settings=app_settings)
+    elif choice == choices_list[3]:
+        sys.exit(f"Applicatie is afgesloten.")
     else:
         raise ValueError
 
