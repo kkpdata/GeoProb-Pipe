@@ -1,8 +1,8 @@
 from typing import List
 from pandas import DataFrame
 import os
-from geoprob_pipe.utils.loggers import BColors
 from dataclasses import dataclass
+from geoprob_pipe.utils.validation_messages import BColors
 
 
 @dataclass

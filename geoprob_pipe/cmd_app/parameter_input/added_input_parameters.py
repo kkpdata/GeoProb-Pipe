@@ -9,7 +9,7 @@ from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputPar
 from typing import TYPE_CHECKING, Optional
 import os
 import sys
-from geoprob_pipe.utils.loggers import BColors
+from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 

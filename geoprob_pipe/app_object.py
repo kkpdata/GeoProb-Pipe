@@ -12,18 +12,19 @@ except ModuleNotFoundError:
         "Please request the wheel-file through the developer and install it manually. Due to copyright reasons, do \n"
         "not commit the wheel-file into the repository.")
 
-# noinspection PyPep8Naming
-from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
 from geoprob_pipe.input_data import InputData
 from geoprob_pipe.results import Results
 from geoprob_pipe.spatial import Spatial
 from geoprob_pipe.visualizations import Visualizations
 from geoprob_pipe.calculations.systems.build_and_run import build_and_run_system_calculations
 from geoprob_pipe.utils.update_metadata import update_metadata
-
+import logging
 if TYPE_CHECKING:
     from geoprob_pipe.calculations.systems.build_and_run import CalcResult
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
+
+
+logger = logging.getLogger("geoprob-pipe")
 
 
 class GeoProbPipe:
