@@ -1,7 +1,6 @@
 from __future__ import annotations
 import sqlite3
-from geoprob_pipe.calculations.systems.mappers.calculation_mapper\
-    import CALCULATION_MAPPER
+from geoprob_pipe.calculations.systems.mappers.calculation_mapper import CALCULATION_MAPPER
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe.calculations.systems.base_objects.base_system_build import BaseSystemBuilder

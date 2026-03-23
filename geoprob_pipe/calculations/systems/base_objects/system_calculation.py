@@ -3,8 +3,10 @@ from probabilistic_library import (
     CombinerMethod, CombineType, Stochast, Settings)
 from typing import Optional, Callable, List, Dict, Union, Tuple
 from geoprob_pipe.utils.validation_messages import ValidationMessages
-# noinspection PyPep8Naming
-from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
+import logging
+
+
+logger = logging.getLogger("geoprob-pipe")
 
 
 DEFAULT_RELIABILITY_SETTINGS: Dict[str, Union[str, float, int]] = {

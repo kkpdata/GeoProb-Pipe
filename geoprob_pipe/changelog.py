@@ -1,5 +1,7 @@
 
 CHANGELOG = {
+    "1.5.3":
+        "Implementatie van DEBUG-modus, Pythonic-logger en opslaan van log berichten in GeoPackage-bestand.",
     "1.4.1":
         "Documentation update.",
     "1.4.0":
