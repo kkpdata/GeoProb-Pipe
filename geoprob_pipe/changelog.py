@@ -2,6 +2,8 @@
 CHANGELOG = {
     "1.5.3":
         "Implementatie van DEBUG-modus, Pythonic-logger en opslaan van log berichten in GeoPackage-bestand.",
+    "1.4.1":
+        "Documentation update.",
     "1.4.0":
         "Implementatie van een nieuwe versie van de System Calculation. Van af nu worden er drie scenario analyses "
         "uitgevoerd: een Combine Project en Reliability project over een gezamenlijke grenstoestandsfuncties voor "

@@ -98,11 +98,18 @@ def run_post_processing():
                 file_path = os.path.join(root, filename)
                 simplify_anchor_text_in_file(file_path)
 
+# Get release version
+import tomllib
+import pathlib
+pyproject_path = pathlib.Path(__file__).resolve().parents[1] / "pyproject.toml"
+with pyproject_path.open("rb") as f:
+    pyproject = tomllib.load(f)
+release = pyproject["tool"]["poetry"]["version"]
 
-project = "GeoProb-Pipe"
-copyright = f"{datetime.date.today().year}, WSRL & WSHD"
+
+project = f"GeoProb-Pipe"
+copyright = f"{datetime.date.today().year}, WSRL & WSHD. Application version is {release}"
 author = "WSRL & WSHD"
-release = "0.0.1"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -119,6 +126,7 @@ extensions = [
 ]
 
 bibtex_bibfiles = ["bibliography.bib"]
+
 
 source_suffix = [".rst", ".md"]
 
@@ -141,6 +149,7 @@ numfig_format = {"figure": "Figuur %s"}
 
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
+html_last_updated_fmt = "%Y-%m-%d"
 html_theme_options = {
     "collapse_navigation": False,
     "sticky_navigation": True,
@@ -148,7 +157,9 @@ html_theme_options = {
     "titles_only": True,
     "display_version": True,
 }
-
+bibtex_ignore_labels = {
+    "trw_2004)"
+}
 
 # -- Hooks ---------------------------------------------------------------------
 
@@ -174,3 +185,7 @@ def setup(app):
         run_post_processing()
 
     app.connect("build-finished", on_build_finished)
+
+rst_epilog = f"""
+.. |version| replace:: {release}
+"""
