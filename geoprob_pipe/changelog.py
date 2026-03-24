@@ -1,5 +1,9 @@
 
 CHANGELOG = {
+    "2.0.0":
+        "Breaking changes. "
+        "HRD-database is optioneel en dijktraject kan nu primair of regionaal zijn. "
+        "Breaking changes vanwege aanpassingen in de GeoPackage.",
     "1.5.3":
         "Implementatie van DEBUG-modus, Pythonic-logger en opslaan van log berichten in GeoPackage-bestand.",
     "1.4.1":
