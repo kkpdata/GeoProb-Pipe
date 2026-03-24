@@ -1,41 +1,13 @@
 from __future__ import annotations
 from InquirerPy import inquirer
-# from pathlib import Path
 from typing import TYPE_CHECKING
-# import scipy.stats as sct
-# from geopandas import GeoDataFrame, read_file
-# from shapely import Point
-import os
 from geoprob_pipe.utils.validation_messages import BColors
-# import fiona
-# import warnings
-# import time
-# import pydra_core as pydra
-# from pandas import DataFrame, concat
-# from typing import List
+from geoprob_pipe.cmd_app.spatial_layers.hrd.import_from_hrd import import_from_hrd
+from geoprob_pipe.cmd_app.spatial_layers.hrd.import_from_other_geopackage import import_from_other_geopackage
+import fiona
 import sqlite3
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
-
-
-def folder_contains_hrd_db(app_settings: ApplicationSettings) -> bool:
-    cnt_sql_files = 0
-    cnt_config_files = 0
-    cnt_hlcd_files = 0
-
-
-    for file in os.listdir(app_settings.hrd_dir):
-        filename = os.fsdecode(file)
-        if filename.endswith(".sqlite"):
-            cnt_sql_files += 1
-        if filename.endswith(".config.sqlite"):
-            cnt_config_files += 1
-        if filename.endswith("hlcd.sqlite"):
-            cnt_hlcd_files += 1
-
-    if cnt_sql_files == 3 and cnt_config_files == 1 and cnt_hlcd_files == 1:
-        return True
-    return False
 
 
 # def added_hrd(app_settings: ApplicationSettings) -> bool:
@@ -180,7 +152,6 @@ def folder_contains_hrd_db(app_settings: ApplicationSettings) -> bool:
 #     print(BColors.OKBLUE, f"✅  HRD-fragility lines toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
 
 
-
 def _hrd_data_requested(app_settings: ApplicationSettings) -> bool:
 
     # Check if asked to store HRD data
@@ -211,6 +182,35 @@ def _hrd_data_requested(app_settings: ApplicationSettings) -> bool:
     return keuze
 
 
+def _hrd_data_imported(app_settings: ApplicationSettings) -> bool:
+
+    # Check if locations shape already added
+    layers = fiona.listlayers(app_settings.geopackage_filepath)
+    if "hrd_locaties" not in layers:
+        return False
+
+    # Check overschrijdingsfrequentielijnen already added
+    conn = sqlite3.connect(app_settings.geopackage_filepath)
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables_names = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    if "fragility_values_invoer_hrd" not in tables_names:
+        return False
+
+    return True
+
+
+def _ask_for_import_method() -> str:
+    choices_list = ["Hydra-NL database", "Ander GeoProb-Pipe bestand"]
+    choice = inquirer.select(
+        message=f"Welke bron wil je gebruiken voor de Hydra-NL data?",
+        choices=choices_list, default=choices_list[0]).execute()
+    if choice == choices_list[0]:
+        return "from_hrd"
+    return "from_other_geopackage"
+
+
 def added_hrd_fragility_curves(app_settings: ApplicationSettings):
 
     # User wants HRD data in Geopackage?
@@ -219,21 +219,19 @@ def added_hrd_fragility_curves(app_settings: ApplicationSettings):
         print(BColors.OKBLUE, f"✔  HRD-data als niet nodig aangemerkt.", BColors.ENDC)
         return True
 
-    raise NotImplementedError
+    # Check HRD locations and fragility curves are added to database
+    already_imported: bool = _hrd_data_imported(app_settings=app_settings)
+    if already_imported:
+        print(BColors.OKBLUE, f"✔  HRD-data al geïmporteerd.", BColors.ENDC)
+        return True
 
-    # # Check HRD locations and fragility curves are added to database
-    # already_imported: bool = _hrd_data_imported()
-    # if already_imported:
-    #     print(BColors.OKBLUE, f"✅  HRD-data al geïmporteerd.", BColors.ENDC)
-    #     return True
-    #
-    # # If not imported, start with import method
-    # import_method: str = _ask_for_import_method()
-    # if import_method == "from_other_geopackage":
-    #     _import_from_other_geopackage()
-    # elif import_method == "from_hrd":
-    #     _import_from_hrd()
-    # else:
-    #     raise NotImplementedError(f"Import method '{import_method}' is unknown. Contact a developer.")
-    #
-    # return True
+    # If not imported, start with import method
+    import_method: str = _ask_for_import_method()
+    if import_method == "from_other_geopackage":
+        import_from_other_geopackage(app_settings=app_settings)
+    elif import_method == "from_hrd":
+        import_from_hrd(app_settings=app_settings)
+    else:
+        raise NotImplementedError(f"Import method '{import_method}' is unknown. Contact a developer.")
+
+    return True

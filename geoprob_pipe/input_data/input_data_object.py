@@ -163,6 +163,5 @@ class InputData:
     @property
     def traject_normering(self):
         if self._traject_normering is None:
-            self._traject_normering = TrajectNormering(
-                hrd_path=self.app_settings.hrd_file_path)
+            self._traject_normering = TrajectNormering(app_settings=self.app_settings)
         return self._traject_normering
