@@ -13,10 +13,14 @@ from importlib.metadata import distributions
 from geopandas import GeoDataFrame
 from geoprob_pipe.cmd_app.utils.misc import get_geoprob_pipe_version_number
 from geoprob_pipe.cmd_app.comparisons.start_comparison import start_comparison
-from geoprob_pipe.utils.validation_messages import BColors
 from geoprob_pipe.calculations.systems.single_calc import (
     EXAMPLE_SCRIPT_REPRODUCING_SINGLE_CALCULATION, EXPLANATION_REPRODUCING_SINGLE_CALCULATION)
 import logging
+from packaging.version import Version
+from geoprob_pipe.utils.validation_messages import BColors
+import sqlite3
+from typing import Optional
+import ast
 from geoprob_pipe.utils.loggers import enable_geopackage_logging
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
@@ -71,10 +75,69 @@ def created_project(app_settings: ApplicationSettings) -> bool:
     return False
 
 
-# def _possible_warn_version_difference(app_settings: ApplicationSettings):
-#
-#
-#
+def _get_file_geoprob_pipe_version(file_path: str) -> Optional[str]:
+    conn = sqlite3.connect(file_path)
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM geoprob_pipe_metadata WHERE metadata_type = 'pip_freeze' LIMIT 1;")
+    row = cursor.fetchone()
+    dict_item = ast.literal_eval(row[2])
+
+    # Check if created with development environment
+    if "geoprob_pipe" not in dict_item:
+        return None
+
+    return dict_item["geoprob_pipe"]
+
+
+def _compare_versions_and_possibly_warn(installed_version: str, file_version: str):
+
+    v_installed = Version(installed_version)
+    v_file = Version(file_version)
+
+    version_diff_msg = (
+        f"Er is een GeoProb-Pipe versie verschil tussen de installatie ({v_installed}) en het bestand ({v_file}).")
+    reinstall_msg = (
+        f"\n"
+        f"Wil je de versies liever gelijk trekken? Dit doe je door eerst de applicatie af te sluiten en vervolgens het \n"
+        f"commando `pip install geoprob-pipe==versie_nummer` uit te voeren. Waarbij je `versie_nummer` vervangt met het \n"
+        f"nummer van de gewenste versie")
+
+    if v_installed.major != v_file.major:
+        print(f"\n{BColors.FAIL}SEVERE WARNING:\n"
+              f"{version_diff_msg}\n"
+              f"Dit is een versie verschil met major changes. Dit is een risico. Het kan goed zijn dat de applicatie niet "
+              f"compatibel is met je bestand. \n"
+              f"{reinstall_msg}"
+              f"{BColors.ENDC}\n")
+    elif v_installed.minor != v_file.minor:
+        print(f"\n{BColors.WARNING}WARNING:\n"
+              f"{version_diff_msg}\n"
+              f"Dit is een versie verschil met minor changes. Dit kan mogelijk een probleem zijn tijdens het gebruik van "
+              f"de applicatie. \n"
+              f"{reinstall_msg}"
+              f"{BColors.ENDC}\n")
+    elif v_installed.micro != v_file.micro:
+        print(f"\n{BColors.OKBLUE}"
+              f"{version_diff_msg}\n"
+              f"Dit verschil is slechts op patch-niveau. Dit is waarschijnlijk geen probleem tijdens het gebruik van "
+              f"de applicatie. \n"
+              f"{reinstall_msg}"
+              f"{BColors.ENDC}\n")
+
+
+def _possibly_warn_if_version_difference(file_path: str):
+
+    installed_app_version = get_geoprob_pipe_version_number()
+    if installed_app_version == "DEV":
+        return  # We do not warn if application is run in development environment.
+
+    file_app_version = _get_file_geoprob_pipe_version(file_path=file_path)
+    if file_app_version is None:
+        return  # Version was not found what probably means it was made in a development environment.
+
+    _compare_versions_and_possibly_warn(installed_version=installed_app_version, file_version=file_app_version)
+
+
 def specify_path_to_existing_project(app_settings: ApplicationSettings):
     filepath: Optional[str] = None
     filepath_is_valid = False
@@ -98,7 +161,7 @@ def specify_path_to_existing_project(app_settings: ApplicationSettings):
     app_settings.workspace_dir = os.path.dirname(filepath)
     app_settings.geopackage_filename = os.path.basename(filepath)
 
-    # _possible_warn_version_difference(app_settings=app_settings)
+    _possibly_warn_if_version_difference(file_path=app_settings.geopackage_filepath)
 #
 
 def specify_dir_for_new_project(app_settings: ApplicationSettings):
