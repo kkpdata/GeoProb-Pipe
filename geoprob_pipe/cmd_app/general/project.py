@@ -162,7 +162,7 @@ def specify_path_to_existing_project(app_settings: ApplicationSettings):
     app_settings.geopackage_filename = os.path.basename(filepath)
 
     _possibly_warn_if_version_difference(file_path=app_settings.geopackage_filepath)
-#
+
 
 def specify_dir_for_new_project(app_settings: ApplicationSettings):
     workspace_dir: Optional[str] = None
