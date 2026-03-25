@@ -1,6 +1,6 @@
 from __future__ import annotations
 from InquirerPy import inquirer
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from rich.console import Console
 from rich.panel import Panel
 from geoprob_pipe.utils import clear_terminal
