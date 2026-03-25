@@ -5,10 +5,10 @@ from geoprob_pipe.utils import clear_terminal
 from datetime import datetime
 from rich.panel import Panel
 from geoprob_pipe.cmd_app.questionnaire import start_questionnaire
-from typing import Optional, List
+from typing import Optional, List, Dict
 from geoprob_pipe.cmd_app.utils.misc import get_geoprob_pipe_version_number
 from geoprob_pipe.utils.loggers import setup_base_logging
-
+from importlib.metadata import distributions
 
 app = typer.Typer(help="GeoProb-Pipe - CLI applicatie voor probabilistische piping berekeningen.", add_completion=False)
 
@@ -56,8 +56,29 @@ class ApplicationSettings:
         return [int(vak_id_str) for vak_id_str in vak_ids_str]
 
 
+def _raise_if_multiple_installations():
+    installed_distributions: List[Dict[str, str]] = []
+    for dist in distributions():
+        if "geoprob" in dist.metadata["Name"].lower():
+            installed_distributions.append({
+                "NAME": dist.metadata["Name"],
+                "VERSION": dist.version,
+                "LOCATION": dist.locate_file(""),
+            })
+    if installed_distributions.__len__() > 1:
+        raise RuntimeError(
+            f"Possibly multiple GeoProb-Pipe installations in your Python environment. \n\n"
+            f"Please uninstall GeoProb-Pipe first with the commands `pip uninstall geoprob-pipe geoprob_pipe`. \n"
+            f"Run this command until Python can't find anymore GeoProb-Pipe installations. \n"
+            f"Then re-install geoprob-pipe with the command `pip install geoprob-pipe`. \n"
+            f"For your information, the following installations were found: \n"
+            f"{installed_distributions}")
+
+
 def startup_geoprob_pipe():
     """ Starts up the GeoProb-Pipe console application. """
+
+    _raise_if_multiple_installations()
 
     app_settings = ApplicationSettings()
 
