@@ -7,9 +7,7 @@ if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.comparisons import ComparisonCollector
 
 
-def _add_traces(comparison: ComparisonCollector,
-                df: pd.DataFrame,
-                fig: go.Figure):
+def _add_traces(comparison: ComparisonCollector, df: pd.DataFrame, fig: go.Figure):
 
     hoverdata = df[["uittredepunt_id", "beta1", "beta2"]].to_numpy()
     symbol_map = {
@@ -133,8 +131,6 @@ def dumbbell_beta(comparison: ComparisonCollector,
     if export:
         os.makedirs(comparison.export_dir, exist_ok=True)
         fig.write_html(os.path.join(comparison.export_dir, "dumbbell_beta.html"), include_plotlyjs='cdn')
-        # fig.write_image(os.path.join(comparison.export_dir, "dumbbell_beta.png"),
-        #                 format="png", scale=5, width=1400)
 
     return fig
 

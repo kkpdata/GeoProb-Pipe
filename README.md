@@ -22,7 +22,7 @@ installatie: `pip install geoprob_pipe`. Je start vervolgens de applicatie midde
 # Development omgeving
 
 Vanuit de development omgeving (kloon van repository) start je de applicatie als volgt: 
-`python -m geoprob_pipe.cmd_app.cmd`.
+`python -m geoprob_pipe`.
 
 Het volgende branch-schema wordt aangehouden: 
 
