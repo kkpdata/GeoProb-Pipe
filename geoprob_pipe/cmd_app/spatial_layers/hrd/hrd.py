@@ -169,8 +169,8 @@ def _hrd_data_requested(app_settings: ApplicationSettings) -> bool:
     # Optionally ask and then store choice
     choices_list = ["Ja", "Nee"]
     choice = inquirer.select(
-        message=f"Wil je HRD-data importeren? Dit is optioneel. Je kunt ook handmatig "
-                f"overschrijdingsfrequentielijnen toevoegen, of werken met deterministische buitenwaterstanden.",
+        message=f"Wil je HRD-data importeren? Dit is optioneel. "
+                f"Je kunt ook handmatig overschrijdingsfrequentielijnen toevoegen.",
         choices=choices_list, default=choices_list[0]).execute()
     keuze = True
     if choice == "Nee":

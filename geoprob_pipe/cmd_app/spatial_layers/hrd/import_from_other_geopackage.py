@@ -89,4 +89,3 @@ def import_from_other_geopackage(app_settings: ApplicationSettings):
     _add_hrd_locations_to_database(other_gpkg_path=other_geopackage_file_path, app_settings=app_settings)
     _add_hrd_overschrijdingsfrequentielijnen(other_gpkg_path=other_geopackage_file_path, app_settings=app_settings)
     _add_traject_parameters(other_gpkg_path=other_geopackage_file_path, app_settings=app_settings)
-    raise FileNotFoundError
