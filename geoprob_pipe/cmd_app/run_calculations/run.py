@@ -3,40 +3,68 @@ from InquirerPy import inquirer
 from geoprob_pipe import GeoProbPipe
 import sys
 from geoprob_pipe.utils.validation_messages import BColors
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Tuple
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
+def _convert_vak_ids_str_to_ints(input_str: str) -> Tuple[List[int], List[str]]:
+    input_str = input_str.replace(" ", "")
+    list_vak_ids_str = input_str.split(sep=",")
+
+    list_vak_ids_int: List[int] = []
+    unknown_inputs: List[str] = []
+    for item in list_vak_ids_str:
+        if "-" in item:
+            try:
+                left_bound = int(item.split(sep="-")[0])
+            except ValueError:
+                unknown_inputs.append(item)
+                continue
+            try:
+                right_bound = int(item.split(sep="-")[1])
+            except ValueError:
+                unknown_inputs.append(item)
+                continue
+            ids = list(range(left_bound, right_bound+1))
+            list_vak_ids_int.extend(ids)
+        else:
+            try:
+                item_int = int(item)
+            except ValueError:
+                unknown_inputs.append(item)
+                continue
+            list_vak_ids_int.append(item_int)
+
+    return list(set(list_vak_ids_int)), unknown_inputs
+
 def request_vakken_to_run() -> str:
-    list_vak_nummers_int: List[int] = []
+    list_vak_ids_int: List[int] = []
     vakken_input_is_valid = False
     while vakken_input_is_valid is False:
         vakken_input: str = inquirer.text(
             message="Specificeer welke vakken je wilt doorrekenen. Doe dit door comma-separated de vak nummers (id) "
-                    "op te geven. Bijvoorbeeld '4,5,6,7'.",
+                    "op te geven. Bijvoorbeeld '4,5,6,7,10-15'.",
         ).execute()
 
-        # Convert to integers
-        vakken_input = vakken_input.replace(" ", "")
-        list_vak_nummers_str = vakken_input.split(sep=",")
-        try:
-            list_vak_nummers_int = [int(vak_id) for vak_id in list_vak_nummers_str]
-        except ValueError:
-            print(f"{BColors.WARNING}Het bestand moet of een geopackage, shapefile of geodatabase zijn. Jouw invoer "
-                  f"eindigt op de extensie .{vakken_input.split(sep='.')[-1]}.{BColors.ENDC}")
+        # Convert string input to integer values
+        list_vak_ids_int, unknown_inputs = _convert_vak_ids_str_to_ints(input_str=vakken_input)
+        if unknown_inputs.__len__() > 0:
+            print(f"{BColors.WARNING}De applicatie heeft enkele niet valide items in je invoer geconstateerd. "
+                  f"Pas deze aan. Je invoer is '{vakken_input}'. De niet valide items zijn '{unknown_inputs}'."
+                  f"{BColors.ENDC}")
             continue
 
-        # Assure more than one vak id is given
-        if list_vak_nummers_int.__len__() == 0:
-            print(f"{BColors.WARNING}Het bestand moet of een geopackage, shapefile of geodatabase zijn. Jouw invoer "
-                  f"eindigt op de extensie .{vakken_input.split(sep='.')[-1]}.{BColors.ENDC}")
+        # Assure more than one valid vak id is given
+        if list_vak_ids_int.__len__() == 0:
+            print(f"{BColors.WARNING}Er zijn geen vak identificatie nummers opgegeven. Je invoer is '{vakken_input}'. "
+                  f"Probeer opnieuw.{BColors.ENDC}")
             continue
 
         vakken_input_is_valid = True
 
-    return f"vakken:{','.join([str(item) for item in list_vak_nummers_int])}"
+    return f"vakken:{','.join([str(item) for item in list_vak_ids_int])}"
 
 
 def run_calculations(app_settings: ApplicationSettings) -> bool:

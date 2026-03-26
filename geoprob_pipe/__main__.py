@@ -1,4 +1,4 @@
-from geoprob_pipe.cmd_app.cmd import startup_geoprob_pipe
+from geoprob_pipe.cmd_app.cmd import app
 
 if __name__ == "__main__":
-    startup_geoprob_pipe()
+    app()

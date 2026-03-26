@@ -27,8 +27,8 @@ class ComparisonCollector:
         """
         self.geopackage_filepath_1 = geopackage_filepath_1
         self.geopackage_filepath_2 = geopackage_filepath_2
-        self.name_1 = self.geopackage_filepath_1.split("\\")[-1].split(".")[0]
-        self.name_2 = self.geopackage_filepath_2.split("\\")[-1].split(".")[0]
+        self.name_1 = os.path.basename(self.geopackage_filepath_1).replace(".geoprob_pipe.gpkg", "")
+        self.name_2 = os.path.basename(self.geopackage_filepath_2).replace(".geoprob_pipe.gpkg", "")
 
         timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
         self.export_dir = os.path.join(
