@@ -124,7 +124,7 @@ class Results:
             str(self.geoprob_pipe.input_data.app_settings.workspace_dir),
             "exports",
             str(self.geoprob_pipe.input_data.app_settings.datetime_stamp),
-            "results/traject")
+            "results/alternatieve methoden")
         os.makedirs(path, exist_ok=True)
         return path
 
@@ -137,6 +137,7 @@ class Results:
             bool_alphas_influence_factors_and_physical_values: bool = True,
             bool_beta_uittredepunten: bool = True,
             bool_beta_vakken: bool = True,
+            bool_beta_alternative_vakken: bool = False,
             bool_beta_traject: bool = True):
 
         # Results of limit state calculations
@@ -176,21 +177,22 @@ class Results:
             self.df_beta_WBI_vakken.to_excel(
                 excel_writer=os.path.join(
                     self.export_dir, "df_beta_vakken.xlsx"))
-            self.df_beta_window50m_vakken.to_excel(
-                excel_writer=os.path.join(
-                    self.export_dir_vakken, "df_beta_window50m_vakken.xlsx"))
-            self.df_beta_window100m_vakken.to_excel(
-                excel_writer=os.path.join(
-                    self.export_dir_vakken, "df_beta_window100m_vakken.xlsx"))
-            self.df_beta_window200m_vakken.to_excel(
-                excel_writer=os.path.join(
-                    self.export_dir_vakken, "df_beta_window200m_vakken.xlsx"))
-            self.df_beta_window300m_vakken.to_excel(
-                excel_writer=os.path.join(
-                    self.export_dir_vakken, "df_beta_window300m_vakken.xlsx"))
-            self.df_beta_scaled_vakken.to_excel(
-                excel_writer=os.path.join(
-                    self.export_dir_vakken, "df_beta_scaled_vakken.xlsx"))
+            if bool_beta_alternative_vakken:
+                self.df_beta_window50m_vakken.to_excel(
+                    excel_writer=os.path.join(
+                        self.export_dir_vakken, "df_beta_window50m_vakken.xlsx"))
+                self.df_beta_window100m_vakken.to_excel(
+                    excel_writer=os.path.join(
+                        self.export_dir_vakken, "df_beta_window100m_vakken.xlsx"))
+                self.df_beta_window200m_vakken.to_excel(
+                    excel_writer=os.path.join(
+                        self.export_dir_vakken, "df_beta_window200m_vakken.xlsx"))
+                self.df_beta_window300m_vakken.to_excel(
+                    excel_writer=os.path.join(
+                        self.export_dir_vakken, "df_beta_window300m_vakken.xlsx"))
+                self.df_beta_scaled_vakken.to_excel(
+                    excel_writer=os.path.join(
+                        self.export_dir_vakken, "df_beta_scaled_vakken.xlsx"))
 
         if bool_beta_traject:
             self.df_beta_traject.to_excel(
