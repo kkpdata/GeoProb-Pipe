@@ -191,7 +191,7 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
 
     :param geoprob_pipe:
     :param results:
-    :return:
+    :return DataFrame:
     """
 
     df_beta_scenarios_final = results.df_beta_scenarios_final.copy(deep=True)
@@ -229,7 +229,7 @@ def _generate_point_list(geoprob_pipe: GeoProbPipe, results: Results) -> List[Ui
 
     :param geoprob_pipe: GeoprobPipe object.
     :param results:
-    :return: List with all generated objects.
+    :return List[UittredepuntElement]: List with all generated objects.
     """
     punt_df = results.df_beta_uittredepunten
     punt_gdf = geoprob_pipe.input_data.uittredepunten.gdf
@@ -264,12 +264,10 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
                            ) -> list[VakElement]:
     """Generates a list of all elements in a traject as `VakElement` objects.
 
-    Args:
-        geoprob_pipe: GeoprobPipe object.
-        results: Results object.
+    :param geoprob_pipe: GeoprobPipe object.
+    :param results: Results object.
 
-    Returns:
-        list[VakElement]: List of generated objects.
+    :return list[VakElement]: List of generated objects.
     """
     punt_df = results.df_beta_uittredepunten
     punt_gdf = geoprob_pipe.input_data.uittredepunten.gdf
@@ -323,7 +321,7 @@ def construct_df_beta_wbi_vak(
 
     :param geoprob_pipe: GeoProbPipe object voor data collectie.
     :param results: Results object voor data collectie.
-    :return:
+    :return DataFrame:
     """
     element_list: list[VakElement] = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
     vakken_list = []
@@ -356,7 +354,7 @@ def construct_df_beta_window_vak(
     :param geoprob_pipe: GeoProbPipe object voor data collectie.
     :param window_size:
     :param results: Results object voor data collectie.
-    :return:
+    :return DataFrame:
     """
     element_list: list[VakElement] = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
     window_list = []
@@ -391,7 +389,7 @@ def construct_df_beta_scaled_vak(
 
     :param geoprob_pipe: GeoProbPipe object voor data collectie.
     :param results: Results object voor data collectie.
-    :return:
+    :return DataFrame:
     """
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
@@ -425,12 +423,10 @@ def construct_df_beta_per_traject(
         ) -> pd.DataFrame:
     """Bepaalde de samengestelde faalkans over het traject volgens de WBI-methode.
 
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
+    :param geoprob_pipe: GeoProbPipe object voor data collectie.
+    :param results: Results object voor data collectie.
 
-    Returns:
-        Dataframe:
+    :return Dataframe:
     """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     vakken_list = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
@@ -486,7 +482,7 @@ def construct_df_beta_window_traject(
     :param geoprob_pipe: GeoProbPipe object voor data collectie.
     :param results: Results object voor data collectie.
     :param window_size:
-    :return:
+    :return DataFrame:
     """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
@@ -524,7 +520,7 @@ def construct_df_beta_scaled_traject(
 
     :param geoprob_pipe: GeoProbPipe object voor data collectie.
     :param results: Results object voor data collectie.
-    :return:
+    :return DataFrame:
     """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,

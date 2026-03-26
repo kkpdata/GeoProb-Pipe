@@ -89,10 +89,10 @@ def window_collect(window_size: float, point_list: list[UittredepuntElement],
     pf_list = [p.pf for p in point_list]
     fcn_list = [p.flow_chart_number for p in point_list]
     if min(fcn_list) == 11:
-        flow_chart_nummer = 21
+        flow_chart_number = 21
         advise = "Consider fine tuning on scenario-level."
     else:
-        flow_chart_nummer = 22
+        flow_chart_number = 22
         advise = "-"
 
     df_vak = pd.DataFrame({
@@ -126,7 +126,7 @@ def window_collect(window_size: float, point_list: list[UittredepuntElement],
             window_id=i,
             pf=df_bin[df_bin.index[i]],
             _vak_id=vak_id,
-            flow_chart_number=flow_chart_nummer,
+            flow_chart_number=flow_chart_number,
             advise=advise
         ))
     return sum_pf, max_pf, window_elements
@@ -161,10 +161,10 @@ def scaled_collect(
         return 0.0, 0.0, []
     fcn_list = [p.flow_chart_number for p in point_list]
     if min(fcn_list) == 11:
-        flow_chart_nummer = 21
+        flow_chart_number = 21
         advise = "Consider fine tuning on scenario-level."
     else:
-        flow_chart_nummer = 22
+        flow_chart_number = 22
         advise = "-"
     point_list.sort(key=attrgetter("m_value"))
     # CLusters voor het verzamelen van punten binnen 5 meter
@@ -222,7 +222,7 @@ def scaled_collect(
                 _a=a,
                 _m_uittredepunt=sel.m_value,
                 _n_vak=N_vak,
-                flow_chart_number=flow_chart_nummer,
+                flow_chart_number=flow_chart_number,
                 advise=advise
                 )
             )
