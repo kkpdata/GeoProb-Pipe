@@ -10,17 +10,15 @@ if TYPE_CHECKING:
 
 
 def combine_series(list_pf: list[float]) -> Tuple[float, float]:
-    """Combineer de faalkanzen uit een lijst naar een ondegrens op basis van
+    """Combineer de faalkansen uit een lijst naar een ondergrens op basis van
     max en een boven grens op basis van som van de faalkansen. De som wordt
     bepaalt door 1 - prod(1-pf[i]) van alle doorsneden.
 
-    Args:
-        list_pf: lijst met faalkansen van de elementen.
+    :param list_pf: lijst met faalkansen van de elementen.
 
-    Returns:
-        bovergrens: Samengestelde faalkans op basis van max().
-        ondergrens: Samengestelde faalkans op basis van de som van de
-            faalkansen.
+    :return bovengrens: Samengestelde faalkans op basis van max().
+    :return ondergrens: Samengestelde faalkans op basis van de som van de
+        faalkansen.
     """
     getcontext().prec = 30
     if len(list_pf) == 0:
@@ -39,17 +37,14 @@ def bepaal_N_vak(L: float, a: float, dL: float) -> float:
     """Bepaal de lengte-effect N met een minimum van 1,0.
     Conform de Rode draad nr 10 assembleren (October 2024).
 
-    Args:
-        L: Lengte van het element.
-        a: Mechanismegevoelige fractie
-        dL: De equivalente onafhankelijke lengte voor STPH
+    :param L: Lengte van het element.
+    :param a: Mechanismegevoelige fractie
+    :param dL: De equivalente onafhankelijke lengte voor STPH
 
-    Raises:
-        ValueError: a moet groter zijn dan 0.
-        ValueError: De lengte L en dL moeten groter zijn dan 0.
+    :raises ValueError: a moet groter zijn dan 0.
+    :raises ValueError: De lengte L en dL moeten groter zijn dan 0.
 
-    Returns:
-        N_vak: Lengte-effect voor het vak
+    :return N_vak: Lengte-effect voor het vak
     """
     if a < 0:
         raise ValueError("a moet groter zijn dan 0.")
@@ -70,20 +65,19 @@ def window_collect(window_size: float, point_list: list[UittredepuntElement],
     zijn wordt bepaalt met `combine_series()`. Kan voor zowel een vak of het
     gehele traject worden uitgevoerd.
 
-    Args:
-        window_size: Grootte van de window.
-        point_list: Lijst met alle uitredepunten in het element.
-        m_van: Beginpunt van het element in meters.
-        m_tot: Eindpunt van het element in meters.
-        vak_id: Id van het vak als de windows over een vak element worden
+
+    :param window_size: Grootte van de window.
+    :param point_list: Lijst met alle uittredepunten in het element.
+    :param m_van: Beginpunt van het element in meters.
+    :param m_tot: Eindpunt van het element in meters.
+    :param vak_id: Id van het vak als de windows over een vak element worden
         bepaald. Defaults to None.
 
-    Returns:
-        sum_pf: Samengestelde faalkans op basis van de som van de
-            faalkansen.
-        max_pf: Samengestelde faalkans op basis van max().
-        window_elements: Lijst met `WindowElement` object met gegevens van de
-            windows.
+    :return sum_pf: Samengestelde faalkans op basis van de som van de
+        faalkansen.
+    :return max_pf: Samengestelde faalkans op basis van max().
+    :return window_elements: Lijst met `WindowElement` object met gegevens van de
+        windows.
     """
     from geoprob_pipe.results.assemblage.objects import WindowElement
     list_m_value: List[float] = cast(
@@ -95,10 +89,10 @@ def window_collect(window_size: float, point_list: list[UittredepuntElement],
     pf_list = [p.pf for p in point_list]
     fcn_list = [p.flow_chart_number for p in point_list]
     if min(fcn_list) == 11:
-        flow_chart_numer = 21
+        flow_chart_nummer = 21
         advise = "Consider fine tuning on scenario-level."
     else:
-        flow_chart_numer = 22
+        flow_chart_nummer = 22
         advise = "-"
 
     df_vak = pd.DataFrame({
@@ -132,7 +126,7 @@ def window_collect(window_size: float, point_list: list[UittredepuntElement],
             window_id=i,
             pf=df_bin[df_bin.index[i]],
             _vak_id=vak_id,
-            flow_chart_number=flow_chart_numer,
+            flow_chart_number=flow_chart_nummer,
             advise=advise
         ))
     return sum_pf, max_pf, window_elements
@@ -142,37 +136,35 @@ def scaled_collect(
         dL: float, point_list: list[UittredepuntElement],
         m_van: float, m_tot: float, vak_id: Optional[int] = None
         ) -> tuple[float, float, List[WindowElement]]:
-    """Verzamel de uitredepunten per element en geef deze een lengte op basis
+    """Verzamel de uittredepunten per element en geef deze een lengte op basis
     van de afstand tussen de punten. Deze blokken worden als een window
     beschouwt. Als er meerdere punten binnen 5 m van elkaar liggen wordt
     hieruit de grootste faalkans genomen. De kans voor het element wordt
     bepaalt met `combine_series()`. Kan voor zowel een vak of het
     gehele traject worden uitgevoerd.
 
-    Args:
-        dL: De equivalente onafhankelijke lengte voor STPH
-        point_list: Lijst met alle uitredepunten in het element.
-        m_van: Beginpunt van het element in meters.
-        m_tot: Eindpunt van het element in meters.
-        vak_id: Id van het vak als de windows over een vak element worden
-            bepaald. Defaults to None.
+    :param dL: De equivalente onafhankelijke lengte voor STPH
+    :param point_list: Lijst met alle uittredepunten in het element.
+    :param m_van: Beginpunt van het element in meters.
+    :param m_tot: Eindpunt van het element in meters.
+    :param vak_id: Id van het vak als de windows over een vak element worden
+        bepaald. Defaults to None.
 
-    Returns:
-        sum_pf: Samengestelde faalkans op basis van de som van de
-            faalkansen.
-        max_pf: Samengestelde faalkans op basis van max().
-        window_elements: Lijst met `WindowElement` object met gegevens van de
-            windows.
+    :return sum_pf: Samengestelde faalkans op basis van de som van de
+        faalkansen.
+    :return max_pf: Samengestelde faalkans op basis van max().
+    :return window_elements: Lijst met `WindowElement` object met gegevens van de
+        windows.
     """
     from geoprob_pipe.results.assemblage.objects import WindowElement
     if point_list.__len__() == 0:  # Leeg element
         return 0.0, 0.0, []
     fcn_list = [p.flow_chart_number for p in point_list]
     if min(fcn_list) == 11:
-        flow_chart_numer = 21
+        flow_chart_nummer = 21
         advise = "Consider fine tuning on scenario-level."
     else:
-        flow_chart_numer = 22
+        flow_chart_nummer = 22
         advise = "-"
     point_list.sort(key=attrgetter("m_value"))
     # CLusters voor het verzamelen van punten binnen 5 meter
@@ -230,7 +222,7 @@ def scaled_collect(
                 _a=a,
                 _m_uittredepunt=sel.m_value,
                 _n_vak=N_vak,
-                flow_chart_number=flow_chart_numer,
+                flow_chart_number=flow_chart_nummer,
                 advise=advise
                 )
             )

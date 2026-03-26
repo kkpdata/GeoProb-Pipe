@@ -14,10 +14,9 @@ class KansElement:
     betrouwbaarheidsindex beta. Een van deze twee parameters is nodig om deze
     class te initialiseren.
 
-    Raises:
-        ValueError: Als de pf niet tussen de 0 en de 1 ligt.
-        ValueError: Als beta geen eindige waarde heeft.
-        ValueError: Als beta groter is dan 38 of kleiner dan -38.
+    :raises ValueError: Als de pf niet tussen de 0 en de 1 ligt.
+    :raises ValueError: Als beta geen eindige waarde heeft.
+    :raises ValueError: Als beta groter is dan 38 of kleiner dan -38.
     """
     pf: Optional[float] = None  # Probability of failure, Faalkans van het element per jaar
     beta: Optional[float] = None  # Betrouwbaarheidsindex van het element
@@ -176,8 +175,7 @@ class WindowElement:
     """DataClass voor het verzamelen va alle data uit een window dat wordt
     opgezet in `window_collect` of `scaled_collect`.
 
-    Raises:
-        AttributeError: Als een attribute wordt opgevraagt dat niet is
+    :raises AttributeError: Als een attribute wordt opgevraagd dat niet is
         toegevoegd.
     """
 
