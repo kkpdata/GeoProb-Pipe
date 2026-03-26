@@ -2,11 +2,14 @@ from __future__ import annotations
 import os
 import sqlite3
 from pandas import read_sql, read_excel
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, List
 from geoprob_pipe.cmd_app.parameter_input.initiate_input_excel_tables import DF_EMPTY_CORRELATIE_INVOER
 from pandas import DataFrame
-from geoprob_pipe.input_data.validation.dataframes.validation_objects import DataFrameQueryValidation
-from geoprob_pipe.input_data.validation.dataframes.df_parameter_invoer import FAILURE_QUERIES
+from geoprob_pipe.input_data.validation.dataframes.validation_objects import DataFrameQueryValidation, FailureQuery
+from geoprob_pipe.input_data.validation.dataframes.df_parameter_invoer import (
+    FAILURE_QUERIES as FQ_PARAMETER_INVOER)
+from geoprob_pipe.input_data.validation.dataframes.df_scenario_invoer_som_kans import (
+    FAILURE_QUERIES as FQ_SCENARIO_INVOER_SOM_KANS, _df_scenario_group_sum_kans)
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -29,13 +32,15 @@ def _load_df_correlatie_invoer_from_geopackage(geopackage_filepath: str) -> Data
     return df_correlatie_invoer
 
 
-def _validate_df_parameter_invoer(df: DataFrame, app_settings: ApplicationSettings):
+def _validate_df(
+        df: DataFrame, app_settings: ApplicationSettings, label_humanized: str, failure_queries: List[FailureQuery],
+) -> bool:
     export_dir = os.path.join(
         os.path.dirname(app_settings.geopackage_filepath), "exports",
         str(app_settings.datetime_stamp), "parameter_input_process")
 
-    obj = DataFrameQueryValidation(df=df, failure_queries=FAILURE_QUERIES)
-    return obj.validate(export_dir=export_dir, label_humanized="Parameter invoer")
+    obj = DataFrameQueryValidation(df=df, failure_queries=failure_queries)
+    return obj.validate(export_dir=export_dir, label_humanized=label_humanized)
 
 
 class InputParameterTables:
@@ -73,5 +78,11 @@ class InputParameterTables:
         self.df_correlatie_invoer = read_excel(path_to_excel, sheet_name="Correlatie invoer", header=3)
 
     def validate_and_report(self, app_settings: ApplicationSettings) -> bool:
-        if not _validate_df_parameter_invoer(df=self.df_parameter_invoer, app_settings=app_settings): return False
+        if not _validate_df(
+                df=self.df_parameter_invoer, app_settings=app_settings,
+                label_humanized="Parameter invoer", failure_queries=FQ_PARAMETER_INVOER): return False
+        if not _validate_df(
+                df=_df_scenario_group_sum_kans(self.df_scenario_invoer), app_settings=app_settings,
+                label_humanized="Aggregatie van Scenario invoer",
+                failure_queries=FQ_SCENARIO_INVOER_SOM_KANS): return False
         return True
