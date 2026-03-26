@@ -17,13 +17,11 @@ class ComparisonCollector:
                  geopackage_filepath_2: str,
                  export_dir: str
                  ):
-        """Class voor het verzamlen van de gegevens voor het uitvoeren van de
-        vergelijking.
+        """ Class voor het verzamelen van de gegevens voor het uitvoeren van de vergelijking.
 
-        Args:
-            geopackage_filepath_1: Locatie van het eerste pakket.
-            geopackage_filepath_2: Locatie van het tweede pakket.
-            export_dir: Uitvoer map.
+        :param geopackage_filepath_1: Locatie van het eerste pakket.
+        :param geopackage_filepath_2: Locatie van het tweede pakket.
+        :param export_dir: Uitvoer map.
         """
         self.geopackage_filepath_1 = geopackage_filepath_1
         self.geopackage_filepath_2 = geopackage_filepath_2
@@ -56,11 +54,11 @@ class ComparisonCollector:
         """Method om de data te verzamelen uit de opgegeven pakketten.
 
         Raises:
-            ValueError: Als de `beta_limit_states` tabbellen niet het zelfde
+            ValueError: Als de `beta_limit_states` tabellen niet hetzelfde
                 formaat hebben.
-            ValueError: Als de `beta_scenario` tabbellen niet het zelfde
+            ValueError: Als de `beta_scenario` tabellen niet hetzelfde
                 formaat hebben.
-            ValueError: Als de `beta_uitredepunten` tabbellen niet het zelfde
+            ValueError: Als de `beta_uitredepunten` tabellen niet hetzelfde
                 formaat hebben.
         """
         conn_1 = sqlite3.connect(self.geopackage_filepath_1)
@@ -100,12 +98,12 @@ class ComparisonCollector:
         conn_2.close()
 
     def _load_uittredepunten_gdf(self):
-        """Method om de geolocaties te verzamel uit de pakketten.
+        """Method om de geolocaties te verzamelen uit de pakketten.
 
         Raises:
-            ValueError: Als de `beta_uittredepunten` tabbellen niet het zelfde
+            ValueError: Als de `beta_uittredepunten` tabellen niet hetzelfde
                 formaat hebben.
-            ValueError: Als de geometry van de punten niet het zelfde formaat
+            ValueError: Als de geometry van de punten niet hetzelfde formaat
                 hebben.
         """
         self.gdf1_uittredepunten = gpd.read_file(

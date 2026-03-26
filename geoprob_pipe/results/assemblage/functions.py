@@ -10,11 +10,10 @@ if TYPE_CHECKING:
 
 
 def combine_series(list_pf: list[float]) -> Tuple[float, float]:
-    """Combineer de faalkansen uit een lijst naar een ondergrens op basis van
-    max en een boven grens op basis van som van de faalkansen. De som wordt
-    bepaalt door 1 - prod(1-pf[i]) van alle doorsneden.
+    """ Combineert de faalkansen uit een lijst naar een ondergrens op basis van max en een boven grens op basis van som
+    van de faalkansen. De som wordt bepaald door 1 - prod(1-pf[i]) van alle doorsneden.
 
-    :param list_pf: lijst met faalkansen van de elementen.
+    :param list_pf: Lijst met faalkansen van de elementen.
 
     :return bovengrens: Samengestelde faalkans op basis van max().
     :return ondergrens: Samengestelde faalkans op basis van de som van de
@@ -33,15 +32,15 @@ def combine_series(list_pf: list[float]) -> Tuple[float, float]:
     return bovengrens, ondergrens
 
 
+# noinspection PyPep8Naming
 def bepaal_N_vak(L: float, a: float, dL: float) -> float:
-    """Bepaal de lengte-effect N met een minimum van 1,0.
-    Conform de Rode draad nr 10 assembleren (October 2024).
+    """Bepaalt de lengte-effect-factor N met een minimum van 1,0. Conform de Rode draad #10 assembleren (October 2024).
 
     :param L: Lengte van het element.
     :param a: Mechanismegevoelige fractie
     :param dL: De equivalente onafhankelijke lengte voor STPH
 
-    :raises ValueError: a moet groter zijn dan 0.
+    :raises ValueError: Parameter a moet groter zijn dan 0.
     :raises ValueError: De lengte L en dL moeten groter zijn dan 0.
 
     :return N_vak: Lengte-effect voor het vak
@@ -59,12 +58,9 @@ def bepaal_N_vak(L: float, a: float, dL: float) -> float:
 def window_collect(window_size: float, point_list: list[UittredepuntElement],
                    m_van: float, m_tot: float, vak_id: Optional[int] = None
                    ) -> tuple[float, float, List[WindowElement]]:
-    """Hier worden de faalkansen verzamelt op basis van een window. Van alle
-    doorsneden die in de window vallen wordt de faalkans voor de window bepaalt
-    op basis van de max. De kans voor het element waar de windows over genomen
-    zijn wordt bepaalt met `combine_series()`. Kan voor zowel een vak of het
-    gehele traject worden uitgevoerd.
-
+    """ Hier worden de faalkansen verzamelt op basis van een window. Van alle doorsneden die in de window vallen wordt
+    de faalkans voor de window bepaalt op basis van de max. De kans voor het element waar de windows over genomen zijn
+    wordt bepaald met `combine_series()`. Kan voor zowel een vak of het gehele traject worden uitgevoerd.
 
     :param window_size: Grootte van de window.
     :param point_list: Lijst met alle uittredepunten in het element.
@@ -132,16 +128,15 @@ def window_collect(window_size: float, point_list: list[UittredepuntElement],
     return sum_pf, max_pf, window_elements
 
 
+# noinspection PyPep8Naming
 def scaled_collect(
         dL: float, point_list: list[UittredepuntElement],
         m_van: float, m_tot: float, vak_id: Optional[int] = None
         ) -> tuple[float, float, List[WindowElement]]:
-    """Verzamel de uittredepunten per element en geef deze een lengte op basis
-    van de afstand tussen de punten. Deze blokken worden als een window
-    beschouwt. Als er meerdere punten binnen 5 m van elkaar liggen wordt
-    hieruit de grootste faalkans genomen. De kans voor het element wordt
-    bepaalt met `combine_series()`. Kan voor zowel een vak of het
-    gehele traject worden uitgevoerd.
+    """ Verzamel de uittredepunten per element en geef deze een lengte op basis van de afstand tussen de punten. Deze
+    blokken worden als een window beschouwt. Als er meerdere punten binnen 5 m van elkaar liggen wordt hieruit de
+    grootste faalkans genomen. De kans voor het element wordt bepaald met `combine_series()`. Kan voor zowel een vak of
+    het gehele traject worden uitgevoerd.
 
     :param dL: De equivalente onafhankelijke lengte voor STPH
     :param point_list: Lijst met alle uittredepunten in het element.
@@ -188,9 +183,7 @@ def scaled_collect(
     window_elements: List[WindowElement] = []
 
     for i, sel in enumerate(selected):
-        cluster_start = max(
-            m_van, sel.m_value - (sel.m_value - clusters[i][0].m_value)
-            )
+        # cluster_start = max(m_van, sel.m_value - (sel.m_value - clusters[i][0].m_value))
         if i == 0:
             seg_start = m_van
         else:
