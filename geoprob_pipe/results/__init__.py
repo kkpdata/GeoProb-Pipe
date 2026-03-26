@@ -7,17 +7,11 @@ from geoprob_pipe.results.construct_dataframes import (
     combine_df_beta_per_scenario_rp,
     combine_df_beta_per_scenario_final,
     calculate_df_beta_per_uittredepunt,
-    construct_df_beta_WBI_vak,
-    construct_df_beta_window50_vak,
-    construct_df_beta_window100_vak,
-    construct_df_beta_window200_vak,
-    construct_df_beta_window300_vak,
+    construct_df_beta_wbi_vak,
+    construct_df_beta_window_vak,
     construct_df_beta_scaled_vak,
     construct_df_beta_per_traject,
-    construct_df_beta_window50_traject,
-    construct_df_beta_window100_traject,
-    construct_df_beta_window200_traject,
-    construct_df_beta_window300_traject,
+    construct_df_beta_window_traject,
     construct_df_beta_scaled_traject)
 from geoprob_pipe.results.alphas_and_physical_values import construct_df
 import os
@@ -41,39 +35,31 @@ class Results:
         self.df_beta_uittredepunten = calculate_df_beta_per_uittredepunt(
             geoprob_pipe=geoprob_pipe, results=self
             )
-        self.df_beta_WBI_vakken = construct_df_beta_WBI_vak(
+        self.df_beta_WBI_vakken = construct_df_beta_wbi_vak(
             geoprob_pipe=geoprob_pipe, results=self
             )
-        self.df_beta_window50m_vakken = construct_df_beta_window50_vak(
-            geoprob_pipe=geoprob_pipe, results=self
-            )
-        self.df_beta_window100m_vakken = construct_df_beta_window100_vak(
-            geoprob_pipe=geoprob_pipe, results=self
-            )
-        self.df_beta_window200m_vakken = construct_df_beta_window200_vak(
-            geoprob_pipe=geoprob_pipe, results=self
-            )
-        self.df_beta_window300m_vakken = construct_df_beta_window300_vak(
-            geoprob_pipe=geoprob_pipe, results=self
-            )
+        self.df_beta_window50m_vakken = construct_df_beta_window_vak(
+            geoprob_pipe=geoprob_pipe, results=self, window_size=50.0)
+        self.df_beta_window100m_vakken = construct_df_beta_window_vak(
+            geoprob_pipe=geoprob_pipe, results=self, window_size=100.0)
+        self.df_beta_window200m_vakken = construct_df_beta_window_vak(
+            geoprob_pipe=geoprob_pipe, results=self, window_size=200.0)
+        self.df_beta_window300m_vakken = construct_df_beta_window_vak(
+            geoprob_pipe=geoprob_pipe, results=self, window_size=300.0)
         self.df_beta_scaled_vakken = construct_df_beta_scaled_vak(
             geoprob_pipe=geoprob_pipe, results=self
         )
         self.df_beta_traject = construct_df_beta_per_traject(
             geoprob_pipe=geoprob_pipe, results=self
             )
-        self.df_beta_window50m_traject = construct_df_beta_window50_traject(
-            geoprob_pipe=geoprob_pipe, results=self
-            )
-        self.df_beta_window100m_traject = construct_df_beta_window100_traject(
-            geoprob_pipe=geoprob_pipe, results=self
-            )
-        self.df_beta_window200m_traject = construct_df_beta_window200_traject(
-            geoprob_pipe=geoprob_pipe, results=self
-            )
-        self.df_beta_window300m_traject = construct_df_beta_window300_traject(
-            geoprob_pipe=geoprob_pipe, results=self
-            )
+        self.df_beta_window50m_traject = construct_df_beta_window_traject(
+            geoprob_pipe=geoprob_pipe, results=self, window_size=50.0)
+        self.df_beta_window100m_traject = construct_df_beta_window_traject(
+            geoprob_pipe=geoprob_pipe, results=self, window_size=100.0)
+        self.df_beta_window200m_traject = construct_df_beta_window_traject(
+            geoprob_pipe=geoprob_pipe, results=self, window_size=200.0)
+        self.df_beta_window300m_traject = construct_df_beta_window_traject(
+            geoprob_pipe=geoprob_pipe, results=self, window_size=300.0)
         self.df_beta_scaled_traject = construct_df_beta_scaled_traject(
             geoprob_pipe=geoprob_pipe, results=self
             )

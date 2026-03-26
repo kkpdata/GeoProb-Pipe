@@ -73,7 +73,7 @@ class UittredepuntElement:
 
 @dataclass
 class VakElement:
-    """DataClass om alle relevante data van een vak te verzamelen.
+    """ DataClass om alle relevante data van een vak te verzamelen.
     Vanuit deze class kunnen de verschillende methoden om tot een faalkans van
     het vak worden bepaald.
     """
@@ -88,6 +88,7 @@ class VakElement:
     def length(self) -> float:
         return abs(self.m_tot - self.m_van)
 
+    # noinspection PyPep8Naming
     @property
     def N_vak(self) -> float:
         return bepaal_N_vak(self.length, self.a, self.delta_length)
@@ -128,7 +129,7 @@ class VakElement:
             return False
         return True
 
-    def _window_collect(self, window_size: float):
+    def pf_window(self, window_size: float):
         pf_sum, pf_max, window_elements = window_collect(
             window_size=window_size, point_list=self.dsn_list,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=self.id
@@ -138,26 +139,26 @@ class VakElement:
         """
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
-    # vak: moving window met variable lengtes
-    @property
-    def pf_window_50m(self) -> Tuple[KansElement, KansElement,
-                                     List[WindowElement]]:
-        return self._window_collect(50.0)
-
-    @property
-    def pf_window_100m(self) -> Tuple[KansElement, KansElement,
-                                      List[WindowElement]]:
-        return self._window_collect(100.0)
-
-    @property
-    def pf_window_200m(self) -> Tuple[KansElement, KansElement,
-                                      List[WindowElement]]:
-        return self._window_collect(200.0)
-
-    @property
-    def pf_window_300m(self) -> Tuple[KansElement, KansElement,
-                                      List[WindowElement]]:
-        return self._window_collect(300.0)
+    # # vak: moving window met variable lengtes
+    # @property
+    # def pf_window_50m(self) -> Tuple[KansElement, KansElement,
+    #                                  List[WindowElement]]:
+    #     return self._window_collect(50.0)
+    #
+    # @property
+    # def pf_window_100m(self) -> Tuple[KansElement, KansElement,
+    #                                   List[WindowElement]]:
+    #     return self._window_collect(100.0)
+    #
+    # @property
+    # def pf_window_200m(self) -> Tuple[KansElement, KansElement,
+    #                                   List[WindowElement]]:
+    #     return self._window_collect(200.0)
+    #
+    # @property
+    # def pf_window_300m(self) -> Tuple[KansElement, KansElement,
+    #                                   List[WindowElement]]:
+    #     return self._window_collect(300.0)
 
     # vak: som van verschaalde dsn
     @property
@@ -183,7 +184,7 @@ class WindowElement:
     m_tot: float  # Eindpunt in meters
     window_size: float  # Groote van de window
     window_id: int  # Id nummer toegewezen aan window
-    pf: float  # Faalkans toegewezen aan de window
+    pf: float  # Faalkans toegewezen aan window
     flow_chart_number: int
     advise: str
     _vak_id: Optional[int] = None
@@ -266,7 +267,7 @@ class TrajectElement:
         pf_sum, pf_max = combine_series(pfs)
         return KansElement(pf=pf_sum), KansElement(pf=pf_max)
 
-    def _window_collect(self, window_size: float):
+    def pf_window(self, window_size: float) -> Tuple[KansElement, KansElement, List[WindowElement]]:
         pf_sum, pf_max, window_elements = window_collect(
             window_size=window_size, point_list=self.list_dsn,
             m_van=self.m_van, m_tot=self.m_tot, vak_id=None
@@ -276,26 +277,25 @@ class TrajectElement:
         """
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
-    # traject: moving window met variable lengtes
-    @property
-    def pf_window_50m(self) -> Tuple[KansElement, KansElement,
-                                     List[WindowElement]]:
-        return self._window_collect(50.0)
-
-    @property
-    def pf_window_100m(self) -> Tuple[KansElement, KansElement,
-                                      List[WindowElement]]:
-        return self._window_collect(100.0)
-
-    @property
-    def pf_window_200m(self) -> Tuple[KansElement, KansElement,
-                                      List[WindowElement]]:
-        return self._window_collect(200.0)
-
-    @property
-    def pf_window_300m(self) -> Tuple[KansElement, KansElement,
-                                      List[WindowElement]]:
-        return self._window_collect(300.0)
+    # # traject: moving window met variable lengtes
+    # @property
+    # def pf_window_50m(self) -> Tuple[KansElement, KansElement,
+    #                                  List[WindowElement]]:
+    #     return self._window_collect(50.0)
+    #
+    # @property
+    # def pf_window_100m(self) -> Tuple[KansElement, KansElement, List[WindowElement]]:
+    #     return self._window_collect(100.0)
+    #
+    # @property
+    # def pf_window_200m(self) -> Tuple[KansElement, KansElement,
+    #                                   List[WindowElement]]:
+    #     return self._window_collect(200.0)
+    #
+    # @property
+    # def pf_window_300m(self) -> Tuple[KansElement, KansElement,
+    #                                   List[WindowElement]]:
+    #     return self._window_collect(300.0)
 
     # traject: som van verschaalde dsn
     @property

@@ -224,17 +224,12 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
                     "failure_probability", "advise", "flow_chart_number"]]
 
 
-def _generate_point_list(geoprob_pipe: GeoProbPipe, results: Results
-                         ) -> List[UittredepuntElement]:
-    """Generates a list of all the points as a list `UittredepuntElement`
-    objects.
+def _generate_point_list(geoprob_pipe: GeoProbPipe, results: Results) -> List[UittredepuntElement]:
+    """ Generates a list of all the points as a list `UittredepuntElement` objects.
 
-    Args:
-        geoprob_pipe: GeoprobPipe object.
-        results: Resutls object.
-
-    Returns:
-        List[UittredepuntElement]: List with all generated objects.
+    :param geoprob_pipe: GeoprobPipe object.
+    :param results:
+    :return: List with all generated objects.
     """
     punt_df = results.df_beta_uittredepunten
     punt_gdf = geoprob_pipe.input_data.uittredepunten.gdf
@@ -267,7 +262,7 @@ def _generate_point_list(geoprob_pipe: GeoProbPipe, results: Results
 
 def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
                            ) -> list[VakElement]:
-    """Generates a lsit of all elements in a traject as `VakElement` objects.
+    """Generates a list of all elements in a traject as `VakElement` objects.
 
     Args:
         geoprob_pipe: GeoprobPipe object.
@@ -321,20 +316,16 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
     return element_list
 
 
-def construct_df_beta_WBI_vak(
+def construct_df_beta_wbi_vak(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans per vak volgens de WBI methode.
+    """ Bepaalde de samengestelde faalkans per vak volgens de WBI-methode.
 
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
-
-    Returns:
-        Dataframe:
+    :param geoprob_pipe: GeoProbPipe object voor data collectie.
+    :param results: Results object voor data collectie.
+    :return:
     """
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                          results=results)
+    element_list: list[VakElement] = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
     vakken_list = []
     for element in element_list:
         vakken_dict = {
@@ -357,23 +348,20 @@ def construct_df_beta_WBI_vak(
     return pd.DataFrame(vakken_list)
 
 
-def construct_df_beta_window50_vak(
-        geoprob_pipe: GeoProbPipe, results: Results
+def construct_df_beta_window_vak(
+        geoprob_pipe: GeoProbPipe, results: Results, window_size: float
         ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans per vak met een window van 50m.
+    """ Bepaald de samengestelde faalkans per vak bij een window size.
 
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
-
-    Returns:
-        Dataframe:
+    :param geoprob_pipe: GeoProbPipe object voor data collectie.
+    :param window_size:
+    :param results: Results object voor data collectie.
+    :return:
     """
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                          results=results)
+    element_list: list[VakElement] = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
     window_list = []
     for element in element_list:
-        for window in element.pf_window_50m[2]:
+        for window in element.pf_window(window_size)[2]:
             window_dict = {
                 "m_van": window.m_van,
                 "m_tot": window.m_tot,
@@ -381,130 +369,13 @@ def construct_df_beta_window50_vak(
                 "window_id": window.window_id,
                 "vak_id": window.vak_id,
                 "pf_dsn": window.pf,
-                "pf_dsn(max)": element.pf_window_50m[1].pf,
-                "beta_dsn": element.pf_window_50m[1].beta,
-                "flow_chart_number_dsn": window.flow_chart_number,
-                "delta_L": window.window_size,
-                "N_vak": 1,
-                "pf_vak": element.pf_window_50m[0].pf,
-                "beta_vak": element.pf_window_50m[0].beta,
-                "flow_chart_number": element.flow_chart_number,
-                "advise": element.advise
-                }
-            window_list.append(window_dict)
-
-    return pd.DataFrame(window_list)
-
-
-def construct_df_beta_window100_vak(
-        geoprob_pipe: GeoProbPipe, results: Results
-        ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans per vak met een window van 100m.
-
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
-
-    Returns:
-        Dataframe:
-    """
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                          results=results)
-    window_list = []
-    for element in element_list:
-        for window in element.pf_window_100m[2]:
-            window_dict = {
-                "m_van": window.m_van,
-                "m_tot": window.m_tot,
-                "lengte": window.length,
-                "window_id": window.window_id,
-                "vak_id": window.vak_id,
-                "pf_dsn": window.pf,
-                "pf_dsn(max)": element.pf_window_100m[1].pf,
-                "beta_dsn": element.pf_window_100m[1].beta,
+                "pf_dsn(max)": element.pf_window(window_size)[1].pf,
+                "beta_dsn": element.pf_window(window_size)[1].beta,
                 "flow_chart_number_dsn": window.flow_chart_number,
                 "delta_L": window.window_size,
                 "N_vak": 1.0,
-                "pf_vak": element.pf_window_100m[0].pf,
-                "beta_vak": element.pf_window_100m[0].beta,
-                "flow_chart_number": element.flow_chart_number,
-                "advise": element.advise
-                }
-            window_list.append(window_dict)
-
-    return pd.DataFrame(window_list)
-
-
-def construct_df_beta_window200_vak(
-        geoprob_pipe: GeoProbPipe, results: Results
-        ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans per vak met een window van 200m.
-
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
-
-    Returns:
-        Dataframe:
-    """
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                          results=results)
-    window_list = []
-    for element in element_list:
-        for window in element.pf_window_200m[2]:
-            window_dict = {
-                "m_van": window.m_van,
-                "m_tot": window.m_tot,
-                "lengte": window.length,
-                "window_id": window.window_id,
-                "vak_id": window.vak_id,
-                "pf_dsn": window.pf,
-                "pf_dsn(max)": element.pf_window_200m[1].pf,
-                "beta_dsn": element.pf_window_200m[1].beta,
-                "flow_chart_number_dsn": window.flow_chart_number,
-                "delta_L": window.window_size,
-                "N_vak": 1,
-                "pf_vak": element.pf_window_200m[0].pf,
-                "beta_vak": element.pf_window_200m[0].beta,
-                "flow_chart_number": element.flow_chart_number,
-                "advise": element.advise
-                }
-            window_list.append(window_dict)
-
-    return pd.DataFrame(window_list)
-
-
-def construct_df_beta_window300_vak(
-        geoprob_pipe: GeoProbPipe, results: Results
-        ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans per vak met een window van 300m.
-
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
-
-    Returns:
-        Dataframe:
-    """
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                          results=results)
-    window_list = []
-    for element in element_list:
-        for window in element.pf_window_300m[2]:
-            window_dict = {
-                "m_van": window.m_van,
-                "m_tot": window.m_tot,
-                "lengte": window.length,
-                "window_id": window.window_id,
-                "vak_id": window.vak_id,
-                "pf_dsn": window.pf,
-                "pf_dsn(max)": element.pf_window_300m[1].pf,
-                "beta_dsn": element.pf_window_300m[1].beta,
-                "flow_chart_number_dsn": window.flow_chart_number,
-                "delta_L": window.window_size,
-                "N_vak": 1.0,
-                "pf_vak(sum)": element.pf_window_300m[0].pf,
-                "beta_vak": element.pf_window_300m[0].beta,
+                "pf_vak": element.pf_window(window_size)[0].pf,
+                "beta_vak": element.pf_window(window_size)[0].beta,
                 "flow_chart_number": element.flow_chart_number,
                 "advise": element.advise
                 }
@@ -516,15 +387,11 @@ def construct_df_beta_window300_vak(
 def construct_df_beta_scaled_vak(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans per vak op basis van de afstand
-    tussen de uittredepunten.
+    """ Bepaalde de samengestelde faalkans per vak op basis van de afstand tussen de uittredepunten.
 
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
-
-    Returns:
-        Dataframe:
+    :param geoprob_pipe: GeoProbPipe object voor data collectie.
+    :param results: Results object voor data collectie.
+    :return:
     """
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
                                           results=results)
@@ -556,8 +423,7 @@ def construct_df_beta_scaled_vak(
 def construct_df_beta_per_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans over het traject volgens de WBI
-    methode.
+    """Bepaalde de samengestelde faalkans over het traject volgens de WBI-methode.
 
     Args:
         geoprob_pipe: GeoProbPipe object voor data collectie.
@@ -567,12 +433,9 @@ def construct_df_beta_per_traject(
         Dataframe:
     """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
-    vakken_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                         results=results)
+    vakken_list = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
 
-    traject = TrajectElement(
-        list_vakken=vakken_list, list_dsn=dsn_list, delta_length=300.0
-    )
+    traject = TrajectElement(list_vakken=vakken_list, list_dsn=dsn_list, delta_length=300.0)
     traject_list = [
         {
             "method": "WBI methode over traject",
@@ -582,28 +445,28 @@ def construct_df_beta_per_traject(
             "upper_bound_beta": traject.pf_max_vak[1].beta},
         {
             "method": "Window 50m over traject",
-            "upper_bound_pof": traject.pf_window_50m[0].pf,
-            "lower_bound_beta": traject.pf_window_50m[0].beta,
-            "lower_boud_pof": traject.pf_window_50m[1].pf,
-            "upper_bound_beta": traject.pf_window_50m[1].beta
+            "upper_bound_pof": traject.pf_window(50.0)[0].pf,
+            "lower_bound_beta": traject.pf_window(50.0)[0].beta,
+            "lower_boud_pof": traject.pf_window(50.0)[1].pf,
+            "upper_bound_beta": traject.pf_window(50.0)[1].beta
         }, {
             "method": "Window 100m over traject",
-            "upper_bound_pof": traject.pf_window_100m[0].pf,
-            "lower_bound_beta": traject.pf_window_100m[0].beta,
-            "lower_boud_pof": traject.pf_window_100m[1].pf,
-            "upper_bound_beta": traject.pf_window_100m[1].beta
+            "upper_bound_pof": traject.pf_window(100.0)[0].pf,
+            "lower_bound_beta": traject.pf_window(100.0)[0].beta,
+            "lower_boud_pof": traject.pf_window(100.0)[1].pf,
+            "upper_bound_beta": traject.pf_window(100.0)[1].beta
         }, {
             "method": "Window 200m over traject",
-            "upper_bound_pof": traject.pf_window_200m[0].pf,
-            "lower_bound_beta": traject.pf_window_200m[0].beta,
-            "lower_boud_pof": traject.pf_window_200m[1].pf,
-            "upper_bound_beta": traject.pf_window_200m[1].beta
+            "upper_bound_pof": traject.pf_window(200.0)[0].pf,
+            "lower_bound_beta": traject.pf_window(200.0)[0].beta,
+            "lower_boud_pof": traject.pf_window(200.0)[1].pf,
+            "upper_bound_beta": traject.pf_window(200.0)[1].beta
         }, {
             "method": "Window 300m over traject",
-            "upper_bound_pof": traject.pf_window_300m[0].pf,
-            "lower_bound_beta": traject.pf_window_300m[0].beta,
-            "lower_boud_pof": traject.pf_window_300m[1].pf,
-            "upper_bound_beta": traject.pf_window_300m[1].beta
+            "upper_bound_pof": traject.pf_window(300.0)[0].pf,
+            "lower_bound_beta": traject.pf_window(300.0)[0].beta,
+            "lower_boud_pof": traject.pf_window(300.0)[1].pf,
+            "upper_bound_beta": traject.pf_window(300.0)[1].beta
         }, {
             "method": "Scaled over individual sections",
             "upper_bound_pof": traject.pf_scaled[0].pf,
@@ -615,174 +478,36 @@ def construct_df_beta_per_traject(
     return pd.DataFrame(traject_list)
 
 
-def construct_df_beta_window50_traject(
-        geoprob_pipe: GeoProbPipe, results: Results
+def construct_df_beta_window_traject(
+        geoprob_pipe: GeoProbPipe, results: Results, window_size: float
         ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans voor het gehele traject met een
-    window van 50m ipv vakken.
+    """ Bepaald de samengestelde faalkans voor het gehele traject bij een window size (i.p.v. vakken).
 
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
-
-    Returns:
-        Dataframe:
+    :param geoprob_pipe: GeoProbPipe object voor data collectie.
+    :param results: Results object voor data collectie.
+    :param window_size:
+    :return:
     """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                          results=results)
+    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
 
-    traject = TrajectElement(
-        list_vakken=element_list, list_dsn=dsn_list, delta_length=50.0
-    )
+    traject = TrajectElement(list_vakken=element_list, list_dsn=dsn_list, delta_length=window_size)
     window_list = []
-    for window in traject.pf_window_50m[2]:
+    for window in traject.pf_window(window_size=window_size)[2]:
         window_dict = {
             "m_van": window.m_van,
             "m_tot": window.m_tot,
             "lengte": window.length,
             "window_id": window.window_id,
             "pf_dsn": window.pf,
-            "pf_dsn(max)": traject.pf_window_50m[1].pf,
-            "beta_dsn": traject.pf_window_50m[1].beta,
+            "pf_dsn(max)": traject.pf_window(window_size=window_size)[1].pf,
+            "beta_dsn": traject.pf_window(window_size=window_size)[1].beta,
             "flow_chart_number_dsn": window.flow_chart_number,
             "a": 1.0,
             "delta_L": traject.delta_length,
             "N_vak": 1.0,
-            "pf_traject(sum)": traject.pf_window_50m[0].pf,
-            "beta_traject": traject.pf_window_50m[0].beta,
-            "flow_chart_number": window.flow_chart_number,
-            "advise": window.advise
-            }
-        window_list.append(window_dict)
-
-    return pd.DataFrame(window_list)
-
-
-def construct_df_beta_window100_traject(
-        geoprob_pipe: GeoProbPipe, results: Results
-        ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans voor het gehele traject met een
-    window van 100m ipv vakken.
-
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
-
-    Returns:
-        Dataframe:
-    """
-    dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                          results=results)
-
-    traject = TrajectElement(
-        list_vakken=element_list, list_dsn=dsn_list, delta_length=100.0
-    )
-    window_list = []
-    for window in traject.pf_window_100m[2]:
-        window_dict = {
-            "m_van": window.m_van,
-            "m_tot": window.m_tot,
-            "lengte": window.length,
-            "window_id": window.window_id,
-            "pf_dsn": window.pf,
-            "pf_dsn(max)": traject.pf_window_100m[1].pf,
-            "beta_dsn": traject.pf_window_100m[1].beta,
-            "flow_chart_number_dsn": window.flow_chart_number,
-            "a": 1.0,
-            "delta_L": traject.delta_length,
-            "N_vak": 1.0,
-            "pf_traject(sum)": traject.pf_window_100m[0].pf,
-            "beta_traject": traject.pf_window_100m[0].beta,
-            "flow_chart_number": window.flow_chart_number,
-            "advise": window.advise
-            }
-        window_list.append(window_dict)
-
-    return pd.DataFrame(window_list)
-
-
-def construct_df_beta_window200_traject(
-        geoprob_pipe: GeoProbPipe, results: Results
-        ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans voor het gehele traject met een
-    window van 200m ipv vakken.
-
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
-
-    Returns:
-        Dataframe:
-    """
-    dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                          results=results)
-
-    traject = TrajectElement(
-        list_vakken=element_list, list_dsn=dsn_list, delta_length=200.0
-    )
-    window_list = []
-    for window in traject.pf_window_200m[2]:
-        window_dict = {
-            "m_van": window.m_van,
-            "m_tot": window.m_tot,
-            "lengte": window.length,
-            "window_id": window.window_id,
-            "pf_dsn": window.pf,
-            "pf_dsn(max)": traject.pf_window_200m[1].pf,
-            "beta_dsn": traject.pf_window_200m[1].beta,
-            "flow_chart_number_dsn": window.flow_chart_number,
-            "a": 1.0,
-            "delta_L": traject.delta_length,
-            "N_vak": 1.0,
-            "pf_traject(sum)": traject.pf_window_200m[0].pf,
-            "beta_traject": traject.pf_window_200m[0].beta,
-            "flow_chart_number": window.flow_chart_number,
-            "advise": window.advise
-            }
-        window_list.append(window_dict)
-
-    return pd.DataFrame(window_list)
-
-
-def construct_df_beta_window300_traject(
-        geoprob_pipe: GeoProbPipe, results: Results
-        ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans voor het gehele traject met een
-    window van 300m ipv vakken.
-
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
-
-    Returns:
-        Dataframe:
-    """
-    dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                          results=results)
-
-    traject = TrajectElement(
-        list_vakken=element_list, list_dsn=dsn_list, delta_length=300.0
-    )
-    window_list = []
-    for window in traject.pf_window_300m[2]:
-        window_dict = {
-            "m_van": window.m_van,
-            "m_tot": window.m_tot,
-            "lengte": window.length,
-            "window_id": window.window_id,
-            "pf_dsn": window.pf,
-            "pf_dsn(max)": traject.pf_window_300m[1].pf,
-            "beta_dsn": traject.pf_window_300m[1].beta,
-            "flow_chart_number_dsn": window.flow_chart_number,
-            "a": 1.0,
-            "delta_L": traject.delta_length,
-            "N_vak": 1.0,
-            "pf_traject(sum)": traject.pf_window_300m[0].pf,
-            "beta_traject": traject.pf_window_300m[0].beta,
+            "pf_traject(sum)": traject.pf_window(window_size=window_size)[0].pf,
+            "beta_traject": traject.pf_window(window_size=window_size)[0].beta,
             "flow_chart_number": window.flow_chart_number,
             "advise": window.advise
             }
@@ -794,15 +519,12 @@ def construct_df_beta_window300_traject(
 def construct_df_beta_scaled_traject(
         geoprob_pipe: GeoProbPipe, results: Results
         ) -> pd.DataFrame:
-    """Beplaalde de samengestelde faalkans voor het gehele traject op basis van
-    de afstand tussen de uittredepunten ipv de vakken.
+    """ Bepaalde de samengestelde faalkans voor het gehele traject op basis van de afstand tussen de uittredepunten
+    i.p.v. de vakken.
 
-    Args:
-        geoprob_pipe: GeoProbPipe object voor data collectie.
-        results: Results object voor data collectie.
-
-    Returns:
-        Dataframe:
+    :param geoprob_pipe: GeoProbPipe object voor data collectie.
+    :param results: Results object voor data collectie.
+    :return:
     """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
     element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
@@ -832,37 +554,3 @@ def construct_df_beta_scaled_traject(
         window_list.append(window_dict)
 
     return pd.DataFrame(window_list)
-
-
-# def construct_df_beta_per_vak(results: Results) -> DataFrame:
-#     """ Constructs the DataFrame of the final result for the vakken.
-
-#     Because there is an automated decision-making in the scenario and exit
-#     point calculations (see flow charts over there), for the vakken the flow
-#     chart is extended below.
-
-#     .. image:: /_static/flow-chart-final-result-vak-calculations.png
-#        :alt: Flow chart final result vak calculations
-#        :align: center
-
-#     :param results:
-#     :return:
-#     """
-
-#     # Gather data
-#     df_beta_uittredepunten = results.df_beta_uittredepunten.copy(deep=True)
-
-#     # Minimale beta van beta uittredepunten per vak
-#     df: DataFrame = df_beta_uittredepunten.loc[
-#         df_beta_uittredepunten.groupby('vak_id')['beta'].idxmin()]
-#     df = df.drop(columns=["flow_chart_number"])
-
-#     # Determine vak flow chart number
-#     flow_chart_number = df_beta_uittredepunten.groupby(
-#         'uittredepunt_id', as_index=False)["flow_chart_number"].min()
-#     df = df.merge(flow_chart_number, on="uittredepunt_id", how="left")
-#     df['advise'] = df['flow_chart_number'].map(
-#         {11: "Consider fine tuning on scenario-level."}).fillna("-")
-#     df['flow_chart_number'] = df['flow_chart_number'].map({11: 21}).fillna(22)
-
-#     return df[["vak_id", "beta", "failure_probability", "advise"]]
