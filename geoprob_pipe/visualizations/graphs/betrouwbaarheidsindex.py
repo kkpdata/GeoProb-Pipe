@@ -45,7 +45,7 @@ def _add_beta_per_uittredepunt_indication_above_plotting_range(
     self.fig.add_trace(
         go.Scatter(
             x=df_for_graph.loc[mask, 'metrering'],
-            y=[self.beta_max - 0.1] * mask.sum(),
+            y=[self.beta_max - 0.5] * mask.sum(),
             mode='markers',
             marker=dict(symbol='triangle-up', size=7, color=color),
             name=name + " above plotted range",
@@ -101,8 +101,8 @@ class GraphBetaValuesSingleInteractive:
         self._add_backgrond()
         self._add_beta_per_traject()
         self._add_beta_per_vak()
-        self._add_beta_per_scenario()
         self._add_beta_per_uittredepunt()
+        self._add_beta_per_scenario()
         self._update_layout()
         self._optionally_export(export=export)
 

@@ -10,8 +10,13 @@ if TYPE_CHECKING:
 
 
 def combine_series(list_pf: list[float]) -> Tuple[float, float]:
-    """ Combineert de faalkansen uit een lijst naar een ondergrens op basis van max en een boven grens op basis van som
-    van de faalkansen. De som wordt bepaald door 1 - prod(1-pf[i]) van alle doorsneden.
+    """
+    Combineert de faalkansen uit een lijst naar
+     - een ondergrens op basis van max en;
+     - een boven grens op basis van som van de faalkansen.
+    De som wordt bepaald door 1 - prod(1-pf[i]) van alle doorsneden.
+
+    Decimal-objecten worden gebruikt om met zeer kleine getallen te werken (getallen kleiner dan e-18).
 
     :param list_pf: Lijst met faalkansen van de elementen.
 
@@ -19,15 +24,27 @@ def combine_series(list_pf: list[float]) -> Tuple[float, float]:
     :return ondergrens: Samengestelde faalkans op basis van de som van de
         faalkansen.
     """
-    getcontext().prec = 30
+
+    # If empty
     if len(list_pf) == 0:
         return 0.0, 0.0
-    list_pf_dec = [Decimal(1) - Decimal(str(pf)) for pf in list_pf]
-    arr = np.array(list_pf_dec, dtype=object)
-    inv_pf = cast(Decimal, np.prod(arr))
 
+    # We have to use Decimal
+    getcontext().prec = 30
+    # Because with small numbers (e-18 and smaller) it turns out that 1 - e-18 is rounded to one. Therefore, we have to
+    # use Decimal with a lowered precision (we use up to e-30). We now first convert the necessary values to calculate:
+    one = Decimal(1)
+    list_pf_dec = [Decimal(str(pf)) for pf in list_pf]
+
+    # Berekenen van ondergrens
     ondergrens = max(list_pf)
-    bovengrens = float(Decimal(1) - inv_pf)
+
+    # Berekenen van bovengrens
+    list_pf_inv = [one - pf for pf in list_pf_dec]
+    list_pf_inv = np.array(list_pf_inv, dtype=object)
+    list_pf_inv = np.prod(list_pf_inv)
+    list_pf_inv = cast(Decimal, list_pf_inv)
+    bovengrens = float(one - list_pf_inv)
 
     return bovengrens, ondergrens
 
