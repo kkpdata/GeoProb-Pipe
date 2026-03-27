@@ -30,7 +30,7 @@ def combine_series(list_pf: list[float]) -> Tuple[float, float]:
     # We have to use Decimal for bovengrens
     getcontext().prec = 30
     # Because with small numbers (e-18 and smaller) it turns out that 1 - e-18 is rounded to one. Therefore, we have to
-    # use Decimal with a lowered precision (we use up to e-30). We now first convert the necessary values to calculate:
+    # use Decimal with a lowered precision (we use up to e-30). We now first convert the necessary values to Decimal:
     one = Decimal(1)
     list_pf_dec = [Decimal(str(pf)) for pf in list_pf]
 
