@@ -437,39 +437,43 @@ def construct_df_beta_per_traject(
             "method": "WBI methode over traject",
             "upper_bound_pof": traject.pf_max_vak[0].pf,
             "lower_bound_beta": traject.pf_max_vak[0].beta,
-            "lower_boud_pof": traject.pf_max_vak[1].pf,
+            "lower_bound_pof": traject.pf_max_vak[1].pf,
             "upper_bound_beta": traject.pf_max_vak[1].beta},
         {
             "method": "Window 50m over traject",
             "upper_bound_pof": traject.pf_window(50.0)[0].pf,
             "lower_bound_beta": traject.pf_window(50.0)[0].beta,
-            "lower_boud_pof": traject.pf_window(50.0)[1].pf,
+            "lower_bound_pof": traject.pf_window(50.0)[1].pf,
             "upper_bound_beta": traject.pf_window(50.0)[1].beta
-        }, {
+        },
+        {
             "method": "Window 100m over traject",
             "upper_bound_pof": traject.pf_window(100.0)[0].pf,
             "lower_bound_beta": traject.pf_window(100.0)[0].beta,
-            "lower_boud_pof": traject.pf_window(100.0)[1].pf,
+            "lower_bound_pof": traject.pf_window(100.0)[1].pf,
             "upper_bound_beta": traject.pf_window(100.0)[1].beta
-        }, {
+        },
+        {
             "method": "Window 200m over traject",
             "upper_bound_pof": traject.pf_window(200.0)[0].pf,
             "lower_bound_beta": traject.pf_window(200.0)[0].beta,
-            "lower_boud_pof": traject.pf_window(200.0)[1].pf,
+            "lower_bound_pof": traject.pf_window(200.0)[1].pf,
             "upper_bound_beta": traject.pf_window(200.0)[1].beta
-        }, {
+        },
+        {
             "method": "Window 300m over traject",
             "upper_bound_pof": traject.pf_window(300.0)[0].pf,
             "lower_bound_beta": traject.pf_window(300.0)[0].beta,
-            "lower_boud_pof": traject.pf_window(300.0)[1].pf,
+            "lower_bound_pof": traject.pf_window(300.0)[1].pf,
             "upper_bound_beta": traject.pf_window(300.0)[1].beta
-        }, {
+        },
+        {
             "method": "Scaled over individual sections",
             "upper_bound_pof": traject.pf_scaled[0].pf,
             "lower_bound_beta": traject.pf_scaled[0].beta,
-            "lower_boud_pof": traject.pf_scaled[1].pf,
+            "lower_bound_pof": traject.pf_scaled[1].pf,
             "upper_bound_beta": traject.pf_scaled[1].beta
-        }
+        },
     ]
     return pd.DataFrame(traject_list)
 

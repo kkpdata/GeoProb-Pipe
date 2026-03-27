@@ -114,16 +114,22 @@ class VakElement:
     @property
     def pf_max_dsn(self) -> Tuple[KansElement, KansElement]:
         list_pf = [cast(float, dsn.pf) for dsn in self.dsn_list]
+
+        # Bereken doorsnede kans
+        pf_dsn = 0.0
         if list_pf.__len__() > 0:
             pf_dsn = max(list_pf)
-        else:
-            pf_dsn = 0.0
+
+        # Bereken vak kans
         pf_vak = self.N_vak * pf_dsn
 
         return KansElement(pf=pf_dsn), KansElement(pf=pf_vak)
 
     @property
     def conv_max_dsn(self) -> bool:
+        """ Bepaald of maximum faalkans op doorsnede niveau als geconvergeerd beschouwd kan worden. Dat is, als alles
+        kansen geconvergeerd zijn, dan True, anders False. Want een niet geconvergeerde kans had de maximale faalkans
+        kunnen zijn. """
         list_conv = [cast(bool, dsn.converged) for dsn in self.dsn_list]
         if False in list_conv:
             return False
