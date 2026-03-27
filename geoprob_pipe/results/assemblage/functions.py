@@ -13,16 +13,11 @@ def combine_series(list_pf: list[float]) -> Tuple[float, float]:
     """
     Combineert de faalkansen uit een lijst naar
      - een ondergrens op basis van max en;
-     - een boven grens op basis van som van de faalkansen.
-    De som wordt bepaald door 1 - prod(1-pf[i]) van alle doorsneden.
-
-    Decimal-objecten worden gebruikt om met zeer kleine getallen te werken (getallen kleiner dan e-18).
+     - een boven grens op basis van som van de faalkansen. De som wordt bepaald door 1 - prod(1-pf[i]) van alle
+       doorsneden.
 
     :param list_pf: Lijst met faalkansen van de elementen.
-
-    :return bovengrens: Samengestelde faalkans op basis van max().
-    :return ondergrens: Samengestelde faalkans op basis van de som van de
-        faalkansen.
+    :return bovengrens en ondergrens
     """
 
     # If empty
