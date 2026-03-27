@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 def combine_series(list_pf: list[float]) -> Tuple[float, float]:
     """
     Combineert de faalkansen uit een lijst naar
-     - een ondergrens op basis van max en;
-     - een boven grens op basis van som van de faalkansen. De som wordt bepaald door 1 - prod(1-pf[i]) van alle
+     - een elementaire ondergrens op basis van volledige afhankelijkheid. De ondergrens wordt bepaald door max(pf[i]) van alle doorsneden.
+     - een elementaire bovengrens op basis van volledige onafhankelijkheid. De bovengrens wordt bepaald door 1 - prod(1-pf[i]) van alle
        doorsneden.
 
     :param list_pf: Lijst met faalkansen van de elementen.
