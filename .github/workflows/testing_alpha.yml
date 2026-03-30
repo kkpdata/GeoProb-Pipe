@@ -1,24 +1,38 @@
 name: Automated testing and coverage (in protected branches)
 
-
 on:
   push:
     branches: [ "alpha" ]
   workflow_dispatch:
 
-
 jobs:
   test:
     if: "!contains(github.event.head_commit.message, '[auto]')"
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT_PUSH_TOKEN }}
+          persist-credentials: false
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app_id: ${{ secrets.GEOPROB_PIPE_APP_ID }}
+          private_key: ${{ secrets.GEOPROB_PIPE_APP_PRIVATE_KEY }}
+
+      - name: Checkout again using app token (for pushing)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.12'
 
@@ -32,18 +46,16 @@ jobs:
         run: |
           coverage run --source=geoprob_pipe -m pytest --ignore=_deprecated/tests
           coverage report -m
-          if [ -f readme_images/coverage.svg ]; then rm readme_images/coverage.svg; fi
+          rm -f readme_images/coverage.svg
           coverage-badge -o readme_images/coverage.svg
 
-      - name: Commit changes
-        run: |
-          git config --local user.email "chrispitzalis@gmail.com"
-          git config --local user.name "chrispijo"
-          git pull
-          git add .
-          if ! git diff --cached --quiet; then
-            git commit -m "[auto] Testing and coverage"
-            git push
-          else
-            echo "No changes to commit"
-          fi
+      - name: Commit updated coverage badge using bot
+        uses: planetscale/ghcommit-action@v0.2.18
+        with:
+          commit_message: "[auto] Testing and coverage"
+          repo: ${{ github.repository }}
+          branch: ${{ github.ref_name }}
+          author_name: github-actions[bot]
+          author_email: github-actions[bot]@users.noreply.github.com
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
