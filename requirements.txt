@@ -19,3 +19,6 @@ sphinx-mdinclude
 sphinxcontrib-jquery
 sphinx-rtd-theme
 sphinxcontrib-bibtex
+# Ontbrekend voor sphinx-build
+inflection
+bs4

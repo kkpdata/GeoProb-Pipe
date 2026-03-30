@@ -5,14 +5,24 @@ from datetime import datetime
 import pandas as pd
 import geopandas as gpd
 from plotly.graph_objects import Figure as PlotlyFigure
-from geoprob_pipe.cmd_app.comparisons.beta_dumbbell import \
-    dumbbell_beta, dumbbell_uplift, dumbbell_heave, dumbbell_piping
-from geoprob_pipe.cmd_app.comparisons.beta_map import map_delta_beta_comparison, \
-    map_ratio_beta_comparison
+from geoprob_pipe.cmd_app.comparisons.beta_dumbbell import (
+    dumbbell_beta, dumbbell_uplift, dumbbell_heave, dumbbell_piping)
+from geoprob_pipe.cmd_app.comparisons.beta_map import (
+    map_delta_beta_comparison, map_ratio_beta_comparison)
 
 
 class ComparisonCollector:
-    def __init__(self, geopackage_filepath_1: str, geopackage_filepath_2: str, export_dir: str):
+    def __init__(self,
+                 geopackage_filepath_1: str,
+                 geopackage_filepath_2: str,
+                 export_dir: str
+                 ):
+        """ Class voor het verzamelen van de gegevens voor het uitvoeren van de vergelijking.
+
+        :param geopackage_filepath_1: Locatie van het eerste pakket.
+        :param geopackage_filepath_2: Locatie van het tweede pakket.
+        :param export_dir: Uitvoer map.
+        """
         self.geopackage_filepath_1 = geopackage_filepath_1
         self.geopackage_filepath_2 = geopackage_filepath_2
         self.name_1 = os.path.basename(self.geopackage_filepath_1).replace(".geoprob_pipe.gpkg", "")
@@ -41,7 +51,16 @@ class ComparisonCollector:
         self._load_uittredepunten_gdf()
 
     def _load_result_data_from_geopackage(self):
+        """Method om de data te verzamelen uit de opgegeven pakketten.
 
+        Raises:
+            ValueError: Als de `beta_limit_states` tabellen niet hetzelfde
+                formaat hebben.
+            ValueError: Als de `beta_scenario` tabellen niet hetzelfde
+                formaat hebben.
+            ValueError: Als de `beta_uitredepunten` tabellen niet hetzelfde
+                formaat hebben.
+        """
         conn_1 = sqlite3.connect(self.geopackage_filepath_1)
         conn_2 = sqlite3.connect(self.geopackage_filepath_2)
 
@@ -52,16 +71,18 @@ class ComparisonCollector:
             "SELECT * FROM beta_limit_states;", conn_2
             )
         if len(self.df1_beta_limit_states) != len(self.df2_beta_limit_states):
-            raise ValueError("De beta_limit_states tables hebben niet hetzelfde formaat")
+            raise ValueError("De beta_limit_states tables hebben niet "
+                             "hetzelfde formaat")
 
         self.df1_beta_scenarios = pd.read_sql(
-            "SELECT * FROM beta_scenarios;", conn_1
+            "SELECT * FROM beta_scenarios_final;", conn_1
             )
         self.df2_beta_scenarios = pd.read_sql(
-            "SELECT * FROM beta_scenarios;", conn_2
+            "SELECT * FROM beta_scenarios_final;", conn_2
             )
         if len(self.df1_beta_scenarios) != len(self.df2_beta_scenarios):
-            raise ValueError("De beta_scenario tables hebben niet hetzelfde formaat")
+            raise ValueError("De beta_scenario tables hebben niet hetzelfde "
+                             "formaat")
 
         self.df1_beta_uittredepunten = pd.read_sql(
             "SELECT * FROM beta_uittredepunten;", conn_1
@@ -70,12 +91,21 @@ class ComparisonCollector:
             "SELECT * FROM beta_uittredepunten;", conn_2
             )
         if len(self.df1_beta_uittredepunten) != len(self.df2_beta_uittredepunten):
-            raise ValueError("De beta_uittredepunten tables hebben niet hetzelfde formaat")
+            raise ValueError("De beta_uittredepunten tables hebben niet "
+                             "hetzelfde formaat")
 
         conn_1.close()
         conn_2.close()
 
     def _load_uittredepunten_gdf(self):
+        """Method om de geolocaties te verzamelen uit de pakketten.
+
+        Raises:
+            ValueError: Als de `beta_uittredepunten` tabellen niet hetzelfde
+                formaat hebben.
+            ValueError: Als de geometry van de punten niet hetzelfde formaat
+                hebben.
+        """
         self.gdf1_uittredepunten = gpd.read_file(
             self.geopackage_filepath_1,
             layer="beta_uittredepunten"
@@ -85,29 +115,91 @@ class ComparisonCollector:
             layer="beta_uittredepunten"
             )
         if len(self.gdf1_uittredepunten) != len(self.gdf2_uittredepunten):
-            raise ValueError("De beta_uittredepunten tables hebben niet hetzelfde formaat")
+            raise ValueError("De beta_uittredepunten tables hebben niet "
+                             "hetzelfde formaat")
         if set(self.gdf1_uittredepunten.geometry) != set(self.gdf2_uittredepunten.geometry):
-            raise ValueError("De twee sets uittredepunten hebben afwijkende geometry")
+            raise ValueError("De twee sets uittredepunten hebben afwijkende "
+                             "geometry")
 
     def dumbbell_beta(self, export: bool = False) -> PlotlyFigure:
+        """Maak een dumbbell plot van de beta waardes van de twee pakketten om
+        te kunnen vergelijken. Dit is plot voor de gecombineerde beta voor de
+        uittredepunten.
+
+        Args:
+            export: Figuur exporteren. Defaults to False.
+
+        Returns:
+            PlotlyFigure
+        """
         return dumbbell_beta(self, export)
 
     def dumbbell_uplift(self, export: bool = False) -> list[PlotlyFigure]:
+        """Maak een dumbbell plot van de beta waardes van de twee pakketten om
+        te kunnen vergelijken. Dit is plot voor de uplift limit state beta voor de
+        uittredepunten.
+
+        Args:
+            export: Figuur exporteren. Defaults to False.
+
+        Returns:
+            PlotlyFigure
+        """
         return dumbbell_uplift(self, export)
 
     def dumbbell_heave(self, export: bool = False) -> list[PlotlyFigure]:
+        """Maak een dumbbell plot van de beta waardes van de twee pakketten om
+        te kunnen vergelijken. Dit is plot voor de heave limit state beta voor de
+        uittredepunten.
+
+        Args:
+            export: Figuur exporteren. Defaults to False.
+
+        Returns:
+            PlotlyFigure
+        """
         return dumbbell_heave(self, export)
 
     def dumbbell_piping(self, export: bool = False) -> list[PlotlyFigure]:
+        """Maak een dumbbell plot van de beta waardes van de twee pakketten om
+        te kunnen vergelijken. Dit is plot voor de piping limit state beta voor
+        de uittredepunten.
+
+        Args:
+            export: Figuur exporteren. Defaults to False.
+
+        Returns:
+            PlotlyFigure
+        """
         return dumbbell_piping(self, export)
 
     def map_delta_beta_comparison(self, export: bool = False) -> PlotlyFigure:
+        """Maak een overzichtskaart met het absolute verschil tussen de twee
+        beta waardes van alle uittredepunten.
+
+        Args:
+            export: Figuur exporteren. Defaults to False.
+
+        Returns:
+            PlotlyFigure
+        """
         return map_delta_beta_comparison(self, export)
 
     def map_ratio_beta_comparison(self, export: bool = False) -> PlotlyFigure:
+        """Maak een overzichtskaart met het relative verschil tussen de twee
+        beta waardes van alle uittredepunten.
+
+        Args:
+            export: Figuur exporteren. Defaults to False.
+
+        Returns:
+            PlotlyFigure
+        """
         return map_ratio_beta_comparison(self, export)
 
     def create_and_export_figures(self):
+        """Exporteer alle figuren die gemaakt kunnen worden.
+        """
         dumbbell_beta(self, export=True)
         dumbbell_uplift(self, export=True)
         dumbbell_heave(self, export=True)
