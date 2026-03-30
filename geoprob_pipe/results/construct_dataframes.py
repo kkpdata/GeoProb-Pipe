@@ -331,6 +331,7 @@ def construct_df_beta_wbi_vak(
             "m_tot": element.m_tot,
             "lengte": element.length,
             "vak_id": element.id,
+            "cnt_uittredepunten": element.dsn_list.__len__(),
             "pf_dsn(max)": element.pf_max_dsn[0].pf,
             "beta_dsn": element.pf_max_dsn[0].beta,
             "a": element.a,

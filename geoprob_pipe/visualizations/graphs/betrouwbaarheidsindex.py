@@ -308,7 +308,7 @@ class GraphBetaValuesSingleInteractive:
         df_results_vakken = df_results_vakken.rename(
             columns={"vak_id": "id", "beta_vak": "beta"})
         df_for_graph = merge(
-            left=df_results_vakken[["id", "beta", "advise"]],
+            left=df_results_vakken[["id", "beta", "advise", "cnt_uittredepunten"]],
             right=self.gdf_vakken[["id", "m_start", "m_end"]],
             on="id", how="left")
         first = True
@@ -333,8 +333,9 @@ class GraphBetaValuesSingleInteractive:
                                   "Beta: %{customdata[1]:.3f}"))
                 first = False
 
-            # Above range
-            mask_combi = mask & mask_high
+            # Above range triangle
+            mask_has_uittredepunten = df_for_graph["cnt_uittredepunten"] > 0
+            mask_combi = mask & mask_high & mask_has_uittredepunten
             first = True
             for _, row in df_for_graph.loc[mask_combi].iterrows():
                 if row["beta"] == np.inf:
@@ -356,8 +357,8 @@ class GraphBetaValuesSingleInteractive:
                 ))
                 first = False
 
-            # Below range
-            mask_combi = mask & mask_low
+            # Below range triangle
+            mask_combi = mask & mask_low & mask_has_uittredepunten
             first = True
             for _, row in df_for_graph.loc[mask_combi].iterrows():
                 self.fig.add_trace(go.Scatter(
