@@ -49,13 +49,12 @@ jobs:
           rm -f readme_images/coverage.svg
           coverage-badge -o readme_images/coverage.svg
 
-      - name: Commit updated coverage badge using bot
-        uses: planetscale/ghcommit-action@v0.2.18
-        with:
-          commit_message: "[auto] Testing and coverage"
-          repo: ${{ github.repository }}
-          branch: ${{ github.ref_name }}
-          author_name: github-actions[bot]
-          author_email: github-actions[bot]@users.noreply.github.com
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Commit & push coverage badge via GitHub App bot
+        run: |
+          git add readme_images/coverage.svg
+          if ! git diff --cached --quiet; then
+            git commit -m "[auto] Testing and coverage"
+            git push https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
+          else
+            echo "No changes to commit"
+          fi

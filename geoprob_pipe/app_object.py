@@ -27,8 +27,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger("geoprob-pipe")
 
 
-def dummy_function(a: float, b: float) -> float:
-    return a + b
+def dummy_function(a: float, b: float, c: float) -> float:
+    return a + b - c
 
 
 class GeoProbPipe:
