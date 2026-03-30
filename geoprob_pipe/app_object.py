@@ -27,6 +27,10 @@ if TYPE_CHECKING:
 logger = logging.getLogger("geoprob-pipe")
 
 
+def dummy_function(a: float, b: float) -> float:
+    return a + b
+
+
 class GeoProbPipe:
     """ GeoProb-Pipe application object. """
     # TODO Later Could Groot: Gebruiker optie geven OpenTurns of Prob-library te kiezen? Dus engine keuze.
