@@ -23,8 +23,8 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v1
         with:
-          app_id: ${{ secrets.GEOPROB_PIPE_APP_ID }}
-          private_key: ${{ secrets.GEOPROB_PIPE_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.GEOPROB_PIPE_APP_ID }}
+          private-key: ${{ secrets.GEOPROB_PIPE_APP_PRIVATE_KEY }}
 
       - name: Checkout again using app token (for pushing)
         uses: actions/checkout@v4
