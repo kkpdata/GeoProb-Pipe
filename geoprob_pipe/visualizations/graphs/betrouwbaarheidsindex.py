@@ -375,16 +375,19 @@ class GraphBetaValuesSingleInteractive:
                 first = False
 
     def _add_beta_per_traject(self):
-        beta_traject = cast(
-            float, self.geoprob_pipe.results.df_beta_traject[
-                "lower_bound_beta"][0]
-            )
+        df = self.geoprob_pipe.results.df_beta_traject
+        df = df[df["method"] == 'WBI methode over traject']
+        beta_traject: float = df["lower_bound_beta"].iloc[0]
+        # beta_traject = cast(
+        #     float, self.geoprob_pipe.results.df_beta_traject[
+        #         "lower_bound_beta"][0]
+        #     )
         self.fig.add_trace(go.Scatter(
             x=[self.m_start, self.m_end],
             y=[beta_traject, beta_traject],
             mode="lines",
-            line=dict(color="black", width=2.5, ),
-            name="Beta Traject",
+            line=dict(color="black", width=2.5, dash="dash"),
+            name="Beta traject (WBI-methode)",
             showlegend=True,
             customdata=[[beta_traject]] * 2,
             hovertemplate="Beta: %{customdata[0]:.3f}"
