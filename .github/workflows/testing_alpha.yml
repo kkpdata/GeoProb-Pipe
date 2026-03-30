@@ -54,7 +54,7 @@ jobs:
 
       - name: Commit & push coverage badge via GitHub App bot
         run: |
-          git add readme_images/coverage.svg
+          git add .
           if ! git diff --cached --quiet; then
             git commit -m "[auto] Testing and coverage"
             git push https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
