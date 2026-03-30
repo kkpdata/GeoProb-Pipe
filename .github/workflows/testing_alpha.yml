@@ -42,6 +42,9 @@ jobs:
           if [ -f requirements_testing.txt ]; then pip install -r requirements_testing.txt; fi
           pip install pytest coverage coverage-badge "setuptools<82.0.0"
 
+      - name: Force test change
+        run: echo "Test $(date)" >> testfile_botcommit.txt
+
       - name: Run tests with coverage
         run: |
           coverage run --source=geoprob_pipe -m pytest --ignore=_deprecated/tests
