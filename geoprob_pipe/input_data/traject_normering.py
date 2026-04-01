@@ -52,26 +52,19 @@ class TrajectNormering:
 
     def __init__(
             self,
-            hrd_path: str,
-            # Non-existent in HRD? For now as optional parameter.
-            traject_naam: Optional[str] = None,
+            traject_id: str,  # Bijvoorbeeld '16-1'
+            signaleringswaarde: int,  # In jaren, bijvoorbeeld 100.000 voor 16-1
+            ondergrens: int,  # In jaren, bijvoorbeeld 30.000 voor 16-1
+            traject_lengte: float,  # In meters, bijvoorbeeld 15059.41 voor 16-1
             norm_is_ondergrens: bool = True,
-            # Where to find this? For now as manual parameter
             bovenrivierengebied: bool = True,
     ):
 
         # Input
-        self.traject_naam: Optional[str] = traject_naam
-        self.hrd_path = hrd_path
-        self.hlcd_path = os.path.join(os.path.dirname(self.hrd_path),
-                                      "hlcd.sqlite")
         self.bovenrivierengebied: bool = bovenrivierengebied
 
         # Parameters
-        self.traject_id: str = _get_traject_id(self.hrd_path,
-                                               self.hlcd_path)[1].strip()
-        signaleringswaarde, ondergrens, traject_lengte = (
-            _query_dijktrajecten(self.traject_id))
+        self.traject_id: str = traject_id
         self.signaleringswaarde: int = signaleringswaarde
         self.ondergrens: int = ondergrens
         self.w: float = 0.24
