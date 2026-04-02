@@ -4,7 +4,6 @@ import os
 from datetime import datetime
 import plotly.graph_objects as go
 from geoprob_pipe.input_data.traject_normering import TrajectNormering
-import scipy.stats as sct
 from typing import Optional
 
 
@@ -108,10 +107,11 @@ class GraphBetaValuesSingleInteractive:
         """
 
         # Validate input
-        self._validate_input()
+        _validate_input(self)
 
         # Input
-        self.df: DataFrame = df
+        self.df_beta_vak: Optional[DataFrame] = df_beta_vak
+        self.beta_traject: Optional[float] = beta_traject
         self.traject_normering: TrajectNormering = traject_normering
         self.export_dir: str = export_dir
 
@@ -126,7 +126,6 @@ class GraphBetaValuesSingleInteractive:
         self.annotation_label = []
 
         # Logic
-        self._prep_data()
         self._add_backgrond()
         self._add_beta_per_traject()
         self._add_beta_per_vak()
@@ -134,32 +133,30 @@ class GraphBetaValuesSingleInteractive:
         self._update_layout()
         self._optionally_export()
 
-    def _prep_data(self):
-        self.df["Scenario_B"] = self.df["Scenario_Pf"].apply(lambda x: -1 * sct.norm.ppf(x))
-        self.df["Vak_Section_B"] = self.df["Vak_Section_Pf"].apply(lambda x: -1 * sct.norm.ppf(x))
-        self.df["Traject_B_ondergrens"] = self.df["Traject_Pf_ondergrens"].apply(lambda x: -1 * sct.norm.ppf(x))
-
     def _add_backgrond(self):
 
         cg = self.traject_normering.riskeer_categorie_grenzen
         x_line = np.linspace(self.m_start, self.m_end)
 
-        # Vak ID-label
+        # Add 'Vak ID'-label
         self.annotation_vak.append(dict(
             x=0.5, y=np.log10(2.1), text="Vak ID:", showarrow=False, xanchor="left", yanchor="bottom",
             font=dict(color="black")))
 
-        for _, vak in self.df.iterrows():
-            self.vak_lines.append(dict(
-                x0=vak["M_VAN"], x1=vak["M_VAN"], y0=0, y1=1, xref="x", yref="paper",
-                line=dict(color="black", width=1)))
-            self.vak_lines.append(dict(
-                x0=vak["M_TOT"], x1=vak["M_TOT"], y0=0, y1=1, xref="x", yref="paper",
-                line=dict(color="black", width=1)))
-            self.annotation_vak.append(dict(
-                x=(vak["M_VAN"] + vak["M_TOT"]) / 2, y=np.log10(2), text=vak["dijkvaknummer"], showarrow=False,
-                xanchor="center", yanchor="bottom", font=dict(color="black")))
+        # Add vertical lines and vak label
+        if self.df_beta_vak is not None:
+            for _, vak in self.df_beta_vak.iterrows():
+                self.vak_lines.append(dict(
+                    x0=vak["m_start"], x1=vak["m_start"], y0=0, y1=1, xref="x", yref="paper",
+                    line=dict(color="black", width=1)))
+                self.vak_lines.append(dict(
+                    x0=vak["m_end"], x1=vak["m_end"], y0=0, y1=1, xref="x", yref="paper",
+                    line=dict(color="black", width=1)))
+                self.annotation_vak.append(dict(
+                    x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2), text=vak["id"], showarrow=False,
+                    xanchor="center", yanchor="bottom", font=dict(color="black")))
 
+        # Add category colors
         for i, grens in enumerate(cg):
             if cg[grens][0] <= 0:
                 cg[grens][0] = np.log10(2)
@@ -180,41 +177,42 @@ class GraphBetaValuesSingleInteractive:
                 showarrow=False, xanchor="left", yanchor="middle", font=dict(color="black", size=10), align="right"))
 
     def _add_beta_per_vak(self):
-        # TODO: Phase out advise
+        if self.df_beta_vak is None:
+            return
 
         # Plotting vak lines
         first = True
-        for _, row in self.df.iterrows():
+        for _, row in self.df_beta_vak.iterrows():
             self.fig.add_trace(go.Scatter(
-                x=[row["M_VAN"], row["M_TOT"]], y=[row["Vak_Section_B"], row["Vak_Section_B"]], mode="lines",
+                x=[row["m_start"], row["m_end"]], y=[row["beta"], row["beta"]], mode="lines",
                 line=dict(color="black", width=2.5), name="Beta vakken", legendgroup="Beta vakken", showlegend=first,
-                customdata=[[row["dijkvaknummer"], row["Vak_Section_B"]]] * 2,
+                customdata=[[row["id"], row["beta"]]] * 2,
                 hovertemplate="ID: %{customdata[0]}<br>" +
                               "Beta: %{customdata[1]:.3f}"))
             first = False
 
         # Above range triangle
-        mask_high = self.df["Vak_Section_B"] > BETA_MAX
+        mask_high = self.df_beta_vak["beta"] > BETA_MAX
         first = True
-        for _, row in self.df.loc[mask_high].iterrows():
+        for _, row in self.df_beta_vak.loc[mask_high].iterrows():
             hovertemplate = ("ID: %{customdata[0]}<br>" +
                              "Beta: %{customdata[1]:.3f}<br>")
-            if row["Vak_Section_B"] == np.inf:
+            if row["beta"] == np.inf:
                 hovertemplate = ("ID: %{customdata[0]}<br>" +
                                  "Beta: inf <br>")
             self.fig.add_trace(go.Scatter(
-                x=[(row["M_VAN"] + row["M_TOT"]) / 2], y=[BETA_MAX-0.1], mode="markers",
+                x=[(row["m_start"] + row["m_end"]) / 2], y=[BETA_MAX-0.1], mode="markers",
                 marker=dict(color="black", symbol="triangle-up", size=9), name="Beta vakken (above plotted range)",
-                customdata=[[row["dijkvaknummer"], row["Vak_Section_B"]]], hovertemplate=hovertemplate,
+                customdata=[[row["id"], row["beta"]]], hovertemplate=hovertemplate,
                 legendgroup="Beta vakken", showlegend=first))
             first = False
 
         # Below range triangle
-        mask_low = self.df["Vak_Section_B"] < BETA_MIN
+        mask_low = self.df_beta_vak["beta"] < BETA_MIN
         first = True
-        for _, row in self.df.loc[mask_low].iterrows():
+        for _, row in self.df_beta_vak.loc[mask_low].iterrows():
             self.fig.add_trace(go.Scatter(
-                x=[(row["M_VAN"] + row["M_TOT"]) / 2], y=[BETA_MIN+0.1], mode="markers",
+                x=[(row["m_start"] + row["m_end"]) / 2], y=[BETA_MIN+0.1], mode="markers",
                 marker=dict(color="black", symbol="triangle-down", size=9), name="Beta vakken (below plotted range)",
                 customdata=[[row["id"], row["beta"]]], legendgroup="Beta vakken", showlegend=first,
                 hovertemplate="ID: %{customdata[0]}<br>" +
@@ -222,11 +220,10 @@ class GraphBetaValuesSingleInteractive:
             first = False
 
     def _add_beta_per_traject(self):
-        beta_traject: float = self.df["Traject_B_ondergrens"].iloc[0]
         self.fig.add_trace(go.Scatter(
-            x=[self.m_start, self.m_end], y=[beta_traject, beta_traject], mode="lines",
+            x=[self.m_start, self.m_end], y=[self.beta_traject, self.beta_traject], mode="lines",
             line=dict(color="black", width=2.5, dash="dash"), name="Beta traject", showlegend=True,
-            customdata=[[beta_traject]] * 2, hovertemplate="Beta: %{customdata[0]:.3f}"))
+            customdata=[[self.beta_traject]] * 2, hovertemplate="Beta: %{customdata[0]:.3f}"))
 
     def _update_layout(self):
         annotation = self.annotation_vak + self.annotation_label
@@ -257,3 +254,13 @@ class GraphBetaValuesSingleInteractive:
         timestamp_str = f"{timestamp}_"
         self.fig.write_html(
             os.path.join(self.export_dir, f"{timestamp_str}betrouwbaarheidsindex.html"), include_plotlyjs='cdn')
+
+
+def _validate_input(self: GraphBetaValuesSingleInteractive):
+    if self.df_beta_vak is not None:
+        vak_columns = self.df_beta_vak.columns
+        assert "id" in vak_columns, f"Required column 'id' not found in df_beta_vak."
+        assert "m_start" in vak_columns, f"Required column 'm_start' not found in df_beta_vak."
+        assert "m_end" in vak_columns, f"Required column 'm_end' not found in df_beta_vak."
+        assert "beta" in vak_columns, (f"Required column 'beta' not found in df_beta_vak.\n"
+                                       f"If you only have pf, use scipy.stats.norm.ppf(x) to convert to beta.")
