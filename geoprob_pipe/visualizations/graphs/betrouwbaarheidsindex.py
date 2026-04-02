@@ -106,14 +106,14 @@ class GraphBetaValuesSingleInteractive:
         :param export_dir:
         """
 
-        # Validate input
-        _validate_input(self)
-
         # Input
         self.df_beta_vak: Optional[DataFrame] = df_beta_vak
         self.beta_traject: Optional[float] = beta_traject
         self.traject_normering: TrajectNormering = traject_normering
         self.export_dir: str = export_dir
+
+        # Validate input
+        _validate_input(self)
 
         # Parameters
         self.fig = go.Figure()
@@ -127,7 +127,7 @@ class GraphBetaValuesSingleInteractive:
 
         # Logic
         self._add_backgrond()
-        self._add_beta_per_traject()
+        self._add_beta_traject()
         self._add_beta_per_vak()
         # self._add_beta_per_scenario()  # TODO: Try to find and show nicely
         self._update_layout()
@@ -219,7 +219,7 @@ class GraphBetaValuesSingleInteractive:
                               "Beta: %{customdata[1]:.3f}<br>"))
             first = False
 
-    def _add_beta_per_traject(self):
+    def _add_beta_traject(self):
         self.fig.add_trace(go.Scatter(
             x=[self.m_start, self.m_end], y=[self.beta_traject, self.beta_traject], mode="lines",
             line=dict(color="black", width=2.5, dash="dash"), name="Beta traject", showlegend=True,
