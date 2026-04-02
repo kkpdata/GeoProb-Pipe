@@ -1,5 +1,5 @@
 dotenv
-pandas
+pandas<3.0
 pydra-core
 # TODO Later Should Middel: Er bestaat ook een Python-wrapper voor Hydra-Ring. Pydra-core vervangen?
 openpyxl
