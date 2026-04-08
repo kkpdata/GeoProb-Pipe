@@ -1,5 +1,8 @@
 
 CHANGELOG = {
+    "1.5.6":
+        "Hotfix: Vergelijken resultaten hield nog rekening met oude assemblage. De beta_scenario-tabel was aangepast "
+        "sindsdien.",
     "1.5.5":
         "Implementatie van warning wanneer je applicatie versie niet gelijk is aan het bestand dat je gebruikt.",
     "1.5.3":
