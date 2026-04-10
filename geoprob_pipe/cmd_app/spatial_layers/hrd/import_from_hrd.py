@@ -44,8 +44,8 @@ def _ask_path_to_hrd_dir() -> str:
     filepath_is_valid = False
     while filepath_is_valid is False:
         filepath: str = inquirer.text(
-            message="Specificeer het volledige bestandspad naar de bestandsmap met de Hydra-NL database bestanden. "
-                    "Dat zijn de hlcd, config.sqlite en het .sqlite-database bestand.",
+            message="Specificeer het volledige pad naar de bestandsmap met de Hydra-NL database. "
+                    "Dat zijn de hlcd, config en het database .sqlite-bestand zelf.",
         ).execute()
 
         filepath = filepath.replace('"', '')
@@ -68,7 +68,9 @@ def _ask_path_to_hrd_dir() -> str:
 def _add_hrd_locations_to_database(app_settings: ApplicationSettings, hrd_dir: str):
 
     # Add HRD locations to GeoPackage
+    print(f"{hrd_dir=}")
     hrd_path = hrd_file_path(hrd_dir=hrd_dir)
+    print(f"{hrd_path=}")
     hrd = pydra.HRDatabase(hrd_path)
     location_names = hrd.locationnames
     hrd_location_rows = []
@@ -145,11 +147,13 @@ def _get_traject_id(hrd_dir: str) -> Tuple[int, str]:
     """ Queries first the HRD for the integer ID of the traject.
     Then queries the HLCD to find the textual traject ID.
     """
+    print(f"_get_traject_id")
     conn = sqlite3.connect(hrd_file_path(hrd_dir=hrd_dir))
     cursor = conn.cursor()
     query = "SELECT TrackID FROM General;"
     cursor.execute(query)
     track_id = cursor.fetchone()[0]
+    print(f"{track_id=}")
     conn.close()
 
     conn = sqlite3.connect(_hlcd_file_path(hrd_dir=hrd_dir))
@@ -157,6 +161,7 @@ def _get_traject_id(hrd_dir: str) -> Tuple[int, str]:
     query = f"SELECT Name FROM Tracks WHERE TrackID={track_id};"
     cursor.execute(query)
     traject_id = cursor.fetchone()[0]
+    print(f"{traject_id=}")
     conn.close()
 
     return track_id, traject_id
@@ -193,6 +198,7 @@ def _add_traject_parameters(app_settings: ApplicationSettings, hrd_dir: str):
 
     # Gather data
     traject_id = _get_traject_id(hrd_dir=hrd_dir)[1].strip()
+    print(f"{traject_id=}")
     signaleringswaarde, ondergrens = _query_dijktrajecten(traject_id=traject_id)
     w: float = 0.24  # Assumed to be always 24% in case of HRD database
     is_bovenrivierengebied: bool = _ask_is_bovenrivierengebied()
@@ -202,7 +208,7 @@ def _add_traject_parameters(app_settings: ApplicationSettings, hrd_dir: str):
     conn = sqlite3.connect(file_path)
     cursor = conn.cursor()
     cursor.execute(
-        f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('traject_id', {traject_id});")
+        f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('traject_id', '{traject_id}');")
     cursor.execute(
         f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') "
         f"VALUES ('signaleringswaarde', {signaleringswaarde});")

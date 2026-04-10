@@ -69,7 +69,7 @@ def _add_traject_parameters(other_gpkg_path: str, app_settings: ApplicationSetti
     conn = sqlite3.connect(app_settings.geopackage_filepath)
     cursor = conn.cursor()
     cursor.execute(
-        f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('traject_id', {traject_id});")
+        f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('traject_id', '{traject_id}');")
     cursor.execute(
         f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') "
         f"VALUES ('signaleringswaarde', {signaleringswaarde});")

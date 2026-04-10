@@ -1,6 +1,7 @@
 from __future__ import annotations
 from InquirerPy import inquirer
 from typing import TYPE_CHECKING
+import sys
 from geoprob_pipe.utils.validation_messages import BColors
 from geoprob_pipe.cmd_app.spatial_layers.hrd.import_from_hrd import import_from_hrd
 from geoprob_pipe.cmd_app.spatial_layers.hrd.import_from_other_geopackage import import_from_other_geopackage
@@ -202,13 +203,21 @@ def _hrd_data_imported(app_settings: ApplicationSettings) -> bool:
 
 
 def _ask_for_import_method() -> str:
-    choices_list = ["Hydra-NL database", "Ander GeoProb-Pipe bestand"]
+    choices_list = [
+        "Hydra-NL database",
+        "Ander GeoProb-Pipe bestand",
+        "Applicatie afsluiten",
+    ]
     choice = inquirer.select(
         message=f"Welke bron wil je gebruiken voor de Hydra-NL data?",
         choices=choices_list, default=choices_list[0]).execute()
     if choice == choices_list[0]:
         return "from_hrd"
-    return "from_other_geopackage"
+    elif choice == choices_list[1]:
+        return "from_other_geopackage"
+    elif choice == choices_list[2]:
+        sys.exit(f"Applicatie is afgesloten.")
+    raise NotImplementedError(f"Unknown choice '{choice}'. Contact the developer.")
 
 
 def added_hrd_fragility_curves(app_settings: ApplicationSettings):
