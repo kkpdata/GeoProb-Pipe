@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 from pandas import DataFrame, isna, notna, concat, read_sql, read_csv, set_option
 import sqlite3
 import numpy as np
@@ -36,6 +36,40 @@ def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
         sql=f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}' AND kans < 1.0;",
         con=conn)
     conn.close()
+
+    # Filter beta > 8 (probabilistic library cannot work with that in 26.1.1)
+    df_frag_line['beta'] = -sct.norm.ppf(df_frag_line['kans'])
+    df_frag_line = df_frag_line[df_frag_line['beta'] < 8.0].copy(deep=True)
+    df_frag_line = df_frag_line.drop(columns=["beta"])
+
+    # Validate
+    assert df_frag_line.__len__() > 2
+    # It should be validated beforehand that all added fragility lines are at least 3 points. So if this assert triggers
+    # something should be improved earlier in validation.
+
+    # Construct Fragility Values
+    df_frag_line = df_frag_line.sort_values(by=["waarde"])
+    frag_points = []
+    for index, row in df_frag_line.iterrows():
+        fc = FragilityValue()
+        fc.x = row["waarde"]
+        fc.probability_of_failure = row["kans"]
+        frag_points.append(fc)
+
+    return frag_points
+
+
+def _gather_other_freq_line(ref: str, tables: InputParameterTables):
+    """ Gather a freq line that is not from the HRD-database, and not from a .csv-file. It originates from the Excel,
+    either directly from the Excel, or imported into the 'fragility_values_invoer_hrd'-database table.
+
+    :param ref:
+    :param tables:
+    :return:
+    """
+
+    df_data = tables.df_fragility_values_invoer
+    df_frag_line = df_data[df_data["fragility_values_ref"] == ref].copy(deep=True)
 
     # Filter beta > 8 (probabilistic library cannot work with that in 26.1.1)
     df_frag_line['beta'] = -sct.norm.ppf(df_frag_line['kans'])
@@ -100,8 +134,11 @@ def _collect_fragility_values(
     :return: Returns a dataframe with columns fragility_values_ref and fragility_values.
     """
 
+    # Non-HRD and non-csv available freqs
     df_frag_invoer = tables.df_fragility_values_invoer
     available_frag_invoer_refs = df_frag_invoer['fragility_values_ref'].unique()
+
+    # Collect freqs
     return_array = []
     for fragility_ref in fragility_refs:
 
@@ -121,7 +158,9 @@ def _collect_fragility_values(
 
         # Otherwise, retrieve custom curve from Excel (previously stored in GeoPackage)
         else:
-            raise NotImplementedError(f"Should now retrieve it from the df_frag_invoer.")  # TODO
+            return_array.append({
+                "fragility_values_ref": fragility_ref,
+                "fragility_values": _gather_other_freq_line(ref=fragility_ref, tables=tables)})
 
     # Build dataframe
     if return_array.__len__() == 0:
@@ -300,18 +339,23 @@ def _concat_collection(collection: Dict[str, DataFrame]):
     return return_df[["parameter_name", "vak_id", "uittredepunt_id", "ondergrondscenario_naam", "parameter_input"]]
 
 
-def run_expand_input_tables(geopackage_filepath: str, add_frag_ref: bool = False) -> DataFrame:
+def run_expand_input_tables(
+        geopackage_filepath: str, add_frag_ref: bool = False, tables: Optional[InputParameterTables] = None,
+) -> DataFrame:
     """ Performs logic to expand all parameter input from different levels to input on uittredepunt-level.
 
     :param geopackage_filepath:
     :param add_frag_ref: Indien True, dan wordt voor parameter input met een distribution_type 'cdf_curve' de referentie
         naar de invoer behouden. Deze is niet nodig voor de berekeningen, maar wordt wel gebruikt voor de visualisaties.
+    :param tables:
     :return: DataFrame with columns parameter_name, vak_id, uittredepunt_id, ondergrondscenario_naam and
         parameter_input.
     """
 
+    if tables is None:
+        tables = InputParameterTables(geopackage_filepath=geopackage_filepath)
+
     # Construct df_parameter_invoer_combined
-    tables = InputParameterTables(geopackage_filepath=geopackage_filepath)
     df_parameter_invoer_combined1 = _combine_parameter_invoer_sources(tables=tables)
     df_parameter_invoer_combined2 = _add_fragility_values_to_combined_parameter_invoer(
         df_parameter_invoer_combined=df_parameter_invoer_combined1, tables=tables,

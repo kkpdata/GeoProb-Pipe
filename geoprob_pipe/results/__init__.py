@@ -97,3 +97,34 @@ class Results:
 
         if bool_beta_vakken:
             self.df_beta_vakken.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_vakken.xlsx"))
+
+
+# Traceback (most recent call last):
+#   File "C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV4\GeoProb-Pipe\geoprob_pipe\calculations\systems\build_and_run.py", line 93, in _worker
+#     calc = _BUILDER.build_instance(row_unique=row_unique)
+#            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#   File "C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV4\GeoProb-Pipe\geoprob_pipe\calculations\systems\base_objects\base_system_build.py", line 104, in build_instance
+#     calc = _generate_single_calculation(
+#            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#   File "C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV4\GeoProb-Pipe\geoprob_pipe\calculations\systems\base_objects\base_system_build.py", line 62, in _generate_single_calculation
+#     calculation_input = _gather_calculation_input(
+#                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+#   File "C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV4\GeoProb-Pipe\geoprob_pipe\calculations\systems\base_objects\base_system_build.py", line 47, in _gather_calculation_input
+#     df['parameter_input'] = df.apply(
+#                             ^^^^^^^^^
+#   File "C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV4\.venv\Lib\site-packages\pandas\core\frame.py", line 10401, in apply
+#     return op.apply().__finalize__(self, method="apply")
+#            ^^^^^^^^^^
+#   File "C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV4\.venv\Lib\site-packages\pandas\core\apply.py", line 916, in apply
+#     return self.apply_standard()
+#            ^^^^^^^^^^^^^^^^^^^^^
+#   File "C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV4\.venv\Lib\site-packages\pandas\core\apply.py", line 1063, in apply_standard
+#     results, res_index = self.apply_series_generator()
+#                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#   File "C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV4\.venv\Lib\site-packages\pandas\core\apply.py", line 1081, in apply_series_generator
+#     results[i] = self.func(v, *self.args, **self.kwargs)
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#   File "C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV4\GeoProb-Pipe\geoprob_pipe\calculations\systems\base_objects\base_system_build.py", line 48, in <lambda>
+#     lambda row2: {**row2['parameter_input'], 'name': row2['parameter_name']}, axis=1)
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# TypeError: 'float' object is not a mapping

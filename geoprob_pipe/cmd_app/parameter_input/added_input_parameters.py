@@ -71,8 +71,9 @@ def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSetting
         raise ValueError
 
 
-def validate_expanded_input_tables(app_settings: ApplicationSettings) -> bool:
-    df_expanded = run_expand_input_tables(geopackage_filepath=app_settings.geopackage_filepath)
+def validate_expanded_input_tables(
+        app_settings: ApplicationSettings, tables: Optional[InputParameterTables] = None) -> bool:
+    df_expanded = run_expand_input_tables(geopackage_filepath=app_settings.geopackage_filepath, tables=tables)
     df_nans = df_expanded[df_expanded['parameter_input'].isna()]
 
     # No issues?
@@ -235,7 +236,8 @@ def process_input_exist_in_db(app_settings: ApplicationSettings):
 
     # Validate expanded tables
     validity_extended_tables: Optional[bool] = None
-    if validity_raw_tables: validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings)
+    if validity_raw_tables:
+        validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings, tables=tables)
 
     # Provide user with follow-up options
     inquire_to_import_export_tables_and_figures_or_continue(
@@ -266,7 +268,8 @@ def process_import_input(app_settings: ApplicationSettings):
 
     # Validate expanded tables
     validity_extended_tables: Optional[bool] = None
-    if validity_raw_tables: validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings)
+    if validity_raw_tables:
+        validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings, tables=tables)
 
     # Provide user with follow-up options
     inquire_to_store_input_tables_to_db(app_settings=app_settings, tables=tables)

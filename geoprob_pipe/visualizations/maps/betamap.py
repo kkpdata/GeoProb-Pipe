@@ -122,22 +122,7 @@ class BetaMap:
 
         # Setup of beta category limits
         self.cg: Dict[str, List] = self.geoprob_pipe.input_data.traject_normering.riskeer_categorie_grenzen
-        print(f"{self.cg=}")
         self.labels: List[str] = list(self.cg.keys())
-        # self.labels: List[str] = ["+III", "+II", "+I", "0", "-I", "-II", "-III"]
-
-        # print(f"{self.len_cg=}")
-
-        # self.marker_colors: Dict = ...
-
-        # self.color1 = (self.cg[self.labels[0]][1] - self.cg[self.labels[6]][0]) / self.len_cg
-        # self.color2 = (self.cg[self.labels[1]][1] - self.cg[self.labels[6]][0]) / self.len_cg
-        # self.color3 = (self.cg[self.labels[2]][1] - self.cg[self.labels[6]][0]) / self.len_cg
-        # self.color4 = (self.cg[self.labels[3]][1] - self.cg[self.labels[6]][0]) / self.len_cg
-        # self.color5 = (self.cg[self.labels[4]][1] - self.cg[self.labels[6]][0]) / self.len_cg
-        # self.color6 = (self.cg[self.labels[5]][1] - self.cg[self.labels[6]][0]) / self.len_cg
-        # self.color7 = (self.cg[self.labels[6]][1] - self.cg[self.labels[6]][0]) / self.len_cg
-        # self.color8 = (self.cg[self.labels[6]][0] - self.cg[self.labels[6]][0]) / self.len_cg
 
     def _setup_gdf(self):
         self.hoverdata = ["uittredepunt_id", "converged", "beta"]
@@ -188,7 +173,6 @@ class BetaMap:
             lon=self.gdf_latlon.geometry.x,
             marker=dict(size=9, color="black"),
             showlegend=False))
-        print(f"{_generate_colorscale(cg=self.cg, labels=self.labels)=}")
         self.fig.add_trace(go.Scattermap(
             mode='markers',
             lat=self.gdf_latlon.geometry.y,   # direct uit geometrie
