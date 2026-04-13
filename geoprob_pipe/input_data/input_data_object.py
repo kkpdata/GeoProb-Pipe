@@ -142,7 +142,8 @@ class InputData:
         self.uittredepunten = Uittredepunten(self.app_settings)
         self.scenarios = Scenarios(self.app_settings)
         self.vakken = Vakken(self.app_settings)
-        self.hydra_nl_data = HydraNLData(self.app_settings)
+        # self.hydra_nl_data = HydraNLData(self.app_settings)
+        # TODO: Uitgezet, lijkt niet gebruikt te worden. Maar waarom wordt het niet gebruikt?
 
     @property
     def geohydrologisch_model(self) -> str:

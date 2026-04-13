@@ -7,6 +7,7 @@ from geoprob_pipe.cmd_app.spatial_layers import (
 from geoprob_pipe.cmd_app.spatial_joins import (
     coupled_hrd_to_uittredepunten, coupled_distances_to_uittredepunten, coupled_polderpeil_to_uittredepunten,
     coupled_uittredepunten_to_refline, coupled_uittredepunten_to_vakken, coupled_mv_exit_to_gis_parameter_invoer_table)
+from geoprob_pipe.cmd_app.general.traject_parameters import added_traject_parameters
 from geoprob_pipe.cmd_app.parameter_input.added_input_parameters import added_input_parameter_data
 from typing import TYPE_CHECKING
 from geoprob_pipe.cmd_app.run_calculations.run import run_calculations
@@ -32,6 +33,7 @@ def questionnaire(app_settings: ApplicationSettings):
     if not added_vakindeling(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not added_hrd_fragility_curves(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     # if not added_hrd(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
+    if not added_traject_parameters(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not added_uittredepunten(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not added_polderpeil(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not added_binnenteenlijn(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)

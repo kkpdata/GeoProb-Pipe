@@ -228,4 +228,3 @@ def import_from_hrd(app_settings: ApplicationSettings):
     _add_hrd_locations_to_database(app_settings=app_settings, hrd_dir=hrd_dir)
     _add_hrd_overschrijdingsfrequentielijnen(hrd_dir=hrd_dir, app_settings=app_settings)
     _add_traject_parameters(app_settings=app_settings, hrd_dir=hrd_dir)
-
