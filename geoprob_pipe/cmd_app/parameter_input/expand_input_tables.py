@@ -1,5 +1,5 @@
 from typing import Dict, List
-from pandas import DataFrame, isna, notna, concat, read_sql, read_csv
+from pandas import DataFrame, isna, notna, concat, read_sql, read_csv, set_option
 import sqlite3
 import numpy as np
 import os
@@ -139,8 +139,9 @@ def _add_fragility_values_to_combined_parameter_invoer(
     df = df_parameter_invoer_combined.copy(deep=True)
 
     # Replace empty values with NaN
-    df['fragility_values_ref'] = df['fragility_values_ref'].replace('', np.nan)
-    df['fragility_values_ref'] = df['fragility_values_ref'].infer_objects(copy=False)
+    set_option('future.no_silent_downcasting', True)
+    new_series = df['fragility_values_ref'].replace('', np.nan).infer_objects(copy=False)
+    df['fragility_values_ref'] = new_series
 
     # Gather referenced fragility value refs
     fragility_refs = df['fragility_values_ref'].dropna().unique()
