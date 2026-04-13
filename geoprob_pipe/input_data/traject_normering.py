@@ -3,7 +3,7 @@ import scipy.stats as sct
 from pandas import DataFrame, read_sql_query
 from shapely import LineString, MultiLineString
 import sqlite3
-from typing import Tuple, Optional, TYPE_CHECKING
+from typing import Tuple, Optional, TYPE_CHECKING, Dict, List
 from geopandas import read_file, GeoDataFrame
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
@@ -95,8 +95,14 @@ class TrajectNormering:
                 -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 30),
             ],
         }
-        self.riskeer_categorie_grenzen = {
-            "+III": [-1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 1000),20],
+
+        # Riskeer categorie grenzen
+        cat_min3_upper_bound = -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 10)
+        lower_bound = 2.0
+        if cat_min3_upper_bound < lower_bound:
+            lower_bound = cat_min3_upper_bound - 0.5
+        self.riskeer_categorie_grenzen: Dict[str, List] = {
+            "+III": [-1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 1000), 20.0],
             "+II": [
                 -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 100),
                 -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 1000)
@@ -113,9 +119,6 @@ class TrajectNormering:
                 -1 * sct.norm.ppf(self.faalkanseis_ondergrens),
                 -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde),
             ],
-            "-II": [
-                -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 10),
-                -1 * sct.norm.ppf(self.faalkanseis_ondergrens)
-            ],
-            "-III": [2, -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 10)],
+            "-II": [cat_min3_upper_bound, -1 * sct.norm.ppf(self.faalkanseis_ondergrens)],
+            "-III": [lower_bound, cat_min3_upper_bound],
         }

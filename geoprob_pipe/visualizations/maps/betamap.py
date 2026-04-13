@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Tuple
 import plotly.graph_objects as go
 import os
 import geopandas as gpd
@@ -60,6 +60,43 @@ def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure,
 
     return fig
 
+def _generate_colorscale(cg: Dict[str, List], labels: List[str]) -> List[Tuple[float, str]]:
+    # cg > category label > [van beta, tot beta]
+    upper_boundary_beta_graph = cg[labels[0]][1]
+    lower_boundary_beta_graph = cg[labels[-1]][0]
+    beta_range_graph = upper_boundary_beta_graph - lower_boundary_beta_graph
+
+    # Calculate intervals (starts with boundary value 1.0, and then decreases)
+    colorscale_intervals: Dict = {}
+    for index, label in enumerate(labels):
+        cg_beta_bovengrens = cg[label][1]
+        colorscale_intervals[index] = (cg_beta_bovengrens - lower_boundary_beta_graph) / beta_range_graph
+
+    # Other end boundary value: 0.0
+    colorscale_intervals[labels.__len__()] = 0.0
+
+    # Color scale
+    colors = ["rgb(30,141,41)", "rgb(146,206,90)", "rgb(198,226,176)", "rgb(255,255,0)", "rgb(254,165,3)",
+              "rgb(255,0,0)", "rgb(177,33,38)"]
+    colorscale = [
+        (colorscale_intervals[7], colors[6]),
+        (colorscale_intervals[6], colors[6]),
+        (colorscale_intervals[6], colors[5]),
+        (colorscale_intervals[5], colors[5]),
+        (colorscale_intervals[5], colors[4]),
+        (colorscale_intervals[4], colors[4]),
+        (colorscale_intervals[4], colors[3]),
+        (colorscale_intervals[3], colors[3]),
+        (colorscale_intervals[3], colors[2]),
+        (colorscale_intervals[2], colors[2]),
+        (colorscale_intervals[2], colors[1]),
+        (colorscale_intervals[1], colors[1]),
+        (colorscale_intervals[1], colors[0]),
+        (colorscale_intervals[0], colors[0]),
+    ]
+
+    return colorscale
+
 
 class BetaMap:
 
@@ -84,45 +121,34 @@ class BetaMap:
         self.inp_point = self.inp_point[mask]
 
         # Setup of beta category limits
-        self.cg = (self.geoprob_pipe.input_data.traject_normering
-                   .riskeer_categorie_grenzen)
-        self.colors = ["rgb(30,141,41)", "rgb(146,206,90)",
-                       "rgb(198,226,176)", "rgb(255,255,0)",
-                       "rgb(254,165,3)", "rgb(255,0,0)",
-                       "rgb(177,33,38)"]
-        self.labels = ["+III", "+II", "+I", "0", "-I", "-II", "-III"]
+        self.cg: Dict[str, List] = self.geoprob_pipe.input_data.traject_normering.riskeer_categorie_grenzen
+        print(f"{self.cg=}")
+        self.labels: List[str] = list(self.cg.keys())
+        # self.labels: List[str] = ["+III", "+II", "+I", "0", "-I", "-II", "-III"]
 
-        self.len_cg = self.cg[self.labels[0]][1] - self.cg[self.labels[6]][0]
+        # print(f"{self.len_cg=}")
 
-        self.color1 = ((self.cg[self.labels[0]][1]
-                        - self.cg[self.labels[6]][0]) / self.len_cg)
-        self.color2 = ((self.cg[self.labels[1]][1]
-                        - self.cg[self.labels[6]][0]) / self.len_cg)
-        self.color3 = ((self.cg[self.labels[2]][1]
-                        - self.cg[self.labels[6]][0]) / self.len_cg)
-        self.color4 = ((self.cg[self.labels[3]][1]
-                        - self.cg[self.labels[6]][0]) / self.len_cg)
-        self.color5 = ((self.cg[self.labels[4]][1]
-                        - self.cg[self.labels[6]][0]) / self.len_cg)
-        self.color6 = ((self.cg[self.labels[5]][1]
-                        - self.cg[self.labels[6]][0]) / self.len_cg)
-        self.color7 = ((self.cg[self.labels[6]][1]
-                        - self.cg[self.labels[6]][0]) / self.len_cg)
-        self.color8 = ((self.cg[self.labels[6]][0]
-                        - self.cg[self.labels[6]][0]) / self.len_cg)
+        # self.marker_colors: Dict = ...
+
+        # self.color1 = (self.cg[self.labels[0]][1] - self.cg[self.labels[6]][0]) / self.len_cg
+        # self.color2 = (self.cg[self.labels[1]][1] - self.cg[self.labels[6]][0]) / self.len_cg
+        # self.color3 = (self.cg[self.labels[2]][1] - self.cg[self.labels[6]][0]) / self.len_cg
+        # self.color4 = (self.cg[self.labels[3]][1] - self.cg[self.labels[6]][0]) / self.len_cg
+        # self.color5 = (self.cg[self.labels[4]][1] - self.cg[self.labels[6]][0]) / self.len_cg
+        # self.color6 = (self.cg[self.labels[5]][1] - self.cg[self.labels[6]][0]) / self.len_cg
+        # self.color7 = (self.cg[self.labels[6]][1] - self.cg[self.labels[6]][0]) / self.len_cg
+        # self.color8 = (self.cg[self.labels[6]][0] - self.cg[self.labels[6]][0]) / self.len_cg
 
     def _setup_gdf(self):
         self.hoverdata = ["uittredepunt_id", "converged", "beta"]
 
-        self.df = self.res_sc.merge(self.inp_point, on="uittredepunt_id",
-                                    how="inner")
+        self.df = self.res_sc.merge(self.inp_point, on="uittredepunt_id", how="inner")
         idx = self.df.groupby(["uittredepunt_id"])["beta"].idxmin()
         self.df = self.df.loc[idx]
 
         self.gdf = gpd.GeoDataFrame(
-            self.df, geometry=gpd.points_from_xy(
-                self.inp_point.geometry.x, self.inp_point.geometry.y
-                ),
+            self.df,
+            geometry=gpd.points_from_xy(self.inp_point.geometry.x, self.inp_point.geometry.y),
             crs="EPSG:28992")
         # Transformeer naar WGS84 (latitude / longitude)
         self.gdf_latlon = self.gdf.to_crs("EPSG:4326")
@@ -160,12 +186,9 @@ class BetaMap:
             mode="markers",
             lat=self.gdf_latlon.geometry.y,
             lon=self.gdf_latlon.geometry.x,
-            marker=dict(
-                size=9,
-                color="black"
-                ),
-            showlegend=False
-            ))
+            marker=dict(size=9, color="black"),
+            showlegend=False))
+        print(f"{_generate_colorscale(cg=self.cg, labels=self.labels)=}")
         self.fig.add_trace(go.Scattermap(
             mode='markers',
             lat=self.gdf_latlon.geometry.y,   # direct uit geometrie
@@ -173,22 +196,7 @@ class BetaMap:
             marker=dict(
                 size=8,
                 color=self.gdf_latlon['beta'],
-                colorscale=[
-                    (self.color8, self.colors[6]),
-                    (self.color7, self.colors[6]),
-                    (self.color7, self.colors[5]),
-                    (self.color6, self.colors[5]),
-                    (self.color6, self.colors[4]),
-                    (self.color5, self.colors[4]),
-                    (self.color5, self.colors[3]),
-                    (self.color4, self.colors[3]),
-                    (self.color4, self.colors[2]),
-                    (self.color3, self.colors[2]),
-                    (self.color3, self.colors[1]),
-                    (self.color2, self.colors[1]),
-                    (self.color2, self.colors[0]),
-                    (self.color1, self.colors[0])
-                ],
+                colorscale=_generate_colorscale(cg=self.cg, labels=self.labels),
                 cmin=self.cg[self.labels[6]][0],
                 cmax=self.cg[self.labels[0]][1],
                 colorbar=dict(
@@ -260,3 +268,48 @@ class BetaMap:
                 path, 'Faalkansberekening STPH.html'), include_plotlyjs='cdn')
             # self.fig.write_image(os.path.join(
             #     path, 'Faalkansberekening STPH.png'), format='png')
+
+
+# import numpy as np
+#
+# input_value = [
+#     (0.0, 'rgb(177,33,38)'),
+#     (np.float64(0.07794071307696135), 'rgb(177,33,38)'),
+#     (np.float64(0.07794071307696135), 'rgb(255,0,0)'),
+#     (np.float64(0.11043771870038431), 'rgb(255,0,0)'),
+#     (np.float64(0.11043771870038431), 'rgb(254,165,3)'),
+#     (np.float64(0.1258272663290458), 'rgb(254,165,3)'),
+#     (np.float64(0.1258272663290458), 'rgb(255,255,0)'),
+#     (np.float64(0.1529680171568277), 'rgb(255,255,0)'),
+#     (np.float64(0.1529680171568277), 'rgb(198,226,176)'),
+#     (np.float64(0.1777409767884898), 'rgb(198,226,176)'),
+#     (np.float64(0.1777409767884898), 'rgb(146,206,90)'),
+#     (np.float64(0.20066673578748828), 'rgb(146,206,90)'),
+#     (np.float64(0.20066673578748828), 'rgb(30,141,41)'),
+#     (1.0, 'rgb(30,141,41)'),
+# ]
+#
+
+
+
+# cg = {
+#     '+III': [np.float64(5.612001244174789), 20],
+#     '+II': [np.float64(5.1993375821928165), np.float64(5.612001244174789)],
+#     '+I': [np.float64(4.753424308822899), np.float64(5.1993375821928165)],
+#     '0': [np.float64(4.264890793922825), np.float64(4.753424308822899)],
+#     '-I': [np.float64(3.9878789366069176), np.float64(4.264890793922825)],
+#     '-II': [np.float64(3.4029328353853043), np.float64(3.9878789366069176)],
+#     '-III': [2, np.float64(3.4029328353853043)]
+# }
+#
+
+
+# cg= {
+#     '+III': [np.float64(4.264890793922825), 20.0],
+#     '+II': [np.float64(3.7190164854556804), np.float64(4.264890793922825)],
+#     '+I': [np.float64(3.090232306167813), np.float64(3.7190164854556804)],
+#     '0': [np.float64(2.3263478740408408), np.float64(3.090232306167813)],
+#     '-I': [np.float64(2.3263478740408408), np.float64(2.3263478740408408)],
+#     '-II': [np.float64(1.2815515655446004), np.float64(2.3263478740408408)],
+#     '-III': [2.0, np.float64(1.2815515655446004)],
+# }
