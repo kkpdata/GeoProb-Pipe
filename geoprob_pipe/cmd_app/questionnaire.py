@@ -32,7 +32,6 @@ def questionnaire(app_settings: ApplicationSettings):
     if not added_dijktraject(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not added_vakindeling(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not added_hrd_fragility_curves(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
-    # if not added_hrd(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not added_traject_parameters(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not added_uittredepunten(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)
     if not added_polderpeil(app_settings=app_settings): sys.exit(EARLY_EXIT_MESSAGE)

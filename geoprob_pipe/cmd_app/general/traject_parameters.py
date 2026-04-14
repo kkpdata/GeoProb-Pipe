@@ -125,7 +125,6 @@ def _get_signaleringswaarde(app_settings: ApplicationSettings) -> int:
     return int(signaleringswaarde)
 
 
-
 def is_float(s: str) -> bool:
     try:
         _ = float(s.replace('_', ''))
