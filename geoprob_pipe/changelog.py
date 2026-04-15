@@ -1,6 +1,6 @@
 
 CHANGELOG = {
-    "2.0.0":
+    "2.0.1":
         "Breaking changes. "
         "HRD-database is optioneel en dijktraject kan nu primair of regionaal zijn. "
         "Breaking changes vanwege aanpassingen in de GeoPackage-structuur.",
