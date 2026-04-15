@@ -89,7 +89,7 @@ def validate_expanded_input_tables(app_settings: ApplicationSettings) -> bool:
     export_path = os.path.join(export_dir, "validation_missing_parameter_input.xlsx")
     if os.path.exists(export_path):
         os.remove(export_path)
-    df_nans.to_excel(export_path)
+    df_nans.to_excel(export_path, index=False)
     print(f"{BColors.WARNING}Er mist parameter invoer voor {df_nans.__len__()} berekeningen.\n"
           f"Dit is voor {df_nans['parameter_name'].unique().__len__()} unieke parameters, "
           f"{df_nans['uittredepunt_id'].unique().__len__()} unieke uittredepunten en "

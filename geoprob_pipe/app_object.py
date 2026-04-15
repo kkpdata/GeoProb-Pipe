@@ -81,7 +81,7 @@ class GeoProbPipe:
         # Export dataframe with validation messages
         if df_val is not None:
             export_path = os.path.join(self.input_data.app_settings.workspace_dir, "validation_messages.xlsx")
-            df_val.to_excel(export_path)
+            df_val.to_excel(export_path, index=False)
 
     def export_archive(self):
         """ Exports everything related to this project. """

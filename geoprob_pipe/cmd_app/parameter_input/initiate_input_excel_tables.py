@@ -38,6 +38,11 @@ def push_parameter_invoer_tabel(app_settings: ApplicationSettings):
     df_parameter_invoer: DataFrame = df_dummy_data[[
         "name", "distribution_type", "mean", "variation", "deviation"]].copy()
 
+    # Exclude parameters that must be geographically added also
+    # df_parameter_invoer = df_parameter_invoer[
+    #     df_parameter_invoer["name"] not in ["L_intrede", "L_but", "L_bit", "polderpeil", "mv_exit"]
+    # ]
+
     # Rename columns
     df_parameter_invoer = df_parameter_invoer.rename(columns={"name": "parameter"})
 
