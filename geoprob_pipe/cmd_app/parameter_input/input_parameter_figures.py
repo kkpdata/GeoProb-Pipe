@@ -15,10 +15,12 @@ if TYPE_CHECKING:
 
 class InputParameterFigures:
 
-    def __init__(self, app_settings: ApplicationSettings, tables: InputParameterTables, export: bool = False):
+    def __init__(self, app_settings: ApplicationSettings, tables: InputParameterTables, export: bool = False,
+                 export_sub_dir: str = "parameter_input_process"):
         self.app_settings: ApplicationSettings = app_settings
         self.tables: InputParameterTables = tables
         self.export: bool = export
+        self.export_sub_dir: str = export_sub_dir
 
         # Placeholders
         self.df_parameter_invoer: Optional[DataFrame] = None
@@ -434,7 +436,7 @@ class InputParameterFigures:
             self.app_settings.workspace_dir,
             "exports",
             self.app_settings.datetime_stamp,
-            "parameter_input_process")
+            self.export_sub_dir)
         os.makedirs(export_dir, exist_ok=True)
 
         # TODO: Overal hovers toepassen

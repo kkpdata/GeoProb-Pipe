@@ -4,6 +4,10 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional, List
 import pandas as pd
 
+from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
+from geoprob_pipe.cmd_app.parameter_input.input_parameter_figures import InputParameterFigures
+from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
+
 try:
     import probabilistic_library
 except ModuleNotFoundError:
@@ -86,14 +90,27 @@ class GeoProbPipe:
     def export_archive(self):
         """ Exports everything related to this project. """
         logger.info("Now exporting archive...")
+
+        export_dir: str = os.path.join(
+            str(self.input_data.app_settings.workspace_dir), "exports",
+            str(self.input_data.app_settings.datetime_stamp))
+
         self.results.export_results()
         self.visualizations.export_visualizations()
         self.spatial.export_geopackage()
-        # add run metadata to geopackage
+
+        # Parameter invoer als expanded
+        df_expanded = run_expand_input_tables(geopackage_filepath=self.input_data.app_settings.geopackage_filepath)
+        df_expanded.to_excel(
+            excel_writer=os.path.join(export_dir, "input", "df_parameter_invoer_expanded.xlsx"), index=False)
+
+        # Input parameter figures
+        tables = InputParameterTables(geopackage_filepath=self.input_data.app_settings.geopackage_filepath)
+        InputParameterFigures(
+            app_settings=self.input_data.app_settings, tables=tables, export=True, export_sub_dir="input")
+
+        # Add run metadata to geopackage
         update_metadata(self)
         self._export_validation_messages()
 
-        path: str = os.path.join(
-            str(self.input_data.app_settings.workspace_dir), "exports",
-            str(self.input_data.app_settings.datetime_stamp))
-        print(f"Exported archive to {path}")
+        print(f"Exported archive to {export_dir}")
