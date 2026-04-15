@@ -1,48 +1,39 @@
-import os.path
+from __future__ import annotations
 import scipy.stats as sct
+from pandas import DataFrame, read_sql_query
+from shapely import LineString, MultiLineString
 import sqlite3
-from typing import Tuple, Optional, Dict
-from shapely import LineString
-import importlib.resources
+from typing import Tuple, Optional, TYPE_CHECKING, Dict, List
 from geopandas import read_file, GeoDataFrame
+if TYPE_CHECKING:
+    from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
-def _get_traject_id(hrd_path: str, hlcd_path: str) -> Tuple[int, str]:
-    """ Queries first the HRD for the integer ID of the traject.
-    Then queries the HLCD to find the textual traject ID.
-    """
-    conn = sqlite3.connect(hrd_path)
-    cursor = conn.cursor()
-    query = "SELECT TrackID FROM General;"
-    cursor.execute(query)
-    track_id = cursor.fetchone()[0]
+def _data_from_metadata_table(app_settings: ApplicationSettings) -> Tuple[str, bool, int, int, float]:
+    conn = sqlite3.connect(app_settings.geopackage_filepath)
+    df: DataFrame = read_sql_query("SELECT * FROM geoprob_pipe_metadata;", conn)
     conn.close()
 
-    conn = sqlite3.connect(hlcd_path)
-    cursor = conn.cursor()
-    query = f"SELECT Name FROM Tracks WHERE TrackID={track_id};"
-    cursor.execute(query)
-    traject_id = cursor.fetchone()[0]
-    conn.close()
+    traject_id = df[df["metadata_type"] == "traject_id"]["values"].values[0]
+    signaleringswaarde = int(df[df["metadata_type"] == "signaleringswaarde"]["values"].values[0])
+    ondergrens = int(df[df["metadata_type"] == "ondergrens"]["values"].values[0])
+    w = float(df[df["metadata_type"] == "w"]["values"].values[0])
+    is_bovenrivierengebied = bool(int(df[df["metadata_type"] == "is_bovenrivierengebied"]["values"].values[0]))
 
-    return track_id, traject_id
+    return traject_id, is_bovenrivierengebied, signaleringswaarde, ondergrens, w
 
 
-def _query_dijktrajecten(traject_id: str):
-    """ Queries the dijktrajecten.shp that was retrieved from the API of
-    the Waterveiligheidsportaal [1].
-
-    [1] https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/fa4cc54e-26b3-4f25-b643-59458622901c
-    """
-    with importlib.resources.path(
-            package='geoprob_pipe.input_data.dijktrajecten',
-            resource='dijktrajecten.shp') as shp_path:
-        gdf: GeoDataFrame = read_file(shp_path)
-    gdf = gdf[gdf['TRAJECT_ID'] == traject_id]
-    assert gdf.__len__() == 1, ("Only one traject id should have been found."
-                                " Address this issue.")
-    geom: LineString = gdf.iloc[0].geometry
-    return gdf.iloc[0]['NORM_SW'], gdf.iloc[0]['NORM_OG'], geom.length
+def _get_traject_length(app_settings: ApplicationSettings) -> float:
+    gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="dijktraject")
+    gdf_dijktraject_geom = gdf_dijktraject.iloc[0].geometry
+    if isinstance(gdf_dijktraject_geom, MultiLineString):
+        assert gdf_dijktraject_geom.geoms.__len__() == 1
+        ls_dijktraject: LineString = gdf_dijktraject_geom.geoms[0]
+    elif isinstance(gdf_dijktraject_geom, LineString):
+        ls_dijktraject: LineString = gdf_dijktraject_geom
+    else:
+        raise NotImplementedError(f"Type of {type(gdf_dijktraject_geom)} is not yet implemented.")
+    return ls_dijktraject.length
 
 
 class TrajectNormering:
@@ -50,32 +41,20 @@ class TrajectNormering:
     from the HRD-files.
     """
 
-    def __init__(
-            self,
-            hrd_path: str,
-            # Non-existent in HRD? For now as optional parameter.
-            traject_naam: Optional[str] = None,
-            norm_is_ondergrens: bool = True,
-            # Where to find this? For now as manual parameter
-            bovenrivierengebied: bool = True,
-    ):
+    def __init__(self, app_settings: ApplicationSettings, norm_is_ondergrens: bool = True):
 
         # Input
-        self.traject_naam: Optional[str] = traject_naam
-        self.hrd_path = hrd_path
-        self.hlcd_path = os.path.join(os.path.dirname(self.hrd_path),
-                                      "hlcd.sqlite")
-        self.bovenrivierengebied: bool = bovenrivierengebied
+        self.traject_naam: Optional[str] = None  # Placeholder for future implementation
 
         # Parameters
-        self.traject_id: str = _get_traject_id(self.hrd_path,
-                                               self.hlcd_path)[1].strip()
-        signaleringswaarde, ondergrens, traject_lengte = (
-            _query_dijktrajecten(self.traject_id))
+        traject_id, is_bovenrivierengebied, signaleringswaarde, ondergrens, w = _data_from_metadata_table(
+            app_settings=app_settings)
+        self.bovenrivierengebied: bool = is_bovenrivierengebied
+        self.traject_id: str = traject_id
         self.signaleringswaarde: int = signaleringswaarde
         self.ondergrens: int = ondergrens
-        self.w: float = 0.24
-        self.traject_lengte: float = traject_lengte
+        self.w: float = w
+        self.traject_lengte: float = _get_traject_length(app_settings=app_settings)
         self.faalkanseis_signaleringswaarde = 1.0 / self.signaleringswaarde
         self.faalkanseis_ondergrens = 1.0 / self.ondergrens
         self.faalkanseis_norm = self.faalkanseis_ondergrens
@@ -116,8 +95,14 @@ class TrajectNormering:
                 -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 30),
             ],
         }
-        self.riskeer_categorie_grenzen = {
-            "+III": [-1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 1000),20],
+
+        # Riskeer categorie grenzen
+        cat_min3_upper_bound = -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 10)
+        lower_bound = 2.0
+        if cat_min3_upper_bound < lower_bound:
+            lower_bound = cat_min3_upper_bound - 0.5
+        self.riskeer_categorie_grenzen: Dict[str, List] = {
+            "+III": [-1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 1000), 20.0],
             "+II": [
                 -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 100),
                 -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde / 1000)
@@ -134,9 +119,6 @@ class TrajectNormering:
                 -1 * sct.norm.ppf(self.faalkanseis_ondergrens),
                 -1 * sct.norm.ppf(self.faalkanseis_signaleringswaarde),
             ],
-            "-II": [
-                -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 10),
-                -1 * sct.norm.ppf(self.faalkanseis_ondergrens)
-            ],
-            "-III": [2, -1 * sct.norm.ppf(self.faalkanseis_ondergrens * 10)],
+            "-II": [cat_min3_upper_bound, -1 * sct.norm.ppf(self.faalkanseis_ondergrens)],
+            "-III": [lower_bound, cat_min3_upper_bound],
         }

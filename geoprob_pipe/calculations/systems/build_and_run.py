@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, List
 from geoprob_pipe.calculations.systems.mappers.calculation_mapper import (
     CALCULATION_MAPPER)
 from multiprocessing import Pool, cpu_count
-import logging
 from io import StringIO
 import sqlite3
 import traceback

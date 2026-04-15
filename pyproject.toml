@@ -1,7 +1,7 @@
 
 [tool.poetry]
 name = "geoprob_pipe"
-version = "1.5.5"
+version = "2.0.1"
 description = "Execute probabilistic piping calculations using the Deltares probabilic library."
 authors = [
     "Chris Pitzalis <C.Pitzalis@wsrl.nl>",
@@ -21,7 +21,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.12"
-pandas = "<3.0"  # pydra-core is not update to the latest version of pandas
+pandas = "<3.0"  # pydra-core 0.0.10 and earlier is not update to the latest version of pandas.
 scipy = "^1.16.1"
 pydra-core = "^0.0.9"
 geopandas = "^1.1.1"

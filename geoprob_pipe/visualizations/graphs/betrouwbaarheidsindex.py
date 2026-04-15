@@ -95,8 +95,9 @@ class GraphBetaValuesSingleInteractive:
         self.m_start = self.gdf_vakken['m_start'].min()-10
         self.m_end = self.gdf_vakken['m_end'].max()+10
 
-        self.beta_min = 2
-        self.beta_max = 20
+        cg = self.geoprob_pipe.input_data.traject_normering.riskeer_categorie_grenzen
+        self.beta_min = cg["-III"][0]
+        self.beta_max = cg["+III"][1]
 
         self._add_backgrond()
         self._add_beta_per_traject()
@@ -128,7 +129,7 @@ class GraphBetaValuesSingleInteractive:
         x_line = np.linspace(self.m_start, self.m_end)
         self.annotation_vak = []
         self.annotation_vak.append(dict(x=0.5,
-                                        y=np.log10(2.1),
+                                        y=np.log10(self.beta_min + 0.1),
                                         text="Vak ID:",
                                         showarrow=False,
                                         xanchor="left",
@@ -150,7 +151,7 @@ class GraphBetaValuesSingleInteractive:
                 line=dict(color="black", width=1)
                 ))
             self.annotation_vak.append(dict(
-                x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
+                x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(self.beta_min),
                 text=vak["id"],
                 showarrow=False,
                 xanchor="center",
@@ -161,7 +162,7 @@ class GraphBetaValuesSingleInteractive:
         for i, grens in enumerate(cg):
 
             if cg[grens][0] <= 0:
-                cg[grens][0] = np.log10(2)
+                cg[grens][0] = np.log10(self.beta_min)
 
             # Onderste lijn (zichtbaar)
             self.fig.add_trace(
@@ -409,7 +410,7 @@ class GraphBetaValuesSingleInteractive:
                        ),
             yaxis=dict(title="Betrouwbaarheidsindex β [-]",
                        type='log',
-                       range=[np.log10(2), np.log10(20)],
+                       range=[np.log10(self.beta_min), np.log10(self.beta_max)],
                        showgrid=True,
                        gridwidth=0.5,
                        gridcolor="gray",

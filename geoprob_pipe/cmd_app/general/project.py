@@ -105,21 +105,21 @@ def _compare_versions_and_possibly_warn(installed_version: str, file_version: st
     if v_installed.major != v_file.major:
         print(f"\n{BColors.FAIL}SEVERE WARNING:\n"
               f"{version_diff_msg}\n"
-              f"Dit is een versie verschil met major changes. Dit is een risico. Het kan goed zijn dat de applicatie niet "
-              f"compatibel is met je bestand. \n"
+              f"Dit is een versie verschil met major changes. Het kan zijn dat de applicatie en het bestand niet "
+              f"compatibel met elkaar zijn. \n"
               f"{reinstall_msg}"
               f"{BColors.ENDC}\n")
     elif v_installed.minor != v_file.minor:
         print(f"\n{BColors.WARNING}WARNING:\n"
               f"{version_diff_msg}\n"
-              f"Dit is een versie verschil met minor changes. Dit kan mogelijk een probleem zijn tijdens het gebruik van "
+              f"Dit is een versie verschil met minor changes en kan mogelijk een probleem zijn tijdens het gebruik van "
               f"de applicatie. \n"
               f"{reinstall_msg}"
               f"{BColors.ENDC}\n")
     elif v_installed.micro != v_file.micro:
         print(f"\n{BColors.OKBLUE}"
               f"{version_diff_msg}\n"
-              f"Dit verschil is slechts op patch-niveau. Dit is waarschijnlijk geen probleem tijdens het gebruik van "
+              f"Dit verschil is slechts op patch-niveau en waarschijnlijk geen probleem tijdens het gebruik van "
               f"de applicatie. \n"
               f"{reinstall_msg}"
               f"{BColors.ENDC}\n")

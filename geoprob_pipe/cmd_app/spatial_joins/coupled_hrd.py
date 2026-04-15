@@ -4,6 +4,7 @@ TODO Nu Must Klein: Voeg laag toe aan GeoPackage met visuele koppeling tussen HR
 
 from __future__ import annotations
 from geopandas import GeoDataFrame, read_file
+import fiona
 from pathlib import Path
 from geoprob_pipe.cmd_app.spatial_joins.utils import append_hrd_to_gis_join_parameter_invoer_table
 from geoprob_pipe.utils.validation_messages import BColors
@@ -13,6 +14,11 @@ if TYPE_CHECKING:
 
 
 def coupled_hrd_to_uittredepunten(app_settings: ApplicationSettings) -> bool:
+
+    layers = fiona.listlayers(app_settings.geopackage_filepath)
+
+    if "hrd_locaties" not in layers:
+        return True  # Geen Hydra-locatie geïmporteerd, dan ook niks koppelen.
 
     # Getting necessary GeoDataframes
     gdf_exit_points: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")
