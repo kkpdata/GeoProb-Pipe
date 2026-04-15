@@ -4,21 +4,21 @@ from probabilistic_library import DistributionType
 INITIAL_INPUT = [
     {
         "name": "L_intrede",
-        "description": "TODO",  # TODO
+        "description": "De afstand van het uittredepunt tot een geometrische intredelijn.",
         "remark": "",
         "unit": "m",
-        "distribution_type": DistributionType.deterministic,  # TODO
-        "mean": 150.0,  # TODO
-        "source": "spatial",  # TODO
+        "distribution_type": DistributionType.deterministic,
+        "mean": 150.0,
+        "source": "spatial",
     },
     {
         "name": "L_but",
-        "description": "TODO",  # TODO
+        "description": "De afstand van het uittredepunt tot de buitenteen.",
         "remark": "",
         "unit": "m",
-        "distribution_type": DistributionType.deterministic,  # TODO
-        "mean": 150.0,  # TODO
-        "source": "spatial",  # TODO
+        "distribution_type": DistributionType.deterministic,
+        "mean": 100.0,
+        "source": "spatial",
     },
     {
         "name": "polderpeil",
@@ -41,12 +41,12 @@ INITIAL_INPUT = [
     },
     {
         "name": "buitenwaterstand_gemiddeld",
-        "description": "TODO",  # TODO
+        "description": "Gemiddelde rivier waterstand nabij het uittredepunt.",
         "remark": "",
         "unit": "m+NAP",
-        "distribution_type": DistributionType.deterministic,  # TODO
-        "mean": 5.0,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.deterministic,
+        "mean": 1.0,
+        "source": "excel",
     },
     {
         "name": "mv_exit",
@@ -59,12 +59,12 @@ INITIAL_INPUT = [
     },
     {
         "name": "lambda_voorland",
-        "description": "",  # TODO
-        "remark": "",  # TODO
-        "unit": "",  # TODO
-        "distribution_type": DistributionType.deterministic,  # TODO
-        "mean": 50,  # TODO
-        "source": "spatial",  # TODO
+        "description": "Spreidingslengte van het voorland.",
+        "remark": "",
+        "unit": "m",
+        "distribution_type": DistributionType.deterministic,
+        "mean": 50,
+        "source": "spatial",
     },
     {
         "name": "top_zand",
@@ -78,33 +78,33 @@ INITIAL_INPUT = [
     },
     {
         "name": "phi_exit_gemiddeld",
-        "description": "TODO",  # TODO
+        "description": "Gemiddelde stijghoogteniveau bij een gemiddelde rivierwaterstand nabij het uittredepunt.",
         "remark": "",
-        "unit": "m+NAP",  # TODO
-        "distribution_type": DistributionType.normal,  # TODO
-        "mean": -3.0,  # TODO
-        "deviation": 0.5,  # TODO
-        "source": "excel",  # TODO
+        "unit": "m+NAP",
+        "distribution_type": DistributionType.normal,
+        "mean": -0.5,
+        "deviation": 0.5,
+        "source": "excel",
     },
     {
         "name": "r_exit",
-        "description": "TODO",  # TODO
+        "description": "Respons in het uittredepunt.",
         "remark": "",
-        "unit": "-",  # TODO
-        "distribution_type": DistributionType.normal,  # TODO
-        "mean": -0.5,  # TODO
-        "deviation": 0.05,  # TODO
-        "source": "excel",  # TODO
+        "unit": "-",
+        "distribution_type": DistributionType.normal,
+        "mean": 0.5,
+        "deviation": 0.05,
+        "source": "excel",
     },
     {
         "name": "k_wvp",
-        "description": "",  # TODO
-        "remark": "",  # TODO
+        "description": "Doorlatendheid watervoerend pakket.",
+        "remark": "",
         "unit": "m/dag",
-        "distribution_type": DistributionType.log_normal,  # TODO
+        "distribution_type": DistributionType.log_normal,
         "mean": 45.0,
         "variation": 0.35,
-        "source": "excel",  # TODO
+        "source": "excel",
     },
     {
         "name": "modelfactor_h",
@@ -121,40 +121,40 @@ INITIAL_INPUT = [
         "description": "Modelfactor voor fijne fractie.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "modelfactor_3d",
         "description": "Modelfactor voor 3D effecten.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "modelfactor_aniso",
         "description": "Modelfactor voor anisotropie.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "modelfactor_ml",
         "description": "Modelfactor voor meerlaagsheid zandpakket.",
         "remark": "",
         "unit": "[-]",
-        "distribution_type": DistributionType.log_normal,  # TODO
-        "mean": 1.0,  # TODO
-        "variation": 0.1,  # TODO
-        "source": "excel",  # TODO
+        "distribution_type": DistributionType.log_normal,
+        "mean": 1.0,
+        "variation": 0.1,
+        "source": "excel",
     },
     {
         "name": "i_c_h",

@@ -1,5 +1,5 @@
 dotenv
-pandas
+pandas<3.0.0  # pydra-core 0.0.10 and earlier is not update to the latest version of pandas.
 pydra-core
 # TODO Later Should Middel: Er bestaat ook een Python-wrapper voor Hydra-Ring. Pydra-core vervangen?
 openpyxl

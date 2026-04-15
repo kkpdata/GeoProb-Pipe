@@ -1,5 +1,9 @@
 
 CHANGELOG = {
+    "2.0.1":
+        "Breaking changes. "
+        "HRD-database is optioneel en dijktraject kan nu primair of regionaal zijn. "
+        "Breaking changes vanwege aanpassingen in de GeoPackage-structuur.",
     "1.5.6":
         "Hotfix: Vergelijken resultaten hield nog rekening met oude assemblage. De beta_scenario-tabel was aangepast "
         "sindsdien.",
