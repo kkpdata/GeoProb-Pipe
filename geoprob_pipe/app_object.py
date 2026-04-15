@@ -101,8 +101,9 @@ class GeoProbPipe:
 
         # Parameter invoer als expanded
         df_expanded = run_expand_input_tables(geopackage_filepath=self.input_data.app_settings.geopackage_filepath)
-        df_expanded.to_excel(
-            excel_writer=os.path.join(export_dir, "input", "df_parameter_invoer_expanded.xlsx"), index=False)
+        input_dir = os.path.join(export_dir, "input")
+        os.makedirs(input_dir, exist_ok=True)
+        df_expanded.to_excel(excel_writer=os.path.join(input_dir, "df_parameter_invoer_expanded.xlsx"), index=False)
 
         # Input parameter figures
         tables = InputParameterTables(geopackage_filepath=self.input_data.app_settings.geopackage_filepath)
