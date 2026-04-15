@@ -9,16 +9,15 @@ if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
-def _append_to_db(app_settings: ApplicationSettings, key: str, value, is_str: bool = False):
+def _append_to_db(app_settings: ApplicationSettings, key: str, value):
     file_path = app_settings.geopackage_filepath
     conn = sqlite3.connect(file_path)
     cursor = conn.cursor()
-    if is_str:
-        cursor.execute(
-            f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('{key}', '{value}');")
-    else:
-        cursor.execute(
-            f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('{key}', {value});")
+    cursor.execute(
+        """
+        INSERT INTO geoprob_pipe_metadata (metadata_type, "values") VALUES (?, ?);
+        """,
+        (key, value))
     conn.commit()
     cursor.close()
 
@@ -38,7 +37,7 @@ def _specify_traject_id(app_settings: ApplicationSettings):
 
         traject_id_is_valid = True
 
-    _append_to_db(app_settings=app_settings, key='traject_id', value=traject_id, is_str=True)
+    _append_to_db(app_settings=app_settings, key='traject_id', value=traject_id)
 
 
 def is_integer(s: str) -> bool:
@@ -72,7 +71,7 @@ def _specify_signaleringswaarde(app_settings: ApplicationSettings):
 
         signaleringswaarde_is_valid = True
 
-    _append_to_db(app_settings=app_settings, key='signaleringswaarde', value=signaleringswaarde_int, is_str=False)
+    _append_to_db(app_settings=app_settings, key='signaleringswaarde', value=signaleringswaarde_int)
 
 
 def _specify_ondergrens(app_settings: ApplicationSettings, signaleringswaarde: int):
@@ -105,7 +104,7 @@ def _specify_ondergrens(app_settings: ApplicationSettings, signaleringswaarde: i
 
         ondergrens_is_valid = True
 
-    _append_to_db(app_settings=app_settings, key='ondergrens', value=ondergrens_int, is_str=False)
+    _append_to_db(app_settings=app_settings, key='ondergrens', value=ondergrens_int)
 
 
 def _get_signaleringswaarde(app_settings: ApplicationSettings) -> int:
@@ -163,7 +162,7 @@ def _specify_w(app_settings: ApplicationSettings):
 
         w_is_valid = True
 
-    _append_to_db(app_settings=app_settings, key='w', value=w_float, is_str=False)
+    _append_to_db(app_settings=app_settings, key='w', value=w_float)
 
 
 def _specify_is_bovenrivierengebied(app_settings: ApplicationSettings):
@@ -173,7 +172,7 @@ def _specify_is_bovenrivierengebied(app_settings: ApplicationSettings):
     choice_bool = False
     if choice == "Ja":
         choice_bool = True
-    _append_to_db(app_settings=app_settings, key='is_bovenrivierengebied', value=choice_bool, is_str=False)
+    _append_to_db(app_settings=app_settings, key='is_bovenrivierengebied', value=choice_bool)
 
 
 def added_traject_parameters(app_settings: ApplicationSettings) -> bool:
