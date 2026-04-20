@@ -39,7 +39,9 @@ ontwikkelaars. Voor PEP8, de IDE PyCharm heeft deze out of the box ingesteld. Py
 
 
 # Documentatie
-De documentatie genereer je vanuit een kloon van de repository en het volgende commando 
+De live documentatie vind je [hier](https://kkpdata.github.io/GeoProb-Pipe/index.html). 
+
+De development-documentatie genereer je vanuit een kloon van de repository en het volgende commando 
 `sphinx-build -M html docs\ docs\_build`. Je vindt de documentatie daarna terug in de map 
 `GeoProb-Pipe\docs\_build\html\index.html`. Dit bestand opent in de browser. Tip: voeg de documentatie toe aan je 
 favorieten van de browser. 
