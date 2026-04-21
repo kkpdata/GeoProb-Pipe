@@ -6,7 +6,6 @@ from typing import List, Optional, Callable
 
 def is_string(s: Series) -> Series:
     return s.apply(lambda x: isinstance(x, str))
-# TODO: Hoe krijg ik pre-defined failure messages voor dit soort simpele functies.
 
 
 IsString = ValidationRequirement(requirement=is_string, failure_msg="Value in column is not a string (textual).")

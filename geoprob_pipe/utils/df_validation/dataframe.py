@@ -1,5 +1,9 @@
 from __future__ import annotations
+import os
 from typing import List, Optional, TYPE_CHECKING
+from openpyxl import load_workbook
+from openpyxl.styles import PatternFill
+from uuid import uuid4
 from pandas import DataFrame, concat
 if TYPE_CHECKING:
     from geoprob_pipe.utils.df_validation.column import ColumnValidation
@@ -68,4 +72,25 @@ class DataFrameValidation:
             return
 
     def to_excel(self, directory: str):
-        pass
+        df: DataFrame = self.df_failures.copy(deep=True)
+
+        # Determine export path
+        filename = "failed_validation_requirements"
+        os.makedirs(directory, exist_ok=True)
+        export_path = os.path.join(directory, f"{filename}.xlsx")
+        if os.path.exists(export_path):
+            export_path = os.path.join(directory, f"{filename}_{uuid4().__str__()}.xlsx")
+
+        # Export
+        df.to_excel(export_path)
+
+        # Color cell
+        if "column" not in df.columns:
+            return
+        wb = load_workbook(export_path)
+        ws = wb.active
+        red_fill = PatternFill(start_color="FFDA9694", end_color="FFDA9694", fill_type="solid")
+        for index, (_, row) in enumerate(df.iterrows(), start=2):
+            scope_col_idx = df.columns.get_loc(row['column']) + 2
+            ws.cell(row=index, column=scope_col_idx).fill = red_fill
+        wb.save(export_path)
