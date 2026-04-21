@@ -10,7 +10,6 @@ if TYPE_CHECKING:
 
 
 # TODO
-#  - Could have     Export to Excel-trigger with cells colored red that are invalid;
 #  - Nice to have   Export to Excel: message if validation is stopped early;
 
 

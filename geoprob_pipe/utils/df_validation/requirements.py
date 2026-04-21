@@ -20,6 +20,10 @@ def is_not_null(s: Series) -> Series:
     return s.notna()
 
 
+def is_null(s: Series) -> Series:
+    return ~s.notna()
+
+
 class IsIn(ValidationRequirement):
     def __init__(
             self, values: List, df_filter: Optional[Callable[[DataFrame], Series]] = None,

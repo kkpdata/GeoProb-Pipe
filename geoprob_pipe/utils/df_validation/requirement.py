@@ -2,9 +2,6 @@ from typing import Callable, Optional
 from pandas import DataFrame, Series
 from uuid import uuid4
 
-# TODO:
-#  - Hoe gebruik ik df_filter?
-
 
 class ValidationRequirement:
 
