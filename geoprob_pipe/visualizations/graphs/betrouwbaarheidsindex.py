@@ -1,10 +1,10 @@
 from __future__ import annotations
-from pandas import DataFrame, merge
+from pandas import DataFrame, merge, Series
 import numpy as np
 import os
 from datetime import datetime
 import plotly.graph_objects as go
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
@@ -88,8 +88,12 @@ class GraphBetaValuesSingleInteractive:
 
         # Logic
         self.geoprob_pipe = geoprob_pipe
-        self.fig = go.Figure()
 
+        # Placeholders
+        self.fig = go.Figure()
+        self.verder_rekenen_geadviseerd: bool = False  # Will be changed if needed
+
+        # Data
         self.gdf_uittredepunten = self.geoprob_pipe.input_data.uittredepunten.gdf
         self.gdf_vakken = self.geoprob_pipe.input_data.vakken.gdf
         self.m_start = self.gdf_vakken['m_start'].min()-10
@@ -204,7 +208,7 @@ class GraphBetaValuesSingleInteractive:
 
     def _add_beta_per_scenario(self):
         df_beta_scenarios_final = self.geoprob_pipe.results.df_beta_scenarios_final
-        df_for_graph = merge(
+        df_for_graph: DataFrame = merge(
             left=df_beta_scenarios_final[[
                 "uittredepunt_id", "beta", "converged",
                 "method_used", "flow_chart_number", "advise"]],
@@ -214,7 +218,8 @@ class GraphBetaValuesSingleInteractive:
 
         for value, color, name in [(True, "black", 'Beta scenarios'),
                                    (False, "blue", "Verder rekenen geadviseerd (scenarios)")]:
-            mask = df_for_graph["converged_alt"] == value
+            mask: Series = df_for_graph["converged_alt"].eq(value)
+            self.verder_rekenen_geadviseerd = bool(mask.sum() > 0)
             mask_low = df_for_graph["beta"] < self.beta_min
             mask_high = df_for_graph["beta"] > self.beta_max
 
@@ -254,7 +259,7 @@ class GraphBetaValuesSingleInteractive:
                                   "Metrering: %{customdata[2]}"))
 
             # Below range
-            mask_combi = mask & mask_low
+            mask_combi: Series = mask & mask_low
             self.fig.add_trace(
                 go.Scatter(
                     x=df_for_graph.loc[mask_combi, 'metrering'],
@@ -293,12 +298,12 @@ class GraphBetaValuesSingleInteractive:
                 self=self, df_for_graph=df_for_graph, mask=mask, name=name,
                 color=color, value=value)
 
-            mask_high = df_for_graph["beta"] > self.beta_max
+            mask_high: Series = df_for_graph["beta"].gt(self.beta_max)
             _add_beta_per_uittredepunt_indication_above_plotting_range(
                 self=self, df_for_graph=df_for_graph, mask=mask & mask_high,
                 name=name, color=color, value=value)
 
-            mask_low = df_for_graph["beta"] < self.beta_min
+            mask_low: Series = df_for_graph["beta"].lt(self.beta_min)
             _add_beta_per_uittredepunt_indication_below_plotting_range(
                 self=self, df_for_graph=df_for_graph, mask=mask & mask_low,
                 name=name, color=color, value=value)
@@ -395,9 +400,10 @@ class GraphBetaValuesSingleInteractive:
         ))
 
     def _update_layout(self):
-        self.fig.add_trace(go.Scatter(
-            x=[0], y=[0], name="Verder rekenen geadviseerd", showlegend=True,
-            mode="markers", marker=dict(color="blue", symbol="square")))
+        if self.verder_rekenen_geadviseerd:
+            self.fig.add_trace(go.Scatter(
+                x=[0], y=[0], name="Verder rekenen geadviseerd", showlegend=True,
+                mode="markers", marker=dict(color="blue", symbol="square")))
         annotation = self.annotation_vak + self.annotation_label
         self.fig.update_layout(
             title="Betrouwbaarheidsindex STPH",
