@@ -1,5 +1,7 @@
 
 CHANGELOG = {
+    "2.1.0":
+        "New feature. Assemblage toegevoegd op vak en traject-niveau. ",
     "2.0.1":
         "Breaking changes. "
         "HRD-database is optioneel en dijktraject kan nu primair of regionaal zijn. "
