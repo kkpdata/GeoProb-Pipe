@@ -30,9 +30,10 @@ class DataFrameQueryValidation:
 
             # Prepare dataframe for export
             current_columns = df_failure_rows.columns
-            new_column_order = ["validation_msg"]
+            new_column_order = ["validation_msg", "tabel"]
             new_column_order.extend(current_columns)
             df_failure_rows['validation_msg'] = failure_query.msg
+            df_failure_rows['tabel'] = label_humanized
             df_failure_rows = df_failure_rows[new_column_order]
 
             # Report back

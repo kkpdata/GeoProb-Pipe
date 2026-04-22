@@ -4,13 +4,15 @@ import numpy as np
 import os
 from datetime import datetime
 import plotly.graph_objects as go
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
 def _add_beta_per_uittredepunt_points(
-        self, df_for_graph: DataFrame, mask, name: str, color: str, value: bool):
+        self, df_for_graph: DataFrame, mask,
+        name: str, color: str, value: bool
+        ):
     """ Visualization of beta of uittredepunten.
 
     :param self: GraphBetaValuesSingleInteractive-object
@@ -23,8 +25,10 @@ def _add_beta_per_uittredepunt_points(
 
     self.fig.add_trace(
         go.Scatter(
-            x=df_for_graph.loc[mask, "metrering"], y=df_for_graph.loc[mask, "beta"],
-            mode='markers', marker=dict(symbol='circle', size=7, color=color), name=name,
+            x=df_for_graph.loc[mask, "metrering"],
+            y=df_for_graph.loc[mask, "beta"],
+            mode='markers', marker=dict(symbol='circle', size=7, color=color),
+            name=name,
             customdata=df_for_graph.loc[mask, ["uittredepunt_id", "beta", "metrering"]],
             hovertemplate=("ID: %{customdata[0]}<br>" +
                            "Beta: %{customdata[1]:.3f}<br>" +
@@ -34,12 +38,14 @@ def _add_beta_per_uittredepunt_points(
 
 def _add_beta_per_uittredepunt_indication_above_plotting_range(
         self, df_for_graph: DataFrame, mask, name: str, color: str, value: bool):
-    """ Indication to user that there are Beta results plotted outside the plotting range. In this case above range. """
+    """ Indication to user that there are Beta results plotted outside
+    the plotting range. In this case above range.
+    """
 
     self.fig.add_trace(
         go.Scatter(
             x=df_for_graph.loc[mask, 'metrering'],
-            y=[self.beta_max - 0.1] * mask.sum(),
+            y=[self.beta_max - 0.5] * mask.sum(),
             mode='markers',
             marker=dict(symbol='triangle-up', size=7, color=color),
             name=name + " above plotted range",
@@ -55,7 +61,9 @@ def _add_beta_per_uittredepunt_indication_above_plotting_range(
 
 def _add_beta_per_uittredepunt_indication_below_plotting_range(
         self, df_for_graph: DataFrame, mask, name: str, color: str, value: bool):
-    """ Indication to user that there are Beta results plotted outside the plotting range. In this case below range. """
+    """ Indication to user that there are Beta results plotted outside
+    the plotting range. In this case below range.
+    """
 
     self.fig.add_trace(
         go.Scatter(
@@ -87,13 +95,15 @@ class GraphBetaValuesSingleInteractive:
         self.m_start = self.gdf_vakken['m_start'].min()-10
         self.m_end = self.gdf_vakken['m_end'].max()+10
 
-        self.beta_min = 2
-        self.beta_max = 20
+        cg = self.geoprob_pipe.input_data.traject_normering.riskeer_categorie_grenzen
+        self.beta_min = cg["-III"][0]
+        self.beta_max = cg["+III"][1]
 
         self._add_backgrond()
+        self._add_beta_per_traject()
         self._add_beta_per_vak()
-        self._add_beta_per_scenario()
         self._add_beta_per_uittredepunt()
+        self._add_beta_per_scenario()
         self._update_layout()
         self._optionally_export(export=export)
 
@@ -119,7 +129,7 @@ class GraphBetaValuesSingleInteractive:
         x_line = np.linspace(self.m_start, self.m_end)
         self.annotation_vak = []
         self.annotation_vak.append(dict(x=0.5,
-                                        y=np.log10(2.1),
+                                        y=np.log10(self.beta_min + 0.1),
                                         text="Vak ID:",
                                         showarrow=False,
                                         xanchor="left",
@@ -141,7 +151,7 @@ class GraphBetaValuesSingleInteractive:
                 line=dict(color="black", width=1)
                 ))
             self.annotation_vak.append(dict(
-                x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(2),
+                x=(vak["m_start"] + vak["m_end"]) / 2, y=np.log10(self.beta_min),
                 text=vak["id"],
                 showarrow=False,
                 xanchor="center",
@@ -152,7 +162,7 @@ class GraphBetaValuesSingleInteractive:
         for i, grens in enumerate(cg):
 
             if cg[grens][0] <= 0:
-                cg[grens][0] = np.log10(2)
+                cg[grens][0] = np.log10(self.beta_min)
 
             # Onderste lijn (zichtbaar)
             self.fig.add_trace(
@@ -196,7 +206,8 @@ class GraphBetaValuesSingleInteractive:
         df_beta_scenarios_final = self.geoprob_pipe.results.df_beta_scenarios_final
         df_for_graph = merge(
             left=df_beta_scenarios_final[[
-                "uittredepunt_id", "beta", "converged", "method_used", "flow_chart_number", "advise"]],
+                "uittredepunt_id", "beta", "converged",
+                "method_used", "flow_chart_number", "advise"]],
             right=self.gdf_uittredepunten[["uittredepunt_id", "metrering"]],
             on="uittredepunt_id", how="left")
         df_for_graph["converged_alt"] = df_for_graph["flow_chart_number"] != 5
@@ -210,11 +221,14 @@ class GraphBetaValuesSingleInteractive:
             # In range
             self.fig.add_trace(
                 go.Scatter(
-                    x=df_for_graph.loc[mask, 'metrering'], y=df_for_graph.loc[mask, "beta"], mode='markers',
-                    marker=dict(symbol='diamond', size=7, color=color, line=dict(color="white", width=1)),
+                    x=df_for_graph.loc[mask, 'metrering'],
+                    y=df_for_graph.loc[mask, "beta"], mode='markers',
+                    marker=dict(symbol='diamond', size=7, color=color,
+                                line=dict(color="white", width=1)),
                     legendgroup="Beta scenarios", showlegend=value, name=name,
                     customdata=df_for_graph.loc[mask, [
-                        "uittredepunt_id", "beta", "metrering", "method_used", "converged", "advise"]],
+                        "uittredepunt_id", "beta", "metrering",
+                        "method_used", "converged", "advise"]],
                     hovertemplate=(
                         "ID: %{customdata[0]}<br>"
                         "Beta: %{customdata[1]:.3f}<br>"
@@ -227,10 +241,13 @@ class GraphBetaValuesSingleInteractive:
             mask_combi = mask & mask_high
             self.fig.add_trace(
                 go.Scatter(
-                    x=df_for_graph.loc[mask_combi, 'metrering'], y=[self.beta_max-0.1] * mask_combi.sum(),
+                    x=df_for_graph.loc[mask_combi, 'metrering'],
+                    y=[self.beta_max-0.1] * mask_combi.sum(),
                     mode='markers',
-                    marker=dict(symbol='triangle-up', size=7, color=color, line=dict(color="white", width=1)),
-                    legendgroup="Beta scenarios", showlegend=value, name=name + " above plotted range",
+                    marker=dict(symbol='triangle-up', size=7,
+                                color=color, line=dict(color="white", width=1)),
+                    legendgroup="Beta scenarios", showlegend=value,
+                    name=name + " above plotted range",
                     customdata=df_for_graph.loc[mask_combi, ["uittredepunt_id", "beta", "metrering"]],
                     hovertemplate="ID: %{customdata[0]}<br>"
                                   "Beta: %{customdata[1]:.3f}<br>"
@@ -240,9 +257,13 @@ class GraphBetaValuesSingleInteractive:
             mask_combi = mask & mask_low
             self.fig.add_trace(
                 go.Scatter(
-                    x=df_for_graph.loc[mask_combi, 'metrering'], y=[self.beta_min+0.1] * mask_combi.sum(),
-                    mode='markers', name=name + " below plotted range",
-                    marker=dict(symbol='triangle-down', size=7, color=color, line=dict(color="white", width=1)),
+                    x=df_for_graph.loc[mask_combi, 'metrering'],
+                    y=[self.beta_min+0.1] * mask_combi.sum(),
+                    mode='markers',
+                    name=name + " below plotted range",
+                    marker=dict(symbol='triangle-down',
+                                size=7, color=color,
+                                line=dict(color="white", width=1)),
                     legendgroup="Beta scenarios", showlegend=value,
                     customdata=df_for_graph.loc[mask_combi, ["uittredepunt_id", "beta", "metrering"]],
                     hovertemplate=("ID: %{customdata[0]}<br>" +
@@ -269,23 +290,26 @@ class GraphBetaValuesSingleInteractive:
 
             mask = df_for_graph["converged_alt"] == value
             _add_beta_per_uittredepunt_points(
-                self=self, df_for_graph=df_for_graph, mask=mask, name=name, color=color, value=value)
+                self=self, df_for_graph=df_for_graph, mask=mask, name=name,
+                color=color, value=value)
 
             mask_high = df_for_graph["beta"] > self.beta_max
             _add_beta_per_uittredepunt_indication_above_plotting_range(
-                self=self, df_for_graph=df_for_graph, mask=mask & mask_high, name=name, color=color, value=value)
+                self=self, df_for_graph=df_for_graph, mask=mask & mask_high,
+                name=name, color=color, value=value)
 
             mask_low = df_for_graph["beta"] < self.beta_min
             _add_beta_per_uittredepunt_indication_below_plotting_range(
-                self=self, df_for_graph=df_for_graph, mask=mask & mask_low, name=name, color=color, value=value)
+                self=self, df_for_graph=df_for_graph, mask=mask & mask_low,
+                name=name, color=color, value=value)
 
     def _add_beta_per_vak(self):
-
         # Gather data
-        df_results_vakken = self.geoprob_pipe.results.df_beta_vakken
-        df_results_vakken = df_results_vakken.rename(columns={"vak_id": "id"})
+        df_results_vakken = self.geoprob_pipe.results.df_beta_WBI_vakken
+        df_results_vakken = df_results_vakken.rename(
+            columns={"vak_id": "id", "beta_vak": "beta"})
         df_for_graph = merge(
-            left=df_results_vakken[["id", "beta", "advise"]],
+            left=df_results_vakken[["id", "beta", "advise", "cnt_uittredepunten"]],
             right=self.gdf_vakken[["id", "m_start", "m_end"]],
             on="id", how="left")
         first = True
@@ -300,17 +324,27 @@ class GraphBetaValuesSingleInteractive:
             mask_high = df_for_graph["beta"] > self.beta_max
             for _, row in df_for_graph.loc[mask].iterrows():
                 self.fig.add_trace(go.Scatter(
-                    x=[row["m_start"], row["m_end"]], y=[row["beta"], row["beta"]],
-                    mode="lines", line=dict(color=color, width=2.5), name=name, legendgroup="Beta vakken",
-                    showlegend=first & value, customdata=[[row["id"], row["beta"]]] * 2,
+                    x=[row["m_start"], row["m_end"]],
+                    y=[row["beta"], row["beta"]],
+                    mode="lines", line=dict(color=color, width=2.5),
+                    name=name, legendgroup="Beta vakken",
+                    showlegend=first & value,
+                    customdata=[[row["id"], row["beta"]]] * 2,
                     hovertemplate="ID: %{customdata[0]}<br>" +
                                   "Beta: %{customdata[1]:.3f}"))
                 first = False
 
-            # Above range
-            mask_combi = mask & mask_high
+            # Above range triangle
+            mask_has_uittredepunten = df_for_graph["cnt_uittredepunten"] > 0
+            mask_combi = mask & mask_high & mask_has_uittredepunten
             first = True
             for _, row in df_for_graph.loc[mask_combi].iterrows():
+                if row["beta"] == np.inf:
+                    hovertemplate = ("ID: %{customdata[0]}<br>" +
+                                     "Beta: inf <br>")
+                else:
+                    hovertemplate = ("ID: %{customdata[0]}<br>" +
+                                     "Beta: %{customdata[1]:.3f}<br>")
                 self.fig.add_trace(go.Scatter(
                     x=[(row["m_start"] + row["m_end"]) / 2],
                     y=[self.beta_max-0.1],
@@ -318,20 +352,21 @@ class GraphBetaValuesSingleInteractive:
                     marker=dict(color=color, symbol="triangle-up", size=9),
                     name=name + " above plotted range",
                     customdata=[[row["id"], row["beta"]]],
-                    hovertemplate=("ID: %{customdata[0]}<br>" +
-                                   "Beta: %{customdata[1]:.3f}<br>"),
+                    hovertemplate=hovertemplate,
                     legendgroup="Beta vakken",
                     showlegend=first & value
                 ))
                 first = False
 
-            # Below range
-            mask_combi = mask & mask_low
+            # Below range triangle
+            mask_combi = mask & mask_low & mask_has_uittredepunten
             first = True
             for _, row in df_for_graph.loc[mask_combi].iterrows():
                 self.fig.add_trace(go.Scatter(
-                    x=[(row["m_start"] + row["m_end"]) / 2], y=[self.beta_min+0.1],
-                    mode="markers", marker=dict(color=color, symbol="triangle-down", size=9),
+                    x=[(row["m_start"] + row["m_end"]) / 2],
+                    y=[self.beta_min+0.1],
+                    mode="markers",
+                    marker=dict(color=color, symbol="triangle-down", size=9),
                     name=name + " below plotted range",
                     customdata=[[row["id"], row["beta"]]],
                     hovertemplate="ID: %{customdata[0]}<br>" +
@@ -339,6 +374,25 @@ class GraphBetaValuesSingleInteractive:
                     legendgroup="Beta vakken", showlegend=first & value
                 ))
                 first = False
+
+    def _add_beta_per_traject(self):
+        df = self.geoprob_pipe.results.df_beta_traject
+        df = df[df["method"] == 'WBI methode over traject']
+        beta_traject: float = df["lower_bound_beta"].iloc[0]
+        # beta_traject = cast(
+        #     float, self.geoprob_pipe.results.df_beta_traject[
+        #         "lower_bound_beta"][0]
+        #     )
+        self.fig.add_trace(go.Scatter(
+            x=[self.m_start, self.m_end],
+            y=[beta_traject, beta_traject],
+            mode="lines",
+            line=dict(color="black", width=2.5, dash="dash"),
+            name="Beta traject (WBI-methode)",
+            showlegend=True,
+            customdata=[[beta_traject]] * 2,
+            hovertemplate="Beta: %{customdata[0]:.3f}"
+        ))
 
     def _update_layout(self):
         self.fig.add_trace(go.Scatter(
@@ -356,7 +410,7 @@ class GraphBetaValuesSingleInteractive:
                        ),
             yaxis=dict(title="Betrouwbaarheidsindex β [-]",
                        type='log',
-                       range=[np.log10(2), np.log10(20)],
+                       range=[np.log10(self.beta_min), np.log10(self.beta_max)],
                        showgrid=True,
                        gridwidth=0.5,
                        gridcolor="gray",
@@ -418,5 +472,6 @@ class GraphBetaValuesSingleInteractive:
             timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
             timestamp_str = f"{timestamp}_"
         self.fig.write_html(os.path.join(
-            self.geoprob_pipe.visualizations.graphs.export_dir, f"{timestamp_str}betrouwbaarheidsindex.html"
+            self.geoprob_pipe.visualizations.graphs.export_dir,
+            f"{timestamp_str}betrouwbaarheidsindex.html"
             ), include_plotlyjs='cdn')

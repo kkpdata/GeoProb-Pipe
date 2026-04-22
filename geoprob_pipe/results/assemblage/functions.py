@@ -1,0 +1,235 @@
+from __future__ import annotations
+import numpy as np
+import pandas as pd
+from operator import attrgetter
+from decimal import Decimal, getcontext
+from typing import TYPE_CHECKING, cast, Tuple, List, Optional
+if TYPE_CHECKING:
+    from geoprob_pipe.results.assemblage.objects import (
+        UittredepuntElement, WindowElement)
+
+
+def combine_series(list_pf: list[float]) -> Tuple[float, float]:
+    """
+    Combineert de faalkansen uit een lijst naar
+     - een elementaire ondergrens op basis van volledige afhankelijkheid. De ondergrens wordt bepaald door max(pf[i]) van alle doorsneden.
+     - een elementaire bovengrens op basis van volledige onafhankelijkheid. De bovengrens wordt bepaald door 1 - prod(1-pf[i]) van alle
+       doorsneden.
+
+    :param list_pf: Lijst met faalkansen van de elementen.
+    :return bovengrens en ondergrens
+    """
+
+    # If empty
+    if len(list_pf) == 0:
+        return 0.0, 0.0
+
+    # Berekenen van ondergrens
+    ondergrens = max(list_pf)
+
+    # We have to use Decimal for bovengrens
+    getcontext().prec = 30
+    # Because with small numbers (e-18 and smaller) it turns out that 1 - e-18 is rounded to one. Therefore, we have to
+    # use Decimal with a lowered precision (we use up to e-30). We now first convert the necessary values to Decimal:
+    one = Decimal(1)
+    list_pf_dec = [Decimal(str(pf)) for pf in list_pf]
+
+    # Berekenen van bovengrens
+    list_pf_inv = [one - pf for pf in list_pf_dec]
+    list_pf_inv = np.array(list_pf_inv, dtype=object)
+    list_pf_inv = np.prod(list_pf_inv)
+    list_pf_inv = cast(Decimal, list_pf_inv)
+    bovengrens = float(one - list_pf_inv)
+
+    return bovengrens, ondergrens
+
+
+# noinspection PyPep8Naming
+def bepaal_N_vak(L: float, a: float, dL: float) -> float:
+    """Bepaalt de lengte-effect-factor N met een minimum van 1,0. Conform de Rode draad #10 assembleren (October 2024).
+
+    :param L: Lengte van het element.
+    :param a: Mechanismegevoelige fractie
+    :param dL: De equivalente onafhankelijke lengte voor STPH
+
+    :raises ValueError: Parameter a moet groter zijn dan 0.
+    :raises ValueError: De lengte L en dL moeten groter zijn dan 0.
+
+    :return N_vak: Lengte-effect voor het vak
+    """
+    if a < 0:
+        raise ValueError("a moet groter zijn dan 0.")
+
+    if L < 0 or dL < 0:
+        raise ValueError("De lengte L en dL moeten groter zijn dan 0.")
+
+    N_vak = max(1.00, (a * L) / dL)
+    return N_vak
+
+
+def window_collect(window_size: float, point_list: list[UittredepuntElement],
+                   m_van: float, m_tot: float, vak_id: Optional[int] = None
+                   ) -> tuple[float, float, List[WindowElement]]:
+    """ Hier worden de faalkansen verzamelt op basis van een window. Van alle doorsneden die in de window vallen wordt
+    de faalkans voor de window bepaalt op basis van de max. De kans voor het element waar de windows over genomen zijn
+    wordt bepaald met `combine_series()`. Kan voor zowel een vak of het gehele traject worden uitgevoerd.
+
+    :param window_size: Grootte van de window.
+    :param point_list: Lijst met alle uittredepunten in het element.
+    :param m_van: Beginpunt van het element in meters.
+    :param m_tot: Eindpunt van het element in meters.
+    :param vak_id: Id van het vak als de windows over een vak element worden
+        bepaald. Defaults to None.
+
+    :return sum_pf: Samengestelde faalkans op basis van de som van de
+        faalkansen.
+    :return max_pf: Samengestelde faalkans op basis van max().
+    :return window_elements: Lijst met `WindowElement` object met gegevens van de
+        windows.
+    """
+    from geoprob_pipe.results.assemblage.objects import WindowElement
+    list_m_value: List[float] = cast(
+        List[float], [dsn.m_value for dsn in point_list]
+        )
+    if list_m_value.__len__() == 0:
+        return 0.0, 0.0, []
+
+    pf_list = [p.pf for p in point_list]
+    fcn_list = [p.flow_chart_number for p in point_list]
+    if min(fcn_list) == 11:
+        flow_chart_number = 21
+        advise = "Consider fine tuning on scenario-level."
+    else:
+        flow_chart_number = 22
+        advise = "-"
+
+    df_vak = pd.DataFrame({
+            "M_value": list_m_value,
+            "pf": pf_list
+        })
+
+    bins_window = np.arange(
+        m_van, m_tot, window_size
+        ).tolist()
+    bins_window.append(m_tot)
+
+    bin_cat: pd.Categorical = cast(pd.Categorical, pd.cut(
+        list_m_value,
+        bins=bins_window,
+        right=False,
+        include_lowest=True
+        ))
+    df_vak = df_vak.assign(bin=bin_cat)
+    df_bin = (df_vak.groupby("bin", observed=False)["pf"].max()
+              .reindex(bin_cat.categories).fillna(0))
+
+    sum_pf, max_pf = combine_series(df_bin.to_list())
+    window_elements: List[WindowElement] = []
+    bins_window.append(m_tot)  # add end of final window
+    for i in range(len(bins_window)-2):
+        window_elements.append(WindowElement(
+            m_van=bins_window[i],
+            m_tot=bins_window[i+1],
+            window_size=window_size,
+            window_id=i,
+            pf=df_bin[df_bin.index[i]],
+            _vak_id=vak_id,
+            flow_chart_number=flow_chart_number,
+            advise=advise
+        ))
+    return sum_pf, max_pf, window_elements
+
+
+# noinspection PyPep8Naming
+def scaled_collect(
+        dL: float, point_list: list[UittredepuntElement],
+        m_van: float, m_tot: float, vak_id: Optional[int] = None
+        ) -> tuple[float, float, List[WindowElement]]:
+    """ Verzamel de uittredepunten per element en geef deze een lengte op basis van de afstand tussen de punten. Deze
+    blokken worden als een window beschouwt. Als er meerdere punten binnen 5 m van elkaar liggen wordt hieruit de
+    grootste faalkans genomen. De kans voor het element wordt bepaald met `combine_series()`. Kan voor zowel een vak of
+    het gehele traject worden uitgevoerd.
+
+    :param dL: De equivalente onafhankelijke lengte voor STPH
+    :param point_list: Lijst met alle uittredepunten in het element.
+    :param m_van: Beginpunt van het element in meters.
+    :param m_tot: Eindpunt van het element in meters.
+    :param vak_id: Id van het vak als de windows over een vak element worden
+        bepaald. Defaults to None.
+
+    :return sum_pf: Samengestelde faalkans op basis van de som van de
+        faalkansen.
+    :return max_pf: Samengestelde faalkans op basis van max().
+    :return window_elements: Lijst met `WindowElement` object met gegevens van de
+        windows.
+    """
+    from geoprob_pipe.results.assemblage.objects import WindowElement
+    if point_list.__len__() == 0:  # Leeg element
+        return 0.0, 0.0, []
+    fcn_list = [p.flow_chart_number for p in point_list]
+    if min(fcn_list) == 11:
+        flow_chart_number = 21
+        advise = "Consider fine tuning on scenario-level."
+    else:
+        flow_chart_number = 22
+        advise = "-"
+    point_list.sort(key=attrgetter("m_value"))
+    # CLusters voor het verzamelen van punten binnen 5 meter
+    # van het eerste punt.
+    clusters: List[List[UittredepuntElement]] = []
+    current_cluster: List[UittredepuntElement] = [point_list[0]]
+    cluster_start: float = point_list[0].m_value
+
+    for point in point_list[1:]:
+        if point.m_value - cluster_start <= 5.0:
+            current_cluster.append(point)
+        else:
+            clusters.append(current_cluster)
+            current_cluster = [point]
+            cluster_start = point.m_value
+    clusters.append(current_cluster)
+
+    selected = [max(cluster, key=lambda x: cast(float, x.pf))
+                for cluster in clusters]
+    pfs: List[float] = []
+    window_elements: List[WindowElement] = []
+
+    for i, sel in enumerate(selected):
+        # cluster_start = max(m_van, sel.m_value - (sel.m_value - clusters[i][0].m_value))
+        if i == 0:
+            seg_start = m_van
+        else:
+            seg_start = (
+                clusters[i-1][-1].m_value
+                + (clusters[i][0].m_value - clusters[i-1][-1].m_value)
+                / 2)
+        if i == len(selected)-1:
+            seg_end = m_tot
+        else:
+            seg_end = (
+                clusters[i][-1].m_value
+                + (clusters[i+1][0].m_value - clusters[i][-1].m_value)
+                / 2)
+
+        length = seg_end - seg_start
+        a = sel.a
+        N_vak = bepaal_N_vak(length, a, dL)
+        pf = cast(float, sel.pf) * N_vak
+        pfs.append(pf)
+        window_elements.append(
+            WindowElement(
+                m_van=seg_start,
+                m_tot=seg_end,
+                window_size=length,
+                window_id=i,
+                _vak_id=vak_id,
+                pf=pf,
+                _a=a,
+                _m_uittredepunt=sel.m_value,
+                _n_vak=N_vak,
+                flow_chart_number=flow_chart_number,
+                advise=advise
+                )
+            )
+    sum_pf, max_pf = combine_series(pfs)
+    return sum_pf, max_pf, window_elements

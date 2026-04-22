@@ -10,6 +10,8 @@ Welkom bij de documentatie van GeoProb-Pipe (versie |version|), een probabilisti
 met de uittredepuntenmethode uit te voeren. Deze documentatie biedt handreikingen voor het gebruik van GeoProb-Pipe, de
 achtergronden van de methode, API-referenties en voorbeelden.
 
+De broncode vind je op `GitHub <https://github.com/kkpdata/GeoProb-Pipe>`__.
+
 .. TODO: Uitnodigende afbeelding toevoegen de applicatie. Wellicht kaartje/bovenaanzicht van resultaat.
 
 .. toctree::

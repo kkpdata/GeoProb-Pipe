@@ -34,12 +34,21 @@ Het volgende branch-schema wordt aangehouden:
 Wil je bijdragen aan de ontwikkeling van GeoProb-Pipe? Dat kan! :)
 
 Maak een nieuwe branch aan vanuit `alpha`, ga coden en wanneer je klaar bent, maak een pull en review request aan. Zorg 
-er voor dat de unit tests werken en dat je PEP8 als code stijl hanteert. Bij vragen, neem contact op met één van de 
-ontwikkelaars. Voor PEP8, de IDE PyCharm heeft deze out of the box ingesteld. PyCharm is daarom de geadviseerde IDE.  
+er voor dat de unit tests werken en dat je PEP8 als code stijl hanteert. We hebben enkele specifieke afspraken, zie 
+tabel hieronder. Bij vragen, neem contact op met één van de ontwikkelaars. Voor PEP8, de IDE PyCharm heeft deze out of 
+the box ingesteld. PyCharm is daarom de geadviseerde IDE.  
+
+
+| Onderdeel        | Afspraak                                             |
+|------------------|------------------------------------------------------|
+| Docstring format | reStructuredText                                     |
+| Line length      | 120                                                  |
 
 
 # Documentatie
-De documentatie genereer je vanuit een kloon van de repository en het volgende commando 
+De live documentatie vind je [hier](https://kkpdata.github.io/GeoProb-Pipe/index.html). 
+
+De development-documentatie genereer je vanuit een kloon van de repository en het volgende commando 
 `sphinx-build -M html docs\ docs\_build`. Je vindt de documentatie daarna terug in de map 
 `GeoProb-Pipe\docs\_build\html\index.html`. Dit bestand opent in de browser. Tip: voeg de documentatie toe aan je 
 favorieten van de browser. 
