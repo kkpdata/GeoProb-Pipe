@@ -60,8 +60,6 @@ class GeoProbPipe:
         self.time_diff = self.time_end - self.time_start
         logger.info(f"Calculations were performed successfully in {int(self.time_diff.total_seconds())} seconds.")
 
-        
-
         # Append logic classes
         self.visualizations = Visualizations(self)
         self.spatial = Spatial(self)

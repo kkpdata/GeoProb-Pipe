@@ -99,7 +99,6 @@ MAXIMUM = ColumnValidation(column_name="maximum", requirements=[
 ])
 
 
-
 class ValidationParameterInvoer(DataFrameValidation):
 
     def __init__(self, df: DataFrame):

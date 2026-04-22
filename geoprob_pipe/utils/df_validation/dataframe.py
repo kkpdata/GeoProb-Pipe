@@ -70,7 +70,7 @@ class DataFrameValidation:
             self.df_failures = df
             return
 
-    def to_excel(self, directory: str):
+    def to_excel(self, directory: str) -> Optional[str]:
         df: DataFrame = self.df_failures.copy(deep=True)
 
         # Determine export path
@@ -85,7 +85,7 @@ class DataFrameValidation:
 
         # Color cell
         if "column" not in df.columns:
-            return
+            return None
         wb = load_workbook(export_path)
         ws = wb.active
         red_fill = PatternFill(start_color="FFDA9694", end_color="FFDA9694", fill_type="solid")
@@ -93,3 +93,4 @@ class DataFrameValidation:
             scope_col_idx = df.columns.get_loc(row['column']) + 2
             ws.cell(row=index, column=scope_col_idx).fill = red_fill
         wb.save(export_path)
+        return export_path

@@ -4,9 +4,10 @@ import sqlite3
 from pandas import read_sql, read_excel
 from typing import Optional, TYPE_CHECKING
 from geoprob_pipe.cmd_app.parameter_input.initiate_input_excel_tables import DF_EMPTY_CORRELATIE_INVOER
+from geoprob_pipe.calculations.systems.mappers.validation import VALIDATION_MAPPER
 from pandas import DataFrame
-from geoprob_pipe.input_data.validation.dataframes.validation_objects import DataFrameQueryValidation
-from geoprob_pipe.input_data.validation.dataframes.df_parameter_invoer import FAILURE_QUERIES
+from geoprob_pipe.utils.validation_messages import BColors
+from geoprob_pipe.input_data.df_validation.df_parameter_invoer import ValidationParameterInvoer
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -29,13 +30,37 @@ def _load_df_correlatie_invoer_from_geopackage(geopackage_filepath: str) -> Data
     return df_correlatie_invoer
 
 
-def _validate_df_parameter_invoer(df: DataFrame, app_settings: ApplicationSettings):
+def _validate_df_parameter_invoer(df: DataFrame, app_settings: ApplicationSettings) -> bool:
     export_dir = os.path.join(
         os.path.dirname(app_settings.geopackage_filepath), "exports",
         str(app_settings.datetime_stamp), "parameter_input_process")
 
-    obj = DataFrameQueryValidation(df=df, failure_queries=FAILURE_QUERIES)
-    return obj.validate(export_dir=export_dir, label_humanized="Parameter invoer")
+    label = "Parameter invoer"
+
+    # obj = DataFrameQueryValidation(df=df, failure_queries=FAILURE_QUERIES)
+    # result: bool = obj.validate(export_dir=export_dir, label_humanized="Parameter invoer")
+    # TODO: Remove FailureQueries-code
+
+    # Set up validator
+    validator = ValidationParameterInvoer(df=df)
+    geohydrologisch_model = app_settings.geohydrologisch_model
+    print(f"{VALIDATION_MAPPER[geohydrologisch_model]=}")
+    if (geohydrologisch_model not in VALIDATION_MAPPER.keys() or
+            label not in VALIDATION_MAPPER[geohydrologisch_model].keys()):
+        print(f"{BColors.WARNING}Data validatie specifiek voor geohydrologisch model {geohydrologisch_model} en "
+              f"dataframe {label} is not niet geïmplementeerd. Dit volgt later.{BColors.ENDC}")
+    else:
+        validator.columns_validations.extend(VALIDATION_MAPPER[geohydrologisch_model][label])
+
+    # Run and export result
+    validator.run()
+    export_path = validator.to_excel(export_dir)
+    print(f"{BColors.WARNING}Validatie is (voortijdig) beëindigd omdat er {validator.df_failures.__len__()} "
+          f"validatie issues voor de 'Parameter invoer'-tabel zijn gevonden. De gedetailleerde lijst is "
+          f"geëxporteerd naar onderstaande locatie. Los deze issues s.v.p. eerst op. \n"
+          f"{export_path}{BColors.ENDC}")
+
+    return validator.df_failures.__len__() == 0
 
 
 class InputParameterTables:

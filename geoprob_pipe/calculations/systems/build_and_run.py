@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List
-from geoprob_pipe.calculations.systems.mappers.calculation_mapper import (
+from geoprob_pipe.calculations.systems.mappers.calculations import (
     CALCULATION_MAPPER)
 from multiprocessing import Pool, cpu_count
 from io import StringIO

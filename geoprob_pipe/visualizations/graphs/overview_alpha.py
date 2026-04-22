@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from pandas import merge
-from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
+from geoprob_pipe.calculations.systems.mappers.initial_input import INITIAL_INPUT_MAPPER
 from typing import TYPE_CHECKING
 
 from geoprob_pipe.cmd_app.utils.misc import get_geohydrological_model

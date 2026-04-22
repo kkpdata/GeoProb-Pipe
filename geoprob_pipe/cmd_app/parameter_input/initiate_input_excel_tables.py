@@ -3,7 +3,7 @@ from geopandas import GeoDataFrame, read_file
 from typing import TYPE_CHECKING
 import sqlite3
 from geoprob_pipe.cmd_app.utils.misc import get_geohydrological_model
-from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
+from geoprob_pipe.calculations.systems.mappers.initial_input import INITIAL_INPUT_MAPPER
 from pandas import DataFrame
 import numpy as np
 if TYPE_CHECKING:
