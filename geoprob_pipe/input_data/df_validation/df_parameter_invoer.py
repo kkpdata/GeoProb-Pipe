@@ -1,5 +1,6 @@
-from geoprob_pipe.utils.df_validation import DataFrameValidation, ColumnValidation, requirements, filters
-from pandas import DataFrame, Series
+from geoprob_pipe.utils.df_validation import (
+    DataFrameValidation, ColumnValidation, ValidationRequirement, requirements, filters)
+from pandas import DataFrame
 
 
 PARAMETER = ColumnValidation(column_name="parameter", requirements=[requirements.IsString])
@@ -10,19 +11,19 @@ SCOPE = ColumnValidation(column_name="scope", requirements=[
 ])
 
 SCOPE_REFERENTIE = ColumnValidation(column_name="scope_referentie", requirements=[
-    requirements.ValidationRequirement(
+    ValidationRequirement(
         requirement=requirements.is_whole_number,
         failure_msg=f"De scope referentie moet een integer (geheel getal) zijn wanneer de scope 'vak' "
                     f"of 'uittredepunt' is.",
         filters=filters.is_in(column="scope", values=["vak", "uittredepunt"])),
-    requirements.ValidationRequirement(
+    ValidationRequirement(
         requirement=requirements.is_null,
         failure_msg=f"De scope referentie moet leeg zijn wanneer de scope 'traject' is.",
         filters=filters.is_in(column="scope", values=["traject"])),
 ])
 
 ONDERGRONDSCENARIO_NAAM = ColumnValidation(column_name="ondergrondscenario_naam", requirements=[
-    requirements.ValidationRequirement(
+    ValidationRequirement(
         requirement=requirements.is_null,
         failure_msg=f"De ondergrondscenario naam moet leeg zijn wanneer de scope 'traject' of 'uittredepunt' is.",
         filters=filters.is_in("scope", ["traject", "uittredepunt"])),
@@ -34,7 +35,7 @@ DISTRIBUTION_TYPE = ColumnValidation(column_name="distribution_type", requiremen
 ])
 
 MEAN = ColumnValidation(column_name="mean", requirements=[
-    requirements.ValidationRequirement(
+    ValidationRequirement(
         requirement=requirements.is_not_null,
         failure_msg=f"De mean moet ingevuld zijn wanneer het distributie "
                     f"type 'deterministic', 'log_normal' of 'normal' is.",
@@ -42,7 +43,7 @@ MEAN = ColumnValidation(column_name="mean", requirements=[
 ])
 
 VARIATION = ColumnValidation(column_name="variation", requirements=[
-    requirements.ValidationRequirement(
+    ValidationRequirement(
         requirement=requirements.is_not_null,
         failure_msg=f"De variatie coefficient moet ingevuld zijn wanneer het distributie "
                     f"type 'log_normal' of 'normal' is en standaard deviatie ook niet ingevuld is.",
@@ -54,7 +55,7 @@ VARIATION = ColumnValidation(column_name="variation", requirements=[
 ])
 
 DEVIATION = ColumnValidation(column_name="deviation", requirements=[
-    requirements.ValidationRequirement(
+    ValidationRequirement(
         requirement=requirements.is_not_null,
         failure_msg=f"De standaard deviatie moet ingevuld zijn wanneer het distributie "
                     f"type 'log_normal' of 'normal' is en variatie coefficient ook niet ingevuld is.",
@@ -65,13 +66,13 @@ DEVIATION = ColumnValidation(column_name="deviation", requirements=[
 ])
 
 MINIMUM = ColumnValidation(column_name="minimum", requirements=[
-    requirements.ValidationRequirement(
+    ValidationRequirement(
         requirement=requirements.is_null,
         failure_msg=f"De minimum-kolom is momenteel nog buiten gebruik. Laat deze kolom leeg."),
 ])
 
 MAXIMUM = ColumnValidation(column_name="maximum", requirements=[
-    requirements.ValidationRequirement(
+    ValidationRequirement(
         requirement=requirements.is_null,
         failure_msg=f"De maximum-kolom is momenteel nog buiten gebruik. Laat deze kolom leeg."),
 ])
