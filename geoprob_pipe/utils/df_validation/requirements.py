@@ -37,5 +37,5 @@ def is_integer(s: Series) -> Series:
     return s.apply(lambda x: isinstance(x, (int, np.integer)))
 
 
-
-
+def is_whole_number(s: Series) -> Series:
+    return s.notna() & (s % 1 == 0)
