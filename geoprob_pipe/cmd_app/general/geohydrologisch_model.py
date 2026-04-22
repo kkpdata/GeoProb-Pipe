@@ -4,7 +4,7 @@ from InquirerPy import inquirer
 from typing import TYPE_CHECKING
 from geopandas import read_file
 import sqlite3
-from geoprob_pipe.calculations.systems.mappers.calculation_mapper import CALCULATION_MAPPER
+from geoprob_pipe.calculations.systems.mappers.calculations import CALCULATION_MAPPER
 from pandas import DataFrame
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings

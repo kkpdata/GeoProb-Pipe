@@ -8,7 +8,7 @@ from geopandas import read_file, GeoDataFrame
 from datetime import datetime
 import importlib.resources
 from typing import TYPE_CHECKING
-from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
+from geoprob_pipe.calculations.systems.mappers.initial_input import INITIAL_INPUT_MAPPER
 from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
