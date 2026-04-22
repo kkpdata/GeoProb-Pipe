@@ -26,11 +26,11 @@ def is_null(s: Series) -> Series:
 
 class IsIn(ValidationRequirement):
     def __init__(
-            self, values: List, df_filter: Optional[Callable[[DataFrame], Series]] = None,
+            self, values: List, filters: Optional[Callable[[DataFrame], Series]] = None,
             stop_validation_on_failure: bool = False):
         super().__init__(
             requirement=is_in(values=values), failure_msg=f"Value should be in list {values}.",
-            df_filter=df_filter, stop_validation_on_failure=stop_validation_on_failure)
+            filters=filters, stop_validation_on_failure=stop_validation_on_failure)
 
 
 def is_integer(s: Series) -> Series:

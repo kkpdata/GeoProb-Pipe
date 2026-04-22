@@ -9,11 +9,11 @@ class ValidationRequirement:
             self,
             requirement: Callable[[Series], Series],
             failure_msg: str,
-            df_filter: Optional[Callable[[DataFrame], Series]] = None,
+            filters: Optional[Callable[[DataFrame], Series]] = None,
             stop_validation_on_failure: bool = False,
     ):
         self.requirement = requirement
-        self.df_filter = df_filter
+        self.filters = filters
         self.failure_msg = failure_msg
         self.stop_validation_on_failure: bool = stop_validation_on_failure
 
@@ -22,8 +22,8 @@ class ValidationRequirement:
 
         # Start mask
         mask = Series(True, index=df.index)
-        if self.df_filter is not None:
-            mask &= self.df_filter(df)
+        if self.filters is not None:
+            mask &= self.filters(df)
 
         # Perform validation
         valid = self.requirement(df[column])
