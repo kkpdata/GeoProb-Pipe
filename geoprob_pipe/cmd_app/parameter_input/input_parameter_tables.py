@@ -44,7 +44,6 @@ def _validate_df_parameter_invoer(df: DataFrame, app_settings: ApplicationSettin
     # Set up validator
     validator = ValidationParameterInvoer(df=df)
     geohydrologisch_model = app_settings.geohydrologisch_model
-    print(f"{VALIDATION_MAPPER[geohydrologisch_model]=}")
     if (geohydrologisch_model not in VALIDATION_MAPPER.keys() or
             label not in VALIDATION_MAPPER[geohydrologisch_model].keys()):
         print(f"{BColors.WARNING}Data validatie specifiek voor geohydrologisch model {geohydrologisch_model} en "
