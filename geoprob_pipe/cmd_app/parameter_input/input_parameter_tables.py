@@ -52,15 +52,18 @@ def _validate_df_parameter_invoer(df: DataFrame, app_settings: ApplicationSettin
     else:
         validator.columns_validations.extend(VALIDATION_MAPPER[geohydrologisch_model][label])
 
-    # Run and export result
+    # Run
     validator.run()
+    if validator.df_failures is None or validator.df_failures.__len__() == 0:
+        return True
+
+    # Export validation messages
     export_path = validator.to_excel(export_dir)
     print(f"{BColors.WARNING}Validatie is (voortijdig) beëindigd omdat er {validator.df_failures.__len__()} "
           f"validatie issues voor de 'Parameter invoer'-tabel zijn gevonden. De gedetailleerde lijst is "
           f"geëxporteerd naar onderstaande locatie. Los deze issues s.v.p. eerst op. \n"
           f"{export_path}{BColors.ENDC}")
-
-    return validator.df_failures.__len__() == 0
+    return False
 
 
 class InputParameterTables:
