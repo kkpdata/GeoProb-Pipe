@@ -40,6 +40,17 @@ MEAN = ColumnValidation(column_name="mean", requirements=[
         failure_msg=f"De mean moet ingevuld zijn wanneer het distributie "
                     f"type 'deterministic', 'log_normal' of 'normal' is.",
         filters=filters.is_in(column="distribution_type", values=['deterministic', 'log_normal', 'normal'])),
+    ValidationRequirement(
+        requirement=requirements.is_numeric,
+        failure_msg=f"De mean moet numeriek zijn wanneer het distributie "
+                    f"type 'deterministic', 'log_normal' of 'normal' is.",
+        filters=filters.is_in(column="distribution_type", values=['deterministic', 'log_normal', 'normal']),
+    ),
+    ValidationRequirement(
+        requirement=requirements.is_null,
+        failure_msg=f"De mean-kolom moet leeg zijn wanneer het distributie type 'cdf_curve' is.",
+        filters=filters.is_in(column="distribution_type", values=["cdf_curve"]),
+    ),
 ])
 
 VARIATION = ColumnValidation(column_name="variation", requirements=[
@@ -50,7 +61,12 @@ VARIATION = ColumnValidation(column_name="variation", requirements=[
         filters=filters.combine(
             filters.is_in(column="distribution_type", values=["log_normal", "normal"]),
             filters.is_null(column="deviation")
-        )
+        ),
+    ),
+    ValidationRequirement(
+        requirement=requirements.is_null,
+        failure_msg=f"De variation-kolom moet leeg zijn wanneer het distributie type 'cdf_curve' is.",
+        filters=filters.is_in(column="distribution_type", values=["cdf_curve"]),
     ),
 ])
 
@@ -63,6 +79,11 @@ DEVIATION = ColumnValidation(column_name="deviation", requirements=[
             filters.is_in(column="distribution_type", values=["log_normal", "normal"]),
             filters.is_null(column="variation")
         )),
+    ValidationRequirement(
+        requirement=requirements.is_null,
+        failure_msg=f"De deviation-kolom moet leeg zijn wanneer het distributie type 'cdf_curve' is.",
+        filters=filters.is_in(column="distribution_type", values=["cdf_curve"]),
+    ),
 ])
 
 MINIMUM = ColumnValidation(column_name="minimum", requirements=[

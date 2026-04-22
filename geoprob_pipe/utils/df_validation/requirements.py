@@ -1,4 +1,4 @@
-from pandas import Series, DataFrame
+from pandas import Series, DataFrame, to_numeric
 import numpy as np
 from geoprob_pipe.utils.df_validation.requirement import ValidationRequirement
 from typing import List, Optional, Callable
@@ -39,3 +39,7 @@ def is_integer(s: Series) -> Series:
 
 def is_whole_number(s: Series) -> Series:
     return s.notna() & (s % 1 == 0)
+
+
+def is_numeric(s: Series) -> Series:
+    return to_numeric(s, errors="coerce").notna()
