@@ -3,6 +3,7 @@ from geoprob_pipe.visualizations.graphs.betrouwbaarheidsindex import (
     GraphBetaValuesSingleInteractive)
     # beta_uittredepunten_graph, beta_scenarios_graph, beta_vakken_graph)
 from geoprob_pipe.visualizations.graphs.hfreq import GraphHFreqSingleInteractive
+from geoprob_pipe.visualizations.graphs.assemblage_icicle import IciclePlot
 from geoprob_pipe.visualizations.graphs.physical_values_along_levee import physical_values_buitenwaterstand_and_top_zand
 from geoprob_pipe.visualizations.graphs.invloedsfactoren import invloedsfactoren
 from geoprob_pipe.visualizations.graphs.phreatic_waterline import phreatic_waterline
@@ -26,6 +27,10 @@ class Graphs:
         path = os.path.join(self.geoprob_pipe.visualizations.export_dir, "graphs")
         os.makedirs(path, exist_ok=True)
         return path
+
+    @property
+    def icicle_assemblage(self):
+        return IciclePlot(self.geoprob_pipe)
 
     def hfreq_graph_in_single_interactive(self, export: bool = False) -> PlotlyFigure:
         graph = GraphHFreqSingleInteractive(self.geoprob_pipe, export=export)
@@ -62,9 +67,7 @@ class Graphs:
     def export_graphs(self):
         GraphHFreqSingleInteractive(self.geoprob_pipe, export=True)
         GraphBetaValuesSingleInteractive(self.geoprob_pipe, export=True)
-        # beta_scenarios_graph(self.geoprob_pipe, export=True)
-        # beta_uittredepunten_graph(self.geoprob_pipe, export=True)
-        # beta_vakken_graph(self.geoprob_pipe, export=True)
+        IciclePlot(self.geoprob_pipe, export=True)
         self.physical_values_buitenwaterstand_and_top_zand(export=True)
         self.invloedsfactoren(export=True)
         phreatic_waterline(self.geoprob_pipe, export=True)

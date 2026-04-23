@@ -28,6 +28,13 @@ def push_scenario_invoer_tabel(app_settings: ApplicationSettings):
     conn.close()
 
 
+def _check_to_exclude_buitenwaterstand(app_settings: ApplicationSettings, df_parameter_invoer: DataFrame):
+    gdf_uittredepunten: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")
+    if "hrd_name" in gdf_uittredepunten.columns:
+        return df_parameter_invoer[df_parameter_invoer["name"] != "buitenwaterstand"]
+    return df_parameter_invoer
+
+
 def push_parameter_invoer_tabel(app_settings: ApplicationSettings):
 
     model_string = get_geohydrological_model(app_settings=app_settings)
@@ -37,6 +44,12 @@ def push_parameter_invoer_tabel(app_settings: ApplicationSettings):
     df_dummy_data = df_dummy_data.sort_values(by=["name"])
     df_parameter_invoer: DataFrame = df_dummy_data[[
         "name", "distribution_type", "mean", "variation", "deviation"]].copy()
+
+    # Exclude parameters that must be geographically added also
+    df_parameter_invoer = df_parameter_invoer[
+        ~df_parameter_invoer["name"].isin(["L_intrede", "L_but", "L_bit", "polderpeil", "mv_exit"])]
+    df_parameter_invoer = _check_to_exclude_buitenwaterstand(
+        app_settings=app_settings, df_parameter_invoer=df_parameter_invoer)
 
     # Rename columns
     df_parameter_invoer = df_parameter_invoer.rename(columns={"name": "parameter"})
