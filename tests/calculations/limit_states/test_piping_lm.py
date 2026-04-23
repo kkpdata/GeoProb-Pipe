@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from geoprob_pipe.calculations.limit_states import piping_lm
-from geoprob_pipe.calculations.systems.mappers.calculation_mapper import (
+from geoprob_pipe.calculations.systems.mappers.calculations import (
     CALCULATION_MAPPER)
 
 testset_path = Path(

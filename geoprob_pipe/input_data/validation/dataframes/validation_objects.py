@@ -41,7 +41,7 @@ class DataFrameQueryValidation:
             export_path = os.path.join(export_dir, "df_failure_rows.xlsx")
             if os.path.exists(export_path):
                 os.remove(export_path)
-            df_failure_rows.to_excel(export_path)
+            df_failure_rows.to_excel(export_path, index=False)
             print(f"{BColors.WARNING}Validatie is (voortijdig) beëindigd omdat er {df_failure_rows.__len__()} "
                   f"validatie issues voor de '{label_humanized}'-tabel zijn gevonden. De gedetailleerde lijst is "
                   f"geëxporteerd naar onderstaande locatie. Los deze issues s.v.p. eerst op. \n"

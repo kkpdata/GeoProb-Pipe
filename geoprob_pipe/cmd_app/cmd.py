@@ -1,6 +1,7 @@
 import typer
 from rich.console import Console
 import os
+import sqlite3
 from geoprob_pipe.utils import clear_terminal
 from datetime import datetime
 from rich.panel import Panel
@@ -54,6 +55,22 @@ class ApplicationSettings:
             return None
         vak_ids_str: List[str] = self.to_run.replace("vakken:", "").split(sep=",")
         return [int(vak_id_str) for vak_id_str in vak_ids_str]
+
+    @property
+    def geohydrologisch_model(self) -> str:
+        conn = sqlite3.connect(self.geopackage_filepath)
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT geoprob_pipe_metadata."values"
+            FROM geoprob_pipe_metadata
+            WHERE metadata_type='geohydrologisch_model';
+        """)
+        result = cursor.fetchone()
+        if not result:
+            raise ValueError
+        model_string = result[0]
+        conn.close()
+        return model_string
 
 
 def _raise_if_multiple_installations():

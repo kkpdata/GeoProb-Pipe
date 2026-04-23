@@ -5,7 +5,7 @@ import numpy as np
 import os
 import scipy.stats as sct
 from geopandas import GeoDataFrame, read_file
-from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
+from geoprob_pipe.calculations.systems.mappers.initial_input import INITIAL_INPUT_MAPPER
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
 from probabilistic_library import FragilityValue
 

@@ -3,7 +3,7 @@ from pandas import DataFrame, concat
 from probabilistic_library import DesignPoint, Alpha
 from typing import TYPE_CHECKING, Dict, List, Union, cast, Optional
 import numpy as np
-from geoprob_pipe.calculations.systems.mappers.calculation_mapper import CALCULATION_MAPPER
+from geoprob_pipe.calculations.systems.mappers.calculations import CALCULATION_MAPPER
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
     from geoprob_pipe.calculations.systems.base_objects.system_calculation import (

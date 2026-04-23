@@ -129,35 +129,29 @@ class Results:
         # Results of limit state calculations
         if bool_beta_limit_states:
             df = self.df_beta_limit_states
-            # TODO Nu Must Klein: Voor export df_beta_limit_states, kolommen filteren?
-            df.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_limit_states.xlsx"))
-            # TODO Nu Should Klein: Sommige resultaten zijn niet converged. Wat doen we daarmee?
-            #  Op dit moment worden ze gewoon gebruikt om de scenario-faalkans te berekenen.
+            df.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_limit_states.xlsx"), index=False)
 
         if bool_beta_scenarios_rp:
             df = self.df_beta_scenarios_rp
-            df.to_excel(excel_writer=os.path.join(
-                self.export_dir, "df_beta_scenarios_rp.xlsx"))
+            df.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_scenarios_rp.xlsx"), index=False)
 
         if bool_beta_scenarios_cp:
             df = self.df_beta_scenarios_cp
-            df.to_excel(excel_writer=os.path.join(
-                self.export_dir, "df_beta_scenarios_cp.xlsx"))
+            df.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_scenarios_cp.xlsx"), index=False)
 
         if bool_beta_scenarios_final:
             df = self.df_beta_scenarios_final
-            df.to_excel(excel_writer=os.path.join(
-                self.export_dir, "df_beta_scenarios_final.xlsx"))
+            df.to_excel(excel_writer=os.path.join(self.export_dir, "df_beta_scenarios_final.xlsx"), index=False)
 
         if bool_alphas_influence_factors_and_physical_values:
             df = self.df_alphas_influence_factors_and_physical_values()
-            df.to_excel(excel_writer=os.path.join(
-                    self.export_dir, "df_alphas_influence_factors_and_physical_values.xlsx"))
+            df.to_excel(
+                excel_writer=os.path.join(self.export_dir, "df_alphas_influence_factors_and_physical_values.xlsx"),
+                index=False)
 
         if bool_beta_uittredepunten:
             self.df_beta_uittredepunten.to_excel(
-                excel_writer=os.path.join(self.export_dir,
-                                          "df_beta_uittredepunten.xlsx"))
+                excel_writer=os.path.join(self.export_dir, "df_beta_uittredepunten.xlsx"), index=False)
 
         if bool_beta_vakken:
             self.df_beta_WBI_vakken.to_excel(

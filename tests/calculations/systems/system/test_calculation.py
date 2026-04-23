@@ -9,7 +9,7 @@ def test_calculation():
     from probabilistic_library import Alpha
     from geoprob_pipe.calculations.systems.model4a.reliability_calculation import  (
         Model4aCalculation)
-    from geoprob_pipe.calculations.systems.mappers.initial_input_mapper import INITIAL_INPUT_MAPPER
+    from geoprob_pipe.calculations.systems.mappers.initial_input import INITIAL_INPUT_MAPPER
     obj = Model4aCalculation(distributions=INITIAL_INPUT_MAPPER['model4a']['input'])
  
     # Run prob system
