@@ -271,22 +271,37 @@ def _gather_required_input_parameters(geopackage_filepath: str) -> List[str]:
 def _expand(
         df_parameter_invoer_combined: DataFrame, df_identifiers: DataFrame, geopackage_filepath: str
 ) -> Dict[str, DataFrame]:
-
     # Add parameter invoer: op uittredepunten niveau
     required_input_parameters = _gather_required_input_parameters(geopackage_filepath=geopackage_filepath)
     collection_of_dfs: Dict[str, DataFrame] = {}
+
     for parameter_name in required_input_parameters:
 
         # Gather and merge input on uittredepunten / scenario-niveau
-
-        # Uittredepunten niveau
         df_gather = df_parameter_invoer_combined[
             (df_parameter_invoer_combined['parameter'] == parameter_name) &
-            (df_parameter_invoer_combined['scope'] == 'uittredepunt')]
+            (df_parameter_invoer_combined['scope'] == 'uittredepunt') &
+            (df_parameter_invoer_combined['ondergrondscenario_naam'].notna())]
+        df_gather = df_gather[["scope_referentie", "ondergrondscenario_naam", "parameter_input"]]
+        df_gather = df_gather.rename(columns={
+            "scope_referentie": "uittredepunt_id",
+            "ondergrondscenario_naam": "naam"})
+        df = df_identifiers.copy(deep=True)
+        df["parameter_input"] = np.nan
+        df['parameter_input'] = df['parameter_input'].combine_first(
+            df_identifiers.copy(deep=True).merge(df_gather, on=["uittredepunt_id", "naam"], how="left")[
+                'parameter_input'])
+
+        # Uittredepunt niveau
+        df_gather = df_parameter_invoer_combined[
+            (df_parameter_invoer_combined['parameter'] == parameter_name) &
+            (df_parameter_invoer_combined['scope'] == 'uittredepunt') &
+            (df_parameter_invoer_combined['ondergrondscenario_naam']).isna()]
         df_gather = df_gather[["scope_referentie", "parameter_input"]]
-        df = df_identifiers.copy(deep=True).merge(
-            df_gather, how="left", left_on="uittredepunt_id", right_on="scope_referentie")
-        df = df.drop(columns=["scope_referentie"])
+        df_gather = df_gather.rename(columns={"scope_referentie": "uittredepunt_id"})
+
+        df['parameter_input'] = df['parameter_input'].combine_first(
+            df_identifiers.copy(deep=True).merge(df_gather, on=["uittredepunt_id"], how="left")['parameter_input'])
 
         # Vak / scenario niveau
         df_gather = df_parameter_invoer_combined[
