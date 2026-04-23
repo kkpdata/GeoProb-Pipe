@@ -277,7 +277,9 @@ def _expand(
     collection_of_dfs: Dict[str, DataFrame] = {}
     for parameter_name in required_input_parameters:
 
-        # Gather and merge input on uittredepunten-niveau
+        # Gather and merge input on uittredepunten / scenario-niveau
+
+        # Uittredepunten niveau
         df_gather = df_parameter_invoer_combined[
             (df_parameter_invoer_combined['parameter'] == parameter_name) &
             (df_parameter_invoer_combined['scope'] == 'uittredepunt')]
