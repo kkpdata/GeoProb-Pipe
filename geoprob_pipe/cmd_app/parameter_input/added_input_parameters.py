@@ -63,7 +63,8 @@ def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSetting
     ).execute()
 
     if choice == choices_list[0]:
-        InputParameterFigures(app_settings=app_settings, tables=tables, export=True)
+        obj = InputParameterFigures.populate(app_settings=app_settings, tables=tables, export=True)
+        obj.run()
     elif choice == choices_list[1]:
         pass  # Just continue
     elif choice == choices_list[2]:
@@ -160,7 +161,8 @@ def inquire_to_import_export_tables_and_figures_or_continue(
             validity_extended_tables=validity_extended_tables)
 
     elif choice == "Overzichtsfiguren van invoertabellen: Exporteren":
-        InputParameterFigures(app_settings=app_settings, tables=tables, export=True)
+        obj = InputParameterFigures.populate(app_settings=app_settings, tables=tables, export=True)
+        obj.run()
         inquire_to_import_export_tables_and_figures_or_continue(
             app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
             validity_extended_tables=validity_extended_tables)

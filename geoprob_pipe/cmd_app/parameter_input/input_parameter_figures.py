@@ -8,19 +8,24 @@ from geopandas import GeoDataFrame, read_file
 from geoprob_pipe.utils.statistics import calc_kar_waarde_lognormal, calc_kar_waarde_normal
 import plotly.graph_objects as go
 from geoprob_pipe.utils.validation_messages import BColors
+from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
-    from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
 
 
 class InputParameterFigures:
 
-    def __init__(self, app_settings: ApplicationSettings, tables: InputParameterTables, export: bool = False,
-                 export_sub_dir: str = "parameter_input_process"):
-        self.app_settings: ApplicationSettings = app_settings
-        self.tables: InputParameterTables = tables
-        self.export: bool = export
-        self.export_sub_dir: str = export_sub_dir
+    def __init__(
+            self,
+            # app_settings: ApplicationSettings,
+            # tables: InputParameterTables,
+            # export: bool = False,
+            # export_sub_dir: str = "parameter_input_process"
+    ):
+        self.app_settings: Optional[ApplicationSettings] = None
+        self.tables: Optional[InputParameterTables] = None
+        self.export: bool = False
+        self.export_sub_dir: str = "parameter_input_process"
 
         # Placeholders
         self.df_parameter_invoer: Optional[DataFrame] = None
@@ -31,7 +36,29 @@ class InputParameterFigures:
         self.y_min = 0
         self.y_max = 0  # Will be adjusted on each parameter
 
-        # Perform logic
+    @classmethod
+    def populate(
+            cls, app_settings: ApplicationSettings, tables: Optional[InputParameterTables] = None,
+            export: bool = False, export_sub_dir: Optional[str] = None,
+    ) -> InputParameterFigures:
+        # Initiatie object
+        obj = cls()
+
+        # Populate
+        obj.app_settings = app_settings
+        if tables is None:
+            obj.tables = InputParameterTables(geopackage_filepath=app_settings.geopackage_filepath)
+        else:
+            obj.tables = tables
+        obj.export = export
+        if export_sub_dir is not None:
+            obj.export_sub_dir = export_sub_dir
+
+        return obj
+
+    def run(self):
+        assert self.app_settings is not None
+        assert self.tables is not None
         self._gather_data()
         self._create_figures()
 
@@ -82,7 +109,8 @@ class InputParameterFigures:
 
         # Log normal
         if row['distribution_type'] == 'log_normal':
-            kar_5pr = calc_kar_waarde_lognormal(mean=mean_value, sd=deviation_value, percentiel=0.05)  # TODO: Shift bepalen
+            kar_5pr = calc_kar_waarde_lognormal(mean=mean_value, sd=deviation_value,
+                                                percentiel=0.05)  # TODO: Shift bepalen
             kar_95pr = calc_kar_waarde_lognormal(mean=mean_value, sd=deviation_value, percentiel=0.95)
             return mean_value, kar_5pr, kar_95pr
 
@@ -97,7 +125,7 @@ class InputParameterFigures:
     @staticmethod
     def _get_display_values_from_df(
             df: DataFrame
-) -> Tuple[
+    ) -> Tuple[
         List[float],
         Optional[List[Optional[None]]],
         Optional[List[Optional[None]]],
@@ -234,7 +262,7 @@ class InputParameterFigures:
             (self.df_parameter_invoer['parameter'] == parameter_name) &
             (self.df_parameter_invoer['scope'] == 'vak') &
             (self.df_parameter_invoer['ondergrondscenario_naam'].isna())
-        ]
+            ]
         show_legend_item = True
 
         for index, row in df_filter.iterrows():
