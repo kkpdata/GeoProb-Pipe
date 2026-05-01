@@ -1,26 +1,16 @@
 Assembleren
 ===========
 
-Deze pagina beschrijft de assemblage van faalkansen binnen `GeoProb-Pipe`
-voor het faalmechanisme STPH (piping).
-De assemblage combineert lokaal berekende faalkansen op uittredepuntniveau
-tot faalkansen op vak- en trajectniveau.
+Deze pagina beschrijft de assemblage van faalkansen binnen GeoProb-Pipe voor het faalmechanisme STPH (piping). 
+De verschillende pagina’s binnen dit hoofdstuk beschrijven 
+hoe lokaal berekende faalkansen worden opgebouwd vanaf scenarioberekeningen en uiteindelijk worden vertaald naar een trajectkans.
 
-Samenvatting
-------------
+De assemblage start altijd op scenarioniveau. Per uittredepunt worden meerdere ondergrondscenario’s en faalmechanismen probabilistisch doorgerekend, 
+wat resulteert in een set scenariofaalkansen. Deze worden vervolgens samengevoegd tot een representatieve faalkans op uittredepuntniveau.
 
-De assemblage start bij individuele scenario’s per uittredepunt, waarin
-meerdere faalmechanismen probabilistisch worden gecombineerd.
-Via opschaling met het lengte-effect worden faalkansen geaggregeerd naar
-vakniveau. Op trajectniveau worden vakkansen gecombineerd als een
-seriesysteem, zonder aanvullende opschaling.
+Vanaf dit punt verschillen de methoden in de manier waarop de stap naar trajectniveau wordt gemaakt. Er wordt geen uniforme of verplichte vakindeling gehanteerd. 
+Afhankelijk van de gekozen methode wordt de trajectkans direct bepaald of via een tussenvorm benaderd.
 
-Het lengte-effect wordt uitsluitend toegepast bij de overgang van
-uittredepunt naar vak, waarmee dubbeltelling wordt voorkomen. De
-α-vector wordt niet gemiddeld of gecombineerd, maar steeds ontleend aan
-het onderliggende scenario, uittredepunt of vak dat de grootste bijdrage
-levert aan de totale faalkans, omdat α-vectoren niet lineair
-optelbaar zijn.
 
 .. toctree::
    :maxdepth: 2
@@ -30,5 +20,7 @@ optelbaar zijn.
    assembleren/kader
    assembleren/stap0_sc
    assembleren/stap1_sc_up
-   assembleren/stap2_up_vak
-   assembleren/stap3_vak_tra
+   assembleren/vakkans_trajectkans
+   assembleren/methoden_trajectkans
+   assembleren/resultaten
+   

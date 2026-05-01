@@ -1,4 +1,4 @@
-Stap 0: Scenarioberekening
+Scenarioberekening
 ===========================
 Piping treedt op als opbarsten én heave én terugschrijdende erosie optreedt.
 Deze mechanismen zijn beschreven door grenstoestandsfuncties (``Zu``, ``Zh`` en ``Zp``).

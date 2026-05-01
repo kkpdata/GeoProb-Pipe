@@ -1,19 +1,25 @@
-Stap 1: Scenarioberekeningen → Uittredepunt
-=============================================
+Scenarioberekening → uittredepunt
+=========================================
 
-In GeoProb‑Pipe vormt het **uittredepunt** de kleinste zelfstandige bouwsteen in de assemblage van faalkansen. Een
-uittredepunt is een fysieke locatie langs de waterkering waar piping kan initiëren. In tegenstelling tot de klassieke
-BOI‑benadering wordt niet een enkele doorsnede beschouwd, maar een reeks uittredepunt locaties langs het traject.
+In GeoProb-Pipe vormt het **uittredepunt** de kleinste zelfstandige
+bouwsteen in de assemblage van faalkansen. Een uittredepunt is een
+fysieke locatie langs de waterkering waar piping kan initiëren. In
+tegenstelling tot de klassieke BOI-benadering wordt geen doorsnede
+beschouwd, maar een reeks uittredepuntlocaties langs het traject.
 
-Per uittredepunt worden meerdere ondergrondscenario’s doorgerekend. In stap 0 levert dit voor elk scenario één β‑waarde
-op.
+Per uittredepunt worden meerdere **ondergrondscenario’s**
+doorgerekend. Stap 0 levert voor elk scenario één
+betrouwbaarheidsindex (:math:`\\beta`).
 
 Van scenarioberekening naar de betrouwbaarheid van het uittredepunt
---------------------------------------------------------------------
+-----------------------------------------------------------------------
 
-Stap 0 levert één β‑waarde per uittredepunt per ondergrondscenario. Deze waarden worden vervolgens samengevoegd tot één
-β‑waarde per uittredepunt door de faalkansen te wegen met de kans van het scenario.
+De resultaten uit de scenarioberekeningen worden samengevoegd tot één
+faalkans per uittredepunt door de scenariokansen als wegingsfactor te
+gebruiken. De gecombineerde faalkans wordt bepaald via een gewogen
+gemiddelde van de afzonderlijke scenariokansen.
 
-Als één scenarioberekening niet convergeert, dan wordt het resultaat van het uittredepunt ook als niet-geconvergeerd
-gemarkeerd.
+Indien één van de scenarioberekeningen niet convergeert, wordt het
+betreffende uittredepunt als **niet geconvergeerd** beschouwd. Verdere
+opschaling naar vak- en trajectniveau is in dat geval niet betrouwbaar.
 
