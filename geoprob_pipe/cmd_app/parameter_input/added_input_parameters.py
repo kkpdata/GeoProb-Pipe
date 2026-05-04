@@ -120,8 +120,9 @@ def _export_expanded_input(app_settings: ApplicationSettings):
         dst_path = dst_path.replace(".xlsx", f"_{datetime_stamp}.xlsx")
 
     # Export
-    df.to_excel(dst_path)
-
+    df.to_excel(dst_path, index=False)
+    print(f"{BColors.UNDERLINE}Exporteren van 'expanded' tabel compleet:\n"
+          f"{dst_path}{BColors.ENDC}")
 
 def inquire_to_import_export_tables_and_figures_or_continue(
         app_settings: ApplicationSettings, tables: InputParameterTables,
