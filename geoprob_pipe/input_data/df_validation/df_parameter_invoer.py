@@ -25,8 +25,8 @@ SCOPE_REFERENTIE = ColumnValidation(column_name="scope_referentie", requirements
 ONDERGRONDSCENARIO_NAAM = ColumnValidation(column_name="ondergrondscenario_naam", requirements=[
     ValidationRequirement(
         requirement=requirements.is_null,
-        failure_msg=f"De ondergrondscenario naam moet leeg zijn wanneer de scope 'traject' of 'uittredepunt' is.",
-        filters=filters.is_in("scope", ["traject", "uittredepunt"])),
+        failure_msg=f"De ondergrondscenario naam moet leeg zijn wanneer de scope 'traject' is.",
+        filters=filters.is_in("scope", ["traject"])),
 ])
 
 DISTRIBUTION_TYPE = ColumnValidation(column_name="distribution_type", requirements=[

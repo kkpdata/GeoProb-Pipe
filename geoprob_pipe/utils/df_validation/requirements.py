@@ -1,7 +1,7 @@
 from pandas import Series, DataFrame, to_numeric
 import numpy as np
 from geoprob_pipe.utils.df_validation.requirement import ValidationRequirement
-from typing import List, Optional, Callable
+from typing import List, Optional, Callable, Literal
 
 
 def is_string(s: Series) -> Series:
@@ -14,6 +14,12 @@ IsString = ValidationRequirement(requirement=is_string, failure_msg="Value in co
 def is_in(values: List):
     assert isinstance(values, List)
     return lambda s: s.isin(values)
+
+
+def is_in_range(
+        left: float, right: float,
+        inclusive: Literal["both", "neither", "left", "right"] = "both") -> Callable[[Series], Series]:
+    return lambda s: s.between(left, right, inclusive=inclusive)
 
 
 def is_not_null(s: Series) -> Series:

@@ -104,9 +104,9 @@ class GeoProbPipe:
         df_expanded.to_excel(excel_writer=os.path.join(input_dir, "df_parameter_invoer_expanded.xlsx"), index=False)
 
         # Input parameter figures
-        tables = InputParameterTables(geopackage_filepath=self.input_data.app_settings.geopackage_filepath)
-        InputParameterFigures(
-            app_settings=self.input_data.app_settings, tables=tables, export=True, export_sub_dir="input")
+        obj = InputParameterFigures.populate(
+            app_settings=self.input_data.app_settings, export=True, export_sub_dir="input")
+        obj.run()
 
         # Add run metadata to geopackage
         update_metadata(self)
