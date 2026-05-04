@@ -15,13 +15,7 @@ if TYPE_CHECKING:
 
 class InputParameterFigures:
 
-    def __init__(
-            self,
-            # app_settings: ApplicationSettings,
-            # tables: InputParameterTables,
-            # export: bool = False,
-            # export_sub_dir: str = "parameter_input_process"
-    ):
+    def __init__(self):
         self.app_settings: Optional[ApplicationSettings] = None
         self.tables: Optional[InputParameterTables] = None
         self.export: bool = False
@@ -38,9 +32,21 @@ class InputParameterFigures:
 
     @classmethod
     def populate(
-            cls, app_settings: ApplicationSettings, tables: Optional[InputParameterTables] = None,
-            export: bool = False, export_sub_dir: Optional[str] = None,
+            cls, app_settings: ApplicationSettings,
+            tables: Optional[InputParameterTables] = None,
+            export: bool = False,
+            export_sub_dir: Optional[str] = None,
     ) -> InputParameterFigures:
+        """
+
+        :param app_settings:
+        :param tables: Optional, generated from geopackage if not provided. Handy argument when tables are imported
+            from Excel.
+        :param export:
+        :param export_sub_dir: Optional. If not provided, then default value will be used.
+        :return:
+        """
+
         # Initiatie object
         obj = cls()
 
