@@ -13,6 +13,16 @@ if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
+COLORS = {
+    "geospatial": 'rgba(0, 0, 117, 1)',  # dark blue
+    "traject": 'rgba(173, 216, 230, 1)',  # light blue (formally textual Plotly key lightblue)
+    "vak": 'rgba(255, 165, 0, 1)',  # orange (formally textual Plotly key orange)
+    "vak_per_scenario": 'rgb(148, 103, 189)',  # purple
+    "uittredepunt": 'rgba(0, 0, 0, 1)',  # black
+    "uittredepunt_per_scenario": 'rgb(148, 103, 189)',  # purple
+}
+
+
 class InputParameterFigures:
 
     def __init__(self):
@@ -191,7 +201,7 @@ class InputParameterFigures:
                 name="Geo-gerefereerd",
                 legendgroup="Geo-gerefereerd",
                 showlegend=show_legend_item_mean,
-                marker=dict(color='rgba(0, 0, 117, 1)', size=10, symbol="circle")))
+                marker=dict(color=COLORS["geospatial"], size=10, symbol="circle")))
             show_legend_item_mean = False
 
             # Add (possibly) deviation
@@ -203,7 +213,7 @@ class InputParameterFigures:
                     name="Geo-gerefereerd",
                     legendgroup="Geo-gerefereerd",
                     showlegend=False,
-                    marker=dict(color='rgba(0, 0, 117, 1)', size=10, symbol="triangle-up")))
+                    marker=dict(color=COLORS["geospatial"], size=10, symbol="triangle-up")))
             if kar_95pr:
                 fig.add_trace(go.Scatter(
                     x=[x_value, x_value],
@@ -212,7 +222,7 @@ class InputParameterFigures:
                     name="Geo-gerefereerd",
                     legendgroup="Geo-gerefereerd",
                     showlegend=False,
-                    marker=dict(color='rgba(0, 0, 117, 1)', size=10, symbol="triangle-down")))
+                    marker=dict(color=COLORS["geospatial"], size=10, symbol="triangle-down")))
 
         return fig
 
@@ -232,7 +242,7 @@ class InputParameterFigures:
                 y=[self.y_min, self.y_min, mean, mean, self.y_min],
                 fill='toself',
                 mode='lines',
-                fillcolor='lightblue',
+                fillcolor=COLORS["traject"],
                 name="Traject-niveau",
                 legendgroup="Traject-niveau",
                 showlegend=True,
@@ -288,7 +298,7 @@ class InputParameterFigures:
                 y=[self.y_min, self.y_min, mean, mean, self.y_min],
                 fill='toself',
                 mode='lines',
-                fillcolor='orange',
+                fillcolor=COLORS["vak"],
                 name="Vak-niveau",
                 legendgroup="Vak-niveau",
                 showlegend=show_legend_item,
@@ -338,7 +348,7 @@ class InputParameterFigures:
                 y=[self.y_min, self.y_min, max_mean, max_mean, self.y_min],
                 fill='toself',
                 mode='lines',
-                fillcolor='rgb(148, 103, 189)',
+                fillcolor=COLORS["vak_per_scenario"],
                 name="Vak-niveau per scenario",
                 legendgroup="Vak-niveau per scenario",
                 showlegend=show_legend_item,
@@ -403,7 +413,7 @@ class InputParameterFigures:
                 name="Uittredepunt-niveau",
                 legendgroup="Uittredepunt-niveau",
                 showlegend=show_legend_item_mean,
-                marker=dict(color='rgba(0, 0, 0, 1)', size=10, symbol="circle"),
+                marker=dict(color=COLORS["uittredepunt"], size=10, symbol="circle"),
             ))
             show_legend_item_mean = False
 
@@ -429,8 +439,53 @@ class InputParameterFigures:
 
         return fig
 
-    def _add_uittredepunt_per_scenario_data(self):
-        pass  # TODO
+    def _add_uittredepunt_per_scenario_data(self, fig: go.Figure, parameter_name: str) -> go.Figure:
+        df_filter: DataFrame = self.df_parameter_invoer[
+            (self.df_parameter_invoer['parameter'] == parameter_name) &
+            (self.df_parameter_invoer['scope'] == 'uittredepunt') &
+            (self.df_parameter_invoer['ondergrondscenario_naam'].notna())]
+        show_legend_item = True
+
+        for uittredepunt_id in df_filter['scope_referentie'].unique():
+            df_filter2 = df_filter[df_filter['scope_referentie'] == uittredepunt_id]
+            mean_values, kar_5pr_values, kar_95pr_values = self._get_display_values_from_df(df_filter2)
+            x_value = self.dict_uittredepunten[uittredepunt_id]['metrering']
+
+            # Add (possibly) deviation
+            for mean, kar_5pr_value, kar_95pr_value in zip(mean_values, kar_5pr_values, kar_95pr_values):
+
+                # Mean
+                fig.add_trace(go.Scatter(
+                    x=[x_value],
+                    y=[mean],
+                    mode='markers',
+                    name="Uittredepunt-niveau per scenario",
+                    legendgroup="Uittredepunt-niveau per scenario",
+                    showlegend=show_legend_item,
+                    marker=dict(color=COLORS["uittredepunt_per_scenario"], size=10, symbol="circle")))
+                show_legend_item = False
+
+                # Kar values
+                if kar_5pr_value is not None:
+                    fig.add_trace(go.Scatter(
+                        x=[x_value],
+                        y=[kar_5pr_value],
+                        mode='markers',
+                        name="Uittredepunt-niveau per scenario",
+                        legendgroup="Uittredepunt-niveau per scenario",
+                        showlegend=False,
+                        marker=dict(color='rgba(0, 0, 0, 1)', size=10, symbol="triangle-up")))
+                if kar_95pr_value is not None:
+                    fig.add_trace(go.Scatter(
+                        x=[x_value],
+                        y=[kar_95pr_value],
+                        mode='markers',
+                        name="Uittredepunt-niveau per scenario",
+                        legendgroup="Uittredepunt-niveau per scenario",
+                        showlegend=False,
+                        marker=dict(color='rgba(0, 0, 0, 1)', size=10, symbol="triangle-down")))
+
+        return fig
 
     @staticmethod
     def _add_legend_symbols(fig: go.Figure) -> go.Figure:
@@ -499,7 +554,7 @@ class InputParameterFigures:
             fig = self._add_uittredepunt_level_data(fig=fig, parameter_name=parameter_name)
 
             # Add uittredepunten-level per scenario
-            self._add_uittredepunt_per_scenario_data()  # TODO
+            fig = self._add_uittredepunt_per_scenario_data(fig=fig, parameter_name=parameter_name)
 
             # Add some legend items
             fig = self._add_legend_symbols(fig=fig)
