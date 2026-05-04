@@ -381,10 +381,11 @@ class InputParameterFigures:
     def _add_uittredepunt_level_data(self, fig: go.Figure, parameter_name: str) -> go.Figure:
         df_filter: DataFrame = self.df_parameter_invoer[
             (self.df_parameter_invoer['parameter'] == parameter_name) &
-            (self.df_parameter_invoer['scope'] == 'uittredepunt')]
+            (self.df_parameter_invoer['scope'] == 'uittredepunt') &
+            (self.df_parameter_invoer['ondergrondscenario_naam'].isna())
+        ]
         show_legend_item_mean = True
 
-        # print(f"{df_filter.columns=}")
         for index, row in df_filter.iterrows():
 
             # Skip cdf curve
@@ -427,6 +428,9 @@ class InputParameterFigures:
                     marker=dict(color='rgba(0, 0, 0, 1)', size=10, symbol="triangle-down")))
 
         return fig
+
+    def _add_uittredepunt_per_scenario_data(self):
+        pass  # TODO
 
     @staticmethod
     def _add_legend_symbols(fig: go.Figure) -> go.Figure:
@@ -493,6 +497,9 @@ class InputParameterFigures:
 
             # Add uittredepunten-level
             fig = self._add_uittredepunt_level_data(fig=fig, parameter_name=parameter_name)
+
+            # Add uittredepunten-level per scenario
+            self._add_uittredepunt_per_scenario_data()  # TODO
 
             # Add some legend items
             fig = self._add_legend_symbols(fig=fig)
