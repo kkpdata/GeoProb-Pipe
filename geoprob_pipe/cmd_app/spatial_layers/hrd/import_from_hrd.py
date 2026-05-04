@@ -68,9 +68,7 @@ def _ask_path_to_hrd_dir() -> str:
 def _add_hrd_locations_to_database(app_settings: ApplicationSettings, hrd_dir: str):
 
     # Add HRD locations to GeoPackage
-    print(f"{hrd_dir=}")
     hrd_path = hrd_file_path(hrd_dir=hrd_dir)
-    print(f"{hrd_path=}")
     hrd = pydra.HRDatabase(hrd_path)
     location_names = hrd.locationnames
     hrd_location_rows = []
@@ -147,13 +145,11 @@ def _get_traject_id(hrd_dir: str) -> Tuple[int, str]:
     """ Queries first the HRD for the integer ID of the traject.
     Then queries the HLCD to find the textual traject ID.
     """
-    print(f"_get_traject_id")
     conn = sqlite3.connect(hrd_file_path(hrd_dir=hrd_dir))
     cursor = conn.cursor()
     query = "SELECT TrackID FROM General;"
     cursor.execute(query)
     track_id = cursor.fetchone()[0]
-    print(f"{track_id=}")
     conn.close()
 
     conn = sqlite3.connect(_hlcd_file_path(hrd_dir=hrd_dir))
@@ -161,7 +157,6 @@ def _get_traject_id(hrd_dir: str) -> Tuple[int, str]:
     query = f"SELECT Name FROM Tracks WHERE TrackID={track_id};"
     cursor.execute(query)
     traject_id = cursor.fetchone()[0]
-    print(f"{traject_id=}")
     conn.close()
 
     return track_id, traject_id
@@ -198,7 +193,6 @@ def _add_traject_parameters(app_settings: ApplicationSettings, hrd_dir: str):
 
     # Gather data
     traject_id = _get_traject_id(hrd_dir=hrd_dir)[1].strip()
-    print(f"{traject_id=}")
     signaleringswaarde, ondergrens = _query_dijktrajecten(traject_id=traject_id)
     w: float = 0.24  # Assumed to be always 24% in case of HRD database
     is_bovenrivierengebied: bool = _ask_is_bovenrivierengebied()
