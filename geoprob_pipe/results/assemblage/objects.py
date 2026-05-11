@@ -27,11 +27,11 @@ class KansElement:
             if not (0.0 <= self.pf <= 1.0):
                 raise ValueError(f"pof moet tussen 0.0 en 1.0 liggen. Huidige waarde is {self.pf}")
 
-        if self.beta is not None:
-            if not math.isfinite(self.beta):
-                raise ValueError("beta moet een eindige waarde zijn.")
-            if (-38.0 <= self.beta <= 38.0) is False:
-                raise ValueError(f"beta moet tussen -38.0 en 38.0 liggen. Huidige waarde is {self.beta}")
+        # if self.beta is not None:
+        #     if not math.isfinite(self.beta):
+        #         raise ValueError("beta moet een eindige waarde zijn.")
+        #     if (-38.0 <= self.beta <= 38.0) is False:
+        #         raise ValueError(f"beta moet tussen -38.0 en 38.0 liggen. Huidige waarde is {self.beta}")
 
         if self.pf is None and self.beta is not None:
             self.pf = float(stats.norm.cdf(-1.0 * self.beta))
@@ -58,11 +58,11 @@ class UittredepuntElement:
             if not (0.0 <= self.pf <= 1.0):
                 raise ValueError(f"pof moet tussen 0.0 en 1.0 liggen. Huidige waarde is {self.pf}")
 
-        if self.beta is not None:
-            if not math.isfinite(self.beta):
-                raise ValueError("beta moet een eindige waarde zijn.")
-            if (-38.0 <= self.beta <= 38.0) is False:
-                raise ValueError(f"beta moet tussen -38.0 en 38.0 liggen. Huidige waarde is {self.beta}")
+        # if self.beta is not None:
+        #     if not math.isfinite(self.beta):
+        #         raise ValueError("beta moet een eindige waarde zijn.")
+        #     if (-38.0 <= self.beta <= 38.0) is False:
+        #         raise ValueError(f"beta moet tussen -38.0 en 38.0 liggen. Huidige waarde is {self.beta}")
 
         if self.pf is None and self.beta is not None:
             self.pf = float(stats.norm.cdf(-1.0 * self.beta))
@@ -121,7 +121,7 @@ class VakElement:
             pf_dsn = max(list_pf)
 
         # Bereken vak kans
-        pf_vak = self.N_vak * pf_dsn
+        pf_vak = min(1, self.N_vak * pf_dsn)  # Limit naar 1 bij zeer hoge pof.
 
         return KansElement(pf=pf_dsn), KansElement(pf=pf_vak)
 

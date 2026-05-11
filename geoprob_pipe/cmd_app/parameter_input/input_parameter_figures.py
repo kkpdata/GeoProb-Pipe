@@ -185,7 +185,7 @@ class InputParameterFigures:
             (self.df_gis_join_parameter_invoer['scope'] == 'uittredepunt')]
         show_legend_item_mean = True
 
-        for index, row in df_filter.iterrows():
+        for _, row in df_filter.iterrows():
 
             # Skip cdf curve
             if row['distribution_type'] == 'cdf_curve':
