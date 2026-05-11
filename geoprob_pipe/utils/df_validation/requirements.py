@@ -34,11 +34,11 @@ class IsInRange(ValidationRequirement):
 
 
 def is_not_null(s: Series) -> Series:
-    return s.notna()
+    return ~(s == "")
 
 
 def is_null(s: Series) -> Series:
-    return ~s.notna()
+    return (s == "")
 
 
 def is_in(values: List):
@@ -60,8 +60,10 @@ def is_integer(s: Series) -> Series:
 
 
 def is_whole_number(s: Series) -> Series:
-    return s.notna() & (s % 1 == 0)
+    s_num = to_numeric(s, errors="coerce")  # De tweede test breekt als er iets anders dan een getal in staan.
+    return s_num.notna() & (s_num % 1 == 0)
 
 
 def is_numeric(s: Series) -> Series:
-    return to_numeric(s, errors="coerce").notna()
+    s_num = to_numeric(s, errors="coerce")
+    return s_num.notna()
