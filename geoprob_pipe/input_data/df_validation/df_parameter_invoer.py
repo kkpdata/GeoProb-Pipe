@@ -88,13 +88,13 @@ DEVIATION = ColumnValidation(column_name="deviation", requirements=[
 
 MINIMUM = ColumnValidation(column_name="minimum", requirements=[
     ValidationRequirement(
-        requirement=requirements.is_not_null,
+        requirement=requirements.is_null,
         failure_msg=f"De minimum-kolom is momenteel nog buiten gebruik. Laat deze kolom leeg."),
 ])
 
 MAXIMUM = ColumnValidation(column_name="maximum", requirements=[
     ValidationRequirement(
-        requirement=requirements.is_not_null,
+        requirement=requirements.is_null,
         failure_msg=f"De maximum-kolom is momenteel nog buiten gebruik. Laat deze kolom leeg."),
 ])
 

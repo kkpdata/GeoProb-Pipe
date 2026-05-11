@@ -34,11 +34,13 @@ class IsInRange(ValidationRequirement):
 
 
 def is_not_null(s: Series) -> Series:
-    return ~(s == "")
+    s_num = to_numeric(s, errors="coerce")
+    return s_num.notna()
 
 
 def is_null(s: Series) -> Series:
-    return (s == "")
+    s_num = to_numeric(s, errors="coerce")
+    return ~s_num.notna()
 
 
 def is_in(values: List):
