@@ -1,15 +1,20 @@
 Assembleren
 ===========
 
-Deze pagina beschrijft de assemblage van faalkansen binnen GeoProb-Pipe voor het faalmechanisme STPH (piping). 
-De verschillende pagina’s binnen dit hoofdstuk beschrijven 
-hoe lokaal berekende faalkansen worden opgebouwd vanaf scenarioberekeningen en uiteindelijk worden vertaald naar een trajectkans.
+Deze pagina beschrijft de assemblage van faalkansen binnen GeoProb-Pipe voor het faalmechanisme STPH (piping). De
+verschillende pagina’s binnen dit hoofdstuk beschrijven hoe lokaal berekende faalkansen worden opgebouwd vanaf
+scenarioberekeningen naar uiteindelijk een trajectkans.
 
-De assemblage start altijd op scenarioniveau. Per uittredepunt worden meerdere ondergrondscenario’s en faalmechanismen probabilistisch doorgerekend, 
-wat resulteert in een set scenariofaalkansen. Deze worden vervolgens samengevoegd tot een representatieve faalkans op uittredepuntniveau.
 
-Vanaf dit punt verschillen de methoden in de manier waarop de stap naar trajectniveau wordt gemaakt. Er wordt geen uniforme of verplichte vakindeling gehanteerd. 
-Afhankelijk van de gekozen methode wordt de trajectkans direct bepaald of via een tussenvorm benaderd.
+Samenvatting
+~~~~~~~~~~~~
+
+De assemblage start op scenarioniveau met de faalkansen van de grenstoestandsfuncties heave, uplift en piping. Deze
+faalkansen zijn probabilistisch bepaald en worden op gewogen wijze samengevoegd tot een faalkans op uittredepuntniveau.
+
+Vanuit dit niveau worden verschillende methoden doorgerekend naar een faalkans op trajectniveau. Daarbij wordt geen
+uniforme of verplichte vakindeling gehanteerd: afhankelijk van de gekozen methode wordt de trajectfaalkans rechtstreeks
+bepaald of via een automatische opdeling van het dijktraject.
 
 
 .. toctree::

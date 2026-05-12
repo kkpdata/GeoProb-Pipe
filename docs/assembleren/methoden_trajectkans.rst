@@ -1,5 +1,5 @@
-Drie methode in GeoProb-pipe
-===========================
+Drie methoden in GeoProb-Pipe
+=============================
 
 Binnen GeoProb-Pipe worden meerdere methoden toegepast om van uittredepunt naar trajectkans te komen. 
 Deze methoden verschillen in de manier waarop het lengte-effect en de onderlinge afhankelijkheid worden gemodelleerd.
