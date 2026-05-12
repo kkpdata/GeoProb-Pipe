@@ -1,11 +1,22 @@
 Van uittredepunt naar vak- en trajectkans
 ===========================================
 
-De faalkans van een dijktraject wordt in GeoProb-Pipe opgebouwd vanuit individuele uittredepunten die samen een seriesysteem vormen. Elk uittredepunt representeert een mogelijke locatie waar piping kan optreden, maar doordat deze punten ruimtelijk dicht bij elkaar kunnen liggen is er sprake van onderlinge afhankelijkheid. Deze afhankelijkheid bepaalt in sterke mate de trajectkans, maar is in de praktijk niet exact bekend. Hierdoor kan de trajectfaalkans niet rechtstreeks worden bepaald door alle uittredepuntkansen simpelweg te combineren, maar moet deze worden benaderd binnen een bandbreedte die wordt begrensd door twee uitersten.
+De faalkans van een dijktraject wordt in GeoProb-Pipe opgebouwd vanuit individuele uittredepunten die samen een
+seriesysteem vormen. Elk uittredepunt representeert een mogelijke locatie waar piping kan optreden, maar doordat deze
+punten ruimtelijk dicht bij elkaar kunnen liggen is er sprake van onderlinge afhankelijkheid. Deze afhankelijkheid
+bepaalt in sterke mate de trajectkans, maar is in de praktijk niet exact bekend. Hierdoor kan de trajectfaalkans niet
+rechtstreeks worden bepaald door alle uittredepuntkansen simpelweg te combineren, maar moet deze worden benaderd
+binnen een bandbreedte die wordt begrensd door twee uitersten.
 
-* **Bovengrens:** uitgaan van volledige onafhankelijkheid tussen uittredepunten, wat leidt tot een conservatieve inschatting (SOM-methode)
-* **Ondergrens:** uitgaan van volledige afhankelijkheid tussen uittredepunten, wat leidt tot de minimale trajectfaalkans (MAX-methode)
-* **Werkelijkheid:** de elementen in het seriesysteem hebben op voorhand een onbekende onderlinge afhankelijkheid. De mate van afhankelijkheid bepaalt de ‘werkelijke’ faalkans van het systeem. Echter, deze werkelijke faalkans is in de praktijk lastig te bepalen vanwege beperkingen in rekenkracht en geheugen, maar ook door beperkingen in beschikbare rekentechnieken. Daarom ligt de werkelijke situatie tussen de twee uitersten, maar kan deze niet exact worden vastgesteld.
+* **Bovengrens:** uitgaan van volledige onafhankelijkheid tussen uittredepunten, wat leidt tot een conservatieve
+inschatting (SOM-methode)
+* **Ondergrens:** uitgaan van volledige afhankelijkheid tussen uittredepunten, wat leidt tot de minimale
+trajectfaalkans (MAX-methode)
+* **Werkelijkheid:** de elementen in het seriesysteem hebben op voorhand een onbekende onderlinge afhankelijkheid.
+De mate van afhankelijkheid bepaalt de ‘werkelijke’ faalkans van het systeem. Echter, deze werkelijke faalkans is in de
+praktijk lastig te bepalen vanwege beperkingen in rekenkracht en geheugen, maar ook door beperkingen in beschikbare
+rekentechnieken. Daarom ligt de werkelijke situatie tussen de twee uitersten, maar kan deze niet exact worden
+vastgesteld.
 
 
 Waarom niet gewoon probabilistisch combineren?
