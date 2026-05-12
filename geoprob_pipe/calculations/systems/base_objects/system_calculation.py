@@ -3,8 +3,10 @@ from probabilistic_library import (
     CombinerMethod, CombineType, Stochast, Settings)
 from typing import Optional, Callable, List, Dict, Union, Tuple
 from geoprob_pipe.utils.validation_messages import ValidationMessages
-# noinspection PyPep8Naming
-from geoprob_pipe.utils.loggers import TmpAppConsoleHandler as logger
+import logging
+
+
+logger = logging.getLogger("geoprob-pipe")
 
 
 DEFAULT_RELIABILITY_SETTINGS: Dict[str, Union[str, float, int]] = {
@@ -13,6 +15,15 @@ DEFAULT_RELIABILITY_SETTINGS: Dict[str, Union[str, float, int]] = {
     "maximum_iterations": 1000,
     "relaxation_factor": 0.4,
 }
+
+# DEFAULT_RELIABILITY_SETTINGS: Dict[str, Union[str, float, int]] = {
+#     "reliability_method": ReliabilityMethod.form.__str__(),
+#     "variation_coefficient": 0.02,
+#     "maximum_iterations": 10_000,
+#     "relaxation_factor": 0.4,
+#     "epsilon_beta": 0.05,
+#     "relaxation_loops": 10,
+# }
 
 
 class SystemSetup:

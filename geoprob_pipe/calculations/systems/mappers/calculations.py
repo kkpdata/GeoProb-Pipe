@@ -1,12 +1,8 @@
-from geoprob_pipe.calculations.systems.moria.system_builder import (
-    MoriaSystemBuilder)
-from geoprob_pipe.calculations.systems.model4a.system_builder import (
-    Model4aSystemBuilder)
-from geoprob_pipe.calculations.systems.wbi.system_builder import (
-    WBISystemBuilder)
+from geoprob_pipe.calculations.systems.moria.system_builder import MoriaSystemBuilder
+from geoprob_pipe.calculations.systems.model4a.system_builder import Model4aSystemBuilder
+from geoprob_pipe.calculations.systems.wbi.system_builder import WBISystemBuilder
 from geoprob_pipe.calculations.limit_states.piping_lm import limit_state_moria
-from geoprob_pipe.calculations.systems.model4a.limit_state_functions import (
-    limit_state_model4a)
+from geoprob_pipe.calculations.systems.model4a.limit_state_functions import limit_state_model4a
 # TODO: Dynamisch maken? Forceren dat naamgeving overeenkomt en
 # we dynamisch importeren?
 

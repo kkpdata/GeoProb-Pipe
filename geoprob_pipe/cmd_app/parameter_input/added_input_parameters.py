@@ -1,6 +1,7 @@
 from __future__ import annotations
 from InquirerPy import inquirer
 import sqlite3
+from datetime import datetime
 from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
 from geoprob_pipe.cmd_app.parameter_input.initiate_input_excel_tables import initiate_input_excel_tables
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_figures import InputParameterFigures
@@ -9,7 +10,7 @@ from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputPar
 from typing import TYPE_CHECKING, Optional
 import os
 import sys
-from geoprob_pipe.utils.loggers import BColors
+from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -62,7 +63,8 @@ def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSetting
     ).execute()
 
     if choice == choices_list[0]:
-        InputParameterFigures(app_settings=app_settings, tables=tables, export=True)
+        obj = InputParameterFigures.populate(app_settings=app_settings, tables=tables, export=True)
+        obj.run()
     elif choice == choices_list[1]:
         pass  # Just continue
     elif choice == choices_list[2]:
@@ -71,8 +73,9 @@ def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSetting
         raise ValueError
 
 
-def validate_expanded_input_tables(app_settings: ApplicationSettings) -> bool:
-    df_expanded = run_expand_input_tables(geopackage_filepath=app_settings.geopackage_filepath)
+def validate_expanded_input_tables(
+        app_settings: ApplicationSettings, tables: Optional[InputParameterTables] = None) -> bool:
+    df_expanded = run_expand_input_tables(geopackage_filepath=app_settings.geopackage_filepath, tables=tables)
     df_nans = df_expanded[df_expanded['parameter_input'].isna()]
 
     # No issues?
@@ -89,7 +92,7 @@ def validate_expanded_input_tables(app_settings: ApplicationSettings) -> bool:
     export_path = os.path.join(export_dir, "validation_missing_parameter_input.xlsx")
     if os.path.exists(export_path):
         os.remove(export_path)
-    df_nans.to_excel(export_path)
+    df_nans.to_excel(export_path, index=False)
     print(f"{BColors.WARNING}Er mist parameter invoer voor {df_nans.__len__()} berekeningen.\n"
           f"Dit is voor {df_nans['parameter_name'].unique().__len__()} unieke parameters, "
           f"{df_nans['uittredepunt_id'].unique().__len__()} unieke uittredepunten en "
@@ -98,6 +101,28 @@ def validate_expanded_input_tables(app_settings: ApplicationSettings) -> bool:
           f"{export_path}{BColors.ENDC}")
     return False
 
+
+def _export_expanded_input(app_settings: ApplicationSettings):
+
+    # Generate expanded input
+    df = run_expand_input_tables(geopackage_filepath=app_settings.geopackage_filepath, add_frag_ref=True)
+
+    # Copy template to workspace
+    dst_dir = os.path.join(
+        app_settings.workspace_dir,
+        "exports",
+        app_settings.datetime_stamp,
+        "parameter_input_process")
+    os.makedirs(dst_dir, exist_ok=True)
+    dst_path = os.path.join(dst_dir, "expanded_parameter_input.xlsx")
+    if os.path.exists(dst_path):
+        datetime_stamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        dst_path = dst_path.replace(".xlsx", f"_{datetime_stamp}.xlsx")
+
+    # Export
+    df.to_excel(dst_path, index=False)
+    print(f"{BColors.UNDERLINE}Exporteren van 'expanded' tabel compleet:\n"
+          f"{dst_path}{BColors.ENDC}")
 
 def inquire_to_import_export_tables_and_figures_or_continue(
         app_settings: ApplicationSettings, tables: InputParameterTables,
@@ -116,6 +141,7 @@ def inquire_to_import_export_tables_and_figures_or_continue(
     choices_list.extend([
         "Invoer tabellen: Importeren vanuit Excel",
         "Invoer tabellen: Exporteren naar Excel",
+        "'Expanded' parameter invoer per uittredepunt: Exporteren",
         "Toelichting per keuze optie",
         "Applicatie afsluiten"])
 
@@ -127,7 +153,6 @@ def inquire_to_import_export_tables_and_figures_or_continue(
     ).execute()
 
     if choice == "Zijn de invoer tabellen zijn naar wens? Ga door naar volgende stap":
-        # run_calculations(geopackage_filepath=app_settings.geopackage_filepath)
         print(BColors.OKBLUE, f"✔  Parameter invoer afgerond.", BColors.ENDC)
         return
 
@@ -137,7 +162,8 @@ def inquire_to_import_export_tables_and_figures_or_continue(
             validity_extended_tables=validity_extended_tables)
 
     elif choice == "Overzichtsfiguren van invoertabellen: Exporteren":
-        InputParameterFigures(app_settings=app_settings, tables=tables, export=True)
+        obj = InputParameterFigures.populate(app_settings=app_settings, tables=tables, export=True)
+        obj.run()
         inquire_to_import_export_tables_and_figures_or_continue(
             app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
             validity_extended_tables=validity_extended_tables)
@@ -150,6 +176,12 @@ def inquire_to_import_export_tables_and_figures_or_continue(
             app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
             validity_extended_tables=validity_extended_tables)
 
+    elif choice == "'Expanded' parameter invoer per uittredepunt: Exporteren":
+        _export_expanded_input(app_settings=app_settings)
+        inquire_to_import_export_tables_and_figures_or_continue(
+            app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+            validity_extended_tables=validity_extended_tables)
+
     elif choice == "Toelichting per keuze optie":
         print("""
 Invoer tabellen zijn naar wens, ga door naar volgende stap  ->  Indien je deze keuzemogelijkheid krijgt zijn de invoertabellen valide en kun je door naar de volgende stap.
@@ -157,6 +189,7 @@ Invoer tabellen zijn naar wens, ga door naar volgende stap  ->  Indien je deze k
 Overzichtsfiguren van invoertabellen: Exporteren            ->  Deze interactive HTML-figuren geven je per parameter een snel visueel overzicht van de invoer in het GeoProb-Pipe-bestand. 
 Invoer tabellen: Importeren vanuit Excel                    ->  Importeer vanuit Excel de invoertabellen om ze te laten valideren, visualiseren en/of op te slaan in het GeoProb-Pipe-bestand. 
 Invoer tabellen: Exporteren naar Excel                      ->  Exporteer vanuit het GeoProb-Pipe-bestand de invoertabellen om ze in Excel te bekijken en/of verder aan te vullen. 
+'Expanded' parameter invoer: Exporteren                     ->  Exporteert een Excel met de parameter invoer 'expanded' naar per uittredepunt en per scenario. 'Expanded' vanuit de invoer op verschillende niveau's.
         """)
         inquire_to_import_export_tables_and_figures_or_continue(
             app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
@@ -235,7 +268,8 @@ def process_input_exist_in_db(app_settings: ApplicationSettings):
 
     # Validate expanded tables
     validity_extended_tables: Optional[bool] = None
-    if validity_raw_tables: validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings)
+    if validity_raw_tables:
+        validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings, tables=tables)
 
     # Provide user with follow-up options
     inquire_to_import_export_tables_and_figures_or_continue(
@@ -266,7 +300,8 @@ def process_import_input(app_settings: ApplicationSettings):
 
     # Validate expanded tables
     validity_extended_tables: Optional[bool] = None
-    if validity_raw_tables: validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings)
+    if validity_raw_tables:
+        validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings, tables=tables)
 
     # Provide user with follow-up options
     inquire_to_store_input_tables_to_db(app_settings=app_settings, tables=tables)

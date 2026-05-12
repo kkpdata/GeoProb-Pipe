@@ -142,7 +142,8 @@ class InputData:
         self.uittredepunten = Uittredepunten(self.app_settings)
         self.scenarios = Scenarios(self.app_settings)
         self.vakken = Vakken(self.app_settings)
-        self.hydra_nl_data = HydraNLData(self.app_settings)
+        # self.hydra_nl_data = HydraNLData(self.app_settings)
+        # TODO: Uitgezet, lijkt niet gebruikt te worden. Maar waarom wordt het niet gebruikt?
 
     @property
     def geohydrologisch_model(self) -> str:
@@ -163,6 +164,5 @@ class InputData:
     @property
     def traject_normering(self):
         if self._traject_normering is None:
-            self._traject_normering = TrajectNormering(
-                hrd_path=self.app_settings.hrd_file_path)
+            self._traject_normering = TrajectNormering(app_settings=self.app_settings)
         return self._traject_normering

@@ -156,6 +156,8 @@ html_theme_options = {
     "navigation_depth": 5,
     "titles_only": True,
     "display_version": True,
+    "repository_url": "https://github.com/kkpdata/GeoProb-Pipe",
+    "use_repository_button": True,  # GitHub knop
 }
 bibtex_ignore_labels = {
     "trw_2004)"

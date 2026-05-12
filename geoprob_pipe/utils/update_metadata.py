@@ -38,7 +38,7 @@ def update_metadata(geoprob_pipe: GeoProbPipe):
 
     n_calcs: int = len(geoprob_pipe.results.df_beta_scenarios_final)
     n_points: int = len(geoprob_pipe.results.df_beta_uittredepunten)
-    n_vakken: int = len(geoprob_pipe.results.df_beta_vakken)
+    n_vakken: int = len(geoprob_pipe.results.df_beta_WBI_vakken)
     ratio_points: float = n_points / len(geoprob_pipe.input_data.uittredepunten.gdf)
 
     records = [
