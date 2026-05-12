@@ -34,8 +34,8 @@ def question_trajectory_source(app_settings: ApplicationSettings):
 
     if choice == choices_list[0]:
         with importlib.resources.path(
-                package='geoprob_pipe.input_data.dijktrajecten',
-                resource='dijktrajecten.shp') as shp_path:
+                'geoprob_pipe.input_data.dijktrajecten',
+                'dijktrajecten.shp') as shp_path:
             gdf: GeoDataFrame = read_file(shp_path)
         specify_single_trajectory(
             app_settings, gdf=gdf, column_name="TRAJECT_ID")
@@ -84,8 +84,10 @@ def specify_geodatabase_layer(app_settings: ApplicationSettings, filepath: str):
     layer_name_is_valid = False
     while layer_name_is_valid is False:
         layer_name: str = inquirer.text(
-            message="Specificeer de layer waarin met de referentielijn van het dijktraject. Type 'listlayers' om "
-                    "een overzicht te krijgen van de geodatabase-layers. ",
+            message="""
+            Specificeer de layer waarin met de referentielijn van het dijktraject. Type 'listlayers' om
+            een overzicht te krijgen van de geodatabase-layers. Type 'cancel' om een ander bestand op te geven.
+                    """,
         ).execute()
 
         layer_names = fiona.listlayers(filepath)
@@ -94,6 +96,8 @@ def specify_geodatabase_layer(app_settings: ApplicationSettings, filepath: str):
         if layer_name == "listlayers":
             print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geodatabase: {layers_str}", BColors.ENDC)
             continue
+        if layer_name == "cancel":
+            request_trajectory_filepath(app_settings)
         elif layer_name not in layer_names:
             print(BColors.OKBLUE, f"De layer name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
                                   f"de geodatabase: {layers_str}", BColors.ENDC)
@@ -113,8 +117,10 @@ def specify_geopackage_layer(app_settings: ApplicationSettings, filepath: str):
     layer_name_is_valid = False
     while layer_name_is_valid is False:
         layer_name: str = inquirer.text(
-            message="Specificeer de layer waarin met de referentielijn van het dijktraject. Type 'listlayers' om "
-                    "een overzicht te krijgen van de geopackage-layers. ",
+            message="""
+            Specificeer de layer waarin met de referentielijn van het dijktraject. Type 'listlayers' om
+            een overzicht te krijgen van de geodatabase-layers. Type 'cancel' om een ander bestand op te geven.
+                    """,
         ).execute()
 
         layer_names = fiona.listlayers(filepath)
@@ -123,6 +129,8 @@ def specify_geopackage_layer(app_settings: ApplicationSettings, filepath: str):
         if layer_name == "listlayers":
             print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geopackage: {layers_str}", BColors.ENDC)
             continue
+        if layer_name == "cancel":
+            request_trajectory_filepath(app_settings)
         elif layer_name not in layer_names:
             print(BColors.OKBLUE, f"De layer name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
                                   f"de geopackage: {layers_str}", BColors.ENDC)
@@ -140,8 +148,10 @@ def specify_column_with_trajectory_name(app_settings: ApplicationSettings, gdf: 
     column_name_is_valid = False
     while column_name_is_valid is False:
         column_name: str = inquirer.text(
-            message="Specificeer de kolom waarin de naam van het dijktraject staat. Type 'listcolumns' om "
-                    "een overzicht te krijgen van de kolommen. ",
+            message="""
+            Specificeer de kolom waarin de naam van het dijktraject staat. Type 'listcolumns' om 
+            een overzicht te krijgen van de kolommen. Type 'cancel' om een ander bestand op te geven.
+                    """,
         ).execute()
 
         column_names = gdf.columns
@@ -150,6 +160,8 @@ def specify_column_with_trajectory_name(app_settings: ApplicationSettings, gdf: 
             print(BColors.OKBLUE,
                   f"De volgende kolommen zijn beschikbaar in de spatial layer: {columns_str}", BColors.ENDC)
             continue
+        if column_name == "cancel":
+            request_trajectory_filepath(app_settings)
         elif column_name not in column_names:
             print(BColors.OKBLUE, f"De kolom naam '{column_name}' bestaat niet. De volgende kolommen zijn beschikbaar "
                                   f"in de spatial layer: {columns_str}", BColors.ENDC)

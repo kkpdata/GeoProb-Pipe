@@ -25,7 +25,7 @@ def added_polderpeil(app_settings: ApplicationSettings) -> bool:
 def request_polderpeil_filepath(app_settings: ApplicationSettings):
 
     # Request filepath
-    filepath: Optional[str] = None
+    filepath: Optional[str] = None  # type:ignore
     filepath_is_valid = False
     while filepath_is_valid is False:
         filepath: str = inquirer.text(
