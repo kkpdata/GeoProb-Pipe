@@ -1,5 +1,5 @@
-Assembleren met de WBI methode
-==============================
+WBI-methode
+===========
 
 Ten tijde van de introductie van het WBI waren volledig probabilistisch combineren van elementen niet beschikbaar. Ook omdat er veel faalmechanismen waren die nog niet probabilistisch waren uitgewerkt. Er is daarom een methode bedacht die de trajectkans benadert, rekening houdend met een verondersteld lengte-effect.
 

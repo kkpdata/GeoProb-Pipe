@@ -25,7 +25,6 @@ bepaald of via een automatische opdeling van het dijktraject.
    assembleren/kader
    assembleren/stap0_sc
    assembleren/stap1_sc_up
-   assembleren/vakkans_trajectkans
-   assembleren/methoden_trajectkans
+   assembleren/stap2_vakkans_trajectkans
    assembleren/resultaten
    

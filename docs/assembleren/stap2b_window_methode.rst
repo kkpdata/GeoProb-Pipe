@@ -1,5 +1,5 @@
-Windowmethode
-=============
+Window-methode
+==============
 
 De windowmethode deelt een dijktraject in vakken met een vooraf gedefinieerde grootte. De grootte van het window (de vak) bepaalt de mate van lengte-effect.
 

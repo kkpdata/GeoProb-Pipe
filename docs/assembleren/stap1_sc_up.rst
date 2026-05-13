@@ -1,5 +1,5 @@
-Scenarioberekening → uittredepunt
-=================================
+Faalkans uittredepuntniveau
+===========================
 
 In GeoProb-Pipe vormt het **uittredepunt** de kleinste zelfstandige bouwsteen in de assemblage van faalkansen. Een
 uittredepunt is een fysieke locatie langs de waterkering waar piping kan initiëren. In tegenstelling tot de klassieke

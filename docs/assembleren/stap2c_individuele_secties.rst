@@ -1,5 +1,9 @@
+Individuele secties-methode
+===========================
+
+
 Het opschalen van individuele secties (Bovengrens van de trajectkans)
-=====================================================================
+
 
 De absolute bovengrens van de trajectkans is een onafhankelijke combinatie van alle uittredepunten in een dijktraject. 
 Vaak zijn uittredepunten niet evenredig verdeeld over het dijktraject omdat geometrische kenmerken 

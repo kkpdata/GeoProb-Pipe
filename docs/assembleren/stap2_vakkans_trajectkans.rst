@@ -1,5 +1,5 @@
-Van uittredepunt naar vak- en trajectkans
-===========================================
+Faalkans vak- en trajectniveau
+==============================
 
 De faalkans van een dijktraject wordt in GeoProb-Pipe opgebouwd vanuit individuele uittredepunten die samen een
 seriesysteem vormen. Elk uittredepunt representeert een mogelijke locatie waar piping kan optreden, maar doordat deze
@@ -20,7 +20,7 @@ vastgesteld.
 
 
 Waarom niet gewoon probabilistisch combineren?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bij de uittredepuntenmethode worden in principe heel veel doorsneden doorgerekend. Als de dichtheid van uittredepunten
 groot genoeg is, is het voor het bepalen van de trajectkans voldoende om de uittredepunten te combineren op basis van
@@ -40,3 +40,17 @@ effect indirect via een equivalente onafhankelijke lengte en een veronderstelde 
 Binnen dit kader zijn in GeoProb-Pipe drie methoden geïmplementeerd om de trajectkans te benaderen, elk met een eigen
 manier om met lengte-effect en afhankelijkheid tussen uittredepunten om te gaan: de WBI-methode, de Window-methode en
 het opschalen van individuele secties.
+
+
+Drie methoden voor bepalen trajectfaalkans
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Binnen GeoProb-Pipe worden meerdere methoden toegepast om van uittredepunt naar trajectkans te komen.
+Deze methoden verschillen in de manier waarop het lengte-effect en de onderlinge afhankelijkheid worden gemodelleerd.
+
+.. toctree::
+   :maxdepth: 1
+
+   stap2a_wbi_methode
+   stap2b_window_methode
+   stap2c_individuele_secties
