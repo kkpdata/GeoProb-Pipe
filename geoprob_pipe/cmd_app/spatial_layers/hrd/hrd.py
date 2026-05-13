@@ -35,7 +35,7 @@ def _hrd_data_requested(app_settings: ApplicationSettings) -> bool:
     if choice == "Nee":
         keuze = False
     cursor.execute(
-        f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('extract_hrd_data', {keuze});")
+        f"INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES ('extract_hrd_data', {keuze});")
     conn.commit()
     cursor.close()
     return keuze

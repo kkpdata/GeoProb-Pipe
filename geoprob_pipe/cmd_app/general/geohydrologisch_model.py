@@ -20,7 +20,7 @@ def created_model(app_settings: ApplicationSettings) -> bool:
         return True
 
     # Check if specified model is legal
-    current_specified_model = df[df['metadata_type'] == "geohydrologisch_model"]["values"].iloc[0]
+    current_specified_model = df[df['metadata_type'] == "geohydrologisch_model"]["metadata_value"].iloc[0]
     if current_specified_model not in CALCULATION_MAPPER.keys():
         specify_model_to_use(app_settings, update_record=True)
         return True
@@ -46,11 +46,11 @@ def specify_model_to_use(app_settings: ApplicationSettings, update_record: bool 
     choice_formatted = choice_formatted.replace(" ", "").lower()
     sql_statement = f"""
     INSERT INTO geoprob_pipe_metadata 
-    ('metadata_type', 'values') VALUES ('geohydrologisch_model', '{choice_formatted}')"""
+    (metadata_type, metadata_value) VALUES ('geohydrologisch_model', '{choice_formatted}')"""
     if update_record:
         sql_statement = f"""
         UPDATE geoprob_pipe_metadata 
-        SET 'values' = '{choice_formatted}' 
+        SET metadata_value = '{choice_formatted}' 
         WHERE metadata_type = 'geohydrologisch_model'"""
     cursor.execute(sql_statement)
     conn.commit()

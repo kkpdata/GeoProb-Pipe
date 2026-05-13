@@ -65,7 +65,7 @@ def created_project(app_settings: ApplicationSettings) -> bool:
         console = Console()
         console.print(Panel(
             EXPLANATION_REPRODUCING_SINGLE_CALCULATION,
-            title=f"Inspecteer een enkele berekening".upper(),
+            title="Inspecteer een enkele berekening".upper(),
             title_align="left",
             border_style="bright_blue",
             padding=(0, 2)))
@@ -78,7 +78,7 @@ def created_project(app_settings: ApplicationSettings) -> bool:
 def _get_file_geoprob_pipe_version(file_path: str) -> Optional[str]:
     conn = sqlite3.connect(file_path)
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM geoprob_pipe_metadata WHERE metadata_type = 'pip_freeze' LIMIT 1;")
+    cursor.execute("SELECT * FROM geoprob_pipe_metadata WHERE metadata_type = 'pip_freeze' LIMIT 1;")
     row = cursor.fetchone()
     dict_item = ast.literal_eval(row[2])
 
@@ -218,7 +218,7 @@ def create_geopackage_file(app_settings: ApplicationSettings):
 
     df = DataFrame({
         "metadata_type": ["created_by", "created_datetime", "application_version", "python_version", "pip_freeze"],
-        "values": [
+        "metadata_value": [
             os.getenv("USERNAME"),
             datetime.now(),
             get_geoprob_pipe_version_number(),

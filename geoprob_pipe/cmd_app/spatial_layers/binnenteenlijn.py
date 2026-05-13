@@ -20,7 +20,7 @@ def added_binnenteenlijn(app_settings: ApplicationSettings) -> bool:
 
     if "binnenteenlijn" in layers:
         print(
-            BColors.OKBLUE, f"✔  Binnenteenlijn al toegevoegd.", BColors.ENDC
+            BColors.OKBLUE, "✔  Binnenteenlijn al toegevoegd.", BColors.ENDC
         )
         return True
 

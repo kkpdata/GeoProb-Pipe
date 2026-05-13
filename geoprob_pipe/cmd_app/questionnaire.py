@@ -22,6 +22,7 @@ from geoprob_pipe.cmd_app.spatial_joins import (
 )
 from geoprob_pipe.cmd_app.spatial_layers import (
     added_ahn,
+    added_parameters,
     added_binnenteenlijn,
     added_buitenteenlijn,
     added_dijktraject,
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
-EARLY_EXIT_MESSAGE = f"Applicatie vroegtijdig afgesloten"
+EARLY_EXIT_MESSAGE = "Applicatie vroegtijdig afgesloten"
 
 
 def start_questionnaire(app_settings: ApplicationSettings):
@@ -47,11 +48,15 @@ def start_questionnaire(app_settings: ApplicationSettings):
 
 
 def questionnaire(app_settings: ApplicationSettings):
-    print(f"\nALGEMEEN")
+    print("\nALGEMEEN")
     if not created_model(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
+    if not added_scenarios(app_settings=app_settings):
+        sys.exit(EARLY_EXIT_MESSAGE)
+    if not added_parameters(app_settings=app_settings):
+        sys.exit(EARLY_EXIT_MESSAGE)
 
-    print(f"\nGIS LAGEN")
+    print("\nGIS LAGEN")
     if not added_dijktraject(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
     if not added_vakindeling(app_settings=app_settings):
@@ -66,26 +71,30 @@ def questionnaire(app_settings: ApplicationSettings):
         sys.exit(EARLY_EXIT_MESSAGE)
     if not added_buitenteenlijn(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
-    if not added_scenarios(app_settings=app_settings):
-        sys.exit(EARLY_EXIT_MESSAGE)
     if not added_intredelijn(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
-    if not added_polderpeil(app_settings=app_settings):
-        sys.exit(EARLY_EXIT_MESSAGE)
+    
+    print("/nRUIMTELIJKE INPUT")
+    # TODO Loop met alle ruimtelijke parameters
+    # TODO maak polderpeil optioneel
+    
+    # if not added_polderpeil(app_settings=app_settings):
+    #     sys.exit(EARLY_EXIT_MESSAGE)
     
     added_ahn(
         app_settings=app_settings, display_added_msg=True
     )  # AHN may be optional
 
-    print(f"\nGEOGRAFISCHE KOPPELINGEN")
+    print("\nGEOGRAFISCHE KOPPELINGEN")
+    # TODO maak coupleling for line, polygon, raster
     if not coupled_uittredepunten_to_refline(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_hrd_to_uittredepunten(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_distances_to_uittredepunten(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
-    if not coupled_polderpeil_to_uittredepunten(app_settings=app_settings):
-        sys.exit(EARLY_EXIT_MESSAGE)
+    # if not coupled_polderpeil_to_uittredepunten(app_settings=app_settings):
+    #     sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_uittredepunten_to_vakken(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_mv_exit_to_gis_parameter_invoer_table(
@@ -93,10 +102,13 @@ def questionnaire(app_settings: ApplicationSettings):
     ):
         sys.exit(EARLY_EXIT_MESSAGE)
 
-    print(f"\nPARAMETER INVOER")
+    print("\nPARAMETER INVOER")
+    # TODO Voeg mogelijkheid om ruimtelijke input aan te passen toe.
+    # TODO Check validation correct blijft werken.
+    # TODO Invoer voor koppeling? Validatie daarna?
     if not added_input_parameter_data(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
 
-    print(f"\nBEREKENINGEN UITVOEREN")
+    print("\nBEREKENINGEN UITVOEREN")
     if not run_calculations(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)

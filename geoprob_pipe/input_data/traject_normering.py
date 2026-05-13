@@ -14,11 +14,11 @@ def _data_from_metadata_table(app_settings: ApplicationSettings) -> Tuple[str, b
     df: DataFrame = read_sql_query("SELECT * FROM geoprob_pipe_metadata;", conn)
     conn.close()
 
-    traject_id = df[df["metadata_type"] == "traject_id"]["values"].values[0]
-    signaleringswaarde = int(df[df["metadata_type"] == "signaleringswaarde"]["values"].values[0])
-    ondergrens = int(df[df["metadata_type"] == "ondergrens"]["values"].values[0])
-    w = float(df[df["metadata_type"] == "w"]["values"].values[0])
-    is_bovenrivierengebied = bool(int(df[df["metadata_type"] == "is_bovenrivierengebied"]["values"].values[0]))
+    traject_id = df[df["metadata_type"] == "traject_id"]["metadata_value"].values[0]
+    signaleringswaarde = int(df[df["metadata_type"] == "signaleringswaarde"]["metadata_value"].values[0])
+    ondergrens = int(df[df["metadata_type"] == "ondergrens"]["metadata_value"].values[0])
+    w = float(df[df["metadata_type"] == "w"]["metadata_value"].values[0])
+    is_bovenrivierengebied = bool(int(df[df["metadata_type"] == "is_bovenrivierengebied"]["metadata_value"].values[0]))
 
     return traject_id, is_bovenrivierengebied, signaleringswaarde, ondergrens, w
 

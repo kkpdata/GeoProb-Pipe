@@ -13,8 +13,8 @@ def added_scenarios(app_settings: ApplicationSettings):
     """
     Check of de scenarios voor ruimtelijke invoer al zijn toegevoegd aan de metadata.
 
-    :param app_settings: _description_
-    :return: _description_
+    :param app_settings: `ApplicationSettings` object.
+    :return: bool
     """    
     conn = sqlite3.connect(app_settings.geopackage_filepath)
     cur = conn.cursor()
@@ -33,7 +33,7 @@ def request_scenarios(app_settings: ApplicationSettings):
     Vraag de mogelijke lijst van scenarios voor de ruimtelijke invoer op en voeg
     deze toe aan de metadata.
 
-    :param app_settings: _description_
+    :param app_settings: `ApplicationSettings` object.
     """    
     scenario_input_is_valid = False
     while scenario_input_is_valid is False:
@@ -49,15 +49,20 @@ def request_scenarios(app_settings: ApplicationSettings):
             scenarios = ""
         else:
             scenarios = scenario_input.split(",")
-
+            scenarios = ", ".join(scenarios)
+        # TODO Check valid input
+        scenario_input_is_valid = True
         
-        sql_upsert = """
-        INSERT INTO geoprob_pipe_metadata (metadata_type, values)
-        VALUES (?, ?)
-        ON CONFLICT(metadata_type) DO UPDATE SET
-            values = excluded.values
-        """
-        conn = sqlite3.connect(app_settings.geopackage_filepath)
-        conn.cursor().execute(sql_upsert, ("ruimtelijke_scenarios", scenarios))
-        conn.commit()
-        conn.close()
+
+    conn = sqlite3.connect(app_settings.geopackage_filepath)
+        
+    sql_update = "UPDATE geoprob_pipe_metadata SET metadata_value = ? WHERE metadata_type = ?"
+    sql_insert = "INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES (?, ?)"
+
+    with conn:  # transaction
+        cur = conn.execute(sql_update, (scenarios, "ruimtelijke_scenarios"))  # type:ignore
+        if cur.rowcount == 0:
+            conn.execute(sql_insert, ("ruimtelijke_scenarios", scenarios))  # type:ignore
+
+    conn.commit()
+    conn.close()

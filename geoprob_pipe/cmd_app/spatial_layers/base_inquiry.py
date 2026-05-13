@@ -1,5 +1,6 @@
 """
-Baseclass voor het opvragen van de ruimtelijke invoer voor de parameters.
+Class voor het opvragen van de ruimtelijke invoer voor de parameters
+vanuit GIS lagen. Shapefiles, geodatabases en geopackages worden ondersteund.
 """
 
 from __future__ import annotations
@@ -29,11 +30,11 @@ class BaseInquiry:
         include_value: bool = False,
     ) -> None:
         """
-        Class om de opvraag van de ruimteljke invoer van de parameters.
+        Class voor de opvraag van de ruimteljke invoer van de parameters.
 
-        :param app_settings: `ApplicationSettings` object
-        :param param: Parameter die wordt opgevraagd.
-        :param scenarios: Lijst met scenarios voor ruimtelike invoer.
+        :param app_settings: `ApplicationSettings` object.
+        :param param: Parameter die wordt opgevraagd. Deze wordt ook gebruikt
+            voor de naam van de tabel in de geopackage.
         :param specific_shape: Welke soort ruimtelijke invoer acceptabel is, defaults to "".
             Geldige invoer is "lines", "polygons" of "rasters".
         :param include_value: Of er naast de geometrie zelf ook een bepaalde
@@ -46,10 +47,10 @@ class BaseInquiry:
         conn = sqlite3.connect(app_settings.geopackage_filepath)
         cur = conn.cursor()
         cur.execute(
-            "SELECT values FROM geoprob_pipe_metadata WHERE metadata = ?",
+            "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
             ("ruimtelijke_scenarios",),
         )
-        self.scenarios = cur.fetchone()[0]
+        self.scenarios: list[str] = cur.fetchone()[0].split(", ")
 
     def request_filepath(self):
         """
@@ -60,10 +61,12 @@ class BaseInquiry:
 
         while filepath_is_valid is False:
             filepath: str = prompt.InputPrompt(
-                message=f"""
-                Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase
-                met de {self.param} geometrieën.
-                """
+                message=(
+                    f"""
+Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase
+met de {self.param} geometrieën.
+                    """
+                )
             ).execute()
 
             filepath = filepath.replace('"', "")
@@ -95,7 +98,6 @@ class BaseInquiry:
 
         # Import data
         gdf = self._import_data(filepath)  # type:ignore
-
         # Add data to geopackage
         self._add_to_gpkg(gdf)
 
@@ -103,9 +105,10 @@ class BaseInquiry:
         """
         Helper method voor het importeren van de data.
 
-        :param filepath: _description_
-        :raises NotImplementedError: _description_
-        :return: _description_
+        :param filepath: Bestandspad van de shapfile of database met de GIS lagen.
+        :raises NotImplementedError: Wanneer het bestand iets anders is dan wordt ondersteund.
+        :return: GeoDataFrame met de uitgelezen data.
+        :rtype GeoDataFrame:
         """
         if filepath.endswith(".shp"):
             with warnings.catch_warnings():
@@ -137,17 +140,19 @@ class BaseInquiry:
         """
         Helper method voor het importeren vanuit een gbd of een geopackage.
 
-        :param filepath: _description_
-        :return: _description_
+        :param filepath: Bestandspad van de database.
+        :return: GeoDataFrame met de uitgelezen data.
         """
         layer_name_is_valid = False
         while layer_name_is_valid is False:
             layer_name: str = prompt.InputPrompt(
-                message=f"""
-                Specificeer de layer waarin de {self.param} staat. Type 'listlayers' om
-                een overzicht te krijgen van de geodatabase-layers. Type 'cancel' om een
-                ander bestand op te gaven.
-                        """
+                message=(
+                    f"""
+                    Specificeer de layer waarin de {self.param} staat. Type 'listlayers' om
+                    een overzicht te krijgen van de geodatabase-layers. Type 'cancel' om een
+                    ander bestand op te gaven.
+                    """
+                )
             ).execute()
 
             layer_names = fiona.listlayers(filepath)
@@ -178,19 +183,19 @@ class BaseInquiry:
         """
         Helper method voor het importern vanuit een shapefile.
 
-        :param filepath: _description_
-        :return: _description_
+        :param filepath: Bestandspad van de shapfile.
+        :return: GeoDataFrame met de uitgelezen data.
         """
 
         gdf: gpd.GeoDataFrame = gpd.read_file(filepath)
         return gdf
 
-    def _check_shape(self, gdf: gpd.GeoDataFrame):
+    def _check_shape(self, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame | None:
         """
         Helper method voor het checken of de geometry het juiste type is.
 
         :param gdf: _description_
-        :return: _description_
+        :return: GeoDataFrame of None als check faalt.
         """
 
         if self.specific_shape == "":
@@ -215,21 +220,27 @@ class BaseInquiry:
                 )
                 self.request_filepath()
 
+            return gdf
+
     def _add_to_gpkg(self, gdf: gpd.GeoDataFrame):
         """
         Helper method om de data aan de geopackage toe te voegen.
+        Start een apart inquiry als en waarden moeten worden toegevoegd aan de
+        shape of als er meerdere shapes moeten worden toegevoegd.
 
-        :param gdf: _description_
+        :param gdf: GeoDataFrame met de uitgelezen data van de laag.
         """
         layer_name = self.param
         if self.include_value and self.scenarios == "":
             column_name_is_valid = False
             while column_name_is_valid is False:
                 column_name: str = prompt.InputPrompt(
-                    message=f"""
-                    Specificeer de kolom waarin {self.param} staat. Type 'listcolumns' om"
-                    een overzicht te krijgen van de kolommen. Type 'cancel' om een ander bestand op te geven.
-                    """,
+                    message=(
+                        f"""
+Specificeer de kolom waarin {self.param} staat. Type 'listcolumns' om"
+een overzicht te krijgen van de kolommen. Type 'cancel' om een ander bestand op te geven.
+                        """
+                    ),
                 ).execute()
 
                 column_names = gdf.columns
@@ -264,6 +275,7 @@ class BaseInquiry:
             )
 
         elif self.include_value and self.scenarios != "":
+            # Scenario waardes per kolom met scenario als naam.
             gdf_to_add = gdf[["geometry", self.scenarios]]
             gdf_to_add.to_file(
                 self.app_settings.geopackage_filepath,
@@ -281,17 +293,19 @@ class BaseInquiry:
 
         elif not self.include_value and self.scenarios != "":
             valid_anwser = False
+
             while not valid_anwser:
                 add_layer_per_scenario = prompt.InputPrompt(
-                    message=f"""
-                    Moeten er lagen per ruimtelijk scenario voor {self.param} worden ingeladen?
-                    Er moet een kolom met de naam 'ondergrondscenario' in de attribute tabel
-                    staan met de naam van het scenario waar de geometrie bijhoort.
-                    (y/n)? O ftype 'cancel' om een ander bestand op te geven.
-                    """
-                )
+                    message=(
+                        f"""
+                        Moeten er lagen per ruimtelijk scenario voor {self.param} worden ingeladen?
+                        Er moet een kolom met de naam 'ondergrondscenario' in de attribute tabel
+                        staan met de naam van het scenario waar de geometrie bijhoort.
+                        (y/n)? Of type 'cancel' om een ander bestand op te geven.
+                        """
+                    )
+                ).execute()
                 if add_layer_per_scenario == "y":
-                    # per shape id of naam?
                     for scenario in self.scenarios:
                         gdf_to_add: gpd.GeoDataFrame = gdf[
                             gdf["ondergrondscenario"] == scenario
@@ -302,7 +316,8 @@ class BaseInquiry:
                             layer=f"{layer_name}",
                             driver="GPKG",
                         )
-                    pass
+                    valid_anwser = True
+
                 elif add_layer_per_scenario == "n":
                     gdf_to_add = gdf[["geometry"]]
                     gdf_to_add.to_file(
@@ -311,8 +326,10 @@ class BaseInquiry:
                         driver="GPKG",
                     )
                     valid_anwser = True
+
                 elif add_layer_per_scenario == "cancel":
                     self.request_filepath()
+
                 else:
                     continue
 

@@ -46,7 +46,7 @@ def export_input_parameter_tables(app_settings: ApplicationSettings, tables: Inp
     conn = sqlite3.connect(app_settings.geopackage_filepath)
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT geoprob_pipe_metadata."values" 
+        SELECT geoprob_pipe_metadata.metadata_value 
         FROM geoprob_pipe_metadata 
         WHERE metadata_type='geohydrologisch_model';
     """)

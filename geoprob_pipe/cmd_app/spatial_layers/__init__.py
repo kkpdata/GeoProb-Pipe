@@ -5,6 +5,7 @@ from .buitenteenlijn import added_buitenteenlijn
 from .dijktraject import added_dijktraject
 from .hrd.hrd import added_hrd_fragility_curves
 from .intredelijn import added_intredelijn
+from .parameters import added_parameters
 from .polderpeil import added_polderpeil
 from .scenarios import added_scenarios
 from .uittredepunten.uittredepunten import added_uittredepunten
