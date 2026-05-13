@@ -32,7 +32,7 @@ gekozen methode wordt dit effect expliciet of impliciet meegenomen.
 
 .. warning::
 
-    Hierboven wordt `gekozen methode` geïntroduceerd. In de volgende alinea wordt een methode genoemd. Maar de methodes
+    TODO: Hierboven wordt `gekozen methode` geïntroduceerd. In de volgende alinea wordt een methode genoemd. Maar de methodes
     worden helemaal niet geïntroduceerd. Daarmee blijft in het ongewis welke methodes er zijn en valt de Window-methode
     ineens uit het niets.
 
