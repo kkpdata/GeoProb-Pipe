@@ -22,25 +22,25 @@ if TYPE_CHECKING:
 # Lijst van parameters die verwerkt kunnen worden:
 # Polygon of raster alleen beschikbaar als iets per uittredepunt kan verschillen
 # en afstand tot de keringlijn uitmaakt.
-LIST_PARAMS: list[dict] = [
-    {"name": "mv_exit", "shape": ["raster"]},
-    {"name": "polderpeil", "shape": ["line", "polygon", "raster"]},
-    {"name": "buitenwaterstand_gemiddeld", "shape": ["line"]},
-    {"name": "phi_exit_gemiddeld", "shape": ["line", "polygon", "raster"]},
-    {"name": "r_exit", "shape": ["line", "polygon", "raster"]},
-    {"name": "k_wvp", "shape": ["line"]},
-    {"name": "kD_wvp", "shape": ["line"]},
-    {"name": "modelfactor_h", "shape": ["line"]},
-    {"name": "modelfactor_ff", "shape": ["line"]},
-    {"name": "modelfactor_3d", "shape": ["line"]},
-    {"name": "modelfactor_ml", "shape": ["line"]},
-    {"name": "i_c_h", "shape": ["line"]},
-    {"name": "modelfactor_u", "shape": ["line"]},
-    {"name": "modelfactor_p", "shape": ["line"]},
-    {"name": "d70", "shape": ["line"]},
-    {"name": "c_voorland", "shape": ["line"]},
-    {"name": "c_achterland", "shape": ["line"]},
-]
+LIST_PARAMS: dict[str, dict] = {
+    "mv_exit": {"shape": ["raster"]},
+    "polderpeil": {"shape": ["line", "polygon", "raster"]},
+    "buitenwaterstand_gemiddeld": {"shape": ["line"]},
+    "phi_exit_gemiddeld": {"shape": ["line", "polygon", "raster"]},
+    "r_exit": {"shape": ["line", "polygon", "raster"]},
+    "k_wvp": {"shape": ["line"]},
+    "kD_wvp": {"shape": ["line"]},
+    "modelfactor_h": {"shape": ["line"]},
+    "modelfactor_ff": {"shape": ["line"]},
+    "modelfactor_3d": {"shape": ["line"]},
+    "modelfactor_ml": {"shape": ["line"]},
+    "i_c_h": {"shape": ["line"]},
+    "modelfactor_u": {"shape": ["line"]},
+    "modelfactor_p": {"shape": ["line"]},
+    "d70": {"shape": ["line"]},
+    "c_voorland": {"shape": ["line"]},
+    "c_achterland": {"shape": ["line"]},
+}
 
 
 def added_parameters(app_settings: ApplicationSettings):
@@ -78,7 +78,7 @@ def request_parameters(app_settings: ApplicationSettings):
     model = cur.fetchone()[0]
     # conn wordt later gesloten.
 
-    input_list: list[str] = [param["name"] for param in LIST_PARAMS]
+    input_list: list[str] = [param for param in LIST_PARAMS.keys()]
     match model:
         case "model4a":
             model_list = [param["name"] for param in MODEL4A_INPUT]
