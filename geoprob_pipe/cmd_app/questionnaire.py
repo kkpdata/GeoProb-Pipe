@@ -16,19 +16,18 @@ from geoprob_pipe.cmd_app.spatial_joins import (
     coupled_distances_to_uittredepunten,
     coupled_hrd_to_uittredepunten,
     coupled_mv_exit_to_gis_parameter_invoer_table,
-    coupled_polderpeil_to_uittredepunten,
     coupled_uittredepunten_to_refline,
     coupled_uittredepunten_to_vakken,
 )
 from geoprob_pipe.cmd_app.spatial_layers import (
     added_ahn,
-    added_parameters,
     added_binnenteenlijn,
     added_buitenteenlijn,
     added_dijktraject,
     added_hrd_fragility_curves,
     added_intredelijn,
-    added_polderpeil,
+    added_parameters,
+    added_ruimtelijke_input,
     added_scenarios,
     added_uittredepunten,
     added_vakindeling,
@@ -75,11 +74,11 @@ def questionnaire(app_settings: ApplicationSettings):
         sys.exit(EARLY_EXIT_MESSAGE)
     
     print("/nRUIMTELIJKE INPUT")
-    # TODO Loop met alle ruimtelijke parameters
+    # Loop voor alle parameters
+    if not added_ruimtelijke_input(app_settings=app_settings):
+        sys.exit(EARLY_EXIT_MESSAGE)
+        
     # TODO maak polderpeil optioneel
-    
-    # if not added_polderpeil(app_settings=app_settings):
-    #     sys.exit(EARLY_EXIT_MESSAGE)
     
     added_ahn(
         app_settings=app_settings, display_added_msg=True

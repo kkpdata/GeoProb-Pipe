@@ -7,6 +7,7 @@ from .hrd.hrd import added_hrd_fragility_curves
 from .intredelijn import added_intredelijn
 from .parameters import added_parameters
 from .polderpeil import added_polderpeil
+from .ruimtelijke_invoer import added_ruimtelijke_input
 from .scenarios import added_scenarios
 from .uittredepunten.uittredepunten import added_uittredepunten
 from .vakindeling import added_vakindeling
