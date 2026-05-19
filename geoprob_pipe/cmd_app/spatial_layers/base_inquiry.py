@@ -107,9 +107,10 @@ met de {self.param} geometrieën.
 
             # Import data
             gdf = self._import_data(filepath)  # type:ignore
-            # Add data to geopackage
 
+            # Add data to geopackage
             filepath_is_valid = self._add_to_gpkg(gdf)
+
             print(BColors.OKBLUE, f"✅ {self.param} toegevoegd.", BColors.ENDC)
 
     def _import_data(self, filepath: str) -> gpd.GeoDataFrame:
@@ -256,6 +257,7 @@ met de {self.param} geometrieën.
 
         :param gdf: GeoDataFrame met de uitgelezen data van de laag.
         :return: bool voor valid_input in while-loop.
+        :rtype: bool
         """
         self.suffix_list = ["mean", "dist", "var", "dev", "min", "max"]
         if self.include_value and self.scenarios == "":
@@ -286,15 +288,20 @@ met de {self.param} geometrieën.
             # Case: Alleen losse shapes, de geometriën worden per scenario geschreven.
             return self._add_with_separate_geometry(gdf)
 
-    def _add_with_separate_geometry(self, gdf: gpd.GeoDataFrame) -> bool:
-        """
-        Method voor het toevoegen van lagen met meerdere shapes voor
-        verschillende scenarios.
+        else:
+            raise ImportError(
+                "De laag kan niet worden verwerkt. Controleer of de juiste kolommen aanwezig zijn."
+            )
 
-        :param gdf: GeoDataFrame met de uitgelezen data.
-        :return: bool voor valid_input in while-loop.
-        """        
-        column_list = gdf.columns.to_list()
+    # Methods voor het controleren van de geodataframes.
+    def _scenario_check(self, column_list: list[str]):
+        """
+        Check of het scenario in de 'ondergrondscenario' kolom voorkomt.
+
+        :param list[str] column_list: Lijst met kolomnamen uit de GeoDataFrame.
+        :return: Check of het scenario voorkomt.
+        :rtype: bool
+        """
         if "ondegrondscenario" not in column_list:
             print(
                 BColors.WARNING,
@@ -303,42 +310,25 @@ met de {self.param} geometrieën.
             )
 
             return False
+        else:
+            return True
 
-        for scenario in self.scenarios:
-            mask = gdf["ondergrondscenario" == scenario]
-            gdf_to_add = gdf[mask][["geometry"]]
-
-            if len(gdf_to_add) == 0:
-                print(
-                    BColors.WARNING,
-                    f"Geen geometrieën gevonden met de ondergrondscenarionaam: {scenario}",
-                    BColors.ENDC,
-                )
-                return False
-
-            gdf_to_add.to_file(
-                self.app_settings.geopackage_filepath,
-                layer=f"{self.param}_{scenario}",
-                driver="GPKG",
-            )
-
-        return True
-
-    def _add_with_suffix(self, gdf: gpd.GeoDataFrame) -> bool:
+    def _distribution_check(
+        self,
+        column_list: list[str],
+        add_list: list[str],
+        gdf: gpd.GeoDataFrame,
+    ) -> bool:
         """
-        Method voor het schrijven naar de geopackage voor een case met
-        parameter invoer en geen scenarios.
+        Check of de kolomen de juiste inputs hebben voor de gekozen distributie.
+        Als een var of std nodig is, deze aanwezig is. En niet beide aanwezig zijn.
 
-        :param gdf: GeoDataFrame met de uitgelezen data.
-        :return: bool voor valid_input in while-loop.
+        :param list[sts] column_list: Lijst met kolomnamen.
+        :param list[str] add_list: Lijst met geselecteerde kolomnamen voor toe te voegen.
+        :param gpd.GeaDataFrame gdf: GeoDataFrame van uitgelezen data.
+        :return: Check of de kolommen goed zijn.
+        :rtype: bool
         """
-        column_list = gdf.columns.to_list()
-        add_list = [
-            f"{self.param}_{x}"
-            for x in self.suffix_list
-            if f"{self.param}_{x}" in column_list
-        ]
-
         if len(add_list) == 0:
             print(
                 BColors.WARNING,
@@ -380,6 +370,62 @@ met de {self.param} geometrieën.
                 )
                 return False
 
+        return True
+
+    # Methods voor het toevoegen aan de database
+
+    def _add_with_separate_geometry(self, gdf: gpd.GeoDataFrame) -> bool:
+        """
+        Method voor het toevoegen van lagen met meerdere shapes voor
+        verschillende scenarios.
+
+        :param gdf: GeoDataFrame met de uitgelezen data.
+        :return: bool voor valid_input in while-loop.
+        :rtype: bool
+        """
+        column_list = gdf.columns.to_list()
+        if not self._scenario_check(column_list):
+            return False
+
+        for scenario in self.scenarios:
+            mask = gdf["ondergrondscenario" == scenario]
+            gdf_to_add = gdf[mask][["geometry"]]
+
+            if len(gdf_to_add) == 0:
+                print(
+                    BColors.WARNING,
+                    f"Geen geometrieën gevonden met de ondergrondscenarionaam: {scenario}",
+                    BColors.ENDC,
+                )
+                continue
+
+            gdf_to_add.to_file(
+                self.app_settings.geopackage_filepath,
+                layer=f"{self.param}_{scenario}",
+                driver="GPKG",
+            )
+
+        return True
+
+    def _add_with_suffix(self, gdf: gpd.GeoDataFrame) -> bool:
+        """
+        Method voor het schrijven naar de geopackage voor een case met
+        parameter invoer en geen scenarios.
+
+        :param gdf: GeoDataFrame met de uitgelezen data.
+        :return: bool voor valid_input in while-loop.
+        :rtype: bool
+        """
+        column_list = gdf.columns.to_list()
+        add_list = [
+            f"{self.param}_{x}"
+            for x in self.suffix_list
+            if f"{self.param}_{x}" in column_list
+        ]
+
+        if not self._distribution_check(column_list, add_list, gdf):
+            return False
+
         gdf_to_add = gdf[["geometry", add_list]]
 
         gdf_to_add.to_file(
@@ -391,19 +437,89 @@ met de {self.param} geometrieën.
         return True
 
     def _add_with_affixes(self, gdf: gpd.GeoDataFrame) -> bool:
-        """_summary_
+        """
+        Voeg de data toe apart per scenario als deze als aparte kolommen in de
+        laag staan.
 
         :param gdf: GeoDataFrame met de uitgelezen data.
         :return: bool voor valid_input in while-loop
-        """        
-        # Via _add_with_suffix?
+        :rtype: bool
+        """
+        column_list = gdf.columns.to_list()
+
+        for scenario in self.scenarios:
+            filter_list = [
+                x for x in column_list if x.split("_")[0] == scenario
+            ]
+
+            if len(filter_list) == 0:
+                print(
+                    BColors.WARNING,
+                    f"Geen geometrieën gevonden met de ondergrondscenarionaam: {scenario}",
+                    BColors.ENDC,
+                )
+                continue
+
+            filter_list = [
+                x.split("_")[1:] for x in filter_list
+            ]  # Strip scenario van kolomnaam.
+
+            add_list = [
+                f"{self.param}_{x}"
+                for x in self.suffix_list
+                if f"{self.param}_{x}" in filter_list
+            ]
+
+            if not self._distribution_check(column_list, add_list, gdf):
+                return False
+
+            gdf_to_add = gdf[["geometry", add_list]]
+
+            gdf_to_add.to_file(
+                self.app_settings.geopackage_filepath,
+                layer=f"{self.param}_{scenario}",
+                driver="GPKG",
+            )
+
         return True
 
     def _add_seperate_with_suffix(self, gdf: gpd.GeoDataFrame) -> bool:
-        """_summary_
+        """
+        Voeg de lagen toe los van elkaar per scenario.
 
         :param gdf: GeoDataFrame met de uitgelezen data.
         :return: bool voor valid_input in while-loop
-        """        
-        # Via _add_with_suffix?
+        """
+        column_list = gdf.columns.to_list()
+        if not self._scenario_check(column_list):
+            return False
+
+        for scenario in self.scenarios:
+            mask = gdf["ondergrondscenario" == scenario]
+            gdf_filtered = gdf[mask][["geometry"]]
+
+            if len(gdf_filtered) == 0:
+                print(
+                    BColors.WARNING,
+                    f"Geen geometrieën gevonden met de ondergrondscenarionaam: {scenario}",
+                    BColors.ENDC,
+                )
+                continue
+            add_list = [
+                f"{self.param}_{x}"
+                for x in self.suffix_list
+                if f"{self.param}_{x}" in column_list
+            ]
+
+            if not self._distribution_check(column_list, add_list, gdf):
+                return False
+
+            gdf_to_add = gdf_filtered[["geometry", add_list]]
+
+            gdf_to_add.to_file(
+                self.app_settings.geopackage_filepath,
+                layer=f"{self.param}_{scenario}",
+                driver="GPKG",
+            )
+
         return True
