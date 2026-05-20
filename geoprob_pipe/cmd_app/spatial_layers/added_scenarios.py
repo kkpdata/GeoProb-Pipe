@@ -3,7 +3,9 @@ from __future__ import annotations
 import sqlite3
 from typing import TYPE_CHECKING
 
-import InquirerPy.prompts.input as prompt
+from InquirerPy.prompts.input import InputPrompt
+
+from geoprob_pipe.utils.validation_messages import BColors
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
@@ -15,13 +17,13 @@ def added_scenarios(app_settings: ApplicationSettings):
 
     :param app_settings: `ApplicationSettings` object.
     :return: bool
-    """    
+    """
     conn = sqlite3.connect(app_settings.geopackage_filepath)
     cur = conn.cursor()
     cur.execute(
         "SELECT EXISTS (SELECT 1 FROM geoprob_pipe_metadata WHERE metadata_type = ?)",
-        ("ruimtelijke_scenarios",)
-        )
+        ("ruimtelijke_scenarios",),
+    )
     check = cur.fetchone()[0] == 1
     if not check:
         request_scenarios(app_settings)
@@ -34,10 +36,10 @@ def request_scenarios(app_settings: ApplicationSettings):
     deze toe aan de metadata.
 
     :param app_settings: `ApplicationSettings` object.
-    """    
-    scenario_input_is_valid = False
-    while scenario_input_is_valid is False:
-        scenario_input: str = prompt.InputPrompt(
+    """
+
+    while True:
+        scenario_input: str = InputPrompt(
             message="""
             Specificeer welke scenarios je wilt toevoegen als ruimtelijke input.
             Doe dit door de namen gescheiden met comma's op te geven. Bijvoorbeeld: Scenario1, Scenario2. 
@@ -48,14 +50,20 @@ def request_scenarios(app_settings: ApplicationSettings):
         if scenario_input == "":
             scenarios = ""
         else:
-            scenarios = scenario_input.split(",")
-            scenarios = ", ".join(scenarios)
-        # TODO Check valid input
-        scenario_input_is_valid = True
-        
+            try:
+                scenarios = scenario_input.split(",")
+                scenarios = ", ".join(scenarios)
+            except Exception:
+                print(
+                    BColors.OKBLUE,
+                    f"Geen scenarios toegevoegd. '{scenario_input}' is geen geldige invoer.",
+                    BColors.ENDC,
+                )
+                continue
+        break
 
     conn = sqlite3.connect(app_settings.geopackage_filepath)
-        
+
     sql_update = "UPDATE geoprob_pipe_metadata SET metadata_value = ? WHERE metadata_type = ?"
     sql_insert = "INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES (?, ?)"
 

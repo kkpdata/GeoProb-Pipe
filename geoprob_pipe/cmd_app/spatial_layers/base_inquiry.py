@@ -26,6 +26,7 @@ import numpy as np
 from shapely import LineString, MultiLineString
 
 from geoprob_pipe.utils.validation_messages import BColors
+from .added_parameters import LIST_PARAMS
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings

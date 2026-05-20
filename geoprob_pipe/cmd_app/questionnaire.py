@@ -55,6 +55,8 @@ def questionnaire(app_settings: ApplicationSettings):
         sys.exit(EARLY_EXIT_MESSAGE)
     if not added_parameters(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
+    
+    # TODO batch invoer bestand mogelijk maken
 
     print("\nGIS LAGEN")
     if not added_dijktraject(app_settings=app_settings):
@@ -100,9 +102,11 @@ def questionnaire(app_settings: ApplicationSettings):
         sys.exit(EARLY_EXIT_MESSAGE)
 
     print("\nPARAMETER INVOER")
-    # TODO Voeg mogelijkheid om ruimtelijke input aan te passen toe.
+    # TODO Optie om GIS invoer te vervangen.
     # TODO Check validation correct blijft werken.
-    # TODO Invoer voor koppeling? Validatie daarna?
+    # TODO verwijder traject waardes als gis_join al waardes heeft.
+    # Misschien checken of de orde van overschrijven wel logisch is?
+    # Excel over gis maar wel gis-uittredepunt over excel-traject?
     if not added_input_parameter_data(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
 

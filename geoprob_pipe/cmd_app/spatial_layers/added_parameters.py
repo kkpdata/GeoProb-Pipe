@@ -5,15 +5,7 @@ from typing import TYPE_CHECKING
 
 import InquirerPy.prompts.input as prompt
 
-from geoprob_pipe.calculations.systems.model4a.initial_input import (
-    INITIAL_INPUT as MODEL4A_INPUT,
-)
-from geoprob_pipe.calculations.systems.moria.initial_input import (
-    INITIAL_INPUT as MORIA_INPUT,
-)
-from geoprob_pipe.calculations.systems.wbi.initial_input import (
-    INITIAL_INPUT as WBI_INPUT,
-)
+from.utils import valid_parameter_list
 from geoprob_pipe.utils.validation_messages import BColors
 
 if TYPE_CHECKING:
@@ -71,25 +63,8 @@ def request_parameters(app_settings: ApplicationSettings):
     :param app_settings: `ApplicationSettings` object.
     """
     conn = sqlite3.connect(app_settings.geopackage_filepath)
-    cur = conn.cursor()
-    cur.execute(
-        "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type='geohydrologisch_model'"
-    )
-    model = cur.fetchone()[0]
-    # conn wordt later gesloten.
-
-    input_list: list[str] = [param for param in LIST_PARAMS.keys()]
-    match model:
-        case "model4a":
-            model_list = [param["name"] for param in MODEL4A_INPUT]
-            valid_list = [x for x in input_list if x in model_list]
-
-        case "wbi":
-            model_list = [param["name"] for param in WBI_INPUT]
-            valid_list = [x for x in input_list if x in model_list]
-        case "moria":
-            model_list = [param["name"] for param in MORIA_INPUT]
-            valid_list = [x for x in input_list if x in model_list]
+    
+    valid_list = valid_parameter_list(app_settings)
 
     scenario_input_is_valid = False
     while scenario_input_is_valid is False:
