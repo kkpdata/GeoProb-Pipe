@@ -204,7 +204,7 @@ INITIAL_INPUT = [
         "remark": "",
         "unit": "kN/m³",
         "distribution_type": DistributionType.log_normal,
-        "mean": 13.9,
+        "mean": 15.0,
         "variation": 0.05,
         "source": "excel",
     },
@@ -225,7 +225,7 @@ INITIAL_INPUT = [
         "unit": "m",
         "distribution_type": DistributionType.log_normal,
         "mean": 2.8e-4,
-        "variation": 0.15,
+        "variation": 0.12,
         "source": "excel",
     },
     {
@@ -281,7 +281,7 @@ INITIAL_INPUT = [
         "remark": "",
         "unit": "kN/m³",
         "distribution_type": DistributionType.deterministic,
-        "mean": 16.5,
+        "mean": 26.0,
         "source": "excel",
     },
     {
