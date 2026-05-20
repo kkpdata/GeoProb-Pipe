@@ -1,16 +1,21 @@
 from __future__ import annotations
-from InquirerPy import inquirer
-import sqlite3
-from datetime import datetime
-from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
-from geoprob_pipe.cmd_app.parameter_input.initiate_input_excel_tables import initiate_input_excel_tables
-from geoprob_pipe.cmd_app.parameter_input.input_parameter_figures import InputParameterFigures
-from geoprob_pipe.cmd_app.parameter_input.export_input_parameter_excel import export_input_parameter_tables
-from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
-from typing import TYPE_CHECKING, Optional
+
 import os
+import sqlite3
 import sys
+from datetime import datetime
+from typing import TYPE_CHECKING, Optional
+
+from InquirerPy import inquirer
+
 from geoprob_pipe.utils.validation_messages import BColors
+
+from .expand_input_tables import run_expand_input_tables
+from .export_input_parameter_excel import export_input_parameter_tables
+from .initiate_input_excel_tables import initiate_input_excel_tables
+from .input_parameter_figures import InputParameterFigures
+from .input_parameter_tables import InputParameterTables
+
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -68,7 +73,7 @@ def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSetting
     elif choice == choices_list[1]:
         pass  # Just continue
     elif choice == choices_list[2]:
-        sys.exit(f"Applicatie is afgesloten.")
+        sys.exit("Applicatie is afgesloten.")
     else:
         raise ValueError
 
@@ -109,10 +114,11 @@ def _export_expanded_input(app_settings: ApplicationSettings):
 
     # Copy template to workspace
     dst_dir = os.path.join(
-        app_settings.workspace_dir,
+        str(app_settings.workspace_dir),
         "exports",
         app_settings.datetime_stamp,
-        "parameter_input_process")
+        "parameter_input_process",
+    )
     os.makedirs(dst_dir, exist_ok=True)
     dst_path = os.path.join(dst_dir, "expanded_parameter_input.xlsx")
     if os.path.exists(dst_path):
@@ -142,6 +148,7 @@ def inquire_to_import_export_tables_and_figures_or_continue(
         "Invoer tabellen: Importeren vanuit Excel",
         "Invoer tabellen: Exporteren naar Excel",
         "'Expanded' parameter invoer per uittredepunt: Exporteren",
+        "Ruimtelijke invoer: Update ingevoerde lagen"
         "Toelichting per keuze optie",
         "Applicatie afsluiten"])
 
@@ -151,55 +158,63 @@ def inquire_to_import_export_tables_and_figures_or_continue(
         choices=choices_list,
         default=choices_list[0],
     ).execute()
+    match choice:
 
-    if choice == "Zijn de invoer tabellen zijn naar wens? Ga door naar volgende stap":
-        print(BColors.OKBLUE, f"✔  Parameter invoer afgerond.", BColors.ENDC)
-        return
+        case "Zijn de invoer tabellen zijn naar wens? Ga door naar volgende stap":
+            print(BColors.OKBLUE, "✔  Parameter invoer afgerond.", BColors.ENDC)
+            return
 
-    elif choice == "Zijn de invoer tabellen zijn naar wens? Ga door naar volgende stap (n.v.t. -> invoer niet valide)":
-        inquire_to_import_export_tables_and_figures_or_continue(
-            app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
-            validity_extended_tables=validity_extended_tables)
+        case "Zijn de invoer tabellen zijn naar wens? Ga door naar volgende stap (n.v.t. -> invoer niet valide)":
+            inquire_to_import_export_tables_and_figures_or_continue(
+                app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+                validity_extended_tables=validity_extended_tables)
 
-    elif choice == "Overzichtsfiguren van invoertabellen: Exporteren":
-        obj = InputParameterFigures.populate(app_settings=app_settings, tables=tables, export=True)
-        obj.run()
-        inquire_to_import_export_tables_and_figures_or_continue(
-            app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
-            validity_extended_tables=validity_extended_tables)
+        case "Overzichtsfiguren van invoertabellen: Exporteren":
+            obj = InputParameterFigures.populate(app_settings=app_settings, tables=tables, export=True)
+            obj.run()
+            inquire_to_import_export_tables_and_figures_or_continue(
+                app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+                validity_extended_tables=validity_extended_tables)
 
-    elif choice == "Invoer tabellen: Importeren vanuit Excel":
-        process_import_input(app_settings=app_settings)
+        case "Invoer tabellen: Importeren vanuit Excel":
+            process_import_input(app_settings=app_settings)
 
-    elif choice == "Invoer tabellen: Exporteren naar Excel":
-        process_export_input_of_db(
-            app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
-            validity_extended_tables=validity_extended_tables)
+        case "Invoer tabellen: Exporteren naar Excel":
+            process_export_input_of_db(
+                app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+                validity_extended_tables=validity_extended_tables)
 
-    elif choice == "'Expanded' parameter invoer per uittredepunt: Exporteren":
-        _export_expanded_input(app_settings=app_settings)
-        inquire_to_import_export_tables_and_figures_or_continue(
-            app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
-            validity_extended_tables=validity_extended_tables)
+        case "'Expanded' parameter invoer per uittredepunt: Exporteren":
+            _export_expanded_input(app_settings=app_settings)
+            inquire_to_import_export_tables_and_figures_or_continue(
+                app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+                validity_extended_tables=validity_extended_tables)
 
-    elif choice == "Toelichting per keuze optie":
-        print("""
+        case "Ruimtelijke invoer: Update ingevoerde lagen":
+            # Nieuw keuze menu voor de volgende:
+            # TODO herinvoeren van gis lagen.
+            # TODO toevoegen van nieuwe parameters.
+            # TODO Toevangen van scenarios. Alles opnieuw inladen en koppelen?
+            # TODO verwijderen van lagen? Of alleen overschrijven via excel invoer?
+            pass
+        
+        case "Toelichting per keuze optie":
+            print("""
 Invoer tabellen zijn naar wens, ga door naar volgende stap  ->  Indien je deze keuzemogelijkheid krijgt zijn de invoertabellen valide en kun je door naar de volgende stap.
                                                                 Je zegt daarmee eveneens dat de invoertabellen naar wens zijn. 
 Overzichtsfiguren van invoertabellen: Exporteren            ->  Deze interactive HTML-figuren geven je per parameter een snel visueel overzicht van de invoer in het GeoProb-Pipe-bestand. 
 Invoer tabellen: Importeren vanuit Excel                    ->  Importeer vanuit Excel de invoertabellen om ze te laten valideren, visualiseren en/of op te slaan in het GeoProb-Pipe-bestand. 
 Invoer tabellen: Exporteren naar Excel                      ->  Exporteer vanuit het GeoProb-Pipe-bestand de invoertabellen om ze in Excel te bekijken en/of verder aan te vullen. 
 'Expanded' parameter invoer: Exporteren                     ->  Exporteert een Excel met de parameter invoer 'expanded' naar per uittredepunt en per scenario. 'Expanded' vanuit de invoer op verschillende niveau's.
-        """)
-        inquire_to_import_export_tables_and_figures_or_continue(
-            app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
-            validity_extended_tables=validity_extended_tables)
+Ruimtelijke invoer: Update ingevoerde lagen                 ->  Open een keuze menu om de lagen die zijn ingevoerd voor ruimtelijke koppeling van parameters te vervangen.   
+            """)
+            inquire_to_import_export_tables_and_figures_or_continue(
+                app_settings=app_settings, tables=tables, validity_raw_tables=validity_raw_tables,
+                validity_extended_tables=validity_extended_tables)
 
-    elif choice == "Applicatie afsluiten":
-        sys.exit(f"Applicatie is afgesloten.")
+        case "Applicatie afsluiten":
+            sys.exit("Applicatie is afgesloten.")
 
-    else:
-        raise ValueError
 
 
 def export_input_tables_of_db(app_settings: ApplicationSettings, tables: InputParameterTables):
@@ -208,7 +223,6 @@ def export_input_tables_of_db(app_settings: ApplicationSettings, tables: InputPa
 
 def import_input_tables(geopackage_filepath: str) -> InputParameterTables:
 
-    filepath: Optional[str] = None
     filepath_is_valid = False
     while filepath_is_valid is False:
         filepath: str = inquirer.text(
@@ -222,12 +236,12 @@ def import_input_tables(geopackage_filepath: str) -> InputParameterTables:
                                    f"{os.path.basename(filepath)} eindigt niet op deze extensie.", BColors.ENDC)
             continue
         if not os.path.exists(filepath):
-            print(BColors.WARNING, f"Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
+            print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
             continue
 
         filepath_is_valid = True
 
-    tables = InputParameterTables(path_to_excel=filepath, geopackage_filepath=geopackage_filepath)
+    tables = InputParameterTables(path_to_excel=filepath, geopackage_filepath=geopackage_filepath)  # type:ignore
     print(f"{BColors.UNDERLINE}Tabellen zijn nu geïmporteerd.{BColors.ENDC}")
     return tables
 
@@ -267,7 +281,7 @@ def process_input_exist_in_db(app_settings: ApplicationSettings):
     validity_raw_tables = validate_raw_input_tables(app_settings=app_settings, tables=tables)
 
     # Validate expanded tables
-    validity_extended_tables: Optional[bool] = None
+    validity_extended_tables: bool = False
     if validity_raw_tables:
         validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings, tables=tables)
 
@@ -296,10 +310,11 @@ def process_import_input(app_settings: ApplicationSettings):
     validity_raw_tables = validate_raw_input_tables(app_settings=app_settings, tables=tables)
 
     # Ask to export overview pictures
-    if validity_raw_tables: inquire_if_input_figures_should_be_exported(app_settings=app_settings, tables=tables)
+    if validity_raw_tables:
+        inquire_if_input_figures_should_be_exported(app_settings=app_settings, tables=tables)
 
     # Validate expanded tables
-    validity_extended_tables: Optional[bool] = None
+    validity_extended_tables: bool = False
     if validity_raw_tables:
         validity_extended_tables = validate_expanded_input_tables(app_settings=app_settings, tables=tables)
 

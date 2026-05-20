@@ -252,7 +252,7 @@ met de {self.param} geometrieën.
         Als er meerdere scenarios zijn moeten deze als aparte kolommen worden
         toegevoegd met een prefix. Bijvoorbeeld scenario1_*.
 
-        Of als de scenarios als aparte shapes worden ingevoerd moet er een kolom
+        Of als de scenarios als aparte shapes worden ingevoerd, moet er een kolom
         met de naam "ondergrondscenario" zijn toegevoegd.
 
         :param gdf: GeoDataFrame met de uitgelezen data van de laag.

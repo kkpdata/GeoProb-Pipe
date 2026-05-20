@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import sqlite3
 from typing import TYPE_CHECKING
 
@@ -7,7 +8,7 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import LineString, MultiLineString, Polygon, MultiPolygon
 
-from geoprob_pipe.cmd_app.spatial_layers.parameters import LIST_PARAMS
+from geoprob_pipe.cmd_app.spatial_layers.added_parameters import LIST_PARAMS
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
@@ -73,7 +74,7 @@ class ShapeCouple:
 
     def _add_single_layer(self):
         """
-        Voeg een laag toe via koppeleing ,met de uitredepunten als er geen
+        Voeg een laag toe via koppeling, met de uitredepunten als er geen
         ruimtelijke scenarios zijn voor de parameter.
         """
         gdf_parameter: gpd.GeoDataFrame = gpd.read_file(
@@ -83,7 +84,7 @@ class ShapeCouple:
 
     def _add_multiple_layers(self):
         """
-        Voeg de lagen een voor een toe als er ruimtelijke scenariois zijn voor
+        Voeg de lagen een voor een toe als er ruimtelijke scenarios zijn voor
         de parameter.
         """
         for scenario in self.param_tables:
@@ -166,12 +167,12 @@ class ShapeCouple:
         df["parameter"] = self.param
         df["scope"] = "uittredepunt"
         df["ondergrondscenario_naam"] = scenario
-        df["distribution_type"] = join_df.get(f"{self.param}_dist")
-        df["mean"] = join_df.get(f"{self.param}_mean")
-        df["variation"] = join_df.get(f"{self.param}_var")
-        df["deviation"] = join_df.get(f"{self.param}_dev")
-        df["minimum"] = join_df.get(f"{self.param}_min")
-        df["maximum"] = join_df.get(f"{self.param}_max")
+        df["distribution_type"] = join_df.get(f"{self.param}_dist", "")
+        df["mean"] = join_df.get(f"{self.param}_mean", "")
+        df["variation"] = join_df.get(f"{self.param}_var", "")
+        df["deviation"] = join_df.get(f"{self.param}_dev", "")
+        df["minimum"] = join_df.get(f"{self.param}_min", "")
+        df["maximum"] = join_df.get(f"{self.param}_max", "")
         df["fragility_values_ref"] = ""
         df["bronnen"] = ""
         df["opmerking"] = ""
@@ -200,7 +201,10 @@ class ShapeCouple:
         """
         Voeg de dataframe toe aan de tabel. Als de tabel nog niet bestaat
         wordt deze op de correcte manier opgezet. Met een unique verzameling
-        waarden of te kunnen overschrijven.
+        waarden of te kunnen overschrijven. Om te zorgen dat de tabel geschikt
+        is voor een upsert moet er een set van kolommen uniek zijn. Dit is
+        lastiger om automatisch te doen met `.to_sql`. Hier wordt de tabel
+        ook handmatig toegevoegd aan gpkg_contents.
 
         :param df: DataFrame met juiste kolommen.
         """
@@ -262,5 +266,34 @@ class ShapeCouple:
             """,
             data,
         )
+        # UPSERT naar gpkg_contents
+        content = (
+            "gis_join_parameter_invoer",
+            "attributes",
+            "gis_join_parameter_invoer",
+            "",
+            datetime.datetime.now(),
+            0,
+        )
+        cursor.execute(
+            """
+            INSERT INTO gpkg_contents (
+                table_name,
+                data_type,
+                identifier,
+                description,
+                last_change,
+                srs_id
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT (indentifier) DO UPDATE SET
+                table_name = excluded.table_name,
+                data_type = excluded.data_type,
+                description = excluded.description,
+                last_change = excluded.last_change,
+                srs_id = excluded.srs_id
+            """,
+            content
+        )
+
         conn.commit()
         conn.close()

@@ -20,7 +20,7 @@ def added_intredelijn(app_settings: ApplicationSettings) -> bool:
     layers = fiona.listlayers(app_settings.geopackage_filepath)
 
     if "intredelijn" in layers:
-        print(BColors.OKBLUE, f"✔  Intredelijn al toegevoegd.", BColors.ENDC)
+        print(BColors.OKBLUE, "✔  Intredelijn al toegevoegd.", BColors.ENDC)
         return True
 
     request_intredelijn_filepath(app_settings=app_settings)
