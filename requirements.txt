@@ -1,6 +1,11 @@
+pandas==2.*  # pydra-core 0.0.10 and earlier is not update to the latest version of pandas.
+pydra-core==0.0.10
+probabilistic-library==26.1.1
+
+# The following is not yet restricted
 dotenv
-pandas<3.0.0  # pydra-core 0.0.10 and earlier is not update to the latest version of pandas.
-pydra-core
+pandas<3.0.0
+pydra-core<=0.0.10
 # TODO Later Should Middel: Er bestaat ook een Python-wrapper voor Hydra-Ring. Pydra-core vervangen?
 openpyxl
 colorlog

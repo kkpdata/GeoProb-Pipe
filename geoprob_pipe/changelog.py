@@ -1,5 +1,7 @@
 
 CHANGELOG = {
+    "2.2.3":
+        "Bug fix. Validation issue.",
     "2.2.0":
         "New feature. Het is nu mogelijk om op scenario-niveau de invoer van uittredepunten te specificeren.",
     "2.1.0":

@@ -11,15 +11,26 @@ def is_string(s: Series) -> Series:
 IsString = ValidationRequirement(requirement=is_string, failure_msg="Value in column is not a string (textual).")
 
 
-def is_in(values: List):
-    assert isinstance(values, List)
-    return lambda s: s.isin(values)
-
-
 def is_in_range(
         left: float, right: float,
         inclusive: Literal["both", "neither", "left", "right"] = "both") -> Callable[[Series], Series]:
     return lambda s: s.between(left, right, inclusive=inclusive)
+
+
+class IsInRange(ValidationRequirement):
+    def __init__(
+            self,
+            left: float,
+            right: float,
+            inclusive: Literal["both", "neither", "left", "right"] = "both",
+            filters: Optional[Callable[[DataFrame], Series]] = None,
+            stop_validation_on_failure: bool = False
+    ):
+        super().__init__(
+            requirement=is_in_range(left=left, right=right, inclusive=inclusive),
+            failure_msg=f"Value should be in range {left} to {right} (inclusive={inclusive}).",
+            filters=filters,
+            stop_validation_on_failure=stop_validation_on_failure)
 
 
 def is_not_null(s: Series) -> Series:
@@ -28,6 +39,11 @@ def is_not_null(s: Series) -> Series:
 
 def is_null(s: Series) -> Series:
     return ~s.notna()
+
+
+def is_in(values: List):
+    assert isinstance(values, List)
+    return lambda s: s.isin(values)
 
 
 class IsIn(ValidationRequirement):
@@ -44,7 +60,8 @@ def is_integer(s: Series) -> Series:
 
 
 def is_whole_number(s: Series) -> Series:
-    return s.notna() & (s % 1 == 0)
+    numeric = to_numeric(s, errors="coerce")
+    return s.notna() & (numeric % 1 == 0)
 
 
 def is_numeric(s: Series) -> Series:
