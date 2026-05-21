@@ -1179,14 +1179,14 @@ wcwidth = "*"
 
 [[package]]
 name = "pydra-core"
-version = "0.0.9"
+version = "0.0.10"
 description = "Python package for calculating hydraulic loads"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "pydra_core-0.0.9-py2.py3-none-any.whl", hash = "sha256:7bf4c4c4c161929fadf008f3cb5a78754be22c184fa6767ee81b01025c6baac5"},
-    {file = "pydra_core-0.0.9.tar.gz", hash = "sha256:9f547cb0094174d0ee338f146b42144bba048fd8ac6a50a27fd49dc29ad22940"},
+    {file = "pydra_core-0.0.10-py2.py3-none-any.whl", hash = "sha256:034ae7d40bc2e27cbf3f48c79f7a05c8c670801dc9ff3cb16e9c632de58fefbb"},
+    {file = "pydra_core-0.0.10.tar.gz", hash = "sha256:2328c16d88953a201c1a25880638c2eb600096c50b0cc14b6e2487ab36ae2e44"},
 ]
 
 [package.dependencies]
@@ -1751,5 +1751,5 @@ files = [
 
 [metadata]
 lock-version = "2.1"
-python-versions = "~3.12"
-content-hash = "1cd2870a12b4dbea2ae0a8894ff2cee8528158efcc5ae109f5d44f967828816a"
+python-versions = ">=3.12,<3.13"
+content-hash = "1628871f9ea26a384e9da879017f5216ad4789f47613594f72c5c61de87127cf"
