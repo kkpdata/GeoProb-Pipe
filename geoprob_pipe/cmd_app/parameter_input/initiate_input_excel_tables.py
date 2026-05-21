@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 import sqlite3
 from geoprob_pipe.cmd_app.utils.misc import get_geohydrological_model
 from geoprob_pipe.calculations.systems.mappers.initial_input import INITIAL_INPUT_MAPPER
-from pandas import DataFrame
+from pandas import DataFrame, NA
 import numpy as np
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
@@ -59,8 +59,8 @@ def push_parameter_invoer_tabel(app_settings: ApplicationSettings):
 
     # Add missing columns
     df_parameter_invoer.loc[:, "scope"] = "traject"
-    df_parameter_invoer.loc[:, "scope_referentie"] = ""
-    df_parameter_invoer.loc[:, "ondergrondscenario_naam"] = ""
+    df_parameter_invoer.loc[:, "scope_referentie"] = NA
+    df_parameter_invoer.loc[:, "ondergrondscenario_naam"] = NA
     df_parameter_invoer.loc[:, "bronnen"] = ""
     df_parameter_invoer.loc[:, "opmerking"] = ""
     df_parameter_invoer.loc[:, "fragility_values_ref"] = ""

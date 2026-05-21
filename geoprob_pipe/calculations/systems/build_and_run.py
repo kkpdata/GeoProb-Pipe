@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 from geoprob_pipe.calculations.systems.mappers.calculations import (
     CALCULATION_MAPPER)
 from multiprocessing import Pool, cpu_count
@@ -54,8 +54,10 @@ class CalcResult:
     validation_message: ValidationMessages
 
 
-def _init_worker(geohydrologisch_model, geopackage_filepath,
-                 to_run_vakken_ids):
+def _init_worker(
+        geohydrologisch_model: str,
+        geopackage_filepath: str,
+        to_run_vakken_ids: Optional[List[int]]):
     """ Initiator voor de worker, dit zorgt ervoor dat de tijdrovende
     stappen een keer per worker worden uitgevoerd en dan beschikbaar blijven
     voor iedere run.
@@ -70,6 +72,10 @@ def _init_worker(geohydrologisch_model, geopackage_filepath,
 
 def _worker(row_unique: dict):
     """ De worker functie die op de parallelle rekenkernen wordt gedraaid.
+
+    :param row_unique: Identificatie naar unieke berekening, bijvoorbeeld
+        {'uittredepunt_id': 1, 'ondergrondscenario_naam': 'scenario1', 'vak_id': 4}.
+    :return: Tuple[Optional[CalcResult], Optional[str], Optional[dict]]
     """
     log_buffer = StringIO()
     buffer_handler = logging.StreamHandler(log_buffer)

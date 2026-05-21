@@ -60,7 +60,8 @@ def is_integer(s: Series) -> Series:
 
 
 def is_whole_number(s: Series) -> Series:
-    return s.notna() & (s % 1 == 0)
+    numeric = to_numeric(s, errors="coerce")
+    return s.notna() & (numeric % 1 == 0)
 
 
 def is_numeric(s: Series) -> Series:

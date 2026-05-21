@@ -31,7 +31,7 @@ def _specify_traject_id(app_settings: ApplicationSettings):
         ).execute()
         traject_id = traject_id.strip()
 
-        if traject_id is "":
+        if traject_id == "":
             print(BColors.OKBLUE, f"Je hebt geen traject_id gespecificeerd. Je invoer is leeg. ", BColors.ENDC)
             continue
 
@@ -56,7 +56,7 @@ def _specify_signaleringswaarde(app_settings: ApplicationSettings):
         ).execute()
         signaleringswaarde = signaleringswaarde.strip()
 
-        if signaleringswaarde is "":
+        if signaleringswaarde == "":
             print(BColors.OKBLUE, f"Je hebt geen signaleringswaarde gespecificeerd. Je invoer is leeg. ", BColors.ENDC)
             continue
 
@@ -83,7 +83,7 @@ def _specify_ondergrens(app_settings: ApplicationSettings, signaleringswaarde: i
         ).execute()
         ondergrens = ondergrens.strip()
 
-        if ondergrens is "":
+        if ondergrens == "":
             print(BColors.OKBLUE, f"Je hebt geen ondergrens gespecificeerd. Je invoer is leeg. ", BColors.ENDC)
             continue
 
@@ -141,7 +141,7 @@ def _specify_w(app_settings: ApplicationSettings):
         ).execute()
         w = w.strip()
 
-        if w is "":
+        if w == "":
             print(BColors.OKBLUE, f"Je hebt geen w gespecificeerd. Je invoer is leeg. ", BColors.ENDC)
             continue
 
