@@ -15,7 +15,7 @@ def _append_to_db(app_settings: ApplicationSettings, key: str, value):
     cursor = conn.cursor()
     cursor.execute(
         """
-        INSERT INTO geoprob_pipe_metadata (metadata_type, "values") VALUES (?, ?);
+        INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES (?, ?);
         """,
         (key, value))
     conn.commit()
@@ -111,7 +111,7 @@ def _get_signaleringswaarde(app_settings: ApplicationSettings) -> int:
     conn = sqlite3.connect(app_settings.geopackage_filepath)
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT geoprob_pipe_metadata."values" 
+        SELECT geoprob_pipe_metadata.metadata_value 
         FROM geoprob_pipe_metadata 
         WHERE metadata_type='signaleringswaarde';
     """)

@@ -202,14 +202,14 @@ def _add_traject_parameters(app_settings: ApplicationSettings, hrd_dir: str):
     conn = sqlite3.connect(file_path)
     cursor = conn.cursor()
     cursor.execute(
-        f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('traject_id', '{traject_id}');")
+        f"INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES ('traject_id', '{traject_id}');")
     cursor.execute(
-        f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') "
+        f"INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) "
         f"VALUES ('signaleringswaarde', {signaleringswaarde});")
     cursor.execute(
-        f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('ondergrens', {ondergrens});")
-    cursor.execute(f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('w', {w});")
-    cursor.execute(f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') "
+        f"INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES ('ondergrens', {ondergrens});")
+    cursor.execute(f"INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES ('w', {w});")
+    cursor.execute(f"INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) "
                    f"VALUES ('is_bovenrivierengebied', {is_bovenrivierengebied});")
     conn.commit()
     cursor.close()

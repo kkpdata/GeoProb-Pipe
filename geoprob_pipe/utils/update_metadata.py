@@ -17,8 +17,8 @@ def _to_text(v):
 
 
 def _upsert_metadata(conn, table, metadata_type, value):
-    sql_update = f'UPDATE {table} SET "values" = ? WHERE metadata_type = ?'
-    sql_insert = f'INSERT INTO {table} (metadata_type, "values") VALUES (?, ?)'
+    sql_update = f'UPDATE {table} SET metadata_value = ? WHERE metadata_type = ?'
+    sql_insert = f'INSERT INTO {table} (metadata_type, metadata_value) VALUES (?, ?)'
 
     with conn:  # transaction
         cur = conn.execute(sql_update, (value, metadata_type))
@@ -43,19 +43,19 @@ def update_metadata(geoprob_pipe: GeoProbPipe):
 
     records = [
         {"metadata_type": "last_calculation_run_datetime",
-         "values": geoprob_pipe.input_data.app_settings.datetime_stamp},
+         "metadata_value": geoprob_pipe.input_data.app_settings.datetime_stamp},
         {"metadata_type": "last_calculation_rub_in_seconds",
-         "values": geoprob_pipe.time_diff.total_seconds()},
+         "metadata_value": geoprob_pipe.time_diff.total_seconds()},
         {"metadata_type": "last_calculation_run_vakken_to_run",
-         "values": ran_vakken_ids},
+         "metadata_value": ran_vakken_ids},
         {"metadata_type": "last_calculation_run_nr_of_calculations",
-            "values": n_calcs},
+         "metadata_value": n_calcs},
         {"metadata_type": "last_calculation_run_nr_of_uittredepunten",
-            "values": n_points},
+         "metadata_value": n_points},
         {"metadata_type": "last_calculation_run_nr_of_vakken",
-            "values": n_vakken},
+         "metadata_value": n_vakken},
         {"metadata_type": "last_calculation_run_percentage_of_uittredepunten",
-            "values": ratio_points * 100}
+         "metadata_value": ratio_points * 100}
     ]
 
     conn = sqlite3.connect(gpkg_path)
@@ -63,6 +63,6 @@ def update_metadata(geoprob_pipe: GeoProbPipe):
     for r in records:
         _upsert_metadata(conn=conn, table=table,
                          metadata_type=r["metadata_type"],
-                         value=_to_text(r["values"]))
+                         value=_to_text(r["metadata_value"]))
     conn.commit()
     conn.close()

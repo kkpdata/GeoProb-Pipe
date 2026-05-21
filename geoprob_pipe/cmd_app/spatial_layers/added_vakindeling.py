@@ -13,6 +13,7 @@ from pandas import DataFrame
 from geopandas import GeoDataFrame
 import fiona
 from geoprob_pipe.utils.validation_messages import BColors
+
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -45,7 +46,7 @@ def check_validity_vakindeling(app_settings: ApplicationSettings):
     vakindeling_total_length = round(sum([geom.length for geom in vakindeling_geometries]), 2)
 
     assert dijktraject_length == vakindeling_total_length
-    print(BColors.OKBLUE, f"✔  Vakindeling al toegevoegd.", BColors.ENDC)
+    print(BColors.OKBLUE, "✔  Vakindeling al toegevoegd.", BColors.ENDC)
 
 
 def import_from_geopackage(filepath: str) -> GeoDataFrame:
@@ -77,7 +78,7 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
 
 
 def import_from_geodatabase(filepath: str) -> GeoDataFrame:
-    layer_name: Optional[str] = None
+    layer_name: str = ""
     layer_name_is_valid = False
     while layer_name_is_valid is False:
         layer_name: str = inquirer.text(
@@ -105,13 +106,16 @@ def import_from_geodatabase(filepath: str) -> GeoDataFrame:
 
 
 def request_vakindeling_filepath(app_settings: ApplicationSettings):
-    filepath: Optional[str] = None
-    filepath_is_valid = False
-    while filepath_is_valid is False:
-        filepath: str = inquirer.text(
-            message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
-                    "vakindeling van de dijk zit.",
-        ).execute()
+    filepath: str = ""
+
+    while True:
+        if app_settings.batch_input:
+            filepath = app_settings.input_config.get("vakindeling", "path")
+        else:
+            filepath: str = inquirer.text(
+                message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
+                        "vakindeling van de dijk zit.",
+            ).execute()
 
         filepath = filepath.replace('"', '')
 
@@ -120,10 +124,10 @@ def request_vakindeling_filepath(app_settings: ApplicationSettings):
                                    f"eindigt op de extensie .{filepath.split(sep='.')[-1]}.", BColors.ENDC)
             continue
         if not os.path.exists(filepath):
-            print(BColors.WARNING, f"Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
+            print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
             continue
 
-        filepath_is_valid = True
+        break
 
     if filepath.endswith(".shp"):
         with warnings.catch_warnings():

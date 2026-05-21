@@ -235,7 +235,7 @@ def _gather_required_input_parameters(geopackage_filepath: str) -> List[str]:
     conn = sqlite3.connect(geopackage_filepath)
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT geoprob_pipe_metadata."values" 
+        SELECT geoprob_pipe_metadata.metadata_value 
         FROM geoprob_pipe_metadata 
         WHERE metadata_type='geohydrologisch_model';
     """)

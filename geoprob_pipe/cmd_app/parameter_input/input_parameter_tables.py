@@ -17,7 +17,7 @@ def _load_df_correlatie_invoer_from_geopackage(geopackage_filepath: str) -> Data
     # Check if table exists in geopackage (older versions don't have this)
     conn = sqlite3.connect(geopackage_filepath)
     cursor = conn.cursor()
-    cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='correlatie_invoer';")
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='correlatie_invoer';")
     bool_table_exists = cursor.fetchone() is not None
 
     # Return empty if not exists
@@ -70,10 +70,10 @@ class InputParameterTables:
     def __init__(self, geopackage_filepath: str, path_to_excel: Optional[str] = None):
 
         # Placeholders
-        self.df_scenario_invoer: Optional[DataFrame] = None
-        self.df_parameter_invoer: Optional[DataFrame] = None
-        self.df_fragility_values_invoer: Optional[DataFrame] = None
-        self.df_correlatie_invoer: Optional[DataFrame] = None
+        # self.df_scenario_invoer: Optional[DataFrame] = None
+        # self.df_parameter_invoer: Optional[DataFrame] = None
+        # self.df_fragility_values_invoer: Optional[DataFrame] = None
+        # self.df_correlatie_invoer: Optional[DataFrame] = None
 
         if path_to_excel is not None:
             self._load_data_from_excel(path_to_excel=path_to_excel, geopackage_filepath=geopackage_filepath)
@@ -100,5 +100,7 @@ class InputParameterTables:
         self.df_correlatie_invoer = read_excel(path_to_excel, sheet_name="Correlatie invoer", header=3)
 
     def validate_and_report(self, app_settings: ApplicationSettings) -> bool:
-        if not _validate_df_parameter_invoer(df=self.df_parameter_invoer, app_settings=app_settings): return False
+        if not _validate_df_parameter_invoer(df=self.df_parameter_invoer, app_settings=app_settings):
+            return False
+        
         return True

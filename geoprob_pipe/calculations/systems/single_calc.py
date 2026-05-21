@@ -42,7 +42,7 @@ def reproduce_single_calculation(
     conn = sqlite3.connect(geopackage_filepath)
     cursor = conn.cursor()
     cursor.execute(
-        'SELECT "values" FROM geoprob_pipe_metadata WHERE metadata_type = ?',
+        'SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?',
         ("geohydrologisch_model",))
     geohydrologisch_model: str = cursor.fetchone()[0]
 

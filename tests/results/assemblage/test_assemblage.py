@@ -31,9 +31,10 @@ def test_window():
         window_size=10, point_list=list_dsn,
         m_van=0, m_tot=40
         )
+    print(elements)
     assert sum_pf == pytest.approx(1.78e-12)
     assert max_pf == pytest.approx(1e-12)
-    assert elements.__len__() == 4
+    assert len(elements) == 4
     assert elements[0].kans_dsn.pf == 0.0
 
 

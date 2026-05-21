@@ -3,57 +3,111 @@ TODO Nu Must Klein: Voeg laag toe aan GeoPackage met visuele koppeling tussen in
 """
 
 from __future__ import annotations
-from geopandas import GeoDataFrame, read_file
-from pathlib import Path
-from geoprob_pipe.cmd_app.spatial_joins.utils import append_to_gis_join_parameter_invoer_table
-from geoprob_pipe.utils.validation_messages import BColors
+
 from typing import TYPE_CHECKING
+
+import geopandas as gpd
+import fiona
+
+from geoprob_pipe.cmd_app.spatial_joins.couple_objects.distance_couple import (
+    DistCouple,
+)
+from geoprob_pipe.utils.validation_messages import BColors
+
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
+# TODO Vincent: Check of deze al in de tabel staan.
+def coupled_distances_to_uittredepunten(
+    app_settings: ApplicationSettings,
+) -> bool:
+    """
+    Bepaal de afstanden tussen de uittredepunten en de intrede, binnenteen en
+    buitenteenlijen.
 
-def coupled_distances_to_uittredepunten(app_settings: ApplicationSettings) -> bool:
+    :param app_settings: Object met de insellingen van de applicatie
+    """    
 
     # Read uittredepunten
-    gdf_exit_points: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")
-
-    # Check if already added
-    columns = gdf_exit_points.columns
-    if "afstand_intredelijn" in columns and "afstand_buitenteenlijn" in columns and "afstand_binnenteenlijn" in columns:
-        print(BColors.OKBLUE,
-              f"✔  Afstanden intrede, buitenteen en binnenteen al gekoppeld aan uittredepunten.", BColors.ENDC)
-        return True  # Assuming already added
-    # TODO: Uitfaseren dat deze kolommen gekoppeld worden aan de exit_points tabel
+    gdf_exit_points: gpd.GeoDataFrame = gpd.read_file(
+        app_settings.geopackage_filepath, layer="uittredepunten"
+    )
 
     # Distance to intredelijn
-    gdf_intredelijnen: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="intredelijn")
-    gdf_exit_points['afstand_intredelijn'] = gdf_exit_points.geometry.apply(
-        lambda pnt: round(gdf_intredelijnen.distance(pnt).min(), 1))
-    df_l_intrede = gdf_exit_points[["uittredepunt_id", "afstand_intredelijn"]]
-    df_l_intrede = df_l_intrede.rename(columns={"afstand_intredelijn": "mean"})
-    append_to_gis_join_parameter_invoer_table(
-        df_sjoin=df_l_intrede, parameter_name="L_intrede", geopackage_filepath=app_settings.geopackage_filepath)
+    layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
+    for layer in layers:
+        if "intredelijn" in layers:  # Een intredelijn voor alle scenarios
+            gdf_intredelijnen: gpd.GeoDataFrame = gpd.read_file(
+                app_settings.geopackage_filepath, layer="intredelijn"
+            )
+            gdf_exit_points["afstand_intredelijn"] = (
+                gdf_exit_points.geometry.apply(
+                    lambda pnt: round(gdf_intredelijnen.distance(pnt).min(), 1)
+                )
+            )
+            df_l_intrede = gdf_exit_points[
+                ["uittredepunt_id", "afstand_intredelijn"]
+            ]
+            df_l_intrede = df_l_intrede.rename(
+                columns={"afstand_intredelijn": "L_intrede_mean"}
+            )
+            DistCouple(
+                app_settings, "L_intrede", df_l_intrede
+            ).couple_exit_points()
+
+        # Intrede lijn per scenario        
+        if len(layer.split("_")) == 2 and "intredelijn" in layer.split("_")[0]:
+            gdf_intredelijnen: gpd.GeoDataFrame = gpd.read_file(
+                app_settings.geopackage_filepath, layer=layer
+            )
+            gdf_exit_points["afstand_intredelijn"] = (
+                gdf_exit_points.geometry.apply(
+                    lambda pnt: round(
+                        gdf_intredelijnen.distance(pnt).min(), 1
+                    )
+                )
+            )
+            df_l_intrede = gdf_exit_points[
+                ["uittredepunt_id", "afstand_intredelijn"]
+            ]
+            df_l_intrede = df_l_intrede.rename(
+                columns={"afstand_intredelijn": "L_intrede_mean"}
+            )
+            DistCouple(
+                app_settings, "L_intrede", df_l_intrede
+            ).couple_exit_points(scenario=layer.split("_")[1])
 
     # Distance to buitenteenlijn
-    gdf_buitenteenlijnen: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="buitenteenlijn")
-    gdf_exit_points['afstand_buitenteenlijn'] = gdf_exit_points.geometry.apply(
-        lambda pnt: round(gdf_buitenteenlijnen.distance(pnt).min(), 1))
+    gdf_buitenteenlijnen: gpd.GeoDataFrame = gpd.read_file(
+        app_settings.geopackage_filepath, layer="buitenteenlijn"
+    )
+    gdf_exit_points["afstand_buitenteenlijn"] = gdf_exit_points.geometry.apply(
+        lambda pnt: round(gdf_buitenteenlijnen.distance(pnt).min(), 1)
+    )
     df_l_but = gdf_exit_points[["uittredepunt_id", "afstand_buitenteenlijn"]]
-    df_l_but = df_l_but.rename(columns={"afstand_buitenteenlijn": "mean"})
-    append_to_gis_join_parameter_invoer_table(
-        df_sjoin=df_l_but, parameter_name="L_but", geopackage_filepath=app_settings.geopackage_filepath)
+    df_l_but = df_l_but.rename(
+        columns={"afstand_buitenteenlijn": "L_but_mean"}
+    )
+
+    DistCouple(app_settings, "L_but", df_l_but).couple_exit_points()
 
     # Distance to binnenteenlijn
-    gdf_binnenteenlijn: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="binnenteenlijn")
-    gdf_exit_points['afstand_binnenteenlijn'] = gdf_exit_points.geometry.apply(
-        lambda pnt: round(gdf_binnenteenlijn.distance(pnt).min(), 1))
-    df_l_intrede = gdf_exit_points[["uittredepunt_id", "afstand_binnenteenlijn"]]
-    df_l_intrede = df_l_intrede.rename(columns={"afstand_binnenteenlijn": "mean"})
-    append_to_gis_join_parameter_invoer_table(
-        df_sjoin=df_l_intrede, parameter_name="L_bit", geopackage_filepath=app_settings.geopackage_filepath)
+    gdf_binnenteenlijn: gpd.GeoDataFrame = gpd.read_file(
+        app_settings.geopackage_filepath, layer="binnenteenlijn"
+    )
+    gdf_exit_points["afstand_binnenteenlijn"] = gdf_exit_points.geometry.apply(
+        lambda pnt: round(gdf_binnenteenlijn.distance(pnt).min(), 1)
+    )
+    df_l_bit = gdf_exit_points[["uittredepunt_id", "afstand_binnenteenlijn"]]
+    df_l_bit = df_l_bit.rename(
+        columns={"afstand_binnenteenlijn": "L_bit_mean"}
+    )
 
-    # Store back in geopackage
-    gdf_exit_points.to_file(Path(app_settings.geopackage_filepath), layer="uittredepunten", driver="GPKG")
-    print(BColors.OKBLUE,
-          f"✅  Afstanden intrede, buitenteen en binnenteen zijn nu gekoppeld aan de uittredepunten.", BColors.ENDC)
+    DistCouple(app_settings, "L_bit", df_l_bit).couple_exit_points()
+
+    print(
+        BColors.OKBLUE,
+        "✔ Afstanden intrede, buitenteen en binnenteen zijn nu gekoppeld aan de uittredepunten.",
+        BColors.ENDC,
+    )
     return True

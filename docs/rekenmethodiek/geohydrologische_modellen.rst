@@ -34,7 +34,7 @@ verschilt.
 De grondwaterstroming vormt de drijvende kracht achter het proces van terugschrijdende erosie.
 Door het analytische grondwatermodel 4A van :cite:`trw_2004` toe te passen,
 kan de respons :math:`r_{exit}` in het uittredepunt worden beschreven als functie van de locatie in het
-dwarspofiel :math:`x_{exit}` [m] en de geohydrologische parameters van model 4A.
+dwarsprofiel :math:`x_{exit}` [m] en de geohydrologische parameters van model 4A.
 Een uitgebreide toelichting op de onderliggende theorie van dit model is te vinden in :ref:`stationair-model`.
 
 De respons in het uittredepunt wordt bepaald met:

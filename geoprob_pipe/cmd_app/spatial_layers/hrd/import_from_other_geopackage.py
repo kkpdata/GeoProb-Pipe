@@ -60,23 +60,23 @@ def _add_traject_parameters(other_gpkg_path: str, app_settings: ApplicationSetti
     df: DataFrame = read_sql_query("SELECT * FROM geoprob_pipe_metadata;", conn)
     conn.close()
 
-    traject_id = df[df["metadata_type"] == "traject_id"]["values"].values[0]
-    signaleringswaarde = int(df[df["metadata_type"] == "signaleringswaarde"]["values"].values[0])
-    ondergrens = int(df[df["metadata_type"] == "ondergrens"]["values"].values[0])
-    w = float(df[df["metadata_type"] == "w"]["values"].values[0])
-    is_bovenrivierengebied = bool(int(df[df["metadata_type"] == "is_bovenrivierengebied"]["values"].values[0]))
+    traject_id = df[df["metadata_type"] == "traject_id"]["metadata_value"].values[0]
+    signaleringswaarde = int(df[df["metadata_type"] == "signaleringswaarde"]["metadata_value"].values[0])
+    ondergrens = int(df[df["metadata_type"] == "ondergrens"]["metadata_value"].values[0])
+    w = float(df[df["metadata_type"] == "w"]["metadata_value"].values[0])
+    is_bovenrivierengebied = bool(int(df[df["metadata_type"] == "is_bovenrivierengebied"]["metadata_value"].values[0]))
 
     conn = sqlite3.connect(app_settings.geopackage_filepath)
     cursor = conn.cursor()
     cursor.execute(
-        f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('traject_id', '{traject_id}');")
+        f"INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES ('traject_id', '{traject_id}');")
     cursor.execute(
-        f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') "
+        f"INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) "
         f"VALUES ('signaleringswaarde', {signaleringswaarde});")
     cursor.execute(
-        f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('ondergrens', {ondergrens});")
-    cursor.execute(f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') VALUES ('w', {w});")
-    cursor.execute(f"INSERT INTO geoprob_pipe_metadata (metadata_type, 'values') "
+        f"INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES ('ondergrens', {ondergrens});")
+    cursor.execute(f"INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES ('w', {w});")
+    cursor.execute(f"INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) "
                    f"VALUES ('is_bovenrivierengebied', {is_bovenrivierengebied});")
     conn.commit()
     cursor.close()
