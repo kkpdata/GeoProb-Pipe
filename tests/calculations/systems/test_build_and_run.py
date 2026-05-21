@@ -20,3 +20,22 @@ def test_worker():
     result = _worker(row_unique={'uittredepunt_id': 1, 'ondergrondscenario_naam': 'scenario1', 'vak_id': 4})
 
     ##
+
+
+def test_build_and_run_system_calculations():
+    ##
+
+    from geoprob_pipe import GeoProbPipe
+    from repo_utils.utils import repository_root_path
+    import os
+    from geoprob_pipe.cmd_app.cmd import ApplicationSettings
+
+    app_settings = ApplicationSettings()
+    repo_root = repository_root_path()
+    filepath = os.path.join(repo_root, "tests", "systeem_testen", "224", "Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg")
+    app_settings.workspace_dir = os.path.dirname(filepath)
+    app_settings.geopackage_filename = os.path.basename(filepath)
+    app_settings.to_run = "vakken:4,5"
+    _ = GeoProbPipe(app_settings)
+
+    ##
