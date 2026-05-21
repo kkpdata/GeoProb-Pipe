@@ -1,16 +1,14 @@
 Individuele secties-methode
 ===========================
 
-
-Het opschalen van individuele secties (Bovengrens van de trajectkans)
-
-
-De absolute bovengrens van de trajectkans is een onafhankelijke combinatie van alle uittredepunten in een dijktraject. 
 Vaak zijn uittredepunten niet evenredig verdeeld over het dijktraject omdat geometrische kenmerken zoals maaiveldniveau
-vooraf al een inschatting geven op welke punten piping een bijdrage kan hebben aan de trajectkans.
+vooraf al een inschatting geven op welke punten piping een bijdrage kan hebben aan de trajectkans. 
+Om inzicht te krijgen in de bovengrens van de trajectkans is een methode toegevoegd die automatisch individuele secties van een 
+dijktraject identificeert en deze combineert tot een trajectkans. Deze methode is gebaseerd op de veronderstelling 
+dat uittredepunten binnen een korte afstand van elkaar volledig afhankelijk zijn, 
+terwijl uittredepunten die verder uit elkaar liggen als onafhankelijk worden beschouwd.
 
-Binnen een dwarsdoorsnede kunnen ook meerdere uittredepunten op korte afstand van elkaar gekozen zijn. Om een
-bovengrens van een trajectkans te bepalen is het volgende algoritme bedacht:
+Het volgende algoritme is geïmplementeerd:
 
 1.  Bepaal clusters van uittredepunten die in een window van 5 m in het dwarsprofiel liggen. Binnen een cluster met een
     window van 5 m is de veronderstelling van volledige afhankelijkheid en is de maximale faalkans van het cluster de

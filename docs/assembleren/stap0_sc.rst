@@ -1,5 +1,6 @@
-Faalkans scenarioniveau
-=======================
+Stap 0: Bepalen faalkans op scenarioniveau
+==========================================
+
 Piping treedt op als opbarsten én heave én terugschrijdende erosie optreedt. Deze mechanismen zijn beschreven door
 grenstoestandfuncties (``Zu``, ``Zh`` en ``Zp``). Probabilistische rekentechnieken zoeken naar de combinatie van
 mogelijke realisaties van onzekere parameters waarbij de kans op falen het grootst is. Dit is voor elke

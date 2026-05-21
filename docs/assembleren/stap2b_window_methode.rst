@@ -10,6 +10,7 @@ De trajectkans wordt benaderd door de volgende uitgangspunten:
 uittredepunten in de window als vakkans genomen. Dit veronderstelt volledige afhankelijkheid binnen een window.
 2. Tussen windows is er geen afhankelijkheid. De onafhankelijke verzameling windows (vakken) bepaalt de trajectkans.
 
-De lengte van het window is dus een maat voor het lengte-effect. De mate van lengte-effect is op voorhand niet bekend. 
-Daarom bepaalt GeoProb-Pipe voor verschillende groottes van het window de systeemkans zodat de gebruiker kan inschatten
-bij welke window-grootte de trajectkans benaderd wordt.
+De lengte van het window is dus een maat voor het lengte-effect en kan worden vergeleken met de equivalente 
+onafhankelijke lengte :math:`ΔL`. 
+De mate van lengte-effect is op voorhand niet bekend. Daarom bepaalt GeoProb-Pipe voor verschillende windowsgroottes 
+de systeemkans.
