@@ -3,13 +3,13 @@ from __future__ import annotations
 import sqlite3
 from typing import TYPE_CHECKING
 
-from .shape_couple import ShapeCouple
+from .couple_objects.shape_couple import ShapeCouple
 from geoprob_pipe.utils.validation_messages import BColors
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
-
+# TODO Vincent: Check of deze al in de tabel staan.
 def coupled_parameters_to_uittredepunten(
     app_settings: ApplicationSettings,
 ) -> bool:
@@ -21,7 +21,7 @@ def coupled_parameters_to_uittredepunten(
     )
     parameters: list[str] = cursor.fetchone()[0].split(", ")
     conn.close()
-    if parameters == []:
+    if parameters == ['']:  # De split maakt één lege string als de uit de metadata gelezen string leeg is.
         print(
             BColors.OKBLUE,
             "✔  Geen ruimtelijke koppelingen.",

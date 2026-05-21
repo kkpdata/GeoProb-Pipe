@@ -16,9 +16,9 @@ from geoprob_pipe.cmd_app.spatial_joins import (
     coupled_distances_to_uittredepunten,
     coupled_hrd_to_uittredepunten,
     coupled_mv_exit_to_gis_parameter_invoer_table,
+    coupled_parameters_to_uittredepunten,
     coupled_uittredepunten_to_refline,
     coupled_uittredepunten_to_vakken,
-    coupled_parameters_to_uittredepunten
 )
 from geoprob_pipe.cmd_app.spatial_layers import (
     added_ahn,
@@ -32,6 +32,7 @@ from geoprob_pipe.cmd_app.spatial_layers import (
     added_scenarios,
     added_uittredepunten,
     added_vakindeling,
+    check_batch_input,
 )
 
 if TYPE_CHECKING:
@@ -55,8 +56,9 @@ def questionnaire(app_settings: ApplicationSettings):
         sys.exit(EARLY_EXIT_MESSAGE)
     if not added_parameters(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
-    
-    # TODO batch invoer bestand mogelijk maken
+    # TODO Vincent: batch invoer bestand mogelijk maken
+    if not check_batch_input(app_settings=app_settings):
+        sys.exit(EARLY_EXIT_MESSAGE)
 
     print("\nGIS LAGEN")
     if not added_dijktraject(app_settings=app_settings):
@@ -76,7 +78,7 @@ def questionnaire(app_settings: ApplicationSettings):
     if not added_intredelijn(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
     
-    print("/nRUIMTELIJKE INPUT")
+    print("\nRUIMTELIJKE INPUT")
     # Loop voor alle parameters
     if not added_ruimtelijke_input(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
@@ -85,7 +87,9 @@ def questionnaire(app_settings: ApplicationSettings):
     )  # AHN may be optional
 
     print("\nGEOGRAFISCHE KOPPELINGEN")
-    # TODO maak coupleling for raster
+    # TODO Vincent: maak coupleling for raster
+    if not coupled_parameters_to_uittredepunten(app_settings=app_settings):
+        sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_uittredepunten_to_refline(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_distances_to_uittredepunten(app_settings=app_settings):
@@ -94,17 +98,15 @@ def questionnaire(app_settings: ApplicationSettings):
         sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_hrd_to_uittredepunten(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
-    if not coupled_parameters_to_uittredepunten(app_settings=app_settings):
-        sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_mv_exit_to_gis_parameter_invoer_table(
         app_settings=app_settings
     ):
         sys.exit(EARLY_EXIT_MESSAGE)
 
     print("\nPARAMETER INVOER")
-    # TODO Optie om GIS invoer te vervangen.
-    # TODO Check validation correct blijft werken.
-    # TODO verwijder traject waardes als gis_join al waardes heeft.
+    # TODO Vincent: Optie om GIS invoer te vervangen.
+    # TODO Vincent: Check validation correct blijft werken.
+    # TODO Vincent: verwijder traject waardes als gis_join al waardes heeft.
     # Misschien checken of de orde van overschrijven wel logisch is?
     # Excel over gis maar wel gis-uittredepunt over excel-traject?
     if not added_input_parameter_data(app_settings=app_settings):

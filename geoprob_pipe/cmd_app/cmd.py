@@ -1,33 +1,48 @@
-import typer
-from rich.console import Console
 import os
 import sqlite3
-from geoprob_pipe.utils import clear_terminal
+from pathlib import Path
+from configparser import ConfigParser
 from datetime import datetime
-from rich.panel import Panel
-from geoprob_pipe.cmd_app.questionnaire import start_questionnaire
-from typing import Optional, List, Dict
-from geoprob_pipe.cmd_app.utils.misc import get_geoprob_pipe_version_number
-from geoprob_pipe.utils.loggers import setup_base_logging
 from importlib.metadata import distributions
+from typing import Dict, List, Optional
+
+import typer
+from rich.console import Console
+from rich.panel import Panel
+
+from geoprob_pipe.cmd_app.questionnaire import start_questionnaire
+from geoprob_pipe.cmd_app.utils.misc import get_geoprob_pipe_version_number
+from geoprob_pipe.utils import clear_terminal
+from geoprob_pipe.utils.loggers import setup_base_logging
 
 app = typer.Typer(help="GeoProb-Pipe - CLI applicatie voor probabilistische piping berekeningen.", add_completion=False)
 
 
 class ApplicationSettings:
-
+    
     def __init__(self):
-        self.workspace_dir: Optional[str] = None
-        self.geopackage_filename: Optional[str] = None
+        self.workspace_dir: Path = Path()
+        self.geopackage_filename: Path = Path()
         self.datetime_stamp: str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         self.to_run = "all"
         # -> or vakken:1,2,3,4,5
         self.debug: bool = os.getenv("GEOPROB_DEBUG") == "1"
+        self.batch_input: bool = False # Placeholder for batch input
 
     @property
     def geopackage_filepath(self) -> str:
         return os.path.join(self.workspace_dir, self.geopackage_filename)
+    
+    @property
+    def batch_input_filepath(self) -> str:
+        return os.path.join(self.workspace_dir, "batch_input.ini")
 
+    @property
+    def input_config(self):
+        config = ConfigParser()
+        config.read(self.batch_input_filepath)
+        return config
+    
     @property
     def hrd_dir(self):
         path_to_hrd_dir = os.path.join(self.workspace_dir, "hrd_files")
@@ -103,7 +118,7 @@ def startup_geoprob_pipe():
 
     debug_label: str = ""
     if app_settings.debug:
-        debug_label = f", DEBUG=TRUE"
+        debug_label = ", DEBUG=TRUE"
 
     clear_terminal()
     console = Console()

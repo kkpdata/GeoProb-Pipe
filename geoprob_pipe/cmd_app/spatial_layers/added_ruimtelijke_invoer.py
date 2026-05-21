@@ -27,7 +27,7 @@ def added_ruimtelijke_input(app_settings: ApplicationSettings) -> bool:
     scenarios: list[str] = cursor.fetchone()[0].split(", ")
     conn.close()
     layers = fiona.listlayers(app_settings.geopackage_filepath)
-    if parameters == []:
+    if parameters == ['']: # De split maakt één lege string als de uit de metadata gelezen string leeg is.
         print(
             BColors.OKBLUE,
             "✔  Geen ruimtelijke parameter invoer.",
@@ -36,7 +36,7 @@ def added_ruimtelijke_input(app_settings: ApplicationSettings) -> bool:
         return True
 
     for parameter in parameters:
-        if scenarios == []:
+        if scenarios == ['']:  # De split maakt één lege string als de uit de metadata gelezen string leeg is.
             if parameter in layers:
                 print(
                     BColors.OKBLUE,

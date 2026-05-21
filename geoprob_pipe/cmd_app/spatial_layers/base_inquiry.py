@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
+# TODO Vincent: Uitlezen van batch_input.ini als die keuze gemaakt is.
 class BaseInquiry:
     def __init__(
         self,
@@ -38,6 +39,7 @@ class BaseInquiry:
         param: str,
         specific_shape: str = "",
         include_value: bool = False,
+        single_geometry: bool = False,
     ) -> None:
         """
         Class voor de opvraag van de ruimteljke invoer van de parameters.
@@ -54,6 +56,7 @@ class BaseInquiry:
         self.param = param
         self.specific_shape = specific_shape
         self.include_value = include_value
+        self.single_geometry = single_geometry
         conn = sqlite3.connect(app_settings.geopackage_filepath)
         cur = conn.cursor()
         cur.execute(
@@ -67,18 +70,21 @@ class BaseInquiry:
         """
         Method voor het opvragen van het filepath.
         """
-
-        filepath_is_valid = False
-
-        while filepath_is_valid is False:
-            filepath: str = prompt.InputPrompt(
-                message=(
-                    f"""
+        skip_batch = False  # Als batch input faalt ga over op handmatig
+        while True:
+            if self.app_settings.batch_input and not skip_batch:
+                filepath = self.app_settings.input_config.get(
+                    f"{self.param}", "path"
+                )
+            else:
+                filepath: str = prompt.InputPrompt(
+                    message=(
+                        f"""
 Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase
 met de {self.param} geometrieën.
-                    """
-                )
-            ).execute()
+                        """
+                    )
+                ).execute()
 
             filepath = filepath.replace('"', "")
 
@@ -88,6 +94,7 @@ met de {self.param} geometrieën.
                     "Het opgegeven bestandspad bestaat niet.",
                     BColors.ENDC,
                 )
+                skip_batch = True
                 continue
 
             if not (
@@ -103,13 +110,15 @@ met de {self.param} geometrieën.
                     """,
                     BColors.ENDC,
                 )
+                skip_batch = True
                 continue
 
             # Import data
             gdf = self._import_data(filepath)  # type:ignore
 
             # Add data to geopackage
-            filepath_is_valid = self._add_to_gpkg(gdf)
+            if self._add_to_gpkg(gdf):
+                break
 
             print(BColors.OKBLUE, f"✅ {self.param} toegevoegd.", BColors.ENDC)
 
@@ -155,17 +164,22 @@ met de {self.param} geometrieën.
         :param filepath: Bestandspad van de database.
         :return: GeoDataFrame met de uitgelezen data.
         """
-        layer_name_is_valid = False
-        while layer_name_is_valid is False:
-            layer_name: str = prompt.InputPrompt(
-                message=(
-                    f"""
-                    Specificeer de layer waarin de {self.param} staat. Type 'listlayers' om
-                    een overzicht te krijgen van de geodatabase-layers. Type 'cancel' om een
-                    ander bestand op te gaven.
-                    """
+        skip_batch = False  # Als batch input faalt ga over op handmatig
+        while True:
+            if self.app_settings.batch_input and not skip_batch:
+                layer_name = self.app_settings.input_config.get(
+                    f"{self.param}", "layer"
                 )
-            ).execute()
+            else:
+                layer_name: str = prompt.InputPrompt(
+                    message=(
+                        f"""
+Specificeer de layer waarin de {self.param} staat. Type 'listlayers' om
+een overzicht te krijgen van de geodatabase-layers. Type 'cancel' om een
+ander bestand op te gaven.
+                        """
+                    )
+                ).execute()
 
             layer_names = fiona.listlayers(filepath)
             layer_names.sort()
@@ -186,7 +200,7 @@ met de {self.param} geometrieën.
                 )
                 continue
 
-            layer_name_is_valid = True
+            break
 
         gdf: gpd.GeoDataFrame = gpd.read_file(filepath, layer=layer_name)  # type:ignore
         return gdf
@@ -274,7 +288,16 @@ met de {self.param} geometrieën.
             else:
                 return self._add_seperate_with_suffix(gdf)
 
-        elif not self.include_value and self.scenarios == "":
+        elif (
+            not self.include_value
+            and (
+                self.scenarios == ""  # Geen scenarios opgegeven.
+                or self.single_geometry  # Vang hier als scenario's niet relevant zijn.
+                or not self._scenario_check(
+                    gdf.columns.to_list()
+                )  # Scenario's niet gekoppeld aan deze laag.
+            )
+        ):
             # Case: geen affixes alleen de geometrie wordt geschreven.
             gdf_to_add = gdf[["geometry"]]
             gdf_to_add.to_file(
@@ -302,10 +325,12 @@ met de {self.param} geometrieën.
         :return: Check of het scenario voorkomt.
         :rtype: bool
         """
-        if "ondegrondscenario" not in column_list:
+        if "ondergrondscenario" not in column_list:
             print(
                 BColors.WARNING,
-                "Geen kolom met de naam 'ondergrondscenario' gevonden.",
+                "Geen kolom met de naam 'ondergrondscenario' gevonden.\n",
+                "De volgende kolommen zijn gevonde:\n",
+                f"{column_list}",
                 BColors.ENDC,
             )
 
@@ -388,7 +413,7 @@ met de {self.param} geometrieën.
             return False
 
         for scenario in self.scenarios:
-            mask = gdf["ondergrondscenario" == scenario]
+            mask = gdf["ondergrondscenario"] == scenario
             gdf_to_add = gdf[mask][["geometry"]]
 
             if len(gdf_to_add) == 0:

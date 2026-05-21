@@ -47,7 +47,7 @@ def push_parameter_invoer_tabel(app_settings: ApplicationSettings):
 
     # Exclude parameters that must be geographically added also
     df_parameter_invoer = df_parameter_invoer[
-        ~df_parameter_invoer["name"].isin(["L_intrede", "L_but", "L_bit", "polderpeil", "mv_exit"])]
+        ~df_parameter_invoer["name"].isin(["L_intrede", "L_but", "L_bit", "mv_exit"])]
     df_parameter_invoer = _check_to_exclude_buitenwaterstand(
         app_settings=app_settings, df_parameter_invoer=df_parameter_invoer)
 

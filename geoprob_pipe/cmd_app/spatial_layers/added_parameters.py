@@ -48,12 +48,12 @@ def request_parameters(app_settings: ApplicationSettings):
     while scenario_input_is_valid is False:
         parameter_input: str = prompt.InputPrompt(
             message=(
-                """
+"""
 Specificeer welke parameters je wilt toevoegen als ruimtelijke input.
 Doe dit door de namen gescheiden met comma's op te geven.
 Type 'list' om de lijst te zien met alle parameters die invoerbaar zijn voor dit model.
 Als je geen ruimtelijke input wilt ingeven druk dan op enter zonder iets in te vullen. 
-                """
+"""
             )
         ).execute()
         if parameter_input == "":

@@ -41,10 +41,10 @@ def request_scenarios(app_settings: ApplicationSettings):
     while True:
         scenario_input: str = InputPrompt(
             message="""
-            Specificeer welke scenarios je wilt toevoegen als ruimtelijke input.
-            Doe dit door de namen gescheiden met comma's op te geven. Bijvoorbeeld: Scenario1, Scenario2. 
-            De scenario namen moeten als kolom in de attributes van de laag staan.
-            Als je geen ruimtelijke input wilt ingeven druk dan op enter zonder iets in te vullen. 
+Specificeer welke scenarios je wilt toevoegen als ruimtelijke input.
+Doe dit door de namen gescheiden met comma's op te geven. Bijvoorbeeld: Scenario1, Scenario2. 
+De scenario namen moeten als kolom in de attributes van de laag staan.
+Als je geen ruimtelijke input wilt ingeven druk dan op enter zonder iets in te vullen. 
             """
         ).execute()
         if scenario_input == "":

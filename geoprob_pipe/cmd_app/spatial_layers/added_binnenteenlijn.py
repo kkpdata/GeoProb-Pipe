@@ -32,6 +32,7 @@ def request_binnenteenlijn_filepath(app_settings: ApplicationSettings):
     binnenteenlijn_inquiry = BaseInquiry(
         app_settings=app_settings,
         param="binnenteenlijn",
-        specific_shape="lines"
+        specific_shape="lines",
+        single_geometry=True,
     )
     binnenteenlijn_inquiry.request_filepath()

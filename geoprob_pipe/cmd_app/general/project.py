@@ -153,7 +153,7 @@ def specify_path_to_existing_project(app_settings: ApplicationSettings):
                                    f"{os.path.basename(filepath)} eindigt niet op deze extensie.", BColors.ENDC)
             continue
         if not os.path.exists(filepath):
-            print(BColors.WARNING, f"Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
+            print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
             continue
 
         filepath_is_valid = True
@@ -182,7 +182,7 @@ def specify_dir_for_new_project(app_settings: ApplicationSettings):
 
         workspace_dir_is_valid = True
 
-    app_settings.workspace_dir = workspace_dir
+    app_settings.workspace_dir = Path(workspace_dir)
 
     # Continue questionnaire
     specify_project_filename(app_settings)

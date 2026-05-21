@@ -17,11 +17,11 @@ if TYPE_CHECKING:
 
 
 def added_intredelijn(app_settings: ApplicationSettings) -> bool:
-    layers = fiona.listlayers(app_settings.geopackage_filepath)
-
-    if "intredelijn" in layers:
-        print(BColors.OKBLUE, "✔  Intredelijn al toegevoegd.", BColors.ENDC)
-        return True
+    layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
+    for layer in layers:
+        if "intredelijn" in layer.split("_")[0]:
+            print(BColors.OKBLUE, "✔  Intredelijn al toegevoegd.", BColors.ENDC)
+            return True
 
     request_intredelijn_filepath(app_settings=app_settings)
     return True
@@ -31,6 +31,6 @@ def request_intredelijn_filepath(app_settings: ApplicationSettings):
     intredelijn_inquiry = BaseInquiry(
         app_settings=app_settings,
         param="intredelijn",
-        specific_shape="lines"
+        specific_shape="lines",
     )
     intredelijn_inquiry.request_filepath()

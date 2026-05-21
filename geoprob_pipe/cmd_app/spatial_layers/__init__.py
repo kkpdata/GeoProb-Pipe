@@ -11,6 +11,8 @@ from .added_parameters import added_parameters
 from .added_ruimtelijke_invoer import added_ruimtelijke_input
 from .added_scenarios import added_scenarios
 from .added_vakindeling import added_vakindeling
+from .check_batch_input import check_batch_input
 from .hrd.hrd import added_hrd_fragility_curves
 from .uittredepunten.uittredepunten import added_uittredepunten
+
 

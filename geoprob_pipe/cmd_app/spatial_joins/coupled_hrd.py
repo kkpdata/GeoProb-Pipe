@@ -7,13 +7,20 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import fiona
-from .hrd_couple import HRDCouple
+from .couple_objects.hrd_couple import HRDCouple
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
-
+# TODO Vincent: Check of deze al in de tabel staan.
 def coupled_hrd_to_uittredepunten(app_settings: ApplicationSettings) -> bool:
+    """
+    Voeg de HRD locaties toe aan de invoer tabel als deze zijn opgegeven.
+
+    :param ApplicationSettings app_settings: Object met de insellingen van de applicatie
+    :return: _description_
+    :rtype: bool
+    """    
 
     layers = fiona.listlayers(app_settings.geopackage_filepath)
 

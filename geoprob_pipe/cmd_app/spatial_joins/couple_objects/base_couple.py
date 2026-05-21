@@ -1,51 +1,46 @@
-"""
-Class voor het koppelen van de HRD-locaties aan de uittredepunten.
-Versimplende versie van de ShapeCouple class.
-"""
-# TODO importeer _upsert_to_gpkg vanuit ShapeCouple
-
 from __future__ import annotations
 
 import datetime
 import sqlite3
 from typing import TYPE_CHECKING
 
-import geopandas as gpd
+import numpy as np
 import pandas as pd
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
-class HRDCouple:
-    def __init__(self, app_settings: ApplicationSettings) -> None:
-        self.app_settings = app_settings
+class BaseCouple:
+    """
+    Base class voor het koppelen van GIS-kagen aan de uittredepunten en deze op
+    de correcte manier toe te voegen aan de geopackage.
+    """    
+    
+    # Placeholders
+    app_settings: ApplicationSettings
+    param: str
+    
+    def _create_df(self, join_df: pd.DataFrame, scenario: str) -> pd.DataFrame:
+        """
+        Maak de dataframe die moet worden toegevoedg aan de geopackage.
 
-    def couple_exit_points(self):
-        # Read uittredepunten
-        gdf_exit_points: gpd.GeoDataFrame = gpd.read_file(
-            self.app_settings.geopackage_filepath, layer="uittredepunten"
-        )
-        gdf_hrd: gpd.GeoDataFrame = gpd.read_file(
-            self.app_settings.geopackage_filepath, layer="hrd_locaties"
-        )
-        join_df = gdf_exit_points.sjoin_nearest(gdf_hrd, how="left")
-        df_to_add = self._create_df(join_df)
-        self._upsert_to_gpkg(df_to_add)
-        
-    def _create_df(self, join_df: pd.DataFrame):
+        :param join_df: DataFrame met de data uit de join.
+        :param scenario: Ondergrondscenario_naam voor in de dataframe. Kan "" zijn.
+        :return: Dataframe met juiste kolommen.
+        """
         df = join_df[["uittredepunt_id"]].copy()
         df = df.rename(columns={"uittredepunt_id": "scope_referentie"})
-        df["parameter"] = "buitenwaterstand"
+        df["parameter"] = self.param
         df["scope"] = "uittredepunt"
-        df["ondergrondscenario_naam"] = ""
-        df["distribution_type"] = "cdf_curve"
-        df["mean"] = ""
-        df["variation"] = ""
-        df["deviation"] = ""
-        df["minimum"] = ""
-        df["maximum"] = ""
-        df["fragility_values_ref"] = join_df.get("hrd_name", "")
+        df["ondergrondscenario_naam"] = scenario
+        df["distribution_type"] = join_df.get(f"{self.param}_dist", "")
+        df["mean"] = join_df.get(f"{self.param}_mean", np.nan)
+        df["variation"] = join_df.get(f"{self.param}_var", np.nan)
+        df["deviation"] = join_df.get(f"{self.param}_dev", np.nan)
+        df["minimum"] = join_df.get(f"{self.param}_min", np.nan)
+        df["maximum"] = join_df.get(f"{self.param}_max", "")
+        df["fragility_values_ref"] = ""
         df["bronnen"] = ""
         df["opmerking"] = ""
 
@@ -68,7 +63,7 @@ class HRDCouple:
             ]
         ]
         return df
-    
+        
     def _upsert_to_gpkg(self, df: pd.DataFrame):
         """
         Voeg de dataframe toe aan de tabel. Als de tabel nog niet bestaat
@@ -103,7 +98,7 @@ class HRDCouple:
             """
         )
         data = [tuple(row) for row in df.to_numpy()]
-        placeholders = ", ".join(["?"] * len(data))
+        placeholders = ", ".join(["?"] * 13)
         # UPSERT naar tabel
         cursor.executemany(
             f"""
@@ -120,7 +115,7 @@ class HRDCouple:
                 maximum,
                 fragility_values_ref,
                 bronnen,
-                opmerking,
+                opmerking
             )
             VALUES ({placeholders})
             ON CONFLICT (
@@ -157,7 +152,7 @@ class HRDCouple:
                 last_change,
                 srs_id
             ) VALUES (?, ?, ?, ?, ?, ?)
-            ON CONFLICT (indentifier) DO UPDATE SET
+            ON CONFLICT (identifier) DO UPDATE SET
                 table_name = excluded.table_name,
                 data_type = excluded.data_type,
                 description = excluded.description,

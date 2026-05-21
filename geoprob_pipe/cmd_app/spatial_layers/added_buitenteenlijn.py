@@ -21,7 +21,7 @@ def added_buitenteenlijn(app_settings: ApplicationSettings) -> bool:
 
     if "buitenteenlijn" in layers:
         print(
-            BColors.OKBLUE, f"✔  Buitenteenlijn al toegevoegd.", BColors.ENDC
+            BColors.OKBLUE, "✔  Buitenteenlijn al toegevoegd.", BColors.ENDC
         )
         return True
 
@@ -34,5 +34,6 @@ def request_buitenteenlijn_filepath(app_settings: ApplicationSettings):
         app_settings=app_settings,
         param="buitenteenlijn",
         specific_shape="lines",
+        single_geometry=True
     )
     buitenteenlijn_inquiry.request_filepath()

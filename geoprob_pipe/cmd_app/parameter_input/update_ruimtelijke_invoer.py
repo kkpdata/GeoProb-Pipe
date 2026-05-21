@@ -14,10 +14,10 @@ if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
-# TODO herinvoeren van gis lagen.
-# TODO toevoegen van nieuwe parameters.
-# TODO Toevangen van scenarios. Alles opnieuw inladen en koppelen?
-# TODO verwijderen van lagen? Of alleen overschrijven via excel invoer?
+# TODO Vincent: Herinvoeren van gis lagen.
+# TODO Vincent: Toevoegen van nieuwe parameters.
+# TODO Vincent: Toevangen van scenarios. Alles opnieuw inladen en koppelen?
+# TODO Vincent: Verwijderen van lagen? Of alleen overschrijven via excel invoer?
 def inquire_spatial_update(
     app_settings: ApplicationSettings,
 ):
