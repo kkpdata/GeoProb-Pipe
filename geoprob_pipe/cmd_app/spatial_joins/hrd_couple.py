@@ -13,8 +13,6 @@ from typing import TYPE_CHECKING
 import geopandas as gpd
 import pandas as pd
 
-from geoprob_pipe.cmd_app.cmd import ApplicationSettings
-
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 

@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING
 
 import geopandas as gpd
 import pandas as pd
-from shapely.geometry import LineString, MultiLineString, Polygon, MultiPolygon
+from shapely.geometry import LineString, MultiLineString, MultiPolygon, Polygon
 
-from geoprob_pipe.cmd_app.spatial_layers.added_parameters import LIST_PARAMS
+from geoprob_pipe.cmd_app.spatial_layers import LIST_PARAMS
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings

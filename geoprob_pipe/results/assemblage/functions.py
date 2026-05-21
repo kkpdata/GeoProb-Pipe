@@ -128,7 +128,7 @@ def window_collect(window_size: float, point_list: list[UittredepuntElement],
     window_elements: List[WindowElement] = []
     if m_tot not in bins_window:
         bins_window.append(m_tot)  # add end of final window
-    for i in range(len(bins_window)-2):
+    for i in range(len(bins_window)-1):
         window_elements.append(WindowElement(
             m_van=bins_window[i],
             m_tot=bins_window[i+1],

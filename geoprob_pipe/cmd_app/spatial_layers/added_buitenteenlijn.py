@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 import fiona
 
-from geoprob_pipe.cmd_app.spatial_layers import BaseInquiry
+from .base_inquiry import BaseInquiry
 from geoprob_pipe.utils.validation_messages import BColors
 
 if TYPE_CHECKING:

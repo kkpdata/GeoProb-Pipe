@@ -5,34 +5,12 @@ from typing import TYPE_CHECKING
 
 import InquirerPy.prompts.input as prompt
 
-from.utils import valid_parameter_list
 from geoprob_pipe.utils.validation_messages import BColors
+
+from .valid_parameters import valid_parameter_list
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
-
-# Lijst van parameters die verwerkt kunnen worden:
-# Polygon of raster alleen beschikbaar als iets per uittredepunt kan verschillen
-# en afstand tot de keringlijn uitmaakt.
-LIST_PARAMS: dict[str, dict] = {
-    "mv_exit": {"shape": ["raster"]},
-    "polderpeil": {"shape": ["line", "polygon", "raster"]},
-    "buitenwaterstand_gemiddeld": {"shape": ["line"]},
-    "phi_exit_gemiddeld": {"shape": ["line", "polygon", "raster"]},
-    "r_exit": {"shape": ["line", "polygon", "raster"]},
-    "k_wvp": {"shape": ["line"]},
-    "kD_wvp": {"shape": ["line"]},
-    "modelfactor_h": {"shape": ["line"]},
-    "modelfactor_ff": {"shape": ["line"]},
-    "modelfactor_3d": {"shape": ["line"]},
-    "modelfactor_ml": {"shape": ["line"]},
-    "i_c_h": {"shape": ["line"]},
-    "modelfactor_u": {"shape": ["line"]},
-    "modelfactor_p": {"shape": ["line"]},
-    "d70": {"shape": ["line"]},
-    "c_voorland": {"shape": ["line"]},
-    "c_achterland": {"shape": ["line"]},
-}
 
 
 def added_parameters(app_settings: ApplicationSettings):
@@ -63,7 +41,7 @@ def request_parameters(app_settings: ApplicationSettings):
     :param app_settings: `ApplicationSettings` object.
     """
     conn = sqlite3.connect(app_settings.geopackage_filepath)
-    
+
     valid_list = valid_parameter_list(app_settings)
 
     scenario_input_is_valid = False
