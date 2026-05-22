@@ -1,8 +1,16 @@
 
 [tool.poetry]
 name = "geoprob_pipe"
-version = "2.2.6"
+version = "2.2.7"
 description = "Execute probabilistic piping calculations using the Deltares probabilic library."
+keywords = [
+  "levee",
+  "dike",
+  "piping",
+  "probabilistic",
+  "water-safety",
+  "hydrology",
+]
 authors = [
     "Chris Pitzalis <C.Pitzalis@wsrl.nl>",
     "Vincent Jilesen <V.Jilesen@wshd.nl>",
@@ -10,11 +18,16 @@ authors = [
     "Laura van der Doef <L.vanderDoef@wshd.nl>",
 ]
 license = "GPL-3.0-or-later"
-readme = "README.md"
+readme = "other/PyPI_README.md"
+homepage = "https://kkpdata.github.io/GeoProb-Pipe/"
 repository = "https://github.com/kkpdata/GeoProb-Pipe"
+documentation = "https://kkpdata.github.io/GeoProb-Pipe/"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Hydrology",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Programming Language :: Python :: 3.12",
 ]

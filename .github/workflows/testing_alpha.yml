@@ -46,8 +46,8 @@ jobs:
         run: |
           coverage run --source=geoprob_pipe -m pytest --ignore=_deprecated/tests
           coverage report -m
-          rm -f readme_images/coverage.svg
-          coverage-badge -o readme_images/coverage.svg
+          rm -f other/coverage.svg
+          coverage-badge -o other/coverage.svg
 
       - name: Commit & push coverage badge via GitHub App bot
         run: |
