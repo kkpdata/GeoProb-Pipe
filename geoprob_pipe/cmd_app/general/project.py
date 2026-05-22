@@ -97,10 +97,10 @@ def _compare_versions_and_possibly_warn(installed_version: str, file_version: st
     version_diff_msg = (
         f"Er is een GeoProb-Pipe versie verschil tussen de installatie ({v_installed}) en het bestand ({v_file}).")
     reinstall_msg = (
-        f"\n"
-        f"Wil je de versies liever gelijk trekken? Dit doe je door eerst de applicatie af te sluiten en vervolgens het \n"
-        f"commando `pip install geoprob-pipe==versie_nummer` uit te voeren. Waarbij je `versie_nummer` vervangt met het \n"
-        f"nummer van de gewenste versie")
+        "\n"
+        "Wil je de versies liever gelijk trekken? Dit doe je door eerst de applicatie af te sluiten en vervolgens het \n"
+        "commando `pip install geoprob-pipe==versie_nummer` uit te voeren. Waarbij je `versie_nummer` vervangt met het \n"
+        "nummer van de gewenste versie")
 
     if v_installed.major != v_file.major:
         print(f"\n{BColors.FAIL}SEVERE WARNING:\n"
@@ -109,6 +109,7 @@ def _compare_versions_and_possibly_warn(installed_version: str, file_version: st
               f"compatibel met elkaar zijn. \n"
               f"{reinstall_msg}"
               f"{BColors.ENDC}\n")
+        
     elif v_installed.minor != v_file.minor:
         print(f"\n{BColors.WARNING}WARNING:\n"
               f"{version_diff_msg}\n"
@@ -116,6 +117,7 @@ def _compare_versions_and_possibly_warn(installed_version: str, file_version: st
               f"de applicatie. \n"
               f"{reinstall_msg}"
               f"{BColors.ENDC}\n")
+        
     elif v_installed.micro != v_file.micro:
         print(f"\n{BColors.OKBLUE}"
               f"{version_diff_msg}\n"
@@ -139,9 +141,7 @@ def _possibly_warn_if_version_difference(file_path: str):
 
 
 def specify_path_to_existing_project(app_settings: ApplicationSettings):
-    filepath: Optional[str] = None
-    filepath_is_valid = False
-    while filepath_is_valid is False:
+    while True:
         filepath: str = inquirer.text(
             message="Specificeer het volledige bestandspad naar het .geoprob_pipe.gpkg-bestand.",
         ).execute()
@@ -156,31 +156,30 @@ def specify_path_to_existing_project(app_settings: ApplicationSettings):
             print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
             continue
 
-        filepath_is_valid = True
+        break
 
-    app_settings.workspace_dir = os.path.dirname(filepath)
-    app_settings.geopackage_filename = os.path.basename(filepath)
+    app_settings.workspace_dir = Path(os.path.dirname(filepath))
+    app_settings.geopackage_filename = Path(os.path.basename(filepath))
 
     _possibly_warn_if_version_difference(file_path=app_settings.geopackage_filepath)
 
 
 def specify_dir_for_new_project(app_settings: ApplicationSettings):
-    workspace_dir: Optional[str] = None
-    workspace_dir_is_valid = False
-    while workspace_dir_is_valid is False:
+    while True:
         workspace_dir: str = inquirer.text(
             message="Specificeer het volledige pad naar de map waar je het GeoProb-Pipe-bestand wilt opslaan.",
         ).execute()
         workspace_dir = workspace_dir.replace('"', '')
 
         if not os.path.exists(workspace_dir):
-            print(BColors.WARNING, f"De opgegeven map bestaat niet.", BColors.ENDC)
-            continue
+            print(BColors.WARNING, "De opgegeven map bestaat niet.", BColors.ENDC)
+            
+        
         if not os.path.isdir(workspace_dir):
-            print(BColors.WARNING, f"De opgegeven locatie is geen map.", BColors.ENDC)
+            print(BColors.WARNING, "De opgegeven locatie is geen map.", BColors.ENDC)
             continue
 
-        workspace_dir_is_valid = True
+        break
 
     app_settings.workspace_dir = Path(workspace_dir)
 
@@ -189,9 +188,7 @@ def specify_dir_for_new_project(app_settings: ApplicationSettings):
 
 
 def specify_project_filename(app_settings: ApplicationSettings):
-    filename: Optional[str] = None
-    filename_is_valid = False
-    while filename_is_valid is False:
+    while True:
         project_name: str = inquirer.text(
             message="Specificeer een bestandsnaam voor het project. "
                     "Het bestand wordt opgeslagen met een .geoprob_pipe.gpkg-extensie.",
@@ -207,9 +204,9 @@ def specify_project_filename(app_settings: ApplicationSettings):
                                    f" {filepath}", BColors.ENDC)
             continue
 
-        filename_is_valid = True
+        break
 
-    app_settings.geopackage_filename = filename
+    app_settings.geopackage_filename = Path(filename)
 
     create_geopackage_file(app_settings)
 

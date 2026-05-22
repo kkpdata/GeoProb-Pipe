@@ -32,9 +32,9 @@ class InputParameterFigures:
         self.export_sub_dir: str = "parameter_input_process"
 
         # Placeholders
-        self.df_parameter_invoer: Optional[DataFrame] = None
+        self.df_parameter_invoer: DataFrame = DataFrame()
         self.dict_vakindeling: Dict[int, Dict] = {}
-        self.traject_length: Optional[float] = None
+        self.traject_length: float = 0.0
         self.x_min = 0
         self.x_max = 0  # Will be set
         self.y_min = 0
@@ -121,7 +121,7 @@ class InputParameterFigures:
         elif not np.isnan(variation):
             deviation_value = mean_value * variation
         else:
-            ValueError(f"Should have either a variation or deviation. Or maybe a bug and contact the developer.")
+            ValueError("Should have either a variation or deviation. Or maybe a bug and contact the developer.")
 
         # Log normal
         if row['distribution_type'] == 'log_normal':
@@ -152,7 +152,7 @@ class InputParameterFigures:
         kar5pr_values = []
         kar95pr_values = []
 
-        for index, row in df.iterrows():
+        for _, row in df.iterrows():
             mean_value = row['mean']
             mean_values.append(mean_value)
             if row['distribution_type'] == 'deterministic':
@@ -165,7 +165,7 @@ class InputParameterFigures:
             elif not np.isnan(row['variation']):
                 deviation_value = mean_value * row['variation']
             else:
-                ValueError(f"Should have either a variation or deviation. Or maybe a bug and contact the developer.")
+                ValueError("Should have either a variation or deviation. Or maybe a bug and contact the developer.")
             if row['distribution_type'] == 'log_normal':
                 kar5pr_values.append(calc_kar_waarde_lognormal(
                     mean=mean_value, sd=deviation_value, percentiel=0.05))  # TODO: Shift bepalen

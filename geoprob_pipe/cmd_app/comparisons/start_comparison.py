@@ -13,9 +13,7 @@ def specify_dir_for_first_file():
     Returns:
         filepath:
     """
-    filepath: str = ""
-    filepath_is_valid = False
-    while filepath_is_valid is False:
+    while True:
         filepath: str = inq_text(
             message=("Specificeer het volledige bestandspad naar het eerste "
                      ".geoprob_pipe.gpkg-bestand."),
@@ -35,7 +33,7 @@ def specify_dir_for_first_file():
                   BColors.ENDC)
             continue
 
-        filepath_is_valid = True
+        break
 
     return filepath
 
@@ -47,9 +45,7 @@ def specify_dir_for_second_file():
     Returns:
         filepath:
     """
-    filepath: str = ""
-    filepath_is_valid = False
-    while filepath_is_valid is False:
+    while True:
         filepath: str = inq_text(
             message=("Specificeer het volledige bestandspad naar het tweede "
                      ".geoprob_pipe.gpkg-bestand."),
@@ -64,12 +60,13 @@ def specify_dir_for_second_file():
                   "deze extensie.",
                   BColors.ENDC)
             continue
+        
         if not os.path.exists(filepath):
             print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.",
                   BColors.ENDC)
             continue
 
-        filepath_is_valid = True
+        break
 
     return filepath
 
@@ -81,9 +78,7 @@ def specify_dir_for_comparison():
     Returns:
         workspace_dir:
     """
-    workspace_dir: str = ""
-    workspace_dir_is_valid = False
-    while workspace_dir_is_valid is False:
+    while True:
         workspace_dir: str = inq_text(
             message="Specificeer het volledige pad naar de map waar je"
             + " de export van de vergelijking wilt opslaan.",
@@ -94,12 +89,13 @@ def specify_dir_for_comparison():
             print(BColors.WARNING, "De opgegeven map bestaat niet.",
                   BColors.ENDC)
             continue
+        
         if not os.path.isdir(workspace_dir):
             print(BColors.WARNING, "De opgegeven locatie is geen map.",
                   BColors.ENDC)
             continue
 
-        workspace_dir_is_valid = True
+        break
 
     return workspace_dir
 

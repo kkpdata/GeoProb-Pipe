@@ -103,8 +103,6 @@ def questionnaire(app_settings: ApplicationSettings):
         sys.exit(EARLY_EXIT_MESSAGE)
 
     print("\nPARAMETER INVOER")
-    # TODO Vincent: Optie om GIS invoer te vervangen/aanpassen.
-    # TODO Vincent: Check validation correct blijft werken.
     # TODO Vincent: verwijder traject waardes als gis_join al waardes heeft.
     # Misschien checken of de orde van overschrijven wel logisch is?
     # Excel over gis maar wel gis-uittredepunt over excel-traject?

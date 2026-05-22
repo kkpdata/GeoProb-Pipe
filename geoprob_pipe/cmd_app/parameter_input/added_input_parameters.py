@@ -218,9 +218,7 @@ def export_input_tables_of_db(app_settings: ApplicationSettings, tables: InputPa
 
 
 def import_input_tables(geopackage_filepath: str) -> InputParameterTables:
-
-    filepath_is_valid = False
-    while filepath_is_valid is False:
+    while True:
         filepath: str = inquirer.text(
             message="Specificeer het volledige bestandspad naar het input parameters Excel.",
         ).execute()
@@ -235,7 +233,7 @@ def import_input_tables(geopackage_filepath: str) -> InputParameterTables:
             print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
             continue
 
-        filepath_is_valid = True
+        break
 
     tables = InputParameterTables(path_to_excel=filepath, geopackage_filepath=geopackage_filepath)  # type:ignore
     print(f"{BColors.UNDERLINE}Tabellen zijn nu geïmporteerd.{BColors.ENDC}")

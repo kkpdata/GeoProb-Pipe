@@ -17,15 +17,15 @@ class DataFrameValidation:
 
     def __init__(
             self, df: DataFrame, label: str,
-            columns_validations: List[ColumnValidation], required_columns: List[str] = None,
+            columns_validations: List[ColumnValidation], required_columns: List[str] = [],
     ):
         self.label: str = label
         self.df: DataFrame = df
-        self.required_columns: Optional[List[str]] = required_columns
+        self.required_columns: List[str] = required_columns
         self.columns_validations: List[ColumnValidation] = columns_validations
 
         # Placeholders
-        self.df_failures: Optional[DataFrame] = None
+        self.df_failures: DataFrame = DataFrame()
 
     def _run_required_columns(self) -> DataFrame:
         failure_rows = []

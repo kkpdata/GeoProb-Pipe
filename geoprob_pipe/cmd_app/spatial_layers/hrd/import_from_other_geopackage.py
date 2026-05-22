@@ -14,9 +14,7 @@ if TYPE_CHECKING:
 
 def _ask_for_other_geopackage_file_path() -> str:
 
-    filepath: Optional[str] = None
-    filepath_is_valid = False
-    while filepath_is_valid is False:
+    while True:
         filepath: str = inquirer.text(
             message="Specificeer het volledige bestandspad naar het .geoprob_pipe.gpkg-bestand.",
         ).execute()
@@ -27,11 +25,12 @@ def _ask_for_other_geopackage_file_path() -> str:
             print(BColors.WARNING, f"Het bestand moet een .geoprob_pipe.gpkg-bestand zijn. Jouw invoer "
                                    f"{os.path.basename(filepath)} eindigt niet op deze extensie.", BColors.ENDC)
             continue
+        
         if not os.path.exists(filepath):
             print(BColors.WARNING, f"Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
             continue
 
-        filepath_is_valid = True
+        break
 
     return filepath
 

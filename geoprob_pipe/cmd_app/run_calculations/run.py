@@ -40,9 +40,7 @@ def _convert_vak_ids_str_to_ints(input_str: str) -> Tuple[List[int], List[str]]:
     return list(set(list_vak_ids_int)), unknown_inputs
 
 def request_vakken_to_run() -> str:
-    list_vak_ids_int: List[int] = []
-    vakken_input_is_valid = False
-    while vakken_input_is_valid is False:
+    while True:
         vakken_input: str = inquirer.text(
             message="Specificeer welke vakken je wilt doorrekenen. Doe dit door comma-separated de vak nummers (id) "
                     "op te geven. Bijvoorbeeld '4,5,6,7,10-15'.",
@@ -62,7 +60,7 @@ def request_vakken_to_run() -> str:
                   f"Probeer opnieuw.{BColors.ENDC}")
             continue
 
-        vakken_input_is_valid = True
+        break
 
     return f"vakken:{','.join([str(item) for item in list_vak_ids_int])}"
 
@@ -82,7 +80,7 @@ def run_calculations(app_settings: ApplicationSettings) -> bool:
     if choice == choices_list[0]:
         geoprob_pipe = GeoProbPipe(app_settings)
         geoprob_pipe.export_archive()
-        print(BColors.OKBLUE, f"✅  Berekeningen zijn uitgevoerd.", BColors.ENDC)
+        print(BColors.OKBLUE, "✅  Berekeningen zijn uitgevoerd.", BColors.ENDC)
     elif choice == choices_list[1]:
         vakken_str: str = request_vakken_to_run()
         app_settings.to_run = vakken_str
@@ -91,7 +89,7 @@ def run_calculations(app_settings: ApplicationSettings) -> bool:
         print(BColors.OKBLUE, f"✅  Berekeningen zijn uitgevoerd, voor vakken "
                               f"{app_settings.to_run.replace("vakken:", "")}.", BColors.ENDC)
     elif choice == choices_list[2]:
-        sys.exit(f"Applicatie is afgesloten.")
+        sys.exit("Applicatie is afgesloten.")
     else:
         raise ValueError
     return True

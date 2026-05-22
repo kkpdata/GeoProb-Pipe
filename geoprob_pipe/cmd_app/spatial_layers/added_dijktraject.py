@@ -45,9 +45,8 @@ def question_trajectory_source(app_settings: ApplicationSettings):
 
 
 def request_trajectory_filepath(app_settings: ApplicationSettings):
-    filepath: Optional[str] = None
-    filepath_is_valid = False
-    while filepath_is_valid is False:
+    
+    while True:
         filepath: str = inquirer.text(
             message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
                     "referentielijn van de dijk zit.",
@@ -58,12 +57,13 @@ def request_trajectory_filepath(app_settings: ApplicationSettings):
         if not (filepath.endswith(".gpkg") or filepath.endswith(".shp") or filepath.endswith(".gdb")):
             print(BColors.WARNING, f"Het bestand moet of een geopackage, shapefile of geodatabase zijn. Jouw invoer "
                                    f"eindigt op de extensie .{filepath.split(sep='.')[-1]}.", BColors.ENDC)
-            continue
+            
+        
         if not os.path.exists(filepath):
-            print(BColors.WARNING, f"Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
+            print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
             continue
 
-        filepath_is_valid = True
+        break
 
     if filepath.endswith(".gdb"):
         specify_geodatabase_layer(app_settings, filepath)
@@ -80,9 +80,7 @@ def request_trajectory_filepath(app_settings: ApplicationSettings):
 
 
 def specify_geodatabase_layer(app_settings: ApplicationSettings, filepath: str):
-    layer_name: Optional[str] = None
-    layer_name_is_valid = False
-    while layer_name_is_valid is False:
+    while True:
         layer_name: str = inquirer.text(
             message="""
             Specificeer de layer waarin met de referentielijn van het dijktraject. Type 'listlayers' om
@@ -104,7 +102,7 @@ def specify_geodatabase_layer(app_settings: ApplicationSettings, filepath: str):
             continue
         # TODO Later Must Klein: Check dat een LineString-laag wordt opgegeven.
 
-        layer_name_is_valid = True
+        break
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
@@ -113,9 +111,7 @@ def specify_geodatabase_layer(app_settings: ApplicationSettings, filepath: str):
 
 
 def specify_geopackage_layer(app_settings: ApplicationSettings, filepath: str):
-    layer_name: Optional[str] = None
-    layer_name_is_valid = False
-    while layer_name_is_valid is False:
+    while True:
         layer_name: str = inquirer.text(
             message="""
             Specificeer de layer waarin met de referentielijn van het dijktraject. Type 'listlayers' om
@@ -131,22 +127,22 @@ def specify_geopackage_layer(app_settings: ApplicationSettings, filepath: str):
             continue
         if layer_name == "cancel":
             request_trajectory_filepath(app_settings)
+            
         elif layer_name not in layer_names:
             print(BColors.OKBLUE, f"De layer name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
                                   f"de geopackage: {layers_str}", BColors.ENDC)
             continue
         # TODO Later Must Klein: Check dat een LineString-laag wordt opgegeven.
 
-        layer_name_is_valid = True
+        break
 
     gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
     specify_column_with_trajectory_name(app_settings, gdf)
 
 
 def specify_column_with_trajectory_name(app_settings: ApplicationSettings, gdf: GeoDataFrame):
-    column_name: Optional[str] = None
-    column_name_is_valid = False
-    while column_name_is_valid is False:
+    
+    while True:
         column_name: str = inquirer.text(
             message="""
             Specificeer de kolom waarin de naam van het dijktraject staat. Type 'listcolumns' om 
@@ -167,7 +163,7 @@ def specify_column_with_trajectory_name(app_settings: ApplicationSettings, gdf: 
                                   f"in de spatial layer: {columns_str}", BColors.ENDC)
             continue
 
-        column_name_is_valid = True
+        break
 
     column_name: str
     specify_single_trajectory(app_settings, gdf, column_name)
@@ -184,19 +180,18 @@ def specify_single_trajectory(app_settings: ApplicationSettings, gdf: GeoDataFra
         })
         gdf.to_file(app_settings.geopackage_filepath, layer="dijktraject", driver="GPKG")
 
-        print(BColors.OKBLUE, f"✅  Trajectlijn toegevoegd.", BColors.ENDC)
+        print(BColors.OKBLUE, "✅  Trajectlijn toegevoegd.", BColors.ENDC)
         return
 
     # Multiple items in gdf? Make user select single one
-    trajectory_name: Optional[str] = None
-    trajectory_name_is_valid = False
-    while trajectory_name_is_valid is False:
+    
+    while True:
         trajectory_name: str = inquirer.text(
             message=f"Er zijn {gdf.__len__()} opties. Type hier welke de juiste referentielijn is. Type "
                     f"'listoptions' om een overzicht te krijgen van de opties.",
         ).execute()
 
-        trajectory_names = gdf[column_name].values.tolist()
+        trajectory_names = gdf[column_name].values.astype(str).tolist()
         trajectory_names.sort()
         trajectories_str = ", ".join(trajectory_names)
         if trajectory_name == "listoptions":
@@ -208,7 +203,7 @@ def specify_single_trajectory(app_settings: ApplicationSettings, gdf: GeoDataFra
                                   f"{trajectories_str}", BColors.ENDC)
             continue
 
-        trajectory_name_is_valid = True
+        break
 
     gdf = gdf[gdf[column_name] == trajectory_name]
     gdf = gdf[[column_name, gdf.geometry.name]]
@@ -217,5 +212,5 @@ def specify_single_trajectory(app_settings: ApplicationSettings, gdf: GeoDataFra
         gdf.geometry.name: "geometry",
     })
     gdf.to_file(app_settings.geopackage_filepath, layer="dijktraject", driver="GPKG")
-    print(BColors.OKBLUE, f"✅  Trajectlijn toegevoegd.", BColors.ENDC)
+    print(BColors.OKBLUE, "✅  Trajectlijn toegevoegd.", BColors.ENDC)
     return

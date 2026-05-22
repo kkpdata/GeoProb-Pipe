@@ -40,9 +40,7 @@ def _folder_contains_hrd_db(hrd_dir: str) -> bool:
 
 
 def _ask_path_to_hrd_dir() -> str:
-    filepath: Optional[str] = None
-    filepath_is_valid = False
-    while filepath_is_valid is False:
+    while True:
         filepath: str = inquirer.text(
             message="Specificeer het volledige pad naar de bestandsmap met de Hydra-NL database. "
                     "Dat zijn de hlcd, config en het database .sqlite-bestand zelf.",
@@ -51,16 +49,16 @@ def _ask_path_to_hrd_dir() -> str:
         filepath = filepath.replace('"', '')
 
         if not os.path.isdir(filepath):
-            print(BColors.WARNING, f"Het bestandspad moet een directory zijn. Probeer het opnieuw.", BColors.ENDC)
+            print(BColors.WARNING, "Het bestandspad moet een directory zijn. Probeer het opnieuw.", BColors.ENDC)
             continue
 
         if not _folder_contains_hrd_db(hrd_dir=filepath):
-            print(BColors.WARNING, f"De opgegeven bestandsmap bevat geen of niet alle bestanden van de Hydra-NL "
-                                   f"database. Zorg er voor dat het hlcd-, config.sqlite- en het .sqlite "
-                                   f"database-bestand allen in de map staan. ", BColors.ENDC)
+            print(BColors.WARNING, "De opgegeven bestandsmap bevat geen of niet alle bestanden van de Hydra-NL "
+                                   "database. Zorg er voor dat het hlcd-, config.sqlite- en het .sqlite "
+                                   "database-bestand allen in de map staan. ", BColors.ENDC)
             continue
 
-        filepath_is_valid = True
+        break
 
     return filepath
 
