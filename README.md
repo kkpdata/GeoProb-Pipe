@@ -1,4 +1,4 @@
-![Coverage](https://raw.githubusercontent.com/kkpdata/GeoProb-Pipe/alpha/readme_images/coverage.svg)
+![Coverage](https://raw.githubusercontent.com/kkpdata/GeoProb-Pipe/alpha/other/coverage.svg)
 
 # GeoProb-Pipe
 Applicatie voor het uitvoeren van probabilistische piping berekeningen. De applicatie maakt gebruik van de probabilistische 
@@ -26,7 +26,7 @@ Vanuit de development omgeving (kloon van repository) start je de applicatie als
 
 Het volgende branch-schema wordt aangehouden: 
 
-![Branch-schema](./readme_images/geoprob-pipe-branch-scheme.png)
+![Branch-schema](other/geoprob-pipe-branch-scheme.png)
 
 
 
