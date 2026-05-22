@@ -68,9 +68,9 @@ Als je geen ruimtelijke input wilt ingeven druk dan op enter zonder iets in te v
     sql_insert = "INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES (?, ?)"
 
     with conn:  # transaction
-        cur = conn.execute(sql_update, (scenarios, "ruimtelijke_scenarios"))  # type:ignore
+        cur = conn.execute(sql_update, (scenarios, "ruimtelijke_scenarios"))
         if cur.rowcount == 0:
-            conn.execute(sql_insert, ("ruimtelijke_scenarios", scenarios))  # type:ignore
+            conn.execute(sql_insert, ("ruimtelijke_scenarios", scenarios))
 
     conn.commit()
     conn.close()

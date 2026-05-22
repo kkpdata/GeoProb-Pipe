@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 import geopandas as gpd
 import pandas as pd
+import numpy as np
 
 from .base_couple import BaseCouple
 
@@ -54,11 +55,11 @@ class HRDCouple(BaseCouple):
         df["scope"] = "uittredepunt"
         df["ondergrondscenario_naam"] = ""
         df["distribution_type"] = "cdf_curve"
-        df["mean"] = ""
-        df["variation"] = ""
-        df["deviation"] = ""
-        df["minimum"] = ""
-        df["maximum"] = ""
+        df["mean"] = np.nan
+        df["variation"] = np.nan
+        df["deviation"] = np.nan
+        df["minimum"] = np.nan
+        df["maximum"] = np.nan
         df["fragility_values_ref"] = join_df.get("location_name", "")
         df["bronnen"] = ""
         df["opmerking"] = ""

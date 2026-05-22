@@ -131,7 +131,7 @@ class ShapeCouple(BaseCouple):
         :param gdf: GeoDataFrame met de ruimtelijke invoer.
         :param scenario: Ondergrondscenario_naam voor in de dataframe. Kan "" zijn.
         """
-        # TODO filter mogelijk dubble waarden
+        # TODO Vincent: filter mogelijk dubble waarden
         join_df = self.gdf_exit_points.sjoin_nearest(gdf, how="left")
         df_to_add = self._create_df(join_df, scenario)
 
