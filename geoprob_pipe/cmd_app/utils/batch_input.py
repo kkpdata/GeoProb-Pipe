@@ -53,28 +53,43 @@ def batch_config_writer(app_settings: ApplicationSettings):
     )
     parameters: list[str] = cursor.fetchone()[0].split(", ")
     conn.close()
-    
-    datasets = [
-        {"name": "vakindeling", "path": "", "layer": "", "column": ""},
-        {"name": "uittredepunten", "path": "", "layer": "", "column": ""},
-        {"name": "binnenteenlijn", "path": "", "layer": "", "column": ""},
-        {"name": "buitenteenlijn", "path": "", "layer": "", "column": ""},
-        {"name": "intredelijn", "path": "", "layer": "", "column": ""},
-    ]
-    if not parameters == ['']:
-        for parameter in parameters:
-            datasets.append({
-                "name": f"{parameter}", "path": "", "layer": ""
-            })
 
     config = configparser.ConfigParser()
+    
+    config["vakindeling"] = {
+        "filepath": "",
+        "database_layer": "",
+        "vak_naam_kolom": "",
+        "vak_id_kolom": ""
+    }
+    
+    config["uittredepunten"] = {
+        "filepath": "",
+        "database_layer": "",
+        "mv_exit_kolom": ""
+    }
+    
+    config["binnenteenlijn"] = {
+        "filepath": "",
+        "database_layer": "",
+    }
+    
+    config["buitenteenlijn"] = {
+        "filepath": "",
+        "database_layer": "",
+    }
+    
+    config["intredelijn"] = {
+        "filepath": "",
+        "database_layer": "",
+    }
 
-    for ds in datasets:
-        config[ds["name"]] = {
-            "path": ds["path"],
-            "layer": ds["layer"],
-            "column": ds["column"]
-        }
-
+    if not parameters == ['']:
+        for parameter in parameters:
+            config[parameter] = {
+                "filepath": "",
+                "database_layer": ""
+            }
+    
     with open(f"{app_settings.workspace_dir}/batch_input.ini", "w") as f:
         config.write(f)

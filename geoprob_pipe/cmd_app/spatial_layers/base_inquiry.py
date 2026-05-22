@@ -31,7 +31,6 @@ if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
-# TODO Vincent: Uitlezen van batch_input.ini als die keuze gemaakt is.
 class BaseInquiry:
     def __init__(
         self,
@@ -74,7 +73,7 @@ class BaseInquiry:
         while True:
             if self.app_settings.batch_input and not skip_batch:
                 filepath = self.app_settings.input_config.get(
-                    f"{self.param}", "path"
+                    f"{self.param}", "filepath"
                 )
             else:
                 filepath: str = prompt.InputPrompt(
@@ -168,7 +167,7 @@ met de {self.param} geometrieën.
         while True:
             if self.app_settings.batch_input and not skip_batch:
                 layer_name = self.app_settings.input_config.get(
-                    f"{self.param}", "layer"
+                    f"{self.param}", "database_layer"
                 )
             else:
                 layer_name: str = prompt.InputPrompt(

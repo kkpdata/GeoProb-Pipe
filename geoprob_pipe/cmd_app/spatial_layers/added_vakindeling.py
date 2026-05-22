@@ -49,14 +49,20 @@ def check_validity_vakindeling(app_settings: ApplicationSettings):
     print(BColors.OKBLUE, "✔  Vakindeling al toegevoegd.", BColors.ENDC)
 
 
-def import_from_geopackage(filepath: str) -> GeoDataFrame:
-    layer_name: Optional[str] = None
-    layer_name_is_valid = False
-    while layer_name_is_valid is False:
-        layer_name: str = inquirer.text(
-            message="Specificeer de laag met de vakindeling. "
-                    "Type 'listlayers' om een overzicht te krijgen van de geopackage-layers. ",
-        ).execute()
+def import_from_geopackage(app_settings: ApplicationSettings,
+                           filepath: str) -> GeoDataFrame:
+    layer_name: str = ""
+    skip_batch = False  # Als batch input faalt ga over op handmatig
+    while True:
+        if app_settings.batch_input and not skip_batch:
+                layer_name = app_settings.input_config.get(
+                    "vakindeling", "database_layer"
+                )
+        else:
+            layer_name: str = inquirer.text(
+                message="Specificeer de laag met de vakindeling. "
+                        "Type 'listlayers' om een overzicht te krijgen van de geopackage-layers. ",
+            ).execute()
 
         layer_names = fiona.listlayers(filepath)
         layer_names.sort()
@@ -67,9 +73,10 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
         elif layer_name not in layer_names:
             print(BColors.OKBLUE, f"De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
                                   f"de geopackage: {layers_str}", BColors.ENDC)
+            skip_batch = True
             continue
 
-        layer_name_is_valid = True
+        break
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
@@ -77,14 +84,21 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
     return gdf
 
 
-def import_from_geodatabase(filepath: str) -> GeoDataFrame:
+def import_from_geodatabase(app_settings: ApplicationSettings,
+                            filepath: str) -> GeoDataFrame:
     layer_name: str = ""
-    layer_name_is_valid = False
-    while layer_name_is_valid is False:
-        layer_name: str = inquirer.text(
-            message="Specificeer de laag met de vakindeling. "
-                    "Type 'listlayers' om een overzicht te krijgen van de geodatabase-layers. ",
-        ).execute()
+    skip_batch = False  # Als batch input faalt ga over op handmatig
+    
+    while True:
+        if app_settings.batch_input and not skip_batch:
+                layer_name = app_settings.input_config.get(
+                    "vakindeling", "database_layer"
+                )
+        else:
+            layer_name: str = inquirer.text(
+                message="Specificeer de laag met de vakindeling. "
+                        "Type 'listlayers' om een overzicht te krijgen van de geodatabase-layers. ",
+            ).execute()
 
         layer_names = fiona.listlayers(filepath)
         layer_names.sort()
@@ -95,9 +109,10 @@ def import_from_geodatabase(filepath: str) -> GeoDataFrame:
         elif layer_name not in layer_names:
             print(BColors.OKBLUE, f"De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
                                   f"de geodatabase: {layers_str}", BColors.ENDC)
+            skip_batch = True
             continue
 
-        layer_name_is_valid = True
+        break
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
@@ -107,10 +122,11 @@ def import_from_geodatabase(filepath: str) -> GeoDataFrame:
 
 def request_vakindeling_filepath(app_settings: ApplicationSettings):
     filepath: str = ""
+    skip_batch = False  # Als batch input faalt ga over op handmatig
 
     while True:
-        if app_settings.batch_input:
-            filepath = app_settings.input_config.get("vakindeling", "path")
+        if app_settings.batch_input and not skip_batch:
+            filepath = app_settings.input_config.get("vakindeling", "filepath")
         else:
             filepath: str = inquirer.text(
                 message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
@@ -125,6 +141,7 @@ def request_vakindeling_filepath(app_settings: ApplicationSettings):
             continue
         if not os.path.exists(filepath):
             print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
+            skip_batch = True
             continue
 
         break
@@ -157,14 +174,20 @@ def validate_vakindeling(app_settings: ApplicationSettings, gdf: GeoDataFrame):
 
 def specify_column_with_vaknaam(
         app_settings: ApplicationSettings, gdf: GeoDataFrame):
-    column_name: Optional[str] = None
-    column_name_is_valid = False
-    while column_name_is_valid is False:
-        column_name: str = inquirer.text(
-            message="Specificeer de kolom waarin de vaknaam staat. Type "
-                    "'listcolumns' om een overzicht te krijgen van de "
-                    "kolommen. ",
-        ).execute()
+    column_name: str = ""
+    
+    skip_batch = False  # Als batch input faalt ga over op handmatig
+    while True:
+        if app_settings.batch_input and not skip_batch:
+            column_name = app_settings.input_config.get(
+                "vakindeling", "vak_naam_kolom"
+            )
+        else:
+            column_name: str = inquirer.text(
+                message="Specificeer de kolom waarin de vaknaam staat. Type "
+                        "'listcolumns' om een overzicht te krijgen van de "
+                        "kolommen. ",
+            ).execute()
 
         column_names = gdf.columns
         columns_str = ", ".join(column_names)
@@ -178,9 +201,10 @@ def specify_column_with_vaknaam(
                   f"De kolom naam '{column_name}' bestaat niet. De volgende "
                   f"kolommen zijn beschikbaar in de spatial layer: "
                   f"{columns_str}", BColors.ENDC)
+            skip_batch = True
             continue
 
-        column_name_is_valid = True
+        break
 
     column_name: str
     specify_column_with_vak_id(
@@ -197,14 +221,20 @@ def is_numeric_integer(val):
 def specify_column_with_vak_id(
         app_settings: ApplicationSettings, gdf: GeoDataFrame,
         kolom_vak_naam: str):
-    kolom_vak_id: Optional[str] = None
-    column_name_is_valid = False
-    while column_name_is_valid is False:
-        kolom_vak_id: str = inquirer.text(
-            message="Specificeer de kolom waarin het vak id staat. Indien "
-                    "onnodig, type 'nvt'. Type 'listcolumns' om een overzicht "
-                    "te krijgen van de kolommen. ",
-        ).execute()
+    kolom_vak_id: str = ""
+    skip_batch = False  # Als batch input faalt ga over op handmatig
+    
+    while True:
+        if app_settings.batch_input and not skip_batch:
+            kolom_vak_id = app_settings.input_config.get(
+                "vakindeling", "vak_id_kolom"
+            )
+        else:
+            kolom_vak_id: str = inquirer.text(
+                message="Specificeer de kolom waarin het vak id staat. Indien "
+                        "onnodig, type 'nvt'. Type 'listcolumns' om een overzicht "
+                        "te krijgen van de kolommen. ",
+            ).execute()
 
         column_names = gdf.columns
         columns_str = ", ".join(column_names)
@@ -222,6 +252,7 @@ def specify_column_with_vak_id(
             print(f"{BColors.OKBLUE}De kolom naam '{kolom_vak_id}' bestaat "
                   f"niet. De volgende kolommen zijn beschikbaar in de spatial "
                   f"layer: {columns_str}{BColors.ENDC}")
+            skip_batch = True
             continue
 
         # Ensure column values are unique and integers
@@ -229,15 +260,17 @@ def specify_column_with_vak_id(
             print(f"{BColors.OKBLUE}De waarden in deze kolom zijn niet uniek. "
                   f"Corrigeer de dubbelingen, of kies een andere kolom."
                   f"{BColors.ENDC}")
+            skip_batch = True
             continue
 
         elif not gdf[kolom_vak_id].apply(is_numeric_integer).all():
             print(f"{BColors.OKBLUE}De waarden in deze kolom zijn niet allen "
                   f"volledige getallen (integers). Corrigeer de kolom, of "
                   f"kies een andere.{BColors.ENDC}")
+            skip_batch = True
             continue
 
-        column_name_is_valid = True
+        break
 
     kolom_vak_id: str
     align_vak_shp_to_dijktraject(
@@ -254,7 +287,7 @@ def align_vak_shp_to_dijktraject(
 
     # Data verzamelen uit provided vak shp
     rows = []
-    for index, row in gdf_vakindeling.iterrows():
+    for _, row in gdf_vakindeling.iterrows():
         pnt1 = row.geometry.boundary.geoms[0]
         pnt2 = row.geometry.boundary.geoms[1]
         m_pnt1 = round(ls_dijktraject.project(pnt1), 1)
@@ -274,7 +307,7 @@ def align_vak_shp_to_dijktraject(
 
     # Align vak geometry to dijktraject by retrieving substring
     rows = []
-    for index, row in df.iterrows():
+    for _, row in df.iterrows():
         new_row = {
             "naam": row["naam"],
             "m_start": row["m_start"],
@@ -294,4 +327,4 @@ def align_vak_shp_to_dijktraject(
     gdf_new_vakindeling.to_file(
         Path(app_settings.geopackage_filepath),
         layer="vakindeling", driver="GPKG")
-    print(BColors.OKBLUE, f"✅  Vakindeling toegevoegd.", BColors.ENDC)
+    print(BColors.OKBLUE, "✅  Vakindeling toegevoegd.", BColors.ENDC)

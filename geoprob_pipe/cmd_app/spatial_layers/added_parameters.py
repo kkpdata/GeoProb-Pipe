@@ -43,12 +43,13 @@ def request_parameters(app_settings: ApplicationSettings):
     conn = sqlite3.connect(app_settings.geopackage_filepath)
 
     valid_list = valid_parameter_list(app_settings)
+    
+    parameters: list[str] = []
 
-    scenario_input_is_valid = False
-    while scenario_input_is_valid is False:
+    while True:
         parameter_input: str = prompt.InputPrompt(
             message=(
-"""
+                """
 Specificeer welke parameters je wilt toevoegen als ruimtelijke input.
 Doe dit door de namen gescheiden met comma's op te geven.
 Type 'list' om de lijst te zien met alle parameters die invoerbaar zijn voor dit model.
@@ -57,7 +58,7 @@ Als je geen ruimtelijke input wilt ingeven druk dan op enter zonder iets in te v
             )
         ).execute()
         if parameter_input == "":
-            parameters = ""
+            parameters = []
         elif parameter_input == "list":
             params_str = ", ".join(valid_list)  # type:ignore
             print(
@@ -70,22 +71,26 @@ Als je geen ruimtelijke input wilt ingeven druk dan op enter zonder iets in te v
         else:
             parameters = parameter_input.split(",")
 
-            if parameters not in valid_list:  # type:ignore
+            if not all(x in valid_list for x in parameters):  # type:ignore
                 print(
                     BColors.WARNING,
                     "Een of meerdere van de opgegeven parameters zijn niet geschikt voor ruimtelijke invoer.",
                     BColors.ENDC,
                 )
                 continue
-        scenario_input_is_valid = True
+        break
 
     sql_update = "UPDATE geoprob_pipe_metadata SET metadata_value = ? WHERE metadata_type = ?"
     sql_insert = "INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES (?, ?)"
 
     with conn:  # transaction
-        cur = conn.execute(sql_update, (parameters, "ruimtelijke_parameters"))  # type:ignore
+        cur = conn.execute(
+            sql_update, (", ".join(parameters), "ruimtelijke_parameters")
+        )
         if cur.rowcount == 0:
-            conn.execute(sql_insert, ("ruimtelijke_parameters", parameters))  # type:ignore
+            conn.execute(
+                sql_insert, ("ruimtelijke_parameters", ", ".join(parameters))
+            )
 
     conn.commit()
     conn.close()
