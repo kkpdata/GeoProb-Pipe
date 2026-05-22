@@ -1,4 +1,4 @@
-![Coverage](./readme_images/coverage.svg)
+![Coverage](https://raw.githubusercontent.com/kkpdata/GeoProb-Pipe/alpha/readme_images/coverage.svg)
 
 # GeoProb-Pipe
 Applicatie voor het uitvoeren van probabilistische piping berekeningen. De applicatie maakt gebruik van de probabilistische 
