@@ -1,3 +1,5 @@
+""" Main app object """
+
 from __future__ import annotations
 import os
 from datetime import datetime
@@ -6,7 +8,6 @@ import pandas as pd
 
 from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_figures import InputParameterFigures
-from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
 
 try:
     import probabilistic_library
