@@ -1,4 +1,4 @@
-""" Main app object """
+""" Main app object. """
 
 from __future__ import annotations
 import os
