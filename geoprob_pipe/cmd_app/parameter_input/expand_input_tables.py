@@ -267,7 +267,6 @@ def _gather_required_input_parameters(geopackage_filepath: str) -> List[str]:
     # return ["mv_exit", "gamma_sat_deklaag"]  # TODO
     # return ["gamma_sat_deklaag"]  # TODO
 
-# TODO Vincent: fix falende overschijving voor polderpeil in expanded excel
 def _expand(
         df_parameter_invoer_combined: DataFrame, df_identifiers: DataFrame, geopackage_filepath: str
 ) -> Dict[str, DataFrame]:

@@ -154,7 +154,6 @@ class ShapeCouple(BaseCouple):
                 BColors.ENDC
             )
         join_gdf = join_gdf[join_gdf.index_right.notna()]
-        print(join_gdf)
         df_to_add = self._create_df(join_gdf, scenario)
 
         self._upsert_to_gpkg(df_to_add)

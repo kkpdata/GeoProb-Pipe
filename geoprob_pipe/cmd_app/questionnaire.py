@@ -103,9 +103,7 @@ def questionnaire(app_settings: ApplicationSettings):
         sys.exit(EARLY_EXIT_MESSAGE)
 
     print("\nPARAMETER INVOER")
-    # TODO Vincent: verwijder traject waardes als gis_join al waardes heeft.
-    # Misschien checken of de orde van overschrijven wel logisch is?
-    # Excel over gis maar wel gis-uittredepunt over excel-traject?
+    # TODO Vincent: Vraag Chris waar de traject defaults automatisch verwijderd worden
     if not added_input_parameter_data(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
 
