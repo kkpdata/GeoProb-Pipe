@@ -98,7 +98,7 @@ def questionnaire(app_settings: ApplicationSettings):
         app_settings=app_settings
     ):
         sys.exit(EARLY_EXIT_MESSAGE)
-    # TODO Vincent: maak coupleling for raster
+    # TODO Later Should: make coupleling for raster if import is added.
     if not coupled_parameters_to_uittredepunten(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
 

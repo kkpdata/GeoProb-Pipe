@@ -10,12 +10,12 @@ from InquirerPy.prompts.list import ListPrompt
 
 from geoprob_pipe.cmd_app.spatial_layers import valid_parameter_list
 from geoprob_pipe.utils.validation_messages import BColors
+from geoprob_pipe.cmd_app.utils.batch_input import update_batch_metadata
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
-# TODO Vincent: Testen met invoer.
 def inquire_spatial_update(
     app_settings: ApplicationSettings,
 ):
@@ -368,13 +368,14 @@ def remove_tables(
     app_settings: ApplicationSettings, table_list: list[str] = []
 ):
     """
-    Verwijder de tabellen uit de geopackage en de metadata zodat deze oopnieuw
+    Verwijder de tabellen uit de geopackage en de metadata zodat deze opnieuw
     kunnen worden ingeladen. Als de lijst leeg is worden alle tabellen met
     ruimtelijke invoer verwijderd.
 
     :param app_settings: Object met applicatie instellingen.
     :param table_list: Lijst met tabellen om te verwijderen, defaults to []
-    """    
+    """
+    update_batch_metadata(app_settings=app_settings, value=True)   
     # Voor vervangen, nieuwe scenarios of verwijderen van parameters.
     conn = sqlite3.connect(app_settings.geopackage_filepath)
     cursor = conn.cursor()

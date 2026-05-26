@@ -45,7 +45,6 @@ def batch_inquiry(app_settings: ApplicationSettings):
                 return
 
 
-# TODO Vincent: Toelichting voor input optie?
 def ready_inquiry():
     """
     Keuzemenu als wacht periode voor het invullen van batch_input.ini.
@@ -156,8 +155,7 @@ def read_metadata(app_settings: ApplicationSettings):
     )
     row = cursor.fetchone()
     conn.close()
-    
     if row is None:
         return True
     
-    return bool(row[0])
+    return bool(int(row[0]))

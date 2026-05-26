@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 import geopandas as gpd
 
 from geoprob_pipe.cmd_app.spatial_layers import LIST_PARAMS
+from geoprob_pipe.utils.validation_messages import BColors
+
 from .base_couple import BaseCouple
 
 if TYPE_CHECKING:
@@ -131,9 +133,8 @@ class ShapeCouple(BaseCouple):
         :param gdf: GeoDataFrame met de ruimtelijke invoer.
         :param scenario: Ondergrondscenario_naam voor in de dataframe. Kan "" zijn.
         """
-        # TODO Vincent: filter mogelijk dubble waarden
-        join_df = self.gdf_exit_points.sjoin_nearest(gdf, how="left")
-        df_to_add = self._create_df(join_df, scenario)
+        join_gdf = self.gdf_exit_points.sjoin_nearest(gdf, how="left").drop_duplicates("uittredepunt_id")
+        df_to_add = self._create_df(join_gdf, scenario)
 
         self._upsert_to_gpkg(df_to_add)
 
@@ -145,12 +146,19 @@ class ShapeCouple(BaseCouple):
         :param scenario: Ondergrondscenario_naam voor in de dataframe. Kan "" zijn.
         """
         join_gdf = self.gdf_exit_points.sjoin(gdf, how="left")
+        outside = join_gdf[join_gdf.index_right.isna()]
+        if len(outside) != 0:
+            print(
+                BColors.WARNING,
+                f"{len(outside)} uittredepunten vallen buiten de polygonen bij {self.param}.",
+                BColors.ENDC
+            )
+        join_gdf = join_gdf[join_gdf.index_right.notna()]
+        print(join_gdf)
         df_to_add = self._create_df(join_gdf, scenario)
 
         self._upsert_to_gpkg(df_to_add)
 
-    # TODO Vincent: Add option for rasters
+    # TODO Later Should: Add option for raster import and coupleling.
     def _join_to_raster(self):
-        pass
-
-    
+        raise NotImplementedError("Toevoegen van parameters via raster is nog niet moegelijk.")

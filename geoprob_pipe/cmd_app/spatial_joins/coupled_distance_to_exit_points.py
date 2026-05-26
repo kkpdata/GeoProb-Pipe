@@ -17,13 +17,13 @@ from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
-# TODO Vincent: Check of deze al in de tabel staan.
+
 def coupled_distances_to_uittredepunten(
     app_settings: ApplicationSettings,
 ) -> bool:
     """
     Bepaal de afstanden tussen de uittredepunten en de intrede, binnenteen en
-    buitenteenlijen.
+    buitenteenlijnen. Als deze er al in staan worden ze overschreven.
 
     :param app_settings: Object met de insellingen van de applicatie
     """    

@@ -9,7 +9,7 @@ from geoprob_pipe.utils.validation_messages import BColors
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
-# TODO Vincent: Check of deze al in de tabel staan.
+
 def coupled_parameters_to_uittredepunten(
     app_settings: ApplicationSettings,
 ) -> bool:

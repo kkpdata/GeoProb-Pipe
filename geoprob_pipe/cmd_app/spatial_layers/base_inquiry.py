@@ -197,6 +197,7 @@ ander bestand op te gaven.
                     f"{BColors.OKBLUE} De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
                     f"de geodatabase: {layers_str}{BColors.ENDC}"
                 )
+                skip_batch = True
                 continue
 
             break

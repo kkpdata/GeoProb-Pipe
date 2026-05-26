@@ -20,13 +20,8 @@ def added_ruimtelijke_input(app_settings: ApplicationSettings) -> bool:
         ("ruimtelijke_parameters",),
     )
     parameters: list[str] = cursor.fetchone()[0].split(", ")
-    cursor.execute(
-        "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
-        ("ruimtelijke_scenarios",),
-    )
-    scenarios: list[str] = cursor.fetchone()[0].split(", ")
     conn.close()
-    layers = fiona.listlayers(app_settings.geopackage_filepath)
+    list_layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
     if parameters == ['']: # De split maakt één lege string als de uit de metadata gelezen string leeg is.
         print(
             BColors.OKBLUE,
@@ -36,18 +31,7 @@ def added_ruimtelijke_input(app_settings: ApplicationSettings) -> bool:
         return True
 
     for parameter in parameters:
-        if scenarios == ['']:  # De split maakt één lege string als de uit de metadata gelezen string leeg is.
-            if parameter in layers:
-                print(
-                    BColors.OKBLUE,
-                    f"✔  {parameter} al toegevoegd.",
-                    BColors.ENDC,
-                )
-                return True
-
-        else:
-            for scenario in scenarios:
-                if f"{parameter}_{scenario}" in layers:
+        if any(parameter in layer.split("_")[0] for layer in list_layers):
                     print(
                         BColors.OKBLUE,
                         f"✔  {parameter} al toegevoegd.",

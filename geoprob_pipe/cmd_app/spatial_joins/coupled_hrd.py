@@ -12,10 +12,11 @@ from .couple_objects.hrd_couple import HRDCouple
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
-# TODO Vincent: Check of deze al in de tabel staan.
+
 def coupled_hrd_to_uittredepunten(app_settings: ApplicationSettings) -> bool:
     """
     Voeg de HRD locaties toe aan de invoer tabel als deze zijn opgegeven.
+    Als deze er al staan worden ze overschreven.
 
     :param ApplicationSettings app_settings: Object met de insellingen van de applicatie
     :return: _description_
