@@ -111,7 +111,8 @@ def window_collect(window_size: float, point_list: list[UittredepuntElement],
     bins_window = np.arange(
         m_van, m_tot, window_size
         ).tolist()
-    bins_window.append(m_tot)
+    if m_tot not in bins_window:
+        bins_window.append(m_tot)  # add end of final window
 
     bin_cat: pd.Categorical = cast(pd.Categorical, pd.cut(
         list_m_value,
@@ -126,8 +127,7 @@ def window_collect(window_size: float, point_list: list[UittredepuntElement],
 
     sum_pf, max_pf = combine_series(df_bin.to_list())
     window_elements: List[WindowElement] = []
-    if m_tot not in bins_window:
-        bins_window.append(m_tot)  # add end of final window
+    
     for i in range(len(bins_window)-1):
         window_elements.append(WindowElement(
             m_van=bins_window[i],
