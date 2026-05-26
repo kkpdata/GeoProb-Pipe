@@ -59,6 +59,7 @@ def added_ruimtelijke_input(app_settings: ApplicationSettings) -> bool:
             app_settings=app_settings,
             param=f"{parameter}",
             specific_shape=LIST_PARAMS[parameter]["shape"],
+            include_value=True
         )
         inquiry.request_filepath()
         

@@ -273,6 +273,7 @@ ander bestand op te gaven.
         :rtype: bool
         """
         self.suffix_list = ["mean", "dist", "var", "dev", "min", "max"]
+
         if self.include_value and self.scenarios == "":
             # Case: Alleen suffix, alle kolomen worden met de geometrie weggeschreven.
             return self._add_with_suffix(gdf)
@@ -282,7 +283,10 @@ ander bestand op te gaven.
             # geometrieën weggeschreven.
             # Of verschillende geometerieën per scenario
             column_list = gdf.columns.to_list()
-            if True in [len(x.split("_")) == 3 for x in column_list]:
+            if True in [
+                len(x.split("_")) == 3 and self.param in x.split("_")
+                for x in column_list
+            ]:
                 return self._add_with_affixes(gdf)
             else:
                 return self._add_seperate_with_suffix(gdf)
@@ -515,20 +519,21 @@ ander bestand op te gaven.
         :return: bool voor valid_input in while-loop
         """
         column_list = gdf.columns.to_list()
+        
         if not self._scenario_check(column_list):
             return False
 
-        for scenario in self.scenarios:
-            mask = gdf["ondergrondscenario" == scenario]
-            gdf_filtered = gdf[mask][["geometry"]]
+        for scenario in self.scenarios + [
+            None
+        ]:  # als er geen scenario zijn opgegeven in de kolom
+            if scenario is None:
+                mask = gdf["ondergrondscenario"].isna()
+            else:
+                mask = gdf["ondergrondscenario"] == scenario
 
-            if len(gdf_filtered) == 0:
-                print(
-                    BColors.WARNING,
-                    f"Geen geometrieën gevonden met de ondergrondscenarionaam: {scenario}",
-                    BColors.ENDC,
-                )
+            if not mask.any():
                 continue
+
             add_list = [
                 f"{self.param}_{x}"
                 for x in self.suffix_list
@@ -538,12 +543,20 @@ ander bestand op te gaven.
             if not self._distribution_check(column_list, add_list, gdf):
                 return False
 
-            gdf_to_add = gdf_filtered[["geometry", add_list]]
+            gdf_to_add = gdf.loc[mask, ["geometry"] + add_list]
 
-            gdf_to_add.to_file(
-                self.app_settings.geopackage_filepath,
-                layer=f"{self.param}_{scenario}",
-                driver="GPKG",
-            )
+            if scenario is None:
+                gdf_to_add.to_file(
+                    self.app_settings.geopackage_filepath,
+                    layer=f"{self.param}",
+                    driver="GPKG",
+                )
+
+            else:
+                gdf_to_add.to_file(
+                    self.app_settings.geopackage_filepath,
+                    layer=f"{self.param}_{scenario}",
+                    driver="GPKG",
+                )
 
         return True

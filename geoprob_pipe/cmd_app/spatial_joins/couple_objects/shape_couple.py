@@ -4,7 +4,6 @@ import sqlite3
 from typing import TYPE_CHECKING
 
 import geopandas as gpd
-from shapely.geometry import LineString, MultiLineString, MultiPolygon, Polygon
 
 from geoprob_pipe.cmd_app.spatial_layers import LIST_PARAMS
 from .base_couple import BaseCouple
@@ -105,14 +104,15 @@ class ShapeCouple(BaseCouple):
         :raises KeyError: Polygon niet geaccepteerd bij deze parameter.
         :raises ImportError: De laag bestaat uit verschillende geometrie types.
         """
-        if (gdf.geom_types == (LineString or MultiLineString)).all():
+
+        if (gdf.geom_type.isin(["LineString", "MultiLineString"])).all():
             if "line" in LIST_PARAMS[self.param]["shape"]:
                 self._join_to_line(gdf, scenario)
             else:
                 raise KeyError(
                     "Deze parameter is niet geschikt om aan een lijn gekoppeld te worden."
                 )
-        elif (gdf.geom_types == (Polygon or MultiPolygon)).all():
+        elif (gdf.geom_type.isin(["Polygon", "MultiPolygon"])).all():
             if "polygon" in LIST_PARAMS[self.param]["shape"]:
                 self._join_to_polygon(gdf, scenario)
             else:
@@ -144,8 +144,8 @@ class ShapeCouple(BaseCouple):
         :param gdf: GeoDataFrame met de ruimtelijke invoer.
         :param scenario: Ondergrondscenario_naam voor in de dataframe. Kan "" zijn.
         """
-        join_df = self.gdf_exit_points.sjoin(gdf, how="left")
-        df_to_add = self._create_df(join_df, scenario)
+        join_gdf = self.gdf_exit_points.sjoin(gdf, how="left")
+        df_to_add = self._create_df(join_gdf, scenario)
 
         self._upsert_to_gpkg(df_to_add)
 

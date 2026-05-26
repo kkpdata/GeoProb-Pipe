@@ -1,9 +1,12 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Dict, List, Tuple
-import plotly.graph_objects as go
+
 import os
+from typing import TYPE_CHECKING, Dict, List, Tuple
+
 import geopandas as gpd
-from shapely.geometry import LineString, MultiLineString, GeometryCollection
+import plotly.graph_objects as go
+import fiona
+from shapely.geometry import GeometryCollection, LineString, MultiLineString
 
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -13,50 +16,56 @@ def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure,
               layer: str, color: str):
     """ Helperfunctie om de lijnen uit de geopackage te vinden en toe te voegen aan de map. Layer is de naam van de
     laag in de geopackage waar de lijn is opgeslagen. Color is de kleur van deze lijn in de map. """
+    
+    # Check of er maar een intredelijn of dat er meerdere zijn ingevoerd.
+    gpkg_layers: list[str] = fiona.listlayers(geoprob_pipe.input_data.app_settings.geopackage_filepath)
+    list_layers = [x for x in gpkg_layers if x.split("_")[0] == layer]
+    
+    for listed_layer in list_layers:
+        
+        gdf_traject = gpd.read_file(
+            geoprob_pipe.input_data.app_settings.geopackage_filepath,
+            layer=listed_layer)
+        gdf_traject = gdf_traject.to_crs("EPSG:4326")
 
-    gdf_traject = gpd.read_file(
-        geoprob_pipe.input_data.app_settings.geopackage_filepath,
-        layer=layer)
-    gdf_traject = gdf_traject.to_crs("EPSG:4326")
+        def plot_linestring(ls, display):
+            xs, ys = ls.xy
+            xs = list(xs)
+            ys = list(ys)
+            fig.add_trace(go.Scattermap(
+                lon=xs,
+                lat=ys,
+                mode="lines",
+                line=dict(color=color, width=1),
+                hoverinfo="none",
+                name=listed_layer,
+                legendgroup=layer,
+                showlegend=display
+            ))
 
-    def plot_linestring(ls, display):
-        xs, ys = ls.xy
-        xs = list(xs)
-        ys = list(ys)
-        fig.add_trace(go.Scattermap(
-            lon=xs,
-            lat=ys,
-            mode="lines",
-            line=dict(color=color, width=1),
-            hoverinfo="none",
-            name=layer,
-            legendgroup=layer,
-            showlegend=display
-        ))
+        display = True
+        for geom in gdf_traject.geometry:
+            if isinstance(geom, LineString):
+                plot_linestring(geom, display)
+                display = False
 
-    show = True
-    for geom in gdf_traject.geometry:
-        if isinstance(geom, LineString):
-            plot_linestring(geom, show)
-            show = False
+            elif isinstance(geom, MultiLineString):
+                for line in geom.geoms:
+                    plot_linestring(line, display)
+                    display = False
 
-        elif isinstance(geom, MultiLineString):
-            for line in geom.geoms:
-                plot_linestring(line, show)
-                show = False
+            elif isinstance(geom, GeometryCollection):
+                for g in geom.geoms:
+                    if isinstance(g, LineString):
+                        plot_linestring(g, display)
+                        display = False
+                    elif isinstance(g, MultiLineString):
+                        for line in g.geoms:
+                            plot_linestring(line, display)
+                            display = False
 
-        elif isinstance(geom, GeometryCollection):
-            for g in geom.geoms:
-                if isinstance(g, LineString):
-                    plot_linestring(g, show)
-                    show = False
-                elif isinstance(g, MultiLineString):
-                    for line in g.geoms:
-                        plot_linestring(line, show)
-                        show = False
-
-        else:
-            print("Skipping unsupported geometry:", geom.geom_type)
+            else:
+                print("Skipping unsupported geometry:", geom.geom_type)
 
     return fig
 

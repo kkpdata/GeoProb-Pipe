@@ -86,9 +86,6 @@ def questionnaire(app_settings: ApplicationSettings):
     )  # AHN may be optional
 
     print("\nGEOGRAFISCHE KOPPELINGEN")
-    # TODO Vincent: maak coupleling for raster
-    if not coupled_parameters_to_uittredepunten(app_settings=app_settings):
-        sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_uittredepunten_to_refline(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
     if not coupled_distances_to_uittredepunten(app_settings=app_settings):
@@ -100,6 +97,9 @@ def questionnaire(app_settings: ApplicationSettings):
     if not coupled_mv_exit_to_gis_parameter_invoer_table(
         app_settings=app_settings
     ):
+        sys.exit(EARLY_EXIT_MESSAGE)
+    # TODO Vincent: maak coupleling for raster
+    if not coupled_parameters_to_uittredepunten(app_settings=app_settings):
         sys.exit(EARLY_EXIT_MESSAGE)
 
     print("\nPARAMETER INVOER")
