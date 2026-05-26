@@ -16,6 +16,7 @@ from .initiate_input_excel_tables import initiate_input_excel_tables
 from .input_parameter_figures import InputParameterFigures
 from .input_parameter_tables import InputParameterTables
 from .update_ruimtelijke_invoer import inquire_spatial_update
+from geoprob_pipe.cmd_app.utils.batch_input import update_batch_metadata
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
@@ -316,5 +317,6 @@ def process_import_input(app_settings: ApplicationSettings):
 
 
 def added_input_parameter_data(app_settings: ApplicationSettings) -> bool:
+    update_batch_metadata(app_settings=app_settings, value=False)  # Batch inquiry
     process_input_exist_in_db(app_settings=app_settings)
     return True

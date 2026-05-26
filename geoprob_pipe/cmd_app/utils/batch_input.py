@@ -33,6 +33,7 @@ def batch_inquiry(app_settings: ApplicationSettings):
 
         match choice:
             case "Nee, handmatig invoeren":
+                update_batch_metadata(app_settings=app_settings, value=False)
                 return
             case "Ja, invoeren via `batch_input.ini` bestand":
                 app_settings.batch_input = True
@@ -58,7 +59,7 @@ def ready_inquiry():
             message="Is het batch_input.ini bestand klaar voor gebruik?",
             choices=choices_list,
             default=choices_list[0],
-        )
+        ).execute()
         match choise:
             case "batch_input.ini is klaar voor uitlezen":
                 return
@@ -116,4 +117,47 @@ def batch_config_writer(app_settings: ApplicationSettings):
             config[parameter] = {"filepath": "", "database_layer": ""}
 
     with open(f"{app_settings.workspace_dir}/batch_input.ini", "w") as f:
+        f.write("""
+# Dit is een bestand om een deel van de invoer van GeoProb-Pipe in
+# een keer in te voeren. Hier moeten dezelfde paden, lagen en kolommen
+# worden ingevoerd als met de handmatige invoer.
+
+# Geef bij 'filepath' het volledige bestandspad op naar het bestand met de invoer.
+# Als het bestand een shapefile is mag je de volgende waarde leeg houden.
+# Deze wordt alleen uitgelezen bij een database(.gdb of .gpkg)
+# Geef bij 'database_layer' de naam op van de laag waarin de invoer staat.
+# Soms moet er ook nog een kolom worden opgegeven:
+# Geef bij '*_kolom' de kolom naam op waarin de opgevraagde parameter in staat.
+
+""")
         config.write(f)
+
+def update_batch_metadata(app_settings: ApplicationSettings, value: bool):
+    conn = sqlite3.connect(app_settings.geopackage_filepath)
+    
+    sql_update = "UPDATE geoprob_pipe_metadata SET metadata_value = ? WHERE metadata_type = ?"
+    sql_insert = "INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES (?, ?)"
+
+    with conn:  # transaction
+        cur = conn.execute(sql_update, (value, "batch_inquiry"))  # type:ignore
+        if cur.rowcount == 0:
+            conn.execute(sql_insert, ("batch_inquiry", value))  # type:ignore
+        conn.execute(sql_update, (value, "batch_inquiry"))
+
+    conn.commit()
+    conn.close()
+
+def read_metadata(app_settings: ApplicationSettings):
+    conn = sqlite3.connect(app_settings.geopackage_filepath)
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
+        ("batch_inquiry",),
+    )
+    row = cursor.fetchone()
+    conn.close()
+    
+    if row is None:
+        return True
+    
+    return bool(row[0])

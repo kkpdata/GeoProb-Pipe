@@ -27,7 +27,8 @@ class ApplicationSettings:
         self.to_run = "all"
         # -> or vakken:1,2,3,4,5
         self.debug: bool = os.getenv("GEOPROB_DEBUG") == "1"
-        self.batch_input: bool = False # Placeholder for batch input
+        # Flags
+        self.batch_input: bool = False # Flag for batch input
 
     @property
     def geopackage_filepath(self) -> str:

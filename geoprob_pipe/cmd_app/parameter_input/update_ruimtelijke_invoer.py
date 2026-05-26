@@ -84,12 +84,12 @@ def inquire_replace_layers(app_settings: ApplicationSettings):
     while True:
         parameter_input: str = InputPrompt(
             message=f"""
-            De volgende parameters zijn nu aangemerkt voor rumtelijke invoer:
-            {", ".join(parameters)}
-            Welke parameters wil je updaten? Geef deze met comma's gescheiden op.
-            De tabellen worden verwijderd uit de geopackage zodat deze opnieuw worden ingelezen.
-            Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
-            """
+De volgende parameters zijn nu aangemerkt voor rumtelijke invoer:
+{", ".join(parameters)}
+Welke parameters wil je updaten? Geef deze met comma's gescheiden op.
+De tabellen worden verwijderd uit de geopackage zodat deze opnieuw worden ingelezen.
+Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
+"""
         ).execute()
         
         if parameter_input == "":
@@ -144,13 +144,13 @@ def add_parameters(app_settings: ApplicationSettings):
     while True:
         parameter_input: str = InputPrompt(
             message=f"""
-            De volgende parameters zijn nu aangemerkt voor rumtelijke invoer:
-            {", ".join(current_parameters)}
-            De volgende parameters kunnen worden toegevoegd:
-            {[param for param in valid_list if param not in current_parameters]}
-            Welke parameters wil je hieraan toevoegen? Geef deze met comma's gescheiden op.
-            Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
-            """
+De volgende parameters zijn nu aangemerkt voor rumtelijke invoer:
+{", ".join(current_parameters)}
+De volgende parameters kunnen worden toegevoegd:
+{[param for param in valid_list if param not in current_parameters]}
+Welke parameters wil je hieraan toevoegen? Geef deze met comma's gescheiden op.
+Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
+"""
         ).execute()
 
         if parameter_input == "":
@@ -201,11 +201,11 @@ def remove_parameters(app_settings: ApplicationSettings):
     while True:
         parameter_input: str = InputPrompt(
             message=f"""
-            De volgende parameters zijn nu aangemerkt voor rumtelijke invoer:
-            {", ".join(parameters)}
-            Welke parameters wil je verwijderen? Geef deze met comma's gescheiden op.
-            Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
-            """
+De volgende parameters zijn nu aangemerkt voor rumtelijke invoer:
+{", ".join(parameters)}
+Welke parameters wil je verwijderen? Geef deze met comma's gescheiden op.
+Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
+"""
         ).execute()
         
         if parameter_input == "":
@@ -258,11 +258,11 @@ def add_scenarios(app_settings: ApplicationSettings):
     while True:
         scenario_input = InputPrompt(
             message=f"""
-            De volgende scenario zijn nu toegevoegd:
-            {", ".join(current_scenarios)}
-            Welke scenarios wil je hieraan toevoegen? Geef deze met comma's gescheiden op.
-            Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
-            """
+De volgende scenario zijn nu toegevoegd:
+{", ".join(current_scenarios)}
+Welke scenarios wil je hieraan toevoegen? Geef deze met comma's gescheiden op.
+Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
+"""
         ).execute()
 
         if scenario_input == "":
@@ -302,11 +302,11 @@ def remove_scenarios(app_settings: ApplicationSettings):
     while True:
         scenario_input = InputPrompt(
             message=f"""
-            De volgende scenario zijn nu toegevoegd:
-            {", ".join(current_scenarios)}
-            Welke scenarios wil je verwijderen? Geef deze met comma's gescheiden op.
-            Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
-            """
+De volgende scenario zijn nu toegevoegd:
+{", ".join(current_scenarios)}
+Welke scenarios wil je verwijderen? Geef deze met comma's gescheiden op.
+Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
+"""
         ).execute()
 
         if scenario_input == "":
