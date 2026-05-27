@@ -21,7 +21,7 @@ class ShapeCouple(BaseCouple):
         De gekoppelde waarden worden weggeschreven in de tabel 'gis_join_parameter_invoer'.
 
         :param app_settings: `ApplicationSettings` object.
-        :param param: Parameter die gekoppeled moet worden.
+        :param param: Parameter die gekoppeld moet worden.
         """
         self.app_settings = app_settings
         self.param = param
@@ -74,7 +74,7 @@ class ShapeCouple(BaseCouple):
 
     def _add_single_layer(self):
         """
-        Voeg een laag toe via koppeling, met de uitredepunten als er geen
+        Voeg een laag toe via koppeling, met de uittredepunten als er geen
         ruimtelijke scenarios zijn voor de parameter.
         """
         gdf_parameter: gpd.GeoDataFrame = gpd.read_file(
@@ -158,6 +158,6 @@ class ShapeCouple(BaseCouple):
 
         self._upsert_to_gpkg(df_to_add)
 
-    # TODO Later Should: Add option for raster import and coupleling.
+    # TODO Later Should: Add option for raster import and coupling.
     def _join_to_raster(self):
-        raise NotImplementedError("Toevoegen van parameters via raster is nog niet moegelijk.")
+        raise NotImplementedError("Toevoegen van parameters via raster is nog niet mogelijk.")

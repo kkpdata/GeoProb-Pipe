@@ -317,7 +317,7 @@ def process_import_input(app_settings: ApplicationSettings):
 
 
 def added_input_parameter_data(app_settings: ApplicationSettings) -> bool:
-    # Batch inquiry flag is set to False if input is succesfull.
+    # Batch inquiry flag is set to False if input is successful.
     update_batch_metadata(app_settings=app_settings, value=False)
     process_input_exist_in_db(app_settings=app_settings)
     return True

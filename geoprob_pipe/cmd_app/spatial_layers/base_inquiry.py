@@ -8,7 +8,7 @@ Er zijn vier mogelijke invoer situaties:
 -WEL ruimtelijke scenarios en GEEN ruimtelijke data invoer
 -WEL ruimtelijke scenarios en WEL ruimtelijke data invoer
 
-Daarnaast is er nog onderschijd in invoer met verschillende shapes per scenario
+Daarnaast is er nog onderscheid in invoer met verschillende shapes per scenario
 of twee sets met invoer data.
 """
 
@@ -41,7 +41,7 @@ class BaseInquiry:
         single_geometry: bool = False,
     ) -> None:
         """
-        Class voor de opvraag van de ruimteljke invoer van de parameters.
+        Class voor de opvraag van de ruimtelijke invoer van de parameters.
 
         :param app_settings: `ApplicationSettings` object.
         :param param: Parameter die wordt opgevraagd. Deze wordt ook gebruikt
@@ -125,7 +125,7 @@ met de {self.param} geometrieën.
         """
         Helper method voor het importeren van de data.
 
-        :param filepath: Bestandspad van de shapfile of database met de GIS lagen.
+        :param filepath: Bestandspad van de shapefile of database met de GIS lagen.
         :raises NotImplementedError: Wanneer het bestand iets anders is dan wordt ondersteund.
         :return: GeoDataFrame met de uitgelezen data.
         :rtype GeoDataFrame:
@@ -207,9 +207,9 @@ ander bestand op te gaven.
 
     def _import_from_shp(self, filepath: str) -> gpd.GeoDataFrame:
         """
-        Helper method voor het importern vanuit een shapefile.
+        Helper method voor het importeren vanuit een shapefile.
 
-        :param filepath: Bestandspad van de shapfile.
+        :param filepath: Bestandspad van de shapefile.
         :return: GeoDataFrame met de uitgelezen data.
         """
 
@@ -276,13 +276,13 @@ ander bestand op te gaven.
         self.suffix_list = ["mean", "dist", "var", "dev", "min", "max"]
 
         if self.include_value and self.scenarios == "":
-            # Case: Alleen suffix, alle kolomen worden met de geometrie weggeschreven.
+            # Case: Alleen suffix, alle kolommen worden met de geometrie weggeschreven.
             return self._add_with_suffix(gdf)
 
         elif self.include_value and self.scenarios != "":
-            # Case: beide affixes, per scenario worden alle kolomen met de
+            # Case: beide affixes, per scenario worden alle kolommen met de
             # geometrieën weggeschreven.
-            # Of verschillende geometerieën per scenario
+            # Of verschillende geometrieën per scenario
             column_list = gdf.columns.to_list()
             if True in [
                 len(x.split("_")) == 3 and self.param in x.split("_")
@@ -290,7 +290,7 @@ ander bestand op te gaven.
             ]:
                 return self._add_with_affixes(gdf)
             else:
-                return self._add_seperate_with_suffix(gdf)
+                return self._add_separate_with_suffix(gdf)
 
         elif (
             not self.include_value
@@ -312,7 +312,7 @@ ander bestand op te gaven.
             return True
 
         elif not self.include_value and self.scenarios != "":
-            # Case: Alleen losse shapes, de geometriën worden per scenario geschreven.
+            # Case: Alleen losse shapes, de geometrieën worden per scenario geschreven.
             return self._add_with_separate_geometry(gdf)
 
         else:
@@ -333,7 +333,7 @@ ander bestand op te gaven.
             print(
                 BColors.WARNING,
                 "Geen kolom met de naam 'ondergrondscenario' gevonden.\n",
-                "De volgende kolommen zijn gevonde:\n",
+                "De volgende kolommen zijn gevonden:\n",
                 f"{column_list}",
                 BColors.ENDC,
             )
@@ -349,7 +349,7 @@ ander bestand op te gaven.
         gdf: gpd.GeoDataFrame,
     ) -> bool:
         """
-        Check of de kolomen de juiste inputs hebben voor de gekozen distributie.
+        Check of de kolommen de juiste inputs hebben voor de gekozen distributie.
         Als een var of std nodig is, deze aanwezig is. En niet beide aanwezig zijn.
 
         :param list[sts] column_list: Lijst met kolomnamen.
@@ -368,7 +368,7 @@ ander bestand op te gaven.
 
             return False
 
-        # Check var or std if not determinstic.
+        # Check var or std if not deterministic.
         for _, row in gdf.iterrows():
             if row[f"{self.param}_dist"] == "deterministic":
                 continue  # Overslaan
@@ -512,7 +512,7 @@ ander bestand op te gaven.
 
         return True
 
-    def _add_seperate_with_suffix(self, gdf: gpd.GeoDataFrame) -> bool:
+    def _add_separate_with_suffix(self, gdf: gpd.GeoDataFrame) -> bool:
         """
         Voeg de lagen toe los van elkaar per scenario.
 

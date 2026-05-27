@@ -22,7 +22,7 @@ def inquire_spatial_update(
     choices_list = [
         "Vervang ingevoerde lagen",
         "Voeg parameters toe voor ruimtelijke invoer",
-        "Verwijder parameters voor ruimtlijke invoer",
+        "Verwijder parameters voor ruimtelijke invoer",
         "Voeg scenarios toe voor ruimtelijke invoer",
         "Verwijder scenarios voor ruimtelijke invoer",
         "Ga terug naar het parameter invoer menu",
@@ -43,7 +43,7 @@ def inquire_spatial_update(
                 add_parameters(app_settings)
                 continue
 
-            case "Verwijder parameters voor ruimtlijke invoer":
+            case "Verwijder parameters voor ruimtelijke invoer":
                 remove_parameters(app_settings)
                 continue
 
@@ -84,7 +84,7 @@ def inquire_replace_layers(app_settings: ApplicationSettings):
     while True:
         parameter_input: str = InputPrompt(
             message=f"""
-De volgende parameters zijn nu aangemerkt voor rumtelijke invoer:
+De volgende parameters zijn nu aangemerkt voor ruimtelijke invoer:
 {", ".join(parameters)}
 Welke parameters wil je updaten? Geef deze met comma's gescheiden op.
 De tabellen worden verwijderd uit de geopackage zodat deze opnieuw worden ingelezen.
@@ -144,7 +144,7 @@ def add_parameters(app_settings: ApplicationSettings):
     while True:
         parameter_input: str = InputPrompt(
             message=f"""
-De volgende parameters zijn nu aangemerkt voor rumtelijke invoer:
+De volgende parameters zijn nu aangemerkt voor ruimtelijke invoer:
 {", ".join(current_parameters)}
 De volgende parameters kunnen worden toegevoegd:
 {[param for param in valid_list if param not in current_parameters]}
@@ -166,7 +166,7 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
         if not valid_input:
             print(
                 BColors.OKBLUE,
-                f"Geen parameterss toegevoegd. '{parameter_input}' bevat een ongeldige parameter.",
+                f"Geen parameters toegevoegd. '{parameter_input}' bevat een ongeldige parameter.",
                 BColors.ENDC,
             )
             continue
@@ -201,7 +201,7 @@ def remove_parameters(app_settings: ApplicationSettings):
     while True:
         parameter_input: str = InputPrompt(
             message=f"""
-De volgende parameters zijn nu aangemerkt voor rumtelijke invoer:
+De volgende parameters zijn nu aangemerkt voor ruimtelijke invoer:
 {", ".join(parameters)}
 Welke parameters wil je verwijderen? Geef deze met comma's gescheiden op.
 Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
@@ -421,7 +421,7 @@ def completed_update():
         choice = ListPrompt(
             message=(
                 "Om de aanpassingen te verwerken moet de applicatie opnieuw worden gestart. "
-                "Het is mogelijk om meerdere aanpasingen in een keer te doen."
+                "Het is mogelijk om meerdere aanpassingen in een keer te doen."
             ),
             choices=choices_list,
             default=choices_list[0],

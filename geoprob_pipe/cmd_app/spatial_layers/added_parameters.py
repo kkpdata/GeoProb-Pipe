@@ -35,7 +35,7 @@ def added_parameters(app_settings: ApplicationSettings):
 def request_parameters(app_settings: ApplicationSettings):
     """
     Method voor het opvragen van de lijst met parameters waarvoor ruimtelijke
-    invoer gewenst is. Er wordt gecheckd of deze paramerters ondersteund worden
+    invoer gewenst is. Er wordt gecheckt of deze parameters ondersteund worden
     en of deze in het gekozen model zitten.
 
     :param app_settings: `ApplicationSettings` object.

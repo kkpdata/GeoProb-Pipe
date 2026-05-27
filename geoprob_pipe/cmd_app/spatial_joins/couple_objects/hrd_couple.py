@@ -1,6 +1,6 @@
 """
 Class voor het koppelen van de HRD-locaties aan de uittredepunten.
-Versimplende versie van de ShapeCouple class.
+Versimpelde versie van de ShapeCouple class.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class HRDCouple(BaseCouple):
     def __init__(self, app_settings: ApplicationSettings) -> None:
         """
-        Class voor het koppelen van de hrd locatie namen aan de uitredepunten.
+        Class voor het koppelen van de hrd locatie namen aan de uittredepunten.
 
         :param app_settings: Object met de settings van de applicatie.
         """        

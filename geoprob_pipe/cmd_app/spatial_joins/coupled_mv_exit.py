@@ -19,7 +19,7 @@ def coupled_mv_exit_to_gis_parameter_invoer_table(app_settings: ApplicationSetti
     # Getting necessary GeoDataframes
     gdf_exit_points: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")
 
-    # Append to new version of geospatial storage
+    # Append to new version of geo-spatial storage
     df_to_append: DataFrame = gdf_exit_points[["mv_exit", "uittredepunt_id"]]
     df_to_append = df_to_append.rename(columns={"mv_exit": "mean"})
     append_to_gis_join_parameter_invoer_table(

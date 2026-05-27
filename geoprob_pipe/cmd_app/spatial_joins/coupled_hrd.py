@@ -18,7 +18,7 @@ def coupled_hrd_to_uittredepunten(app_settings: ApplicationSettings) -> bool:
     Voeg de HRD locaties toe aan de invoer tabel als deze zijn opgegeven.
     Als deze er al staan worden ze overschreven.
 
-    :param ApplicationSettings app_settings: Object met de insellingen van de applicatie
+    :param ApplicationSettings app_settings: Object met de instellingen van de applicatie
     :return: _description_
     :rtype: bool
     """    

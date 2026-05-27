@@ -23,7 +23,7 @@ class BaseCouple:
     
     def _create_df(self, join_df: pd.DataFrame, scenario: str) -> pd.DataFrame:
         """
-        Maak de dataframe die moet worden toegevoedg aan de geopackage.
+        Maak de dataframe die moet worden toegevoegd aan de geopackage.
 
         :param join_df: DataFrame met de data uit de join.
         :param scenario: Ondergrondscenario_naam voor in de dataframe. Kan "" zijn.

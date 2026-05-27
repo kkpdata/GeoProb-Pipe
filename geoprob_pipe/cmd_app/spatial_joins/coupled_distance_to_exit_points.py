@@ -25,7 +25,7 @@ def coupled_distances_to_uittredepunten(
     Bepaal de afstanden tussen de uittredepunten en de intrede, binnenteen en
     buitenteenlijnen. Als deze er al in staan worden ze overschreven.
 
-    :param app_settings: Object met de insellingen van de applicatie
+    :param app_settings: Object met de instellingen van de applicatie
     """    
 
     # Read uittredepunten
