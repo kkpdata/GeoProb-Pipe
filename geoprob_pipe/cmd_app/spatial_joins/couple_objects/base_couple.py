@@ -34,7 +34,7 @@ class BaseCouple:
         df["parameter"] = self.param
         df["scope"] = "uittredepunt"
         df["ondergrondscenario_naam"] = scenario
-        df["distribution_type"] = join_df.get(f"{self.param}_dist", "")
+        df["distribution_type"] = join_df.get(f"{self.param}_dist", "deterministic")
         df["mean"] = join_df.get(f"{self.param}_mean", np.nan)
         df["variation"] = join_df.get(f"{self.param}_var", np.nan)
         df["deviation"] = join_df.get(f"{self.param}_dev", np.nan)
