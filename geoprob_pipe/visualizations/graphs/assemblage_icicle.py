@@ -161,9 +161,9 @@ class IciclePlot:
         ]
         # Limit beta to range for colors
         if beta < 2:
-            return "rgba(30,141,41,0.6)"
-        elif beta > 20:
             return "rgba(177,33,38,0.6)"
+        elif beta > 20:
+            return "rgba(30,141,41,0.6)"
         else:
             for i, grens in enumerate(cg):
                 beta_min, beta_max = cg[grens]
