@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import fiona
-from .couple_objects.hrd_couple import HRDCouple
+from .couple_objects.hrd import HRDCouple
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings

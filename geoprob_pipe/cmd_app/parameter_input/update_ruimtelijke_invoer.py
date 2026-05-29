@@ -65,7 +65,7 @@ def inquire_replace_layers(app_settings: ApplicationSettings):
     updaten.
 
     :param app_settings: _description_
-    """    
+    """
     conn = sqlite3.connect(app_settings.geopackage_filepath)
 
     # Haal ruimtelijke parameters op vanuit de metadata
@@ -78,9 +78,9 @@ def inquire_replace_layers(app_settings: ApplicationSettings):
 
     conn.commit()
     conn.close()
-    
-    valid_parameters = valid_parameter_list(app_settings)
-    
+
+    valid_list = valid_parameter_list(app_settings)
+
     while True:
         parameter_input: str = InputPrompt(
             message=f"""
@@ -91,7 +91,7 @@ De tabellen worden verwijderd uit de geopackage zodat deze opnieuw worden ingele
 Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
 """
         ).execute()
-        
+
         if parameter_input == "":
             print(
                 BColors.OKBLUE,
@@ -99,22 +99,32 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
                 BColors.ENDC,
             )
             return
-        
-        if not all([x for x in parameter_input if x in valid_parameters]):
+
+        valid_input = all(
+            [
+                param
+                for param in parameter_input.split(",")
+                if param in valid_list
+            ]
+        )
+        if not valid_input:
             print(
                 BColors.OKBLUE,
-                f"Geen tabellen verwijderd. '{parameter_input}' bevat een ongeldige parameter.",
+                f"Geen parameters toegevoegd. '{parameter_input}' bevat een ongeldige parameter.",
                 BColors.ENDC,
             )
             continue
-        
+
         break
-    
+
     # Verwijder uit geopackage
     layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
-    table_list = [layer for layer in layers if layer.split("_")[0] in parameter_input]
+    table_list = [
+        layer for layer in layers if layer.split("_")[0] in parameter_input
+    ]
     remove_tables(app_settings, table_list)
     completed_update()
+
 
 def add_parameters(app_settings: ApplicationSettings):
     """
@@ -161,7 +171,13 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
             )
             return
 
-        valid_input = all(param in valid_list for param in parameter_input)
+        valid_input = all(
+            [
+                param
+                for param in parameter_input.split(",")
+                if param in valid_list
+            ]
+        )
 
         if not valid_input:
             print(
@@ -178,7 +194,7 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
     parameters = list(set(parameters))  # Verwijder dubbele waardes
     parameters = ", ".join(parameters)
     update_metadata_parameters(app_settings, parameters)
-    
+
     completed_update()
 
 
@@ -195,8 +211,8 @@ def remove_parameters(app_settings: ApplicationSettings):
 
     conn.commit()
     conn.close()
-    
-    valid_parameters = valid_parameter_list(app_settings)
+
+    valid_list = valid_parameter_list(app_settings)
 
     while True:
         parameter_input: str = InputPrompt(
@@ -207,7 +223,7 @@ Welke parameters wil je verwijderen? Geef deze met comma's gescheiden op.
 Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
 """
         ).execute()
-        
+
         if parameter_input == "":
             print(
                 BColors.OKBLUE,
@@ -215,27 +231,39 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
                 BColors.ENDC,
             )
             return
-        if not all([x for x in parameter_input if x in valid_parameters]):
+
+        valid_input = all(
+            [
+                param
+                for param in parameter_input.split(",")
+                if param in valid_list
+            ]
+        )
+
+        if not valid_input:
             print(
                 BColors.OKBLUE,
-                f"Geen parameters verwijderd. '{parameter_input}' bevat een ongeldige parameter.",
+                f"Geen parameters toegevoegd. '{parameter_input}' bevat een ongeldige parameter.",
                 BColors.ENDC,
             )
             continue
-        
+
         break
-    
+
     # Update metadata
     for parameter in parameter_input.split(","):
         parameters.remove(parameter)
-    
+
     updated_parameters = ", ".join(parameters)
     update_metadata_parameters(app_settings, updated_parameters)
     # Verwijder uit geopackage
     layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
-    table_list = [layer for layer in layers if layer.split("_")[0] in updated_parameters]
+    table_list = [
+        layer for layer in layers if layer.split("_")[0] in updated_parameters
+    ]
     remove_tables(app_settings, table_list)
     completed_update()
+
 
 def add_scenarios(app_settings: ApplicationSettings):
     """
@@ -319,7 +347,14 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
 
         # Update metadata
         for scenario in scenario_input.split(","):
-            current_scenarios.remove(scenario)
+            if scenario in current_scenarios:
+                current_scenarios.remove(scenario)
+            else:
+                print(
+                    BColors.WARNING,
+                    f"Scenario {scenario} niet gevonden.",
+                    BColors.ENDC,
+                )
 
         update_metadata_scenarios(app_settings, ", ".join(current_scenarios))
 
@@ -375,7 +410,7 @@ def remove_tables(
     :param app_settings: Object met applicatie instellingen.
     :param table_list: Lijst met tabellen om te verwijderen, defaults to []
     """
-    update_batch_metadata(app_settings=app_settings, value=True)   
+    update_batch_metadata(app_settings=app_settings, value=True)
     # Voor vervangen, nieuwe scenarios of verwijderen van parameters.
     conn = sqlite3.connect(app_settings.geopackage_filepath)
     cursor = conn.cursor()
@@ -392,19 +427,41 @@ def remove_tables(
         for layer in layers:
             if layer.split("_")[0] in parameters:
                 cursor.execute(f"DROP TABLE IF EXISTS {layer}")
-                cursor.execute("DELETE FROM gpkg_contents WHERE table_name = ?", (layer,))
-                cursor.execute("DELETE FROM gpkg_geometry_columns WHERE table_name = ?", (layer,))
-                cursor.execute("DELETE FROM gpkg_tile_matrix_set WHERE table_name = ?", (layer,))
-                cursor.execute("DELETE FROM gpkg_tile_matrix WHERE table_name = ?", (layer,))
+                cursor.execute(
+                    "DELETE FROM gpkg_contents WHERE table_name = ?", (layer,)
+                )
+                cursor.execute(
+                    "DELETE FROM gpkg_geometry_columns WHERE table_name = ?",
+                    (layer,),
+                )
+                cursor.execute(
+                    "DELETE FROM gpkg_tile_matrix_set WHERE table_name = ?",
+                    (layer,),
+                )
+                cursor.execute(
+                    "DELETE FROM gpkg_tile_matrix WHERE table_name = ?",
+                    (layer,),
+                )
 
     else:
         for layer in table_list:
             if layer in layers:
                 cursor.execute(f"DROP TABLE IF EXISTS {layer}")
-                cursor.execute("DELETE FROM gpkg_contents WHERE table_name = ?", (layer,))
-                cursor.execute("DELETE FROM gpkg_geometry_columns WHERE table_name = ?", (layer,))
-                cursor.execute("DELETE FROM gpkg_tile_matrix_set WHERE table_name = ?", (layer,))
-                cursor.execute("DELETE FROM gpkg_tile_matrix WHERE table_name = ?", (layer,))
+                cursor.execute(
+                    "DELETE FROM gpkg_contents WHERE table_name = ?", (layer,)
+                )
+                cursor.execute(
+                    "DELETE FROM gpkg_geometry_columns WHERE table_name = ?",
+                    (layer,),
+                )
+                cursor.execute(
+                    "DELETE FROM gpkg_tile_matrix_set WHERE table_name = ?",
+                    (layer,),
+                )
+                cursor.execute(
+                    "DELETE FROM gpkg_tile_matrix WHERE table_name = ?",
+                    (layer,),
+                )
 
     conn.commit()
     conn.close()

@@ -3,7 +3,7 @@ from __future__ import annotations
 import sqlite3
 from typing import TYPE_CHECKING
 
-from .couple_objects.shape_couple import ShapeCouple
+from .couple_objects.shape import ShapeCouple
 from geoprob_pipe.utils.validation_messages import BColors
 
 if TYPE_CHECKING:

@@ -11,7 +11,7 @@ import geopandas as gpd
 import pandas as pd
 import numpy as np
 
-from .base_couple import BaseCouple
+from .base import BaseCouple
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings

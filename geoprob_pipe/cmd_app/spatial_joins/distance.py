@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 import geopandas as gpd
 import fiona
 
-from geoprob_pipe.cmd_app.spatial_joins.couple_objects.distance_couple import (
+from geoprob_pipe.cmd_app.spatial_joins.couple_objects.distance import (
     DistCouple,
 )
 from geoprob_pipe.utils.validation_messages import BColors

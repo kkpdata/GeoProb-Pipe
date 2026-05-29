@@ -8,7 +8,7 @@ import geopandas as gpd
 from geoprob_pipe.cmd_app.spatial_layers import LIST_PARAMS
 from geoprob_pipe.utils.validation_messages import BColors
 
-from .base_couple import BaseCouple
+from .base import BaseCouple
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings

@@ -148,7 +148,7 @@ class GraphHFreqSingleInteractive:
         for index, fragility_values_ref in enumerate(self.df_fragility_ref_data["fragility_values_ref"].unique()):
 
             # Collect data for the graph
-            fragility_values, _, uittredepunten, uittredepunten_multiline = self._get_fragility_values_ref_data(
+            fragility_values, _, _, uittredepunten_multiline = self._get_fragility_values_ref_data(
                 ref=fragility_values_ref)
             levels = [item.x for item in fragility_values]
             self.max_level = max(self.max_level, max(levels))
@@ -219,10 +219,10 @@ class GraphHFreqSingleInteractive:
             title=f"<b>Overschrijdingsfrequentielijnen voor alle HydraNL locaties</b><br>"
                   f"<sup>Traject {self.geoprob_pipe.input_data.traject_normering.traject_id}</sup>",
             xaxis=dict(
-                title=f"Waterstand (m+NAP)", type='linear', showgrid=True, gridwidth=0.5, gridcolor="gray",
+                title="Waterstand (m+NAP)", type='linear', showgrid=True, gridwidth=0.5, gridcolor="gray",
                 range=[self.min_level - xaxis_add, self.max_level + xaxis_add]),
             yaxis=dict(
-                title=f"Overschrijdingsfrequentie (log-schaal)", type='log', showgrid=True, tickformat=".0e",
+                title="Overschrijdingsfrequentie (log-schaal)", type='log', showgrid=True, tickformat=".0e",
                 gridwidth=1.0, tickvals=y_ticks, ticktext=y_ticks_text, tickmode='array', gridcolor="gray",
                 minor=dict(
                     showgrid=True, dtick="D1", gridwidth=0.5, gridcolor='rgb(199, 197, 193)')))

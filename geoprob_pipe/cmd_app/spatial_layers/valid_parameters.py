@@ -46,20 +46,20 @@ def valid_parameter_list(app_settings: ApplicationSettings):
         "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type='geohydrologisch_model'"
     )
     model = cur.fetchone()[0]
-    # conn wordt later gesloten.
+    conn.close()
 
     input_list: list[str] = [param for param in LIST_PARAMS.keys()]
     valid_list = []
     match model:
         case "model4a":
             model_list = [param["name"] for param in MODEL4A_INPUT]
-            valid_list = [x for x in input_list if x in model_list]
+            valid_list = [param for param in input_list if param in model_list]
 
         case "wbi":
             model_list = [param["name"] for param in WBI_INPUT]
-            valid_list = [x for x in input_list if x in model_list]
+            valid_list = [param for param in input_list if param in model_list]
         case "moria":
             model_list = [param["name"] for param in MORIA_INPUT]
-            valid_list = [x for x in input_list if x in model_list]
+            valid_list = [param for param in input_list if param in model_list]
             
     return valid_list

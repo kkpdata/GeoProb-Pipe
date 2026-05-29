@@ -12,36 +12,43 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
-def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure,
-              layer: str, color: str):
-    """ Helperfunctie om de lijnen uit de geopackage te vinden en toe te voegen aan de map. Layer is de naam van de
-    laag in de geopackage waar de lijn is opgeslagen. Color is de kleur van deze lijn in de map. """
-    
+def _add_line(
+    geoprob_pipe: GeoProbPipe, fig: go.Figure, layer: str, color: str
+):
+    """Helperfunctie om de lijnen uit de geopackage te vinden en toe te voegen aan de map. Layer is de naam van de
+    laag in de geopackage waar de lijn is opgeslagen. Color is de kleur van deze lijn in de map."""
+
     # Check of er maar een intredelijn of dat er meerdere zijn ingevoerd.
-    gpkg_layers: list[str] = fiona.listlayers(geoprob_pipe.input_data.app_settings.geopackage_filepath)
-    list_layers = [x for x in gpkg_layers if x.split("_")[0] == layer]
-    
+    gpkg_layers: list[str] = fiona.listlayers(
+        geoprob_pipe.input_data.app_settings.geopackage_filepath
+    )
+    list_layers = [
+        layer for layer in gpkg_layers if layer.split("_")[0] == layer
+    ]
+
     for listed_layer in list_layers:
-        
         gdf_traject = gpd.read_file(
             geoprob_pipe.input_data.app_settings.geopackage_filepath,
-            layer=listed_layer)
+            layer=listed_layer,
+        )
         gdf_traject = gdf_traject.to_crs("EPSG:4326")
 
         def plot_linestring(ls, display):
             xs, ys = ls.xy
             xs = list(xs)
             ys = list(ys)
-            fig.add_trace(go.Scattermap(
-                lon=xs,
-                lat=ys,
-                mode="lines",
-                line=dict(color=color, width=1),
-                hoverinfo="none",
-                name=listed_layer,
-                legendgroup=layer,
-                showlegend=display
-            ))
+            fig.add_trace(
+                go.Scattermap(
+                    lon=xs,
+                    lat=ys,
+                    mode="lines",
+                    line=dict(color=color, width=1),
+                    hoverinfo="none",
+                    name=listed_layer,
+                    legendgroup=layer,
+                    showlegend=display,
+                )
+            )
 
         display = True
         for geom in gdf_traject.geometry:
@@ -69,7 +76,10 @@ def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure,
 
     return fig
 
-def _generate_colorscale(cg: Dict[str, List], labels: List[str]) -> List[Tuple[float, str]]:
+
+def _generate_colorscale(
+    cg: Dict[str, List], labels: List[str]
+) -> List[Tuple[float, str]]:
     # cg > category label > [van beta, tot beta]
     upper_boundary_beta_graph = cg[labels[0]][1]
     lower_boundary_beta_graph = cg[labels[-1]][0]
@@ -79,14 +89,23 @@ def _generate_colorscale(cg: Dict[str, List], labels: List[str]) -> List[Tuple[f
     colorscale_intervals: Dict = {}
     for index, label in enumerate(labels):
         cg_beta_bovengrens = cg[label][1]
-        colorscale_intervals[index] = (cg_beta_bovengrens - lower_boundary_beta_graph) / beta_range_graph
+        colorscale_intervals[index] = (
+            cg_beta_bovengrens - lower_boundary_beta_graph
+        ) / beta_range_graph
 
     # Other end boundary value: 0.0
     colorscale_intervals[labels.__len__()] = 0.0
 
     # Color scale
-    colors = ["rgb(30,141,41)", "rgb(146,206,90)", "rgb(198,226,176)", "rgb(255,255,0)", "rgb(254,165,3)",
-              "rgb(255,0,0)", "rgb(177,33,38)"]
+    colors = [
+        "rgb(30,141,41)",
+        "rgb(146,206,90)",
+        "rgb(198,226,176)",
+        "rgb(255,255,0)",
+        "rgb(254,165,3)",
+        "rgb(255,0,0)",
+        "rgb(177,33,38)",
+    ]
     colorscale = [
         (colorscale_intervals[7], colors[6]),
         (colorscale_intervals[6], colors[6]),
@@ -108,7 +127,6 @@ def _generate_colorscale(cg: Dict[str, List], labels: List[str]) -> List[Tuple[f
 
 
 class BetaMap:
-
     def __init__(self, geoprob_pipe: GeoProbPipe, export: bool = False):
 
         self.geoprob_pipe = geoprob_pipe
@@ -126,24 +144,33 @@ class BetaMap:
         # results import
         self.inp_point = self.geoprob_pipe.input_data.uittredepunten.gdf
         self.res_sc = self.geoprob_pipe.results.df_beta_scenarios_final
-        mask = self.inp_point["uittredepunt_id"].isin(self.res_sc["uittredepunt_id"])
+        mask = self.inp_point["uittredepunt_id"].isin(
+            self.res_sc["uittredepunt_id"]
+        )
         self.inp_point = self.inp_point[mask]
 
         # Setup of beta category limits
-        self.cg: Dict[str, List] = self.geoprob_pipe.input_data.traject_normering.riskeer_categorie_grenzen
+        self.cg: Dict[str, List] = (
+            self.geoprob_pipe.input_data.traject_normering.riskeer_categorie_grenzen
+        )
         self.labels: List[str] = list(self.cg.keys())
 
     def _setup_gdf(self):
         self.hoverdata = ["uittredepunt_id", "converged", "beta"]
 
-        self.df = self.res_sc.merge(self.inp_point, on="uittredepunt_id", how="inner")
+        self.df = self.res_sc.merge(
+            self.inp_point, on="uittredepunt_id", how="inner"
+        )
         idx = self.df.groupby(["uittredepunt_id"])["beta"].idxmin()
         self.df = self.df.loc[idx]
 
         self.gdf = gpd.GeoDataFrame(
             self.df,
-            geometry=gpd.points_from_xy(self.inp_point.geometry.x, self.inp_point.geometry.y),
-            crs="EPSG:28992")
+            geometry=gpd.points_from_xy(
+                self.inp_point.geometry.x, self.inp_point.geometry.y
+            ),
+            crs="EPSG:28992",
+        )
         # Transformeer naar WGS84 (latitude / longitude)
         self.gdf_latlon = self.gdf.to_crs("EPSG:4326")
 
@@ -176,53 +203,65 @@ class BetaMap:
 
     def _create_figure(self):
         self.fig = go.Figure()
-        self.fig.add_trace(go.Scattermap(
-            mode="markers",
-            lat=self.gdf_latlon.geometry.y,
-            lon=self.gdf_latlon.geometry.x,
-            marker=dict(size=9, color="black"),
-            showlegend=False))
-        self.fig.add_trace(go.Scattermap(
-            mode='markers',
-            lat=self.gdf_latlon.geometry.y,   # direct uit geometrie
-            lon=self.gdf_latlon.geometry.x,   # direct uit geometrie
-            marker=dict(
-                size=8,
-                color=self.gdf_latlon['beta'],
-                colorscale=_generate_colorscale(cg=self.cg, labels=self.labels),
-                cmin=self.cg[self.labels[6]][0],
-                cmax=self.cg[self.labels[0]][1],
-                colorbar=dict(
-                    title="Bèta, WBI cat.",
-                    tickvals=[
-                        self.cg[self.labels[6]][0],
-                        self.cg[self.labels[6]][1],
-                        self.cg[self.labels[5]][1],
-                        self.cg[self.labels[4]][1],
-                        self.cg[self.labels[3]][1],
-                        self.cg[self.labels[2]][1],
-                        self.cg[self.labels[1]][1],
-                        self.cg[self.labels[0]][1]
-                    ],
-                    ticktext=[f"{v:.2f}" for v in [
-                        self.cg[self.labels[6]][0],
-                        self.cg[self.labels[6]][1],
-                        self.cg[self.labels[5]][1],
-                        self.cg[self.labels[4]][1],
-                        self.cg[self.labels[3]][1],
-                        self.cg[self.labels[2]][1],
-                        self.cg[self.labels[1]][1],
-                        self.cg[self.labels[0]][1]]],
-                    )
-                ),
-            hoverinfo='text',
-            text=self.gdf_latlon[self.hoverdata].apply(
-                lambda row: '<br>'.join(
-                    [f"{col}: {row[col]}" for col in self.hoverdata]
+        self.fig.add_trace(
+            go.Scattermap(
+                mode="markers",
+                lat=self.gdf_latlon.geometry.y,
+                lon=self.gdf_latlon.geometry.x,
+                marker=dict(size=9, color="black"),
+                showlegend=False,
+            )
+        )
+        self.fig.add_trace(
+            go.Scattermap(
+                mode="markers",
+                lat=self.gdf_latlon.geometry.y,  # direct uit geometrie
+                lon=self.gdf_latlon.geometry.x,  # direct uit geometrie
+                marker=dict(
+                    size=8,
+                    color=self.gdf_latlon["beta"],
+                    colorscale=_generate_colorscale(
+                        cg=self.cg, labels=self.labels
                     ),
-                axis=1),
-            showlegend=False
-        ))
+                    cmin=self.cg[self.labels[6]][0],
+                    cmax=self.cg[self.labels[0]][1],
+                    colorbar=dict(
+                        title="Bèta, WBI cat.",
+                        tickvals=[
+                            self.cg[self.labels[6]][0],
+                            self.cg[self.labels[6]][1],
+                            self.cg[self.labels[5]][1],
+                            self.cg[self.labels[4]][1],
+                            self.cg[self.labels[3]][1],
+                            self.cg[self.labels[2]][1],
+                            self.cg[self.labels[1]][1],
+                            self.cg[self.labels[0]][1],
+                        ],
+                        ticktext=[
+                            f"{v:.2f}"
+                            for v in [
+                                self.cg[self.labels[6]][0],
+                                self.cg[self.labels[6]][1],
+                                self.cg[self.labels[5]][1],
+                                self.cg[self.labels[4]][1],
+                                self.cg[self.labels[3]][1],
+                                self.cg[self.labels[2]][1],
+                                self.cg[self.labels[1]][1],
+                                self.cg[self.labels[0]][1],
+                            ]
+                        ],
+                    ),
+                ),
+                hoverinfo="text",
+                text=self.gdf_latlon[self.hoverdata].apply(
+                    lambda row: "<br>".join(
+                        [f"{col}: {row[col]}" for col in self.hoverdata]
+                    ),
+                    axis=1,
+                ),
+                showlegend=False,
+            )
+        )
 
         # Layout
         self.fig.update_layout(
@@ -231,33 +270,35 @@ class BetaMap:
             map_zoom=self.zoom,
             map_center=dict(
                 lat=self.gdf_latlon.geometry.y.mean(),
-                lon=self.gdf_latlon.geometry.x.mean()
+                lon=self.gdf_latlon.geometry.x.mean(),
             ),
             legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
+                orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
             ),
-            dragmode='zoom',
-            title='Faalkansberekening STPH'
+            dragmode="zoom",
+            title="Faalkansberekening STPH",
         )
 
     def _add_lines(self):
-        self.fig = _add_line(self.geoprob_pipe, self.fig,
-                             "dijktraject", "black")
-        self.fig = _add_line(self.geoprob_pipe, self.fig,
-                             "intredelijn", "blue")
-        self.fig = _add_line(self.geoprob_pipe, self.fig,
-                             "binnenteenlijn", "purple")
-        self.fig = _add_line(self.geoprob_pipe, self.fig,
-                             "buitenteenlijn", "red")
+        self.fig = _add_line(
+            self.geoprob_pipe, self.fig, "dijktraject", "black"
+        )
+        self.fig = _add_line(
+            self.geoprob_pipe, self.fig, "intredelijn", "blue"
+        )
+        self.fig = _add_line(
+            self.geoprob_pipe, self.fig, "binnenteenlijn", "purple"
+        )
+        self.fig = _add_line(
+            self.geoprob_pipe, self.fig, "buitenteenlijn", "red"
+        )
 
     def _optionally_export(self):
         if self.export:
             path = self.geoprob_pipe.visualizations.maps.export_dir
-            self.fig.write_html(os.path.join(
-                path, 'Faalkansberekening STPH.html'), include_plotlyjs='cdn')
+            self.fig.write_html(
+                os.path.join(path, "Faalkansberekening STPH.html"),
+                include_plotlyjs="cdn",
+            )
             # self.fig.write_image(os.path.join(
             #     path, 'Faalkansberekening STPH.png'), format='png')

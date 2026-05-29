@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 import os
-import plotly.graph_objects as go
-import pandas as pd
 from typing import TYPE_CHECKING, Dict, List, cast
 
-from pandas import Series, DataFrame
+import pandas as pd
+import plotly.graph_objects as go
+from pandas import DataFrame, Series
 
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -12,6 +13,14 @@ if TYPE_CHECKING:
 
 class IciclePlot:
     def __init__(self, geoprob_pipe: GeoProbPipe, export: bool = False):
+        """
+        Class voor het maken en exporteren van een Icicle plot van de assemblage.
+        Hierin kan worden gezien hoe de faalkansen en beta's tot stand komen
+        vanuit onderliggende elementen.
+
+        :param geoprob_pipe: _description_
+        :param export: Of het figuur geëxporteerd wordt, defaults to False
+        """        
         self.geoprob_pipe: GeoProbPipe = geoprob_pipe
         self.export: bool = export
         self.fig = go.Figure()

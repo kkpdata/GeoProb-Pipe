@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 from typing import TYPE_CHECKING
 
-from .base_couple import BaseCouple
+from .base import BaseCouple
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings

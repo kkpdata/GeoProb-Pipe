@@ -1,8 +1,8 @@
-from .coupled_distance_to_exit_points import (
+from .distance import (
     coupled_distances_to_uittredepunten,
 )
-from .coupled_exit_points_to_refline import coupled_uittredepunten_to_refline
-from .coupled_exit_points_to_vakken import coupled_uittredepunten_to_vakken
-from .coupled_hrd import coupled_hrd_to_uittredepunten
-from .coupled_mv_exit import coupled_mv_exit_to_gis_parameter_invoer_table
-from .coupled_parameters import coupled_parameters_to_uittredepunten
+from .refline import coupled_uittredepunten_to_refline
+from .vakken import coupled_uittredepunten_to_vakken
+from .hrd import coupled_hrd_to_uittredepunten
+from .mv_exit import coupled_mv_exit_to_gis_parameter_invoer_table
+from .parameters import coupled_parameters_to_uittredepunten

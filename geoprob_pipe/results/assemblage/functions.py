@@ -166,7 +166,7 @@ def scaled_collect(
         windows.
     """
     from geoprob_pipe.results.assemblage.objects import WindowElement
-    if point_list.__len__() == 0:  # Leeg element
+    if len(point_list) == 0:  # Leeg element
         return 0.0, 0.0, []
     fcn_list = [p.flow_chart_number for p in point_list]
     if min(fcn_list) == 11:

@@ -131,7 +131,7 @@ class VakElement:
         kansen geconvergeerd zijn, dan True, anders False. Want een niet geconvergeerde kans had de maximale faalkans
         kunnen zijn. """
         list_conv = [cast(bool, dsn.converged) for dsn in self.dsn_list]
-        if False in list_conv:
+        if all(list_conv):
             return False
         return True
 

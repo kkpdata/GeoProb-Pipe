@@ -71,7 +71,7 @@ Als je geen ruimtelijke input wilt ingeven druk dan op enter zonder iets in te v
         else:
             parameters = parameter_input.split(",")
 
-            if not all(x in valid_list for x in parameters):  # type:ignore
+            if not all(param in valid_list for param in parameters):
                 print(
                     BColors.WARNING,
                     "Een of meerdere van de opgegeven parameters zijn niet geschikt voor ruimtelijke invoer.",

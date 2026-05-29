@@ -285,8 +285,8 @@ ander bestand op te gaven.
             # Of verschillende geometrieën per scenario
             column_list = gdf.columns.to_list()
             if True in [
-                len(x.split("_")) == 3 and self.param in x.split("_")
-                for x in column_list
+                len(column.split("_")) == 3 and self.param in column.split("_")
+                for column in column_list
             ]:
                 return self._add_with_affixes(gdf)
             else:
@@ -447,9 +447,9 @@ ander bestand op te gaven.
         """
         column_list = gdf.columns.to_list()
         add_list = [
-            f"{self.param}_{x}"
-            for x in self.suffix_list
-            if f"{self.param}_{x}" in column_list
+            f"{self.param}_{param}"
+            for param in self.suffix_list
+            if f"{self.param}_{param}" in column_list
         ]
 
         if not self._distribution_check(column_list, add_list, gdf):
@@ -478,7 +478,7 @@ ander bestand op te gaven.
 
         for scenario in self.scenarios:
             filter_list = [
-                x for x in column_list if x.split("_")[0] == scenario
+                column for column in column_list if column.split("_")[0] == scenario
             ]
 
             if len(filter_list) == 0:
@@ -490,13 +490,13 @@ ander bestand op te gaven.
                 continue
 
             filter_list = [
-                x.split("_")[1:] for x in filter_list
+                column.split("_")[1:] for column in filter_list
             ]  # Strip scenario van kolomnaam.
 
             add_list = [
-                f"{self.param}_{x}"
-                for x in self.suffix_list
-                if f"{self.param}_{x}" in filter_list
+                f"{self.param}_{suffix}"
+                for suffix in self.suffix_list
+                if f"{self.param}_{suffix}" in filter_list
             ]
 
             if not self._distribution_check(column_list, add_list, gdf):
@@ -536,9 +536,9 @@ ander bestand op te gaven.
                 continue
 
             add_list = [
-                f"{self.param}_{x}"
-                for x in self.suffix_list
-                if f"{self.param}_{x}" in column_list
+                f"{self.param}_{suffix}"
+                for suffix in self.suffix_list
+                if f"{self.param}_{suffix}" in column_list
             ]
 
             if not self._distribution_check(column_list, add_list, gdf):
