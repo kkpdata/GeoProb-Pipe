@@ -1,6 +1,7 @@
 from geopandas import GeoDataFrame
 from shapely import LineString, MultiLineString
 from typing import List, Tuple
+from shapely import unary_union, line_merge
 
 
 def validate_geometry_types(gdf: GeoDataFrame, allowed_types=None) -> Tuple[bool, List[str]]:
@@ -48,3 +49,9 @@ def convert_mls_geom_column_to_ls(gdf: GeoDataFrame) -> GeoDataFrame:
 
     gdf["geometry"] = gdf["geometry"].apply(unwrap_ls_in_mls)
     return gdf
+
+
+def validate_vakindeling_merges_to_single_linestring(gdf: GeoDataFrame) -> Tuple[bool, type]:
+    """ Controleert of alle LineStrings aaneengesloten zijn. """
+    merged = line_merge(unary_union(gdf.geometry))
+    return isinstance(merged, LineString), type(merged)

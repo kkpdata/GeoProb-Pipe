@@ -3,7 +3,8 @@ from geopandas import read_file
 from InquirerPy import inquirer
 import warnings
 from geoprob_pipe.cmd_app.utils.spatial import load_dijktraject_linestring
-from geoprob_pipe.utils.gdf import convert_mls_geom_column_to_ls, validate_geometry_types
+from geoprob_pipe.utils.gdf import (
+    convert_mls_geom_column_to_ls, validate_geometry_types, validate_vakindeling_merges_to_single_linestring)
 import os
 from pathlib import Path
 from shapely import LineString, MultiLineString
@@ -160,6 +161,11 @@ def validate_vakindeling(app_settings: ApplicationSettings, gdf: GeoDataFrame):
     assert gdf.geometry.apply(lambda geom: isinstance(geom, LineString)).all(), \
         ("De opgegeven vakindeling heeft niet voor elk vak een geometry. De "
          "applicatie sluit nu af.")
+
+    # Check if vakindeling does not have gaps
+    valid, merged_type = validate_vakindeling_merges_to_single_linestring(gdf=gdf)
+    assert valid, (f"De vakindeling is niet valide. Ter controle is een poging gedaan of de vakindeling "
+                   f"samenvoegbaar is tot één lijn. Dit blijkt niet het geval. Zitten er gaten tussen de vakken?")
 
     # Continue questioner
     specify_column_with_vaknaam(app_settings, gdf=gdf)
