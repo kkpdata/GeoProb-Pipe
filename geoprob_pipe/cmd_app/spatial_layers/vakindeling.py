@@ -3,7 +3,7 @@ from geopandas import read_file
 from InquirerPy import inquirer
 import warnings
 from geoprob_pipe.cmd_app.utils.spatial import load_dijktraject_linestring
-from geoprob_pipe.utils.gdf import convert_mls_geom_column_to_ls
+from geoprob_pipe.utils.gdf import convert_mls_geom_column_to_ls, validate_geometry_types
 import os
 from pathlib import Path
 from shapely import LineString, MultiLineString
@@ -144,7 +144,20 @@ def request_vakindeling_filepath(app_settings: ApplicationSettings):
 def validate_vakindeling(app_settings: ApplicationSettings, gdf: GeoDataFrame):
     """ Validates the vakindeling shape, with some conversions if they can be
     applied safely. """
+
+    # Validate geometry types
+    allowed_types = {"LineString", "MultiLineString"}
+    valid, invalid_types = validate_geometry_types(gdf=gdf, allowed_types=allowed_types)
+    if not valid:
+        raise ValueError(f"De opgegeven vakindeling heeft geometrie types die niet toegestaan zijn. "
+                         f"De volgende types zijn toegestaan: {allowed_types}. "
+                         f"De volgende niet toegestane types werden ook gevonden: {invalid_types}."
+                         f"Zorg er voor dat je alleen line strings importeert.")
+
+    # Convergeer multi line strings naar single line strings
     gdf = convert_mls_geom_column_to_ls(gdf=gdf)
+
+    # Controleer of elk vak een geometrie heeft
     assert gdf.geometry.apply(lambda geom: isinstance(geom, LineString)).all(), \
         ("De opgegeven vakindeling heeft niet voor elk vak een geometry. De "
          "applicatie sluit nu af.")
