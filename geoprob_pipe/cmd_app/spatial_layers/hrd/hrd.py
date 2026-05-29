@@ -29,7 +29,7 @@ def _hrd_data_requested(app_settings: ApplicationSettings) -> bool:
     choices_list = ["Ja", "Nee", "Applicatie afsluiten"]
     choice = inquirer.select(
         message=f"Wil je HRD-data importeren? Dit is optioneel. "
-                f"Je kunt ook handmatig overschrijdingsfrequentielijnen toevoegen.",
+                f"Je kunt op een later moment handmatig overschrijdingsfrequentielijnen toevoegen aan de invoer-Excel.",
         choices=choices_list, default=choices_list[0]).execute()
 
     # Close app?
