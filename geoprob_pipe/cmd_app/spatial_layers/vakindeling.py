@@ -3,7 +3,8 @@ from geopandas import read_file
 from InquirerPy import inquirer
 import warnings
 from geoprob_pipe.cmd_app.utils.spatial import load_dijktraject_linestring
-from geoprob_pipe.utils.gdf import convert_mls_geom_column_to_ls
+from geoprob_pipe.utils.gdf import (
+    convert_mls_geom_column_to_ls, validate_geometry_types, validate_vakindeling_merges_to_single_linestring)
 import os
 from pathlib import Path
 from shapely import LineString, MultiLineString
@@ -144,10 +145,29 @@ def request_vakindeling_filepath(app_settings: ApplicationSettings):
 def validate_vakindeling(app_settings: ApplicationSettings, gdf: GeoDataFrame):
     """ Validates the vakindeling shape, with some conversions if they can be
     applied safely. """
+
+    # Validate geometry types
+    allowed_types = {"LineString", "MultiLineString"}
+    valid, invalid_types = validate_geometry_types(gdf=gdf, allowed_types=allowed_types)
+    assert valid, (f"De opgegeven vakindeling heeft geometrie types die niet toegestaan zijn. De volgende types zijn "
+                   f"toegestaan: {allowed_types}. De volgende niet toegestane types werden ook gevonden: "
+                   f"{invalid_types}. "
+                   f"Zorg er voor dat je alleen line strings importeert.")
+
+    # Convergeer multi line strings naar single line strings
     gdf = convert_mls_geom_column_to_ls(gdf=gdf)
+
+    # Controleer of elk vak een geometrie heeft
     assert gdf.geometry.apply(lambda geom: isinstance(geom, LineString)).all(), \
         ("De opgegeven vakindeling heeft niet voor elk vak een geometry. De "
          "applicatie sluit nu af.")
+
+    # Check if vakindeling does not have gaps
+    valid, merged_type = validate_vakindeling_merges_to_single_linestring(gdf=gdf)
+    assert valid, (f"De vakindeling is niet valide. Ter controle is een poging gedaan of de vakindeling "
+                   f"samenvoegbaar is tot één lijn. Dit blijkt niet het geval. Zitten er gaten tussen de vakken?")
+
+    # Continue questioner
     specify_column_with_vaknaam(app_settings, gdf=gdf)
 
 
@@ -285,6 +305,12 @@ def align_vak_shp_to_dijktraject(
         gdf_new_vakindeling['id'] = gdf_new_vakindeling.index + 1
     gdf_new_vakindeling: GeoDataFrame = gdf_new_vakindeling[
         ["id", "naam", "m_start", "m_end", "geometry"]]
+
+    # Validate correct geometry types
+    valid, invalid_types = validate_geometry_types(gdf=gdf_new_vakindeling, allowed_types={"LineString"})
+    assert valid, (f"Most probably a bug. Invalid geometry types resulted from projecting the imported vakindeling "
+                   f"to the dijktraject-geometry. The invalid geometry types are {invalid_types}. Only LineStrings "
+                   f"were expected. Re-examine your input, or contact a developer with this error.")
 
     # Add to geopackage
     gdf_new_vakindeling.to_file(

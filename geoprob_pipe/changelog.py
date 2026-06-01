@@ -1,5 +1,9 @@
 
 CHANGELOG = {
+    "2.2.10":
+        "Bug fix en added validation. Traject probability of failure kon net boven 1.0 uitkomen door de toegepaste "
+        "rekentechniek. Daarnaast om het gebruik van de applicatie te verbeteren extra validatie toegepast, zoals dat "
+        "de vakindeling gezamenlijk één lijn moet zijn (zonder onderbrekingen).",
     "2.2.3":
         "Bug fix. Validation issue.",
     "2.2.0":

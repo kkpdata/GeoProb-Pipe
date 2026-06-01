@@ -37,10 +37,6 @@ def _validate_df_parameter_invoer(df: DataFrame, app_settings: ApplicationSettin
 
     label = "Parameter invoer"
 
-    # obj = DataFrameQueryValidation(df=df, failure_queries=FAILURE_QUERIES)
-    # result: bool = obj.validate(export_dir=export_dir, label_humanized="Parameter invoer")
-    # TODO: Remove FailureQueries-code
-
     # Set up validator
     validator = ValidationParameterInvoer(df=df)
     geohydrologisch_model = app_settings.geohydrologisch_model

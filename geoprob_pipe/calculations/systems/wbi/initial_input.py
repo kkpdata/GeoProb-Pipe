@@ -239,7 +239,7 @@ INITIAL_INPUT = [
         "remark": "",
         "unit": "kN/m³",
         "distribution_type": DistributionType.deterministic,
-        "mean": 16.5,
+        "mean": 26.0,
         "source": "excel",
     },
     {

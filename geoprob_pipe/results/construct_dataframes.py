@@ -1,18 +1,23 @@
 from __future__ import annotations
-from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
-import pandas as pd
-from geoprob_pipe.results.assemblage.objects import (
-    UittredepuntElement, VakElement, TrajectElement)
-from pandas import DataFrame, concat
+import operator
+from decimal import Decimal, getcontext
+from functools import reduce
 import numpy as np
+import pandas as pd
+from pandas import DataFrame, concat
+from geoprob_pipe.results.assemblage.objects import TrajectElement, UittredepuntElement, VakElement
+from geoprob_pipe.utils.statistics import convert_failure_probability_to_beta
 from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from geoprob_pipe.results import Results
     from geoprob_pipe import GeoProbPipe
-    from geoprob_pipe.calculations.systems.base_objects.system_calculation import \
-        SystemCalculation
+    from geoprob_pipe.calculations.systems.base_objects.system_calculation import SystemCalculation
     from probabilistic_library import DesignPoint
     from geoprob_pipe.calculations.systems.build_and_run import CalcResult
+    from geoprob_pipe import GeoProbPipe
+    from geoprob_pipe.calculations.systems.base_objects.system_calculation import SystemCalculation
+    from geoprob_pipe.calculations.systems.build_and_run import CalcResult
+    from geoprob_pipe.results import Results
 
 
 def collect_df_beta_limit_state(calculation: SystemCalculation) -> DataFrame:
@@ -196,12 +201,39 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
 
     df_beta_scenarios_final = results.df_beta_scenarios_final.copy(deep=True)
 
-    df = df_beta_scenarios_final.assign(
-        failure_probability=df_beta_scenarios_final.apply(
-            lambda row: row['failure_probability'] * geoprob_pipe.input_data.scenarios.scenario_kans(
-                vak_id=row['vak_id'], scenario_naam=row['ondergrondscenario_id']
-            ), axis=1)).groupby('uittredepunt_id', as_index=False)[
-        'failure_probability'].sum()
+    # The sum() leads to failure probabilities of larger than 1. Due to very small
+    # values decimal is used.
+    getcontext().prec = 100
+    one = Decimal(1)
+    df = (
+        df_beta_scenarios_final.assign(
+            failure_probability=lambda row: (
+                    row["failure_probability"]
+                    * row.apply(
+                lambda row2: (
+                    geoprob_pipe.input_data.scenarios.scenario_kans(
+                        vak_id=row2["vak_id"],
+                        scenario_naam=row2["ondergrondscenario_id"],
+                    )
+                ),
+                axis=1,
+            )
+            )
+        )
+        .groupby("uittredepunt_id", as_index=False)
+        .agg(
+            failure_probability=(
+                "failure_probability",
+                lambda x: float(
+                    one
+                    - reduce(
+                        operator.mul, (one - Decimal(str(v)) for v in x), one
+                    )
+                ),
+            )
+        )
+    )
+
     df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
 
     # Determine when uittredepunt is converged (when all scenarios are converged)
