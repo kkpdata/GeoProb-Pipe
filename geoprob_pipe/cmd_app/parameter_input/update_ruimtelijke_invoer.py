@@ -120,7 +120,7 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
     # Verwijder uit geopackage
     layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
     table_list = [
-        layer for layer in layers if layer.split("_")[0] in parameter_input
+        layer for layer in layers if layer.split("__")[0] in parameter_input
     ]
     remove_tables(app_settings, table_list)
     completed_update()
@@ -259,7 +259,7 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
     # Verwijder uit geopackage
     layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
     table_list = [
-        layer for layer in layers if layer.split("_")[0] in updated_parameters
+        layer for layer in layers if layer.split("__")[0] in updated_parameters
     ]
     remove_tables(app_settings, table_list)
     completed_update()
@@ -425,7 +425,7 @@ def remove_tables(
 
     if table_list == []:  # Remove all spatial input
         for layer in layers:
-            if layer.split("_")[0] in parameters:
+            if layer.split("__")[0] in parameters:
                 cursor.execute(f"DROP TABLE IF EXISTS {layer}")
                 cursor.execute(
                     "DELETE FROM gpkg_contents WHERE table_name = ?", (layer,)

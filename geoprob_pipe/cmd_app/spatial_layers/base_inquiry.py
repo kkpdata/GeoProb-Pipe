@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING
 import fiona
 import geopandas as gpd
 import InquirerPy.prompts.input as prompt
-import numpy as np
+import pandas as pd
 from shapely import LineString, MultiLineString
 
 from geoprob_pipe.utils.validation_messages import BColors
@@ -119,7 +119,7 @@ met de {self.param} geometrieën.
             if self._add_to_gpkg(gdf):
                 break
 
-            print(BColors.OKBLUE, f"✅ {self.param} toegevoegd.", BColors.ENDC)
+        print(BColors.OKBLUE, f"✅ {self.param} toegevoegd.", BColors.ENDC)
 
     def _import_data(self, filepath: str) -> gpd.GeoDataFrame:
         """
@@ -253,18 +253,19 @@ ander bestand op te gaven.
         Helper method om de data aan de geopackage toe te voegen.
         Start een apart inquiry als en waarden moeten worden toegevoegd aan de
         shape of als er meerdere shapes moeten worden toegevoegd. De kolommen
-        moeten van te voren met de juiste suffix in de shape staan.
+        moeten van te voren met de juiste suffix in de shape staan. Als scheiding
+        wordt een dubble underscore gebruikt.
 
         De mogelijke suffixen zijn:
-        *_mean voor het gemiddelde of deterministische waarde.
-        *_dist voor het distributie type.
-        *_var voor de variatie.
-        *_dev voor de deviatie.
-        *_min voor het minimum.
-        *_max voor het maximum.
+        *__mean voor het gemiddelde of deterministische waarde.
+        *__dist voor het distributie type.
+        *__var voor de variatie.
+        *__dev voor de deviatie.
+        *__min voor het minimum.
+        *__max voor het maximum.
 
         Als er meerdere scenarios zijn moeten deze als aparte kolommen worden
-        toegevoegd met een prefix. Bijvoorbeeld scenario1_*.
+        toegevoegd met een prefix. Bijvoorbeeld scenario1__*.
 
         Of als de scenarios als aparte shapes worden ingevoerd, moet er een kolom
         met de naam "ondergrondscenario" zijn toegevoegd.
@@ -285,7 +286,8 @@ ander bestand op te gaven.
             # Of verschillende geometrieën per scenario
             column_list = gdf.columns.to_list()
             if True in [
-                len(column.split("_")) == 3 and self.param in column.split("_")
+                len(column.split("__")) == 3
+                and self.param in column.split("__")
                 for column in column_list
             ]:
                 return self._add_with_affixes(gdf)
@@ -347,6 +349,7 @@ ander bestand op te gaven.
         column_list: list[str],
         add_list: list[str],
         gdf: gpd.GeoDataFrame,
+        scenario: str = "",
     ) -> bool:
         """
         Check of de kolommen de juiste inputs hebben voor de gekozen distributie.
@@ -365,21 +368,29 @@ ander bestand op te gaven.
                 f"Alleen deze kolommen zijn gevonden: {', '.join(column_list)}",
                 BColors.ENDC,
             )
-
             return False
 
         # Check var or std if not deterministic.
         for _, row in gdf.iterrows():
-            if row[f"{self.param}_dist"] == "deterministic":
+            
+            # Als per scenario wordt gecontroleerd is de naam in de gdf anders.
+            if scenario != "":
+                prefix = scenario + "__"
+            else:
+                prefix = ""
+            
+            if row[f"{prefix}{self.param}__dist"] == "deterministic":
                 continue  # Overslaan
 
-            if f"{self.param}_var" in add_list:
-                var_bool = row[f"{self.param}_var"] != np.nan or ""
+            if f"{self.param}__var" in add_list:
+                value = float(row[f"{prefix}{self.param}__var"])
+                var_bool = pd.notna(value)
             else:
                 var_bool = False
 
-            if f"{self.param}_dev" in add_list:
-                dev_bool = row[f"{self.param}_dev"] != np.nan or ""
+            if f"{self.param}__dev" in add_list:
+                value = float(row[f"{prefix}{self.param}__dev"])
+                dev_bool = pd.notna(value)
             else:
                 dev_bool = False
 
@@ -430,7 +441,7 @@ ander bestand op te gaven.
 
             gdf_to_add.to_file(
                 self.app_settings.geopackage_filepath,
-                layer=f"{self.param}_{scenario}",
+                layer=f"{self.param}__{scenario}",
                 driver="GPKG",
             )
 
@@ -447,9 +458,9 @@ ander bestand op te gaven.
         """
         column_list = gdf.columns.to_list()
         add_list = [
-            f"{self.param}_{param}"
+            f"{self.param}__{param}"
             for param in self.suffix_list
-            if f"{self.param}_{param}" in column_list
+            if f"{self.param}__{param}" in column_list
         ]
 
         if not self._distribution_check(column_list, add_list, gdf):
@@ -478,7 +489,9 @@ ander bestand op te gaven.
 
         for scenario in self.scenarios:
             filter_list = [
-                column for column in column_list if column.split("_")[0] == scenario
+                column
+                for column in column_list
+                if column.split("__")[0] == scenario
             ]
 
             if len(filter_list) == 0:
@@ -489,24 +502,30 @@ ander bestand op te gaven.
                 )
                 continue
 
-            filter_list = [
-                column.split("_")[1:] for column in filter_list
-            ]  # Strip scenario van kolomnaam.
+            # Strip scenario van kolomnaam.
+            filter_list = [column.split("__")[1:] for column in filter_list]
+            filter_list = ["__".join(item) for item in filter_list]
 
             add_list = [
-                f"{self.param}_{suffix}"
+                f"{self.param}__{suffix}"
                 for suffix in self.suffix_list
-                if f"{self.param}_{suffix}" in filter_list
+                if f"{self.param}__{suffix}" in filter_list
             ]
 
-            if not self._distribution_check(column_list, add_list, gdf):
-                return False
-
-            gdf_to_add = gdf[["geometry", add_list]]
+            if not self._distribution_check(
+                column_list, add_list, gdf, scenario=scenario
+            ):
+                # Vang parameters niet voor dit scenario.
+                continue
+            scenario_add_list = [f"{scenario}__{item}" for item in add_list]
+            gdf_to_add = gdf[["geometry"] + scenario_add_list]
+            
+            for a, b in zip(scenario_add_list, add_list):
+                gdf_to_add = gdf_to_add.rename(columns={a: b})
 
             gdf_to_add.to_file(
                 self.app_settings.geopackage_filepath,
-                layer=f"{self.param}_{scenario}",
+                layer=f"{self.param}__{scenario}",
                 driver="GPKG",
             )
 
@@ -520,7 +539,7 @@ ander bestand op te gaven.
         :return: bool voor valid_input in while-loop
         """
         column_list = gdf.columns.to_list()
-        
+
         if not self._scenario_check(column_list):
             return False
 
@@ -536,9 +555,9 @@ ander bestand op te gaven.
                 continue
 
             add_list = [
-                f"{self.param}_{suffix}"
+                f"{self.param}__{suffix}"
                 for suffix in self.suffix_list
-                if f"{self.param}_{suffix}" in column_list
+                if f"{self.param}__{suffix}" in column_list
             ]
 
             if not self._distribution_check(column_list, add_list, gdf):
@@ -556,7 +575,7 @@ ander bestand op te gaven.
             else:
                 gdf_to_add.to_file(
                     self.app_settings.geopackage_filepath,
-                    layer=f"{self.param}_{scenario}",
+                    layer=f"{self.param}__{scenario}",
                     driver="GPKG",
                 )
 

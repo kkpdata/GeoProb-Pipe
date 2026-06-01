@@ -56,9 +56,9 @@ class ShapeCouple(BaseCouple):
         self.param_tables = [
             table
             for table in self.tables_names
-            if table.split("_")[0] == self.param
+            if table.split("__")[0] == self.param
         ]
-
+    
         if len(self.param_tables) == 0:
             raise KeyError(
                 f"{self.param} niet gevonden in de tabellen van de geopackage."
@@ -87,11 +87,16 @@ class ShapeCouple(BaseCouple):
         Voeg de lagen een voor een toe als er ruimtelijke scenarios zijn voor
         de parameter.
         """
-        for scenario in self.param_tables:
+        for layer in self.param_tables:
             gdf_parameter: gpd.GeoDataFrame = gpd.read_file(
                 self.app_settings.geopackage_filepath,
-                layer=f"{self.param}_{scenario}",
+                layer=layer,
             )
+            if len(layer.split("__")) == 2:
+                scenario = layer.split("__")[1]
+            else:
+                scenario = ""
+            
             self._check_shape(gdf_parameter, scenario)
 
     def _check_shape(self, gdf: gpd.GeoDataFrame, scenario: str = ""):
@@ -106,7 +111,6 @@ class ShapeCouple(BaseCouple):
         :raises KeyError: Polygon niet geaccepteerd bij deze parameter.
         :raises ImportError: De laag bestaat uit verschillende geometrie types.
         """
-
         if (gdf.geom_type.isin(["LineString", "MultiLineString"])).all():
             if "line" in LIST_PARAMS[self.param]["shape"]:
                 self._join_to_line(gdf, scenario)

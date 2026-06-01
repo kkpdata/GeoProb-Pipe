@@ -56,7 +56,7 @@ def coupled_distances_to_uittredepunten(
             ).couple_exit_points()
 
         # Intrede lijn per scenario        
-        if len(layer.split("_")) == 2 and "intredelijn" in layer.split("_")[0]:
+        if len(layer.split("__")) == 2 and "intredelijn" in layer.split("__")[0]:
             gdf_intredelijnen: gpd.GeoDataFrame = gpd.read_file(
                 app_settings.geopackage_filepath, layer=layer
             )
@@ -75,7 +75,7 @@ def coupled_distances_to_uittredepunten(
             )
             DistCouple(
                 app_settings, "L_intrede", df_l_intrede
-            ).couple_exit_points(scenario=layer.split("_")[1])
+            ).couple_exit_points(scenario=layer.split("__")[1])
 
     # Distance to buitenteenlijn
     gdf_buitenteenlijnen: gpd.GeoDataFrame = gpd.read_file(
