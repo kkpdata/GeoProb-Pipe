@@ -17,7 +17,7 @@ def combine_series(list_pf: list[float]) -> Tuple[float, float]:
        doorsneden.
 
     :param list_pf: Lijst met faalkansen van de elementen.
-    :return bovengrens en ondergrens
+    :return: bovengrens en ondergrens
     """
 
     # If empty
@@ -28,7 +28,7 @@ def combine_series(list_pf: list[float]) -> Tuple[float, float]:
     ondergrens = max(list_pf)
 
     # We have to use Decimal for bovengrens
-    getcontext().prec = 30
+    getcontext().prec = 100
     # Because with small numbers (e-18 and smaller) it turns out that 1 - e-18 is rounded to one. Therefore, we have to
     # use Decimal with a lowered precision (we use up to e-30). We now first convert the necessary values to Decimal:
     one = Decimal(1)
@@ -111,22 +111,18 @@ def window_collect(window_size: float, point_list: list[UittredepuntElement],
     bins_window = np.arange(
         m_van, m_tot, window_size
         ).tolist()
-    bins_window.append(m_tot)
+    if m_tot not in bins_window:
+        bins_window.append(m_tot)  # add end of final window
 
     bin_cat: pd.Categorical = cast(pd.Categorical, pd.cut(
-        list_m_value,
-        bins=bins_window,
-        right=False,
-        include_lowest=True
-        ))
+        list_m_value, bins=bins_window, right=False, include_lowest=True, duplicates="drop"))
     df_vak = df_vak.assign(bin=bin_cat)
     df_bin = (df_vak.groupby("bin", observed=False)["pf"].max()
               .reindex(bin_cat.categories).fillna(0))
 
     sum_pf, max_pf = combine_series(df_bin.to_list())
     window_elements: List[WindowElement] = []
-    bins_window.append(m_tot)  # add end of final window
-    for i in range(len(bins_window)-2):
+    for i in range(len(bins_window)-1):
         window_elements.append(WindowElement(
             m_van=bins_window[i],
             m_tot=bins_window[i+1],
@@ -164,7 +160,7 @@ def scaled_collect(
         windows.
     """
     from geoprob_pipe.results.assemblage.objects import WindowElement
-    if point_list.__len__() == 0:  # Leeg element
+    if len(point_list) == 0:  # Leeg element
         return 0.0, 0.0, []
     fcn_list = [p.flow_chart_number for p in point_list]
     if min(fcn_list) == 11:
@@ -214,7 +210,7 @@ def scaled_collect(
         length = seg_end - seg_start
         a = sel.a
         N_vak = bepaal_N_vak(length, a, dL)
-        pf = cast(float, sel.pf) * N_vak
+        pf = min(1.0, cast(float, sel.pf) * N_vak)  # Limiet als pf zeer hoog is.
         pfs.append(pf)
         window_elements.append(
             WindowElement(

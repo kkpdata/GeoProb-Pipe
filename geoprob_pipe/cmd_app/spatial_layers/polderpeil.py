@@ -5,6 +5,7 @@ import os
 from shapely import Polygon, MultiPolygon
 from geopandas import GeoDataFrame, read_file
 import fiona
+from geoprob_pipe.input_data.df_validation.df_polderpeilen import ValidationPolderpeilen
 from geoprob_pipe.utils.validation_messages import BColors
 import warnings
 if TYPE_CHECKING:
@@ -58,10 +59,10 @@ def request_polderpeil_filepath(app_settings: ApplicationSettings):
         raise NotImplementedError(
             f"Applicatie vroegtijdig afgesloten: Een {filepath.split(sep='.')[-1]}-bestand is niet geïmplementeerd.")
 
-    # Confirm all are points
-    all_geometries_are_points = gdf.geometry.apply(
+    # Confirm all are polygons
+    all_geometries_are_polygons = gdf.geometry.apply(
         lambda geom: isinstance(geom, Polygon) or isinstance(geom, MultiPolygon)).all()
-    if not all_geometries_are_points:
+    if not all_geometries_are_polygons:
         print(BColors.WARNING, f"Het geïmporteerde bestand bestaat niet (volledig) uit vlakken/polygonen, maar ook uit "
                                f"andere typen geometrie. Enkel vlakken/polygonen zijn toegestaan.", BColors.ENDC)
         request_polderpeil_filepath(app_settings=app_settings)
@@ -143,7 +144,27 @@ def specify_column_with_polderpeil_niveau(app_settings: ApplicationSettings, gdf
             continue
         column_name_is_valid = True
 
+    # Rename columns
     gdf_to_add = gdf[["geometry", column_name]]
     gdf_to_add = gdf_to_add.rename(columns={column_name: "polderpeil"})
-    gdf_to_add.to_file(app_settings.geopackage_filepath, layer="polderpeil", driver="GPKG")
-    print(BColors.OKBLUE, f"✅  Polderpeilen toegevoegd.", BColors.ENDC)
+
+    # Validate input
+    validator = ValidationPolderpeilen(df=gdf_to_add)
+    validator.run()
+    if validator.df_failures is not None and validator.df_failures.__len__() > 0:
+        export_dir: str = os.path.join(
+            app_settings.workspace_dir,
+            "exports",
+            app_settings.datetime_stamp,
+            "parameter_input_process")
+        os.makedirs(export_dir, exist_ok=True)
+        export_path: str = os.path.join(export_dir, "validation_messages_polderpeilen.xlsx")
+        validator.df_failures.to_excel(export_path)
+        print(BColors.WARNING, f"Het valideren van de polderpeil-data resulteerde in validatieberichten. Zorg dat "
+                               f"deze eerst opgelost zijn. De validatieberichten zijn hiernaartoe geëxporteerd: "
+                               f"{export_path}.", BColors.ENDC)
+        request_polderpeil_filepath(app_settings=app_settings)
+    else:
+        # Add to geopackage
+        gdf_to_add.to_file(app_settings.geopackage_filepath, layer="polderpeil", driver="GPKG")
+        print(BColors.OKBLUE, f"✅  Polderpeilen toegevoegd.", BColors.ENDC)
