@@ -21,8 +21,11 @@ def added_ruimtelijke_input(app_settings: ApplicationSettings) -> bool:
     )
     parameters: list[str] = cursor.fetchone()[0].split(", ")
     conn.close()
+    
     list_layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
-    if parameters == ['']: # De split maakt één lege string als de uit de metadata gelezen string leeg is.
+    
+    # De split maakt één lege string als de uit de metadata gelezen string leeg is.
+    if parameters == [""]:
         print(
             BColors.OKBLUE,
             "✔  Geen ruimtelijke parameter invoer.",
@@ -32,19 +35,19 @@ def added_ruimtelijke_input(app_settings: ApplicationSettings) -> bool:
 
     for parameter in parameters:
         if any(parameter in layer.split("__")[0] for layer in list_layers):
-                    print(
-                        BColors.OKBLUE,
-                        f"✔  {parameter} al toegevoegd.",
-                        BColors.ENDC,
-                    )
-                    return True
+            print(
+                BColors.OKBLUE,
+                f"✔  {parameter} al toegevoegd.",
+                BColors.ENDC,
+            )
+            continue
 
         inquiry = BaseInquiry(
             app_settings=app_settings,
             param=f"{parameter}",
             specific_shape=LIST_PARAMS[parameter]["shape"],
-            include_value=True
+            include_value=True,
         )
         inquiry.request_filepath()
-        
+
     return True
