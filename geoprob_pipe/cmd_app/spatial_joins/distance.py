@@ -49,7 +49,7 @@ def coupled_distances_to_uittredepunten(
                 ["uittredepunt_id", "afstand_intredelijn"]
             ]
             df_l_intrede = df_l_intrede.rename(
-                columns={"afstand_intredelijn": "L_intrede_mean"}
+                columns={"afstand_intredelijn": "L_intrede__mean"}
             )
             DistCouple(
                 app_settings, "L_intrede", df_l_intrede
@@ -71,7 +71,7 @@ def coupled_distances_to_uittredepunten(
                 ["uittredepunt_id", "afstand_intredelijn"]
             ]
             df_l_intrede = df_l_intrede.rename(
-                columns={"afstand_intredelijn": "L_intrede_mean"}
+                columns={"afstand_intredelijn": "L_intrede__mean"}
             )
             DistCouple(
                 app_settings, "L_intrede", df_l_intrede
@@ -86,7 +86,7 @@ def coupled_distances_to_uittredepunten(
     )
     df_l_but = gdf_exit_points[["uittredepunt_id", "afstand_buitenteenlijn"]]
     df_l_but = df_l_but.rename(
-        columns={"afstand_buitenteenlijn": "L_but_mean"}
+        columns={"afstand_buitenteenlijn": "L_but__mean"}
     )
 
     DistCouple(app_settings, "L_but", df_l_but).couple_exit_points()
@@ -100,7 +100,7 @@ def coupled_distances_to_uittredepunten(
     )
     df_l_bit = gdf_exit_points[["uittredepunt_id", "afstand_binnenteenlijn"]]
     df_l_bit = df_l_bit.rename(
-        columns={"afstand_binnenteenlijn": "L_bit_mean"}
+        columns={"afstand_binnenteenlijn": "L_bit__mean"}
     )
 
     DistCouple(app_settings, "L_bit", df_l_bit).couple_exit_points()
