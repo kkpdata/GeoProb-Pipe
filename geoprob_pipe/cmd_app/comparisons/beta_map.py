@@ -1,9 +1,13 @@
 from __future__ import annotations
+
 import os
-import plotly.graph_objects as go
-import geopandas as gpd
-from shapely.geometry import LineString, MultiLineString, GeometryCollection
 from typing import TYPE_CHECKING
+
+import fiona
+import geopandas as gpd
+import plotly.graph_objects as go
+from shapely.geometry import GeometryCollection, LineString, MultiLineString
+
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.comparisons import ComparisonCollector
 
@@ -35,59 +39,72 @@ def _determine_zoom(gdf_latlon):
     return zoom
 
 
-def _add_line(comparison: ComparisonCollector, fig: go.Figure,
-              layer: str, color: str):
-    gdf_traject = gpd.read_file(comparison.geopackage_filepath_1,
-                                layer=layer)
-    gdf_traject = gdf_traject.to_crs("EPSG:4326")
+def _add_line(
+    comparison: ComparisonCollector, fig: go.Figure, layer: str, color: str
+):
+    gpkg_layers: list[str] = fiona.listlayers(comparison.geopackage_filepath_1)
+    list_layers: list[str] = [
+        lay for lay in gpkg_layers if lay.split("__")[0] == layer
+    ]
 
-    def plot_linestring(ls, display):
-        xs, ys = ls.xy
-        xs = list(xs)
-        ys = list(ys)
-        fig.add_trace(go.Scattermap(
-            lon=xs,
-            lat=ys,
-            mode="lines",
-            line=dict(color=color, width=1.5),
-            hoverinfo="none",
-            name=layer,
-            legendgroup=layer,
-            showlegend=display
-        ))
-    show = True
-    for geom in gdf_traject.geometry:
-        if isinstance(geom, LineString):
-            plot_linestring(geom, show)
-            show = False
-        elif isinstance(geom, MultiLineString):
-            for line in geom.geoms:
-                plot_linestring(line, show)
+    for listed_layer in list_layers:
+        gdf_traject = gpd.read_file(
+            comparison.geopackage_filepath_1, layer=listed_layer
+        )
+        gdf_traject = gdf_traject.to_crs("EPSG:4326")
+
+        def plot_linestring(ls, display):
+            xs, ys = ls.xy
+            xs = list(xs)
+            ys = list(ys)
+            fig.add_trace(
+                go.Scattermap(
+                    lon=xs,
+                    lat=ys,
+                    mode="lines",
+                    line=dict(color=color, width=1.5),
+                    hoverinfo="none",
+                    name=listed_layer,
+                    legendgroup=layer,
+                    showlegend=display,
+                )
+            )
+
+        show = True
+        for geom in gdf_traject.geometry:
+            if isinstance(geom, LineString):
+                plot_linestring(geom, show)
                 show = False
-        elif isinstance(geom, GeometryCollection):
-            for g in geom.geoms:
-                if isinstance(g, LineString):
-                    plot_linestring(g, show)
+            elif isinstance(geom, MultiLineString):
+                for line in geom.geoms:
+                    plot_linestring(line, show)
                     show = False
-                elif isinstance(g, MultiLineString):
-                    for line in g.geoms:
-                        plot_linestring(line, show)
+            elif isinstance(geom, GeometryCollection):
+                for g in geom.geoms:
+                    if isinstance(g, LineString):
+                        plot_linestring(g, show)
                         show = False
+                    elif isinstance(g, MultiLineString):
+                        for line in g.geoms:
+                            plot_linestring(line, show)
+                            show = False
 
-        else:
-            print("Skipping unsupported geometry:", geom.geom_type)
+            else:
+                print("Skipping unsupported geometry:", geom.geom_type)
 
     return fig
 
 
-def map_delta_beta_comparison(comparison: ComparisonCollector,
-                              export: bool = False) -> go.Figure:
+def map_delta_beta_comparison(
+    comparison: ComparisonCollector, export: bool = False
+) -> go.Figure:
     # load data from class
-    gdf_result1 = (comparison.gdf1_uittredepunten[
+    gdf_result1 = comparison.gdf1_uittredepunten[
         ["uittredepunt_id", "beta", "geometry"]
-        ].rename(columns={"beta": "beta1"}))
-    gdf_result2 = (comparison.gdf2_uittredepunten[
-        ["uittredepunt_id", "beta"]].rename(columns={"beta": "beta2"}))
+    ].rename(columns={"beta": "beta1"})
+    gdf_result2 = comparison.gdf2_uittredepunten[
+        ["uittredepunt_id", "beta"]
+    ].rename(columns={"beta": "beta2"})
     gdf = gdf_result1.merge(gdf_result2, on="uittredepunt_id")
     gdf["beta_delta"] = gdf["beta2"] - gdf["beta1"]
 
@@ -95,37 +112,39 @@ def map_delta_beta_comparison(comparison: ComparisonCollector,
     gdf_latlon = gdf.to_crs("EPSG:4326")
 
     fig = go.Figure()
-    fig.add_trace(go.Scattermap(
-        mode="markers",
-        lat=gdf_latlon.geometry.y,
-        lon=gdf_latlon.geometry.x,
-        marker=dict(
-            size=9,
-            color="black"
-            ),
-        showlegend=False
-        ))
+    fig.add_trace(
+        go.Scattermap(
+            mode="markers",
+            lat=gdf_latlon.geometry.y,
+            lon=gdf_latlon.geometry.x,
+            marker=dict(size=9, color="black"),
+            showlegend=False,
+        )
+    )
     hoverdata = ["uittredepunt_id", "beta_delta", "beta1", "beta2"]
-    fig.add_trace(go.Scattermap(
-        mode="markers",
-        lat=gdf_latlon.geometry.y,
-        lon=gdf_latlon.geometry.x,
-        marker=dict(
-            size=8,
-            color=gdf_latlon["beta_delta"],
-            cmax=3,
-            cmin=-3,
-            colorscale="RdYlGn",
-            colorbar=dict(title="Delta Beta")
-        ),
-        hoverinfo='text',
-        text=gdf_latlon[hoverdata].apply(
-            lambda row: '<br>'.join(
-                [f"{col}: {round(row[col], 3)}" for col in hoverdata]
+    fig.add_trace(
+        go.Scattermap(
+            mode="markers",
+            lat=gdf_latlon.geometry.y,
+            lon=gdf_latlon.geometry.x,
+            marker=dict(
+                size=8,
+                color=gdf_latlon["beta_delta"],
+                cmax=3,
+                cmin=-3,
+                colorscale="RdYlGn",
+                colorbar=dict(title="Delta Beta"),
+            ),
+            hoverinfo="text",
+            text=gdf_latlon[hoverdata].apply(
+                lambda row: "<br>".join(
+                    [f"{col}: {round(row[col], 3)}" for col in hoverdata]
                 ),
-            axis=1),
-        showlegend=False
-        ))
+                axis=1,
+            ),
+            showlegend=False,
+        )
+    )
 
     fig = _add_line(comparison, fig, "dijktraject", "black")
     fig = _add_line(comparison, fig, "intredelijn", "blue")
@@ -138,24 +157,23 @@ def map_delta_beta_comparison(comparison: ComparisonCollector,
         # carto-positron, open-street-map, satellite-streets
         map_zoom=zoom,
         map_center=dict(
-            lat=gdf_latlon.geometry.y.mean(),
-            lon=gdf_latlon.geometry.x.mean()
+            lat=gdf_latlon.geometry.y.mean(), lon=gdf_latlon.geometry.x.mean()
         ),
         dragmode="zoom",
-        title=f"Delta beta van uittredepunten tussen<br>" +
-              f"<sup>Beta1: {comparison.name_1} en Beta2: {comparison.name_2}</sup>",
+        title="Delta beta van uittredepunten tussen<br>"
+        + f"<sup>Beta1: {comparison.name_1} en Beta2: {comparison.name_2}</sup>",
         legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1))
+            orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
+        ),
+    )
 
     if export:
         os.makedirs(comparison.export_dir, exist_ok=True)
-        fig.write_html(os.path.join(
-            comparison.export_dir, "delta_beta_map.html"
-            ), include_plotlyjs='cdn', include_mathjax='cdn')
+        fig.write_html(
+            os.path.join(comparison.export_dir, "delta_beta_map.html"),
+            include_plotlyjs="cdn",
+            include_mathjax="cdn",
+        )
         # fig.write_image(os.path.join(
         #     comparison.export_dir, "delta_beta_map.png"
         #     ), format="png", scale=5,  width=1400)
@@ -163,14 +181,16 @@ def map_delta_beta_comparison(comparison: ComparisonCollector,
     return fig
 
 
-def map_ratio_beta_comparison(comparison: ComparisonCollector,
-                              export: bool = False) -> go.Figure:
+def map_ratio_beta_comparison(
+    comparison: ComparisonCollector, export: bool = False
+) -> go.Figure:
     # load data from class
-    gdf_result1 = (comparison.gdf1_uittredepunten[
+    gdf_result1 = comparison.gdf1_uittredepunten[
         ["uittredepunt_id", "beta", "geometry"]
-        ].rename(columns={"beta": "beta1"}))
-    gdf_result2 = (comparison.gdf2_uittredepunten[
-        ["uittredepunt_id", "beta"]].rename(columns={"beta": "beta2"}))
+    ].rename(columns={"beta": "beta1"})
+    gdf_result2 = comparison.gdf2_uittredepunten[
+        ["uittredepunt_id", "beta"]
+    ].rename(columns={"beta": "beta2"})
     gdf = gdf_result1.merge(gdf_result2, on="uittredepunt_id")
 
     gdf["beta_ratio"] = round((gdf["beta1"] / gdf["beta2"]) * 100, 2)
@@ -179,37 +199,39 @@ def map_ratio_beta_comparison(comparison: ComparisonCollector,
     gdf_latlon = gdf.to_crs("EPSG:4326")
 
     fig = go.Figure()
-    fig.add_trace(go.Scattermap(
-        mode="markers",
-        lat=gdf_latlon.geometry.y,
-        lon=gdf_latlon.geometry.x,
-        marker=dict(
-            size=9,
-            color="black"
-            ),
-        showlegend=False
-        ))
+    fig.add_trace(
+        go.Scattermap(
+            mode="markers",
+            lat=gdf_latlon.geometry.y,
+            lon=gdf_latlon.geometry.x,
+            marker=dict(size=9, color="black"),
+            showlegend=False,
+        )
+    )
     hoverdata = ["uittredepunt_id", "beta_ratio", "beta1", "beta2"]
-    fig.add_trace(go.Scattermap(
-        mode="markers",
-        lat=gdf_latlon.geometry.y,
-        lon=gdf_latlon.geometry.x,
-        marker=dict(
-            size=8,
-            color=gdf_latlon["beta_ratio"],
-            cmax=200,
-            cmin=0,
-            colorscale="RdYlGn",
-            colorbar=dict(title="Beta Ratio - Beta1/Beta2 [%]"),
-        ),
-        hoverinfo='text',
-        text=gdf_latlon[hoverdata].apply(
-            lambda row: '<br>'.join(
-                [f"{col}: {round(row[col], 3)}" for col in hoverdata]
+    fig.add_trace(
+        go.Scattermap(
+            mode="markers",
+            lat=gdf_latlon.geometry.y,
+            lon=gdf_latlon.geometry.x,
+            marker=dict(
+                size=8,
+                color=gdf_latlon["beta_ratio"],
+                cmax=200,
+                cmin=0,
+                colorscale="RdYlGn",
+                colorbar=dict(title="Beta Ratio - Beta1/Beta2 [%]"),
+            ),
+            hoverinfo="text",
+            text=gdf_latlon[hoverdata].apply(
+                lambda row: "<br>".join(
+                    [f"{col}: {round(row[col], 3)}" for col in hoverdata]
                 ),
-            axis=1),
-        showlegend=False
-        ))
+                axis=1,
+            ),
+            showlegend=False,
+        )
+    )
 
     fig = _add_line(comparison, fig, "dijktraject", "black")
     fig = _add_line(comparison, fig, "intredelijn", "blue")
@@ -222,25 +244,22 @@ def map_ratio_beta_comparison(comparison: ComparisonCollector,
         # carto-positron, open-street-map, satellite-streets
         map_zoom=zoom,
         map_center=dict(
-            lat=gdf_latlon.geometry.y.mean(),
-            lon=gdf_latlon.geometry.x.mean()
+            lat=gdf_latlon.geometry.y.mean(), lon=gdf_latlon.geometry.x.mean()
         ),
         dragmode="zoom",
-        title=f"Beta ratio van uittredepunten tussen<br>" +
-              f"<sup>Beta1: {comparison.name_1} en Beta2: {comparison.name_2}</sup>",
+        title="Beta ratio van uittredepunten tussen<br>"
+        + f"<sup>Beta1: {comparison.name_1} en Beta2: {comparison.name_2}</sup>",
         legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1
-            )
-        )
+            orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1
+        ),
+    )
     if export:
         os.makedirs(comparison.export_dir, exist_ok=True)
-        fig.write_html(os.path.join(
-            comparison.export_dir, "ratio_beta_map.html"
-            ), include_plotlyjs='cdn', include_mathjax='cdn')
+        fig.write_html(
+            os.path.join(comparison.export_dir, "ratio_beta_map.html"),
+            include_plotlyjs="cdn",
+            include_mathjax="cdn",
+        )
         # fig.write_image(os.path.join(
         #     comparison.export_dir, "ratio_beta_map.png"
         #     ), format="png", scale=5,  width=1400)

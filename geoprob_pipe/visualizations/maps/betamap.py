@@ -22,8 +22,8 @@ def _add_line(
     gpkg_layers: list[str] = fiona.listlayers(
         geoprob_pipe.input_data.app_settings.geopackage_filepath
     )
-    list_layers = [
-        layer for layer in gpkg_layers if layer.split("_")[0] == layer
+    list_layers: list[str] = [
+        lay for lay in gpkg_layers if lay.split("__")[0] == layer
     ]
 
     for listed_layer in list_layers:
