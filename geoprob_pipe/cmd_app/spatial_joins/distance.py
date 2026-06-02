@@ -28,13 +28,16 @@ def coupled_distances_to_uittredepunten(
     :param app_settings: Object met de instellingen van de applicatie
     """    
 
-    # Read uittredepunten
+    # Lees uittredepunten uit gpkg
     gdf_exit_points: gpd.GeoDataFrame = gpd.read_file(
         app_settings.geopackage_filepath, layer="uittredepunten"
     )
 
     # Distance to intredelijn
     layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
+    # Lees de intrede lijn(en) uit. Als er meerdere zijn worden deze allemaal
+    # uitgelezen. Er kan zowel een intredelijn zonder scenario als met een scenario
+    # tegelijk zijn.
     for layer in layers:
         if "intredelijn" in layers:  # Een intredelijn voor alle scenarios
             gdf_intredelijnen: gpd.GeoDataFrame = gpd.read_file(

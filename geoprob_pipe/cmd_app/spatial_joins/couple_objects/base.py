@@ -24,6 +24,7 @@ class BaseCouple:
     def _create_df(self, join_df: pd.DataFrame, scenario: str) -> pd.DataFrame:
         """
         Maak de dataframe die moet worden toegevoegd aan de geopackage.
+        Als er geen waarde is wordt een default gebruikt.
 
         :param join_df: DataFrame met de data uit de join.
         :param scenario: Ondergrondscenario_naam voor in de dataframe. Kan "" zijn.
@@ -133,7 +134,8 @@ class BaseCouple:
             """,
             data,
         )
-        # UPSERT naar gpkg_contents
+        # UPSERT naar gpkg_contents, vereist in gpkg om leesbaar te zijn
+        # voor GIS software
         content = (
             "gis_join_parameter_invoer",
             "attributes",

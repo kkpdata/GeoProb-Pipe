@@ -21,7 +21,7 @@ def coupled_parameters_to_uittredepunten(
     )
     parameters: list[str] = cursor.fetchone()[0].split(", ")
     conn.close()
-    if parameters == ['']:  # De split maakt één lege string als de uit de metadata gelezen string leeg is.
+    if parameters == ['']:  # De split maakt een lege string, als de uit de metadata gelezen string leeg is.
         print(
             BColors.OKBLUE,
             "✔  Geen ruimtelijke koppelingen.",

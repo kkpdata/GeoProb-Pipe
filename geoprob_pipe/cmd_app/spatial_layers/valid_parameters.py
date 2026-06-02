@@ -40,6 +40,13 @@ LIST_PARAMS: dict[str, dict] = {
 }
 
 def valid_parameter_list(app_settings: ApplicationSettings):
+    """
+    Bepaal de lijst met parameters op basis van de ingevoerde lijst en de parameters
+    die in het gekozen model gebruikt worden.
+
+    :param app_settings: Object met de instellingen van de app.
+    :return: Lijst met de parameters die ruimtelijk ingevoerd kunnen worden.
+    """    
     conn = sqlite3.connect(app_settings.geopackage_filepath)
     cur = conn.cursor()
     cur.execute(
@@ -58,6 +65,7 @@ def valid_parameter_list(app_settings: ApplicationSettings):
         case "wbi":
             model_list = [param["name"] for param in WBI_INPUT]
             valid_list = [param for param in input_list if param in model_list]
+            
         case "moria":
             model_list = [param["name"] for param in MORIA_INPUT]
             valid_list = [param for param in input_list if param in model_list]

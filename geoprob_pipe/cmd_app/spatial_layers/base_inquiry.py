@@ -81,7 +81,7 @@ class BaseInquiry:
                         f"""
 Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase
 met de {self.param} geometrieën.
-                        """
+"""
                     )
                 ).execute()
 
@@ -176,7 +176,7 @@ met de {self.param} geometrieën.
 Specificeer de layer waarin de {self.param} staat. Type 'listlayers' om
 een overzicht te krijgen van de geodatabase-layers. Type 'cancel' om een
 ander bestand op te gaven.
-                        """
+"""
                     )
                 ).execute()
 
@@ -372,13 +372,12 @@ ander bestand op te gaven.
 
         # Check var or std if not deterministic.
         for _, row in gdf.iterrows():
-            
             # Als per scenario wordt gecontroleerd is de naam in de gdf anders.
             if scenario != "":
                 prefix = scenario + "__"
             else:
                 prefix = ""
-            
+
             if row[f"{prefix}{self.param}__dist"] == "deterministic":
                 continue  # Overslaan
 
@@ -515,11 +514,12 @@ ander bestand op te gaven.
             if not self._distribution_check(
                 column_list, add_list, gdf, scenario=scenario
             ):
-                # Vang parameters niet voor dit scenario.
+                # parameters niet voor dit scenario of niet correct ingevoerd.
                 continue
+            
             scenario_add_list = [f"{scenario}__{item}" for item in add_list]
             gdf_to_add = gdf[["geometry"] + scenario_add_list]
-            
+
             for a, b in zip(scenario_add_list, add_list):
                 gdf_to_add = gdf_to_add.rename(columns={a: b})
 
@@ -543,9 +543,8 @@ ander bestand op te gaven.
         if not self._scenario_check(column_list):
             return False
 
-        for scenario in self.scenarios + [
-            None
-        ]:  # als er geen scenario zijn opgegeven in de kolom
+        # 'None' als er geen scenario zijn opgegeven in de kolom
+        for scenario in self.scenarios + [None]:  
             if scenario is None:
                 mask = gdf["ondergrondscenario"].isna()
             else:

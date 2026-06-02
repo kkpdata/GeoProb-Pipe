@@ -152,10 +152,12 @@ def request_vakindeling_filepath(app_settings: ApplicationSettings):
             gdf: GeoDataFrame = read_file(filepath)
         validate_vakindeling(app_settings, gdf=gdf)
     elif filepath.endswith(".gpkg"):
-        gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
+        gdf: GeoDataFrame = import_from_geopackage(app_settings=app_settings,
+                                                   filepath=filepath)
         validate_vakindeling(app_settings, gdf=gdf)
     elif filepath.endswith(".gdb"):
-        gdf: GeoDataFrame = import_from_geodatabase(filepath=filepath)
+        gdf: GeoDataFrame = import_from_geodatabase(app_settings=app_settings,
+                                                    filepath=filepath)
         validate_vakindeling(app_settings, gdf=gdf)
     else:
         raise NotImplementedError(f"File with extension {filepath.split(sep='.')[-1]} is not yet supported. "
