@@ -7,7 +7,7 @@ from geoprob_pipe.visualizations.graphs.assemblage_icicle import IciclePlot
 from geoprob_pipe.visualizations.graphs.physical_values_along_levee import physical_values_buitenwaterstand_and_top_zand
 from geoprob_pipe.visualizations.graphs.invloedsfactoren import invloedsfactoren
 from geoprob_pipe.visualizations.graphs.phreatic_waterline import phreatic_waterline
-from geoprob_pipe.visualizations.graphs.overview_alpha import overview_alpha
+from geoprob_pipe.visualizations.graphs.overview_alpha import OverviewAlpha
 from geoprob_pipe.visualizations.graphs.river_waterlevel import river_waterlevel
 from typing import TYPE_CHECKING
 from plotly.graph_objects import Figure as PlotlyFigure
@@ -59,7 +59,7 @@ class Graphs:
         return phreatic_waterline(self.geoprob_pipe, export=False)
 
     def overview_alpha(self) -> PlotlyFigure:
-        return overview_alpha(self.geoprob_pipe, export=False)
+        return OverviewAlpha(self.geoprob_pipe, export=False).fig
 
     def river_waterlevel(self) -> PlotlyFigure:
         return river_waterlevel(self.geoprob_pipe, export=False)
@@ -71,5 +71,5 @@ class Graphs:
         self.physical_values_buitenwaterstand_and_top_zand(export=True)
         self.invloedsfactoren(export=True)
         phreatic_waterline(self.geoprob_pipe, export=True)
-        overview_alpha(self.geoprob_pipe, export=True)
+        OverviewAlpha(self.geoprob_pipe, export=True)
         river_waterlevel(self.geoprob_pipe, export=True)
