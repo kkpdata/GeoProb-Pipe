@@ -1,30 +1,42 @@
 from __future__ import annotations
+
 import os
-import numpy as np
-from pandas import DataFrame, concat, Series
-from geopandas import GeoDataFrame
-import plotly.colors as pc
-from plotly.graph_objects import Figure, Scatter
 from typing import TYPE_CHECKING, Dict, List, Tuple
-from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
+
+import numpy as np
+import plotly.colors as pc
+from geopandas import GeoDataFrame
+from pandas import DataFrame, Series, concat
+from plotly.graph_objects import Figure, Scatter
+
+from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import (
+    run_expand_input_tables,
+)
+
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
-
+# Terugkeertijden om buitenwaterstand bij te plotten
 TARGET_FREQS = np.array([
         0.1, 0.033333333, 0.01, 0.003333333, 0.001, 0.000333333, 0.0001, 3.33333E-05, 0.00001, 3.33333E-06])
 
 
 def _collect_data(geoprob_pipe: GeoProbPipe) -> Tuple[DataFrame, GeoDataFrame, DataFrame, DataFrame]:
+    """
+    Verzamel de data voor de plots. Physical values, Metrering, Beta waardes
+    en Hydra curves per uittredepunt.
 
+    :param geoprob_pipe: Hoofdbestand van de applicatie.
+    :return: Tuple met dataframes van alle onderdelen.
+    """
     # Collect uittredepunten
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
 
     # Collect physical values
-    df = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
+    df_physical = geoprob_pipe.results.df_alphas_influence_factors_and_physical_values(
         filter_deterministic=False, filter_derived=False)
-    df = df[["uittredepunt_id", "ondergrondscenario_id", "vak_id", "variable", "distribution_type", "physical_value"]]
-    df = df.merge(gdf_uittredepunten[["uittredepunt_id", "metrering"]], on="uittredepunt_id", how="left")
+    df_physical = df_physical[["uittredepunt_id", "ondergrondscenario_id", "vak_id", "variable", "distribution_type", "physical_value"]]
+    df_physical = df_physical.merge(gdf_uittredepunten[["uittredepunt_id", "metrering"]], on="uittredepunt_id", how="left")
 
     # Collect Beta results uittredepunten
     df_beta = geoprob_pipe.results.df_beta_uittredepunten
@@ -38,14 +50,21 @@ def _collect_data(geoprob_pipe: GeoProbPipe) -> Tuple[DataFrame, GeoDataFrame, D
               df_input['parameter_input'].apply(Series)], # Expansion of dict in parameter_input-column
         axis=1)
 
-    return df, gdf_uittredepunten, df_beta, df_input
+    return df_physical, gdf_uittredepunten, df_beta, df_input
 
 
 def _collect_hydra_curves(
-        df: DataFrame, gdf_uittredepunten: GeoDataFrame) -> Dict[float, Dict[str, List[float]]]:
+        df_input: DataFrame, gdf_uittredepunten: GeoDataFrame) -> Dict[float, Dict[str, List[float]]]:
+    """
+    Bepaal de hydra curves op de juiste locatie.
+
+    :param df_input: DataFreame met input tabellen voor hrd locaties.
+    :param gdf_uittredepunten: GeoDataFrame met metrering.
+    :return: Hydra curves per locatie als dict.
+    """    
     hydra_curves = {freq: {"metrering": [], "level": []} for freq in TARGET_FREQS}
 
-    for _, row in df.iterrows():
+    for _, row in df_input.iterrows():
         if row["distribution_type"] != "deterministic":
             df_subset = gdf_uittredepunten[gdf_uittredepunten["vak_id"] == row["vak_id"]]
             if df_subset.empty:
@@ -74,8 +93,16 @@ def _collect_hydra_curves(
 
 def _plot_continuous_exceedance_lines(
         fig: Figure, hydra_curves: Dict[float, Dict[str, List[float]]]):
+    """
+    Plot de hydra curves als continue lijnen per herhaaltijd in verschillende
+    kleuren.
 
-    # Blue gradient for lines
+    :param fig: plotly.Figure object met de plots.
+    :param hydra_curves: Dict met Hydra curves per locatie
+    :return: fig
+    """    
+
+    # Multicolor gradient for lines
     line_colors = pc.sample_colorscale(
         colorscale="Jet", samplepoints=np.linspace(start=0.2, stop=0.9, num=len(TARGET_FREQS)))
     freq_color_map = {f: c for f, c in zip(TARGET_FREQS, line_colors)}
@@ -95,6 +122,14 @@ def _plot_continuous_exceedance_lines(
 
 
 def _plot_physical_values(fig: Figure, df: DataFrame) -> Figure:
+    """
+    Plot per uitredepunt de physical value van de buitenwaterstand met een kleur
+    op basis van de beta waarde.
+
+    :param fig: plotly.Figure object met de plots.
+    :param df: Dataframe met de betas.
+    :return: plotly.Figure object met de plots.
+    """    
     beta_colorscale = "RdYlGn" # Green-to-red scale (low beta = red, high beta = green)
     betas = df["beta"].to_numpy()
     fig.add_trace(
@@ -129,13 +164,21 @@ def _update_layout(fig: Figure) -> Figure:
 
 
 def river_waterlevel(geoprob_pipe: GeoProbPipe, export: bool = False):
+    """
+    Maak een plot van de hydra curves voor de buitenwaterstand bij verschillende
+    herhaaltijden samen met de physical value die berekent zijn.
+
+    :param geoprob_pipe:  Hoofdbestand van de applicatie.
+    :param export: of het figuur naar html moet worden geëxporteerd, defaults to False
+    :return: plotly.Figure object
+    """    
 
     # Prepare base data
     df, gdf_uittredepunten, df_beta, df_input = _collect_data(geoprob_pipe=geoprob_pipe)
 
     # Collect Hydra lines (grouped per frequency)
     hydra_curves: Dict[float, Dict[str, List[float]]] = _collect_hydra_curves(
-        df=df_input, gdf_uittredepunten=gdf_uittredepunten)
+        df_input=df_input, gdf_uittredepunten=gdf_uittredepunten)
 
     # Plot one continuous line per exceedance frequency
     fig = Figure()

@@ -1,10 +1,13 @@
 from __future__ import annotations
-from pandas import DataFrame, merge, Series
-import numpy as np
+
 import os
 from datetime import datetime
-import plotly.graph_objects as go
 from typing import TYPE_CHECKING
+
+import numpy as np
+import plotly.graph_objects as go
+from pandas import DataFrame, Series, merge
+
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
