@@ -124,6 +124,13 @@ class OverviewAlpha:
         )
 
     def _create_plot(self) -> Figure:
+        """
+        Maak de subplots per paramate per scenario. Met maar een scenario zichtbaar.
+        Voegt bij de layout ook een knop toe om te kiezen welke set plots
+        zichtbaar zijn op basis van scenario naam.
+
+        :return: Plotly figuur met de subplots.
+        """        
         # Create subplots
         fig = make_subplots(
             rows=len(self.parameters),
@@ -211,53 +218,10 @@ class OverviewAlpha:
                 self.geoprob_pipe.visualizations.graphs.export_dir,
                 "grafiek_physical_values",
             )
-            
+
             os.makedirs(export_dir, exist_ok=True)
 
             self.fig.write_html(
                 os.path.join(export_dir, "overview_alphas.html"),
                 include_plotlyjs="cdn",
             )
-
-            # for scenario in self.scenarios:
-            #     df_case = self.df_alpha[
-            #         self.df_alpha["ondergrondscenario_id"] == scenario
-            #     ]
-            #     fig_case = make_subplots(
-            #         rows=len(self.parameters),
-            #         cols=1,
-            #         shared_xaxes=False,
-            #         subplot_titles=self.parameters,
-            #     )
-
-            #     for row_idx, param in enumerate(self.parameters, start=1):
-            #         df_param = df_case[df_case["variable"] == param]
-            #         fig_case.add_trace(
-            #             go.Scatter(
-            #                 x=df_param["metrering"],
-            #                 y=df_param["physical_value"],
-            #                 mode="markers",
-            #                 marker=dict(color="black", symbol="x", size=5),
-            #                 name=param,
-            #             ),
-            #             row=row_idx,
-            #             col=1,
-            #         )
-            #         fig_case.update_xaxes(
-            #             showgrid=True, tickangle=90, row=row_idx, col=1
-            #         )
-            #         fig_case.update_yaxes(
-            #             showgrid=True,
-            #             title_text=f"{param} [{self.param_units[param]}]"
-            #             + f"<br>({self.dist_types[param]})",
-            #             row=row_idx,
-            #             col=1,
-            #         )
-
-            #     fig_case.update_layout(
-            #         height=300 * len(self.parameters),
-            #         showlegend=False,
-            #         title=f"Overview of parameters for Scenario {self.scenarios[0]}",
-            #     )
-
-
