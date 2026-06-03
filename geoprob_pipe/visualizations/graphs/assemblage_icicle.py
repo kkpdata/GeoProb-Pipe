@@ -18,8 +18,8 @@ class IciclePlot:
         Hierin kan worden gezien hoe de faalkansen en beta's tot stand komen
         vanuit onderliggende elementen.
 
-        :param geoprob_pipe: _description_
-        :param export: Of het figuur geëxporteerd wordt, defaults to False
+        :param geoprob_pipe: Hoofdobject van de applicatie.
+        :param export: Of het figuur geëxporteerd wordt, defaults to False.
         """        
         self.geoprob_pipe: GeoProbPipe = geoprob_pipe
         self.export: bool = export
@@ -30,6 +30,11 @@ class IciclePlot:
         self._optionally_export()
 
     def _setup_df(self):
+        """
+        Set de DataFrame op voor de icicle door de verschillende lagen stap
+        voor stap samen te voegen. De `id` kolom functioneert als key voor het
+        koppelen.
+        """        
         # Per element parent_name, label, pf, beta
         df_traject = self.geoprob_pipe.results.df_beta_traject
         df_vakken = self.geoprob_pipe.results.df_beta_WBI_vakken
@@ -157,6 +162,12 @@ class IciclePlot:
         self.df_icicle = df_icicle
 
     def _beta_to_color(self, beta: float) -> str:
+        """
+        Vindt de juiste riskeer kleuren bij de betawaardes op basis van de norm.
+
+        :param beta: beta waarde om kleur van te bepalen.
+        :return: rgba waardes van de juiste kleur als string.
+        """        
         cg: Dict[str, List[float]] = self.geoprob_pipe.input_data.traject_normering.riskeer_categorie_grenzen
         # labels = ["+III", "+II", "+I", "0", "-I", "-II", "-III"]
         colors = [
@@ -182,6 +193,9 @@ class IciclePlot:
         return "rgba(128,128,128,0.6)"
 
     def _plot(self):
+        """
+        Maak de icicle-plot op basis van de ongezette dataframe.
+        """        
         df = self.df_icicle
 
         mask_vakken = df["parent_name"].eq("1")
@@ -229,6 +243,9 @@ class IciclePlot:
             )
 
     def _optionally_export(self):
+        """
+        Maak de html van de plot met ingebouwde scroll bar.
+        """        
         if self.export:
             path = self.geoprob_pipe.visualizations.graphs.export_dir
 

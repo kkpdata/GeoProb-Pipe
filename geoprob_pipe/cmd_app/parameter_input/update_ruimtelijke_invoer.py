@@ -17,7 +17,8 @@ if TYPE_CHECKING:
 
 
 class SpatialUpdateMenu:
-
+    restart_flag: bool = False
+    
     def __init__(
         self,
         app_settings: ApplicationSettings,
@@ -25,18 +26,17 @@ class SpatialUpdateMenu:
         """
         Class voor alle submenus onder het aanpassen vaan de ruimtelijke invoer.
 
-        :param app_settings: Object met de instellingen van de applicatie,
+        :param app_settings: Object met de instellingen van de applicatie
         """        
         self.app_settings = app_settings
-        self.restart_flag: bool = False
 
     def inquire_spatial_update(
         self,
-    ):
+    ) -> None:
         """
         Keuzemenu voor het updaten van de ruimtelijke invoer van de .gpkg.
 
-        :param app_settings: _description_
+        :param app_settings: Object met de instellingen van de applicatie
         """
         
 
@@ -87,12 +87,10 @@ class SpatialUpdateMenu:
                 case "Ga terug naar het parameter invoer menu":
                     return
 
-    def inquire_replace_layers(self):
+    def inquire_replace_layers(self) -> None:
         """
         Verwijder tabellen die opnieuw moeten worden ingeladen om de geopackage te
         updaten.
-
-        :param app_settings: _description_
         """
         conn = sqlite3.connect(self.app_settings.geopackage_filepath)
 
@@ -157,12 +155,10 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
         self.remove_tables(table_list)
         self.completed_update()
 
-    def add_parameters(self):
+    def add_parameters(self) -> None:
         """
         Voeg extra parameters toe voor de ruimtelijke invoer. De aanpassingen
         kunnen pas verwerkt worden nadat de applicatie opnieuw is opgestart.
-
-        :param app_settings: `ApplicationSettings` object met alle settings.
         """
 
         conn = sqlite3.connect(self.app_settings.geopackage_filepath)
@@ -228,7 +224,7 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
 
         self.completed_update()
 
-    def remove_parameters(self):
+    def remove_parameters(self) -> None:
         conn = sqlite3.connect(self.app_settings.geopackage_filepath)
 
         # Haal ruimtelijke parameters op vanuit de metadata
@@ -298,7 +294,7 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
         self.remove_tables(table_list)
         self.completed_update()
 
-    def add_scenarios(self):
+    def add_scenarios(self) -> None:
         """
         Voeg ondergrondscenarios toe aan de lijst. Dit betekent dat alle
         ruimtelijke invoer opnieuw moet worden ingeladen.
@@ -341,7 +337,7 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
             # Remove tables to recollect data.
             self.remove_tables()
 
-    def remove_scenarios(self):
+    def remove_scenarios(self) -> None:
         """
         Verwijder ondergrondscenarios uit de lijst. Dit betekent dat alle
         ruimtelijke invoer opnieuw moet worden ingeladen.
@@ -393,9 +389,10 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
             # Remove tables to recollect data.
             self.remove_tables()
 
-    def update_metadata_scenarios(self, scenarios: str):
+    def update_metadata_scenarios(self, scenarios: str) -> None:
         """
         Update de ondergrondscenarios in de metadata.
+        :param scenarios: Nieuwe versie van de scenariios string voor in de metadata.
         """
         conn = sqlite3.connect(self.app_settings.geopackage_filepath)
 
@@ -407,9 +404,11 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
         conn.commit()
         conn.close()
 
-    def update_metadata_parameters(self, parameters: str):
+    def update_metadata_parameters(self, parameters: str) -> None:
         """
         Update de parameters voor ruimtelijke invoer in de metadata.
+        
+        :param parameters: nieuwe versie van de parameters string voor in de metadata
         """
         conn = sqlite3.connect(self.app_settings.geopackage_filepath)
 
@@ -428,13 +427,12 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
         conn.commit()
         conn.close()
 
-    def remove_tables(self, table_list: list[str] = []):
+    def remove_tables(self, table_list: list[str] = []) -> None:
         """
         Verwijder de tabellen uit de geopackage en de metadata zodat deze opnieuw
         kunnen worden ingeladen. Als de lijst leeg is worden alle tabellen met
         ruimtelijke invoer verwijderd.
 
-        :param app_settings: Object met applicatie instellingen.
         :param table_list: Lijst met tabellen om te verwijderen, defaults to []
         """
         update_batch_metadata(self.app_settings, value=True)
@@ -497,7 +495,7 @@ Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
         conn.commit()
         conn.close()
 
-    def completed_update(self):
+    def completed_update(self) -> None:
         """
         Na aanpassing van de opties moet de applicatie opnieuw opstarten. Bied
         de optie om meerdere aanpassingen te doen voordat de applicatie wordt

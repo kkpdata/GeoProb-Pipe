@@ -85,6 +85,12 @@ def _add_beta_per_uittredepunt_indication_below_plotting_range(
 class GraphBetaValuesSingleInteractive:
 
     def __init__(self, geoprob_pipe: GeoProbPipe, export: bool = True):
+        """
+        Class voor het maken van de betrouwbaarheidsindex plot.
+
+        :param geoprob_pipe: Hoofdobject van de applicatie.
+        :param export: Of de figuur geëxporteerd moet worden, defaults to True
+        """        
 
         # Logic
         self.geoprob_pipe = geoprob_pipe
@@ -112,6 +118,9 @@ class GraphBetaValuesSingleInteractive:
         self._optionally_export(export=export)
 
     def _add_backgrond(self):
+        """
+        Voeg de achtergrond kleuren toe op basis van de normwaarden.
+        """        
         # Oude categorie grenzen
         # cg = (self.geoprob_pipe.input_data.traject_normering
         #       .beta_categorie_grenzen)
@@ -207,6 +216,11 @@ class GraphBetaValuesSingleInteractive:
             ))
 
     def _add_beta_per_scenario(self):
+        """
+        Voeg de traces van de scenarios toe aan de plot, inclusief extra
+        symbolen voor punten die buiten de range vallen. En niet geconvergeerde
+        resultaten in een andere kleur.
+        """        
         df_beta_scenarios_final = self.geoprob_pipe.results.df_beta_scenarios_final
         df_for_graph: DataFrame = merge(
             left=df_beta_scenarios_final[[
@@ -276,6 +290,11 @@ class GraphBetaValuesSingleInteractive:
                                    "Metrering: %{customdata[2]}")))
 
     def _add_beta_per_uittredepunt(self):
+        """
+        Voeg de traces van de uittredepunten toe aan de plot, inclusief extra
+        symbolen voor punten die buiten de range vallen. En niet geconvergeerde
+        resultaten in een andere kleur.
+        """        
 
         # Gather results to plot
         df_results_uittredepunten = self.geoprob_pipe.results.df_beta_uittredepunten
@@ -309,6 +328,11 @@ class GraphBetaValuesSingleInteractive:
                 name=name, color=color, value=value)
 
     def _add_beta_per_vak(self):
+        """
+        Voeg de traces van de vakken toe aan de plot, inclusief extra
+        symbolen voor punten die buiten de range vallen. En niet geconvergeerde
+        resultaten in een andere kleur.
+        """        
         # Gather data
         df_results_vakken = self.geoprob_pipe.results.df_beta_WBI_vakken
         df_results_vakken = df_results_vakken.rename(
@@ -381,6 +405,9 @@ class GraphBetaValuesSingleInteractive:
                 first = False
 
     def _add_beta_per_traject(self):
+        """
+        Voeg de trace van het traject toe aan de plot.
+        """        
         df = self.geoprob_pipe.results.df_beta_traject
         df = df[df["method"] == 'WBI methode over traject']
         beta_traject: float = df["lower_bound_beta"].iloc[0]
@@ -400,6 +427,10 @@ class GraphBetaValuesSingleInteractive:
         ))
 
     def _update_layout(self):
+        """
+        Voeg de lay-out van de plot toe inclusief knoppen om de lijnen en vak
+        annotaties aan en uit te zetten.
+        """        
         if self.verder_rekenen_geadviseerd:
             self.fig.add_trace(go.Scatter(
                 x=[0], y=[0], name="Verder rekenen geadviseerd", showlegend=True,
@@ -427,8 +458,8 @@ class GraphBetaValuesSingleInteractive:
             legend=dict(
                 yanchor="top",
                 y=0.99,
-                xanchor="left",
-                x=0.01
+                xanchor="right",
+                x=-0.01
                 ),
             annotations=annotation,
             shapes=self.vak_lines
