@@ -16,144 +16,175 @@ if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
 
-def inquire_spatial_update(
-    app_settings: ApplicationSettings,
-):
-    choices_list = [
-        "Vervang ingevoerde lagen",
-        "Voeg parameters toe voor ruimtelijke invoer",
-        "Verwijder parameters voor ruimtelijke invoer",
-        "Voeg scenarios toe voor ruimtelijke invoer",
-        "Verwijder scenarios voor ruimtelijke invoer",
-        "Ga terug naar het parameter invoer menu",
-    ]
-    while True:
-        choice = ListPrompt(
-            message="Maak een keuze voor het aanpassen van de ruimtelijke invoer.",
-            choices=choices_list,
-            default=choices_list[0],
-        ).execute()
+class SpatialUpdateMenu:
 
-        match choice:
-            case "Vervang ingevoerde lagen":
-                inquire_replace_layers(app_settings)
-                continue
+    def __init__(
+        self,
+        app_settings: ApplicationSettings,
+    ) -> None:
+        """
+        Class voor alle submenus onder het aanpassen vaan de ruimtelijke invoer.
 
-            case "Voeg parameters toe voor ruimtelijke invoer":
-                add_parameters(app_settings)
-                continue
+        :param app_settings: Object met de instellingen van de applicatie,
+        """        
+        self.app_settings = app_settings
+        self.restart_flag: bool = False
 
-            case "Verwijder parameters voor ruimtelijke invoer":
-                remove_parameters(app_settings)
-                continue
+    def inquire_spatial_update(
+        self,
+    ):
+        """
+        Keuzemenu voor het updaten van de ruimtelijke invoer van de .gpkg.
 
-            case "Voeg scenarios toe voor ruimtelijke invoer":
-                add_scenarios(app_settings)
-                continue
+        :param app_settings: _description_
+        """
+        
 
-            case "Verwijder scenarios voor ruimtelijke invoer":
-                remove_scenarios(app_settings)
-                continue
+        while True:
+            choices_list = [
+                "Vervang ingevoerde lagen",
+                "Voeg parameters toe voor ruimtelijke invoer",
+                "Verwijder parameters voor ruimtelijke invoer",
+                "Voeg scenarios toe voor ruimtelijke invoer",
+                "Verwijder scenarios voor ruimtelijke invoer",
+            ]
+        
+            if self.restart_flag:
+                choices_list.append("Applicatie afsluiten na aanpassingen")
+            else:
+                choices_list.append("Ga terug naar het parameter invoer menu")
+                
+            choice = ListPrompt(
+                message="Maak een keuze voor het aanpassen van de ruimtelijke invoer.",
+                choices=choices_list,
+                default=choices_list[0],
+            ).execute()
 
-            case "Ga terug naar het parameter invoer menu":
-                return
+            match choice:
+                case "Vervang ingevoerde lagen":
+                    self.inquire_replace_layers()
+                    continue
 
+                case "Voeg parameters toe voor ruimtelijke invoer":
+                    self.add_parameters()
+                    continue
 
-def inquire_replace_layers(app_settings: ApplicationSettings):
-    """
-    Verwijder tabellen die opnieuw moeten worden ingeladen om de geopackage te
-    updaten.
+                case "Verwijder parameters voor ruimtelijke invoer":
+                    self.remove_parameters()
+                    continue
 
-    :param app_settings: _description_
-    """
-    conn = sqlite3.connect(app_settings.geopackage_filepath)
+                case "Voeg scenarios toe voor ruimtelijke invoer":
+                    self.add_scenarios()
+                    continue
 
-    # Haal ruimtelijke parameters op vanuit de metadata
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
-        ("ruimtelijke_parameters",),
-    )
-    parameters: list[str] = cursor.fetchone()[0].split(", ")
+                case "Verwijder scenarios voor ruimtelijke invoer":
+                    self.remove_scenarios()
+                    continue
+                
+                case "Applicatie afsluiten na aanpassingen":
+                    sys.exit("Applicatie is afgesloten.")
+                    
+                case "Ga terug naar het parameter invoer menu":
+                    return
 
-    conn.commit()
-    conn.close()
+    def inquire_replace_layers(self):
+        """
+        Verwijder tabellen die opnieuw moeten worden ingeladen om de geopackage te
+        updaten.
 
-    valid_list = valid_parameter_list(app_settings)
+        :param app_settings: _description_
+        """
+        conn = sqlite3.connect(self.app_settings.geopackage_filepath)
 
-    while True:
-        parameter_input: str = InputPrompt(
-            message=f"""
+        # Haal ruimtelijke parameters op vanuit de metadata
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
+            ("ruimtelijke_parameters",),
+        )
+        parameters: list[str] = cursor.fetchone()[0].split(", ")
+
+        conn.commit()
+        conn.close()
+
+        valid_list = valid_parameter_list(self.app_settings)
+
+        while True:
+            parameter_input: str = InputPrompt(
+                message=f"""
 De volgende parameters zijn nu aangemerkt voor ruimtelijke invoer:
 {", ".join(parameters)}
 Welke parameters wil je updaten? Geef deze met comma's gescheiden op.
 De tabellen worden verwijderd uit de geopackage zodat deze opnieuw worden ingelezen.
 Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
 """
-        ).execute()
+            ).execute()
 
-        if parameter_input == "":
-            print(
-                BColors.OKBLUE,
-                "Geen tabellen verwijderd.",
-                BColors.ENDC,
+            if parameter_input == "":
+                print(
+                    BColors.OKBLUE,
+                    "Geen tabellen verwijderd.",
+                    BColors.ENDC,
+                )
+                return
+
+            valid_input = all(
+                [
+                    param
+                    for param in parameter_input.split(",")
+                    if param in valid_list
+                ]
             )
-            return
+            if not valid_input:
+                print(
+                    BColors.OKBLUE,
+                    f"Geen parameters toegevoegd. '{parameter_input}' bevat een ongeldige parameter.",
+                    BColors.ENDC,
+                )
+                continue
 
-        valid_input = all(
-            [
-                param
-                for param in parameter_input.split(",")
-                if param in valid_list
-            ]
+            break
+
+        # Verwijder uit geopackage
+        layers: list[str] = fiona.listlayers(
+            self.app_settings.geopackage_filepath
         )
-        if not valid_input:
-            print(
-                BColors.OKBLUE,
-                f"Geen parameters toegevoegd. '{parameter_input}' bevat een ongeldige parameter.",
-                BColors.ENDC,
-            )
-            continue
+        table_list = [
+            layer
+            for layer in layers
+            if layer.split("__")[0] in parameter_input
+        ]
+        self.remove_tables(table_list)
+        self.completed_update()
 
-        break
+    def add_parameters(self):
+        """
+        Voeg extra parameters toe voor de ruimtelijke invoer. De aanpassingen
+        kunnen pas verwerkt worden nadat de applicatie opnieuw is opgestart.
 
-    # Verwijder uit geopackage
-    layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
-    table_list = [
-        layer for layer in layers if layer.split("__")[0] in parameter_input
-    ]
-    remove_tables(app_settings, table_list)
-    completed_update()
+        :param app_settings: `ApplicationSettings` object met alle settings.
+        """
 
+        conn = sqlite3.connect(self.app_settings.geopackage_filepath)
 
-def add_parameters(app_settings: ApplicationSettings):
-    """
-    Voeg extra parameters toe voor de ruimtelijke invoer. De aanpassingen
-    kunnen pas verwerkt worden nadat de applicatie opnieuw is opgestart.
+        # Haal ruimtelijke parameters op vanuit de metadata
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
+            ("ruimtelijke_parameters",),
+        )
+        current_parameters: list[str] = cursor.fetchone()[0].split(", ")
 
-    :param app_settings: `ApplicationSettings` object met alle settings.
-    """
+        conn.commit()
+        conn.close()
 
-    conn = sqlite3.connect(app_settings.geopackage_filepath)
+        # Haal lijst met geldige parameters op.
+        valid_list = valid_parameter_list(self.app_settings)
 
-    # Haal ruimtelijke parameters op vanuit de metadata
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
-        ("ruimtelijke_parameters",),
-    )
-    current_parameters: list[str] = cursor.fetchone()[0].split(", ")
-
-    conn.commit()
-    conn.close()
-
-    # Haal lijst met geldige parameters op.
-    valid_list = valid_parameter_list(app_settings)
-
-    # Vraag gebruiker voor toevoegingen.
-    while True:
-        parameter_input: str = InputPrompt(
-            message=f"""
+        # Vraag gebruiker voor toevoegingen.
+        while True:
+            parameter_input: str = InputPrompt(
+                message=f"""
 De volgende parameters zijn nu aangemerkt voor ruimtelijke invoer:
 {", ".join(current_parameters)}
 De volgende parameters kunnen worden toegevoegd:
@@ -161,332 +192,332 @@ De volgende parameters kunnen worden toegevoegd:
 Welke parameters wil je hieraan toevoegen? Geef deze met comma's gescheiden op.
 Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
 """
-        ).execute()
+            ).execute()
 
-        if parameter_input == "":
-            print(
-                BColors.OKBLUE,
-                "Geen nieuwe parameters toegevoegd.",
-                BColors.ENDC,
+            if parameter_input == "":
+                print(
+                    BColors.OKBLUE,
+                    "Geen nieuwe parameters toegevoegd.",
+                    BColors.ENDC,
+                )
+                return
+
+            valid_input = all(
+                [
+                    param
+                    for param in parameter_input.split(",")
+                    if param in valid_list
+                ]
             )
-            return
 
-        valid_input = all(
-            [
-                param
-                for param in parameter_input.split(",")
-                if param in valid_list
-            ]
+            if not valid_input:
+                print(
+                    BColors.OKBLUE,
+                    f"Geen parameters toegevoegd. '{parameter_input}' bevat een ongeldige parameter.",
+                    BColors.ENDC,
+                )
+                continue
+
+            break
+
+        # Update metadata
+        parameters = current_parameters + parameter_input.split(",")
+        parameters = list(set(parameters))  # Verwijder dubbele waardes
+        parameters = ", ".join(parameters)
+        self.update_metadata_parameters(parameters)
+
+        self.completed_update()
+
+    def remove_parameters(self):
+        conn = sqlite3.connect(self.app_settings.geopackage_filepath)
+
+        # Haal ruimtelijke parameters op vanuit de metadata
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
+            ("ruimtelijke_parameters",),
         )
+        parameters: list[str] = cursor.fetchone()[0].split(", ")
 
-        if not valid_input:
-            print(
-                BColors.OKBLUE,
-                f"Geen parameters toegevoegd. '{parameter_input}' bevat een ongeldige parameter.",
-                BColors.ENDC,
-            )
-            continue
+        conn.commit()
+        conn.close()
 
-        break
+        valid_list = valid_parameter_list(self.app_settings)
 
-    # Update metadata
-    parameters = current_parameters + parameter_input.split(",")
-    parameters = list(set(parameters))  # Verwijder dubbele waardes
-    parameters = ", ".join(parameters)
-    update_metadata_parameters(app_settings, parameters)
-
-    completed_update()
-
-
-def remove_parameters(app_settings: ApplicationSettings):
-    conn = sqlite3.connect(app_settings.geopackage_filepath)
-
-    # Haal ruimtelijke parameters op vanuit de metadata
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
-        ("ruimtelijke_parameters",),
-    )
-    parameters: list[str] = cursor.fetchone()[0].split(", ")
-
-    conn.commit()
-    conn.close()
-
-    valid_list = valid_parameter_list(app_settings)
-
-    while True:
-        parameter_input: str = InputPrompt(
-            message=f"""
+        while True:
+            parameter_input: str = InputPrompt(
+                message=f"""
 De volgende parameters zijn nu aangemerkt voor ruimtelijke invoer:
 {", ".join(parameters)}
 Welke parameters wil je verwijderen? Geef deze met comma's gescheiden op.
 Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
 """
-        ).execute()
+            ).execute()
 
-        if parameter_input == "":
-            print(
-                BColors.OKBLUE,
-                "Geen parameters verwijderd.",
-                BColors.ENDC,
+            if parameter_input == "":
+                print(
+                    BColors.OKBLUE,
+                    "Geen parameters verwijderd.",
+                    BColors.ENDC,
+                )
+                return
+
+            valid_input = all(
+                [
+                    param
+                    for param in parameter_input.split(",")
+                    if param in valid_list
+                ]
             )
-            return
 
-        valid_input = all(
-            [
-                param
-                for param in parameter_input.split(",")
-                if param in valid_list
-            ]
+            if not valid_input:
+                print(
+                    BColors.OKBLUE,
+                    f"Geen parameters toegevoegd. '{parameter_input}' bevat een ongeldige parameter.",
+                    BColors.ENDC,
+                )
+                continue
+
+            break
+
+        # Update metadata
+        for parameter in parameter_input.split(","):
+            parameters.remove(parameter)
+
+        updated_parameters = ", ".join(parameters)
+        self.update_metadata_parameters(updated_parameters)
+        # Verwijder uit geopackage
+        layers: list[str] = fiona.listlayers(
+            self.app_settings.geopackage_filepath
         )
+        table_list = [
+            layer
+            for layer in layers
+            if layer.split("__")[0] in updated_parameters
+        ]
+        self.remove_tables(table_list)
+        self.completed_update()
 
-        if not valid_input:
-            print(
-                BColors.OKBLUE,
-                f"Geen parameters toegevoegd. '{parameter_input}' bevat een ongeldige parameter.",
-                BColors.ENDC,
-            )
-            continue
+    def add_scenarios(self):
+        """
+        Voeg ondergrondscenarios toe aan de lijst. Dit betekent dat alle
+        ruimtelijke invoer opnieuw moet worden ingeladen.
+        """
+        # Haal de huidige scenarios op.
+        conn = sqlite3.connect(self.app_settings.geopackage_filepath)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
+            ("ruimtelijke_scenarios",),
+        )
+        current_scenarios: list[str] = cursor.fetchone()[0].split(", ")
 
-        break
+        conn.commit()
+        conn.close()
 
-    # Update metadata
-    for parameter in parameter_input.split(","):
-        parameters.remove(parameter)
-
-    updated_parameters = ", ".join(parameters)
-    update_metadata_parameters(app_settings, updated_parameters)
-    # Verwijder uit geopackage
-    layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
-    table_list = [
-        layer for layer in layers if layer.split("__")[0] in updated_parameters
-    ]
-    remove_tables(app_settings, table_list)
-    completed_update()
-
-
-def add_scenarios(app_settings: ApplicationSettings):
-    """
-    Voeg ondergrondscenarios toe aan de lijst. Dit betekent dat alle
-    ruimtelijke invoer opnieuw moet worden ingeladen.
-    """
-    # Haal de huidige scenarios op.
-    conn = sqlite3.connect(app_settings.geopackage_filepath)
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
-        ("ruimtelijke_scenarios",),
-    )
-    current_scenarios: list[str] = cursor.fetchone()[0].split(", ")
-
-    conn.commit()
-    conn.close()
-
-    # Vraag gebruiker voor toevoegingen.
-    while True:
-        scenario_input = InputPrompt(
-            message=f"""
+        # Vraag gebruiker voor toevoegingen.
+        while True:
+            scenario_input = InputPrompt(
+                message=f"""
 De volgende scenario zijn nu toegevoegd:
 {", ".join(current_scenarios)}
 Welke scenarios wil je hieraan toevoegen? Geef deze met comma's gescheiden op.
 Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
 """
-        ).execute()
+            ).execute()
 
-        if scenario_input == "":
-            print(
-                BColors.OKBLUE,
-                "Geen nieuwe scenarios toegevoegd.",
-                BColors.ENDC,
-            )
-            return
+            if scenario_input == "":
+                print(
+                    BColors.OKBLUE,
+                    "Geen nieuwe scenarios toegevoegd.",
+                    BColors.ENDC,
+                )
+                return
 
-        # Update metadata
-        updated_scenarios = current_scenarios + scenario_input
-        update_metadata_scenarios(app_settings, ", ".join(updated_scenarios))
+            # Update metadata
+            updated_scenarios = current_scenarios + scenario_input
+            self.update_metadata_scenarios(", ".join(updated_scenarios))
 
-        # Remove tables to recollect data.
-        remove_tables(app_settings)
+            # Remove tables to recollect data.
+            self.remove_tables()
 
+    def remove_scenarios(self):
+        """
+        Verwijder ondergrondscenarios uit de lijst. Dit betekent dat alle
+        ruimtelijke invoer opnieuw moet worden ingeladen.
+        """
+        # Haal de huidige scenarios op.
+        conn = sqlite3.connect(self.app_settings.geopackage_filepath)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
+            ("ruimtelijke_scenarios",),
+        )
+        current_scenarios: list[str] = cursor.fetchone()[0].split(", ")
 
-def remove_scenarios(app_settings: ApplicationSettings):
-    """
-    Verwijder ondergrondscenarios uit de lijst. Dit betekent dat alle
-    ruimtelijke invoer opnieuw moet worden ingeladen.
-    """
-    # Haal de huidige scenarios op.
-    conn = sqlite3.connect(app_settings.geopackage_filepath)
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
-        ("ruimtelijke_scenarios",),
-    )
-    current_scenarios: list[str] = cursor.fetchone()[0].split(", ")
+        conn.commit()
+        conn.close()
 
-    conn.commit()
-    conn.close()
-
-    # Vraag gebruiker voor toevoegingen.
-    while True:
-        scenario_input = InputPrompt(
-            message=f"""
+        # Vraag gebruiker voor toevoegingen.
+        while True:
+            scenario_input = InputPrompt(
+                message=f"""
 De volgende scenario zijn nu toegevoegd:
 {", ".join(current_scenarios)}
 Welke scenarios wil je verwijderen? Geef deze met comma's gescheiden op.
 Als er niets wordt opgegeven wordt je terug gestuurd naar het keuzemenu.
 """
-        ).execute()
+            ).execute()
 
-        if scenario_input == "":
-            print(
-                BColors.OKBLUE,
-                "Geen scenarios verwijderd.",
-                BColors.ENDC,
-            )
-            return
-
-        # Update metadata
-        for scenario in scenario_input.split(","):
-            if scenario in current_scenarios:
-                current_scenarios.remove(scenario)
-            else:
+            if scenario_input == "":
                 print(
-                    BColors.WARNING,
-                    f"Scenario {scenario} niet gevonden.",
+                    BColors.OKBLUE,
+                    "Geen scenarios verwijderd.",
                     BColors.ENDC,
                 )
-
-        update_metadata_scenarios(app_settings, ", ".join(current_scenarios))
-
-        # Remove tables to recollect data.
-        remove_tables(app_settings)
-
-
-def update_metadata_scenarios(
-    app_settings: ApplicationSettings, scenarios: str
-):
-    """
-    Update de ondergrondscenarios in de metadata.
-    """
-    conn = sqlite3.connect(app_settings.geopackage_filepath)
-
-    sql_update = "UPDATE geoprob_pipe_metadata SET metadata_value = ? WHERE metadata_type = ?"
-
-    with conn:  # transaction
-        conn.execute(sql_update, (scenarios, "ruimtelijke_scenarios"))
-
-    conn.commit()
-    conn.close()
-
-
-def update_metadata_parameters(
-    app_settings: ApplicationSettings, parameters: str
-):
-    """
-    Update de parameters voor ruimtelijke invoer in de metadata.
-    """
-    conn = sqlite3.connect(app_settings.geopackage_filepath)
-
-    sql_update = "UPDATE geoprob_pipe_metadata SET metadata_value = ? WHERE metadata_type = ?"
-    sql_insert = "INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES (?, ?)"
-
-    with conn:  # transaction
-        cur = conn.execute(sql_update, (parameters, "ruimtelijke_parameters"))  # type:ignore
-        if cur.rowcount == 0:
-            conn.execute(sql_insert, ("ruimtelijke_parameters", parameters))  # type:ignore
-
-    conn.commit()
-    conn.close()
-
-
-def remove_tables(
-    app_settings: ApplicationSettings, table_list: list[str] = []
-):
-    """
-    Verwijder de tabellen uit de geopackage en de metadata zodat deze opnieuw
-    kunnen worden ingeladen. Als de lijst leeg is worden alle tabellen met
-    ruimtelijke invoer verwijderd.
-
-    :param app_settings: Object met applicatie instellingen.
-    :param table_list: Lijst met tabellen om te verwijderen, defaults to []
-    """
-    update_batch_metadata(app_settings=app_settings, value=True)
-    # Voor vervangen, nieuwe scenarios of verwijderen van parameters.
-    conn = sqlite3.connect(app_settings.geopackage_filepath)
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
-        ("ruimtelijke_parameters",),
-    )
-
-    parameters: list[str] = cursor.fetchone()[0].split(", ")
-    parameters.append("intredelijn")
-    layers: list[str] = fiona.listlayers(app_settings.geopackage_filepath)
-
-    if table_list == []:  # Remove all spatial input
-        for layer in layers:
-            if layer.split("__")[0] in parameters:
-                cursor.execute(f"DROP TABLE IF EXISTS {layer}")
-                cursor.execute(
-                    "DELETE FROM gpkg_contents WHERE table_name = ?", (layer,)
-                )
-                cursor.execute(
-                    "DELETE FROM gpkg_geometry_columns WHERE table_name = ?",
-                    (layer,),
-                )
-                cursor.execute(
-                    "DELETE FROM gpkg_tile_matrix_set WHERE table_name = ?",
-                    (layer,),
-                )
-                cursor.execute(
-                    "DELETE FROM gpkg_tile_matrix WHERE table_name = ?",
-                    (layer,),
-                )
-
-    else:
-        for layer in table_list:
-            if layer in layers:
-                cursor.execute(f"DROP TABLE IF EXISTS {layer}")
-                cursor.execute(
-                    "DELETE FROM gpkg_contents WHERE table_name = ?", (layer,)
-                )
-                cursor.execute(
-                    "DELETE FROM gpkg_geometry_columns WHERE table_name = ?",
-                    (layer,),
-                )
-                cursor.execute(
-                    "DELETE FROM gpkg_tile_matrix_set WHERE table_name = ?",
-                    (layer,),
-                )
-                cursor.execute(
-                    "DELETE FROM gpkg_tile_matrix WHERE table_name = ?",
-                    (layer,),
-                )
-
-    conn.commit()
-    conn.close()
-
-
-def completed_update():
-    """
-    Na aanpassing van de opties moet de applicatie opnieuw opstarten. Bied
-    de optie om meerdere aanpassingen te doen voordat de applicatie wordt
-    afgesloten.
-    """
-    choices_list = ["Andere aanpassing uitvoeren", "Applicatie afsluiten"]
-    while True:
-        choice = ListPrompt(
-            message=(
-                "Om de aanpassingen te verwerken moet de applicatie opnieuw worden gestart. "
-                "Het is mogelijk om meerdere aanpassingen in een keer te doen."
-            ),
-            choices=choices_list,
-            default=choices_list[0],
-        ).execute()
-
-        match choice:
-            case "Andere aanpassing uitvoeren":
                 return
 
-            case "Applicatie afsluiten":
-                sys.exit("Applicatie is afgesloten.")
+            # Update metadata
+            for scenario in scenario_input.split(","):
+                if scenario in current_scenarios:
+                    current_scenarios.remove(scenario)
+                else:
+                    print(
+                        BColors.WARNING,
+                        f"Scenario {scenario} niet gevonden.",
+                        BColors.ENDC,
+                    )
+
+            self.update_metadata_scenarios(", ".join(current_scenarios))
+
+            # Remove tables to recollect data.
+            self.remove_tables()
+
+    def update_metadata_scenarios(self, scenarios: str):
+        """
+        Update de ondergrondscenarios in de metadata.
+        """
+        conn = sqlite3.connect(self.app_settings.geopackage_filepath)
+
+        sql_update = "UPDATE geoprob_pipe_metadata SET metadata_value = ? WHERE metadata_type = ?"
+
+        with conn:  # transaction
+            conn.execute(sql_update, (scenarios, "ruimtelijke_scenarios"))
+
+        conn.commit()
+        conn.close()
+
+    def update_metadata_parameters(self, parameters: str):
+        """
+        Update de parameters voor ruimtelijke invoer in de metadata.
+        """
+        conn = sqlite3.connect(self.app_settings.geopackage_filepath)
+
+        sql_update = "UPDATE geoprob_pipe_metadata SET metadata_value = ? WHERE metadata_type = ?"
+        sql_insert = "INSERT INTO geoprob_pipe_metadata (metadata_type, metadata_value) VALUES (?, ?)"
+
+        with conn:  # transaction
+            cur = conn.execute(
+                sql_update, (parameters, "ruimtelijke_parameters")
+            )  # type:ignore
+            if cur.rowcount == 0:
+                conn.execute(
+                    sql_insert, ("ruimtelijke_parameters", parameters)
+                )  # type:ignore
+
+        conn.commit()
+        conn.close()
+
+    def remove_tables(self, table_list: list[str] = []):
+        """
+        Verwijder de tabellen uit de geopackage en de metadata zodat deze opnieuw
+        kunnen worden ingeladen. Als de lijst leeg is worden alle tabellen met
+        ruimtelijke invoer verwijderd.
+
+        :param app_settings: Object met applicatie instellingen.
+        :param table_list: Lijst met tabellen om te verwijderen, defaults to []
+        """
+        update_batch_metadata(self.app_settings, value=True)
+        # Voor vervangen, nieuwe scenarios of verwijderen van parameters.
+        conn = sqlite3.connect(self.app_settings.geopackage_filepath)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT metadata_value FROM geoprob_pipe_metadata WHERE metadata_type = ?",
+            ("ruimtelijke_parameters",),
+        )
+
+        parameters: list[str] = cursor.fetchone()[0].split(", ")
+        parameters.append("intredelijn")
+        layers: list[str] = fiona.listlayers(
+            self.app_settings.geopackage_filepath
+        )
+
+        if table_list == []:  # Remove all spatial input
+            for layer in layers:
+                if layer.split("__")[0] in parameters:
+                    cursor.execute(f"DROP TABLE IF EXISTS {layer}")
+                    cursor.execute(
+                        "DELETE FROM gpkg_contents WHERE table_name = ?",
+                        (layer,),
+                    )
+                    cursor.execute(
+                        "DELETE FROM gpkg_geometry_columns WHERE table_name = ?",
+                        (layer,),
+                    )
+                    cursor.execute(
+                        "DELETE FROM gpkg_tile_matrix_set WHERE table_name = ?",
+                        (layer,),
+                    )
+                    cursor.execute(
+                        "DELETE FROM gpkg_tile_matrix WHERE table_name = ?",
+                        (layer,),
+                    )
+
+        else:
+            for layer in table_list:
+                if layer in layers:
+                    cursor.execute(f"DROP TABLE IF EXISTS {layer}")
+                    cursor.execute(
+                        "DELETE FROM gpkg_contents WHERE table_name = ?",
+                        (layer,),
+                    )
+                    cursor.execute(
+                        "DELETE FROM gpkg_geometry_columns WHERE table_name = ?",
+                        (layer,),
+                    )
+                    cursor.execute(
+                        "DELETE FROM gpkg_tile_matrix_set WHERE table_name = ?",
+                        (layer,),
+                    )
+                    cursor.execute(
+                        "DELETE FROM gpkg_tile_matrix WHERE table_name = ?",
+                        (layer,),
+                    )
+
+        conn.commit()
+        conn.close()
+
+    def completed_update(self):
+        """
+        Na aanpassing van de opties moet de applicatie opnieuw opstarten. Bied
+        de optie om meerdere aanpassingen te doen voordat de applicatie wordt
+        afgesloten.
+        """
+        choices_list = ["Andere aanpassing uitvoeren", "Applicatie afsluiten"]
+        while True:
+            choice = ListPrompt(
+                message=(
+                    "Om de aanpassingen te verwerken moet de applicatie opnieuw worden gestart. "
+                    "Het is mogelijk om meerdere aanpassingen in een keer te doen."
+                ),
+                choices=choices_list,
+                default=choices_list[0],
+            ).execute()
+
+            match choice:
+                case "Andere aanpassing uitvoeren":
+                    self.restart_flag = True
+                    return
+
+                case "Applicatie afsluiten":
+                    sys.exit("Applicatie is afgesloten.")

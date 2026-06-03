@@ -15,7 +15,7 @@ from .export_input_parameter_excel import export_input_parameter_tables
 from .initiate_input_excel_tables import initiate_input_excel_tables
 from .input_parameter_figures import InputParameterFigures
 from .input_parameter_tables import InputParameterTables
-from .update_ruimtelijke_invoer import inquire_spatial_update
+from .update_ruimtelijke_invoer import SpatialUpdateMenu
 from geoprob_pipe.cmd_app.utils.batch_input import update_batch_metadata
 
 if TYPE_CHECKING:
@@ -192,9 +192,8 @@ def inquire_to_import_export_tables_and_figures_or_continue(
             
             case "Ruimtelijke invoer: Update ingevoerde lagen":
                 # Nieuw keuze menu voor de volgende:
-                inquire_spatial_update(
-                    app_settings=app_settings,
-                    )
+                menu = SpatialUpdateMenu(app_settings)
+                menu.inquire_spatial_update()
                 continue
                 
             case "Toelichting per keuze optie":
