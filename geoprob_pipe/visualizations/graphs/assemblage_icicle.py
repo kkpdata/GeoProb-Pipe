@@ -36,8 +36,8 @@ class IciclePlot:
         koppelen.
         """        
         # Per element parent_name, label, pf, beta
-        df_traject = self.geoprob_pipe.results.df_beta_traject
-        df_vakken = self.geoprob_pipe.results.df_beta_WBI_vakken
+        df_traject = self.geoprob_pipe.results.df_beta_traject.copy()
+        df_vakken = self.geoprob_pipe.results.df_beta_WBI_vakken.copy()
         df_vakken = df_vakken.rename(columns={"beta_dsn": "beta",
                                               "pf_dsn(max)": "pf"})
 
@@ -45,9 +45,9 @@ class IciclePlot:
         mask_vakken = df_vakken["pf"] != 0
         df_vakken = df_vakken[mask_vakken].copy()
 
-        df_utp = self.geoprob_pipe.results.df_beta_uittredepunten
-        df_scen = self.geoprob_pipe.results.df_beta_scenarios_final
-        df_lim = self.geoprob_pipe.results.df_beta_limit_states
+        df_utp = self.geoprob_pipe.results.df_beta_uittredepunten.copy()
+        df_scen = self.geoprob_pipe.results.df_beta_scenarios_final.copy()
+        df_lim = self.geoprob_pipe.results.df_beta_limit_states.copy()
 
         # traject
         mask_traject = df_traject["method"] == "Sum of vakken"
