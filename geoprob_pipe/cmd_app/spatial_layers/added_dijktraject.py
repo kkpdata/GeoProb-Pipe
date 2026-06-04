@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 def added_dijktraject(app_settings: ApplicationSettings) -> bool:
     layers = fiona.listlayers(app_settings.geopackage_filepath)
 
-    if "dijktraject" in layers:
-        print(BColors.OKBLUE, f"✔  Dijktraject al toegevoegd.", BColors.ENDC)
+    if "geom__dijktraject" in layers:
+        print(BColors.OKBLUE, "✔  Dijktraject al toegevoegd.", BColors.ENDC)
         return True
     else:
         question_trajectory_source(app_settings)

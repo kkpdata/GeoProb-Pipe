@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 def added_vakindeling(app_settings: ApplicationSettings) -> bool:
     layers = fiona.listlayers(app_settings.geopackage_filepath)
-    if "vakindeling" in layers:
+    if "geom__vakindeling" in layers:
         check_validity_vakindeling(app_settings=app_settings)
         return True
     else:

@@ -34,7 +34,7 @@ def added_ruimtelijke_input(app_settings: ApplicationSettings) -> bool:
         return True
 
     for parameter in parameters:
-        if any(parameter in layer.split("__")[0] for layer in list_layers):
+        if any(parameter in layer.split("__") for layer in list_layers):
             print(
                 BColors.OKBLUE,
                 f"✔  {parameter} al toegevoegd.",

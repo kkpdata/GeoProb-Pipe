@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 def added_binnenteenlijn(app_settings: ApplicationSettings) -> bool:
     layers = fiona.listlayers(app_settings.geopackage_filepath)
 
-    if "binnenteenlijn" in layers:
+    if "geom__binnenteenlijn" in layers:
         print(
             BColors.OKBLUE, "✔  Binnenteenlijn al toegevoegd.", BColors.ENDC
         )
