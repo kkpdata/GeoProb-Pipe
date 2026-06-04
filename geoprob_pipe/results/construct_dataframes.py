@@ -281,33 +281,34 @@ def calculate_df_beta_per_uittredepunt(
     # values decimal is used.
     getcontext().prec = 100
     one = Decimal(1)
-    df = (
-        df_beta_scenarios_final.assign(
-            failure_probability=lambda row: (
-                row["failure_probability"]
-                * row.apply(
-                    lambda row: (
-                        geoprob_pipe.input_data.scenarios.scenario_kans(
-                            vak_id=row["vak_id"],
-                            scenario_naam=row["ondergrondscenario_id"],
-                        )
-                    ),
-                    axis=1,
-                )
+
+    df = df_beta_scenarios_final.copy()
+
+    def bereken_scenario_factor(row):
+        return geoprob_pipe.input_data.scenarios.scenario_kans(
+            vak_id=row["vak_id"],
+            scenario_naam=row["ondergrondscenario_id"],
+        )
+
+    df["scenario_factor"] = df.apply(bereken_scenario_factor, axis=1)
+
+    df["failure_probability"] = (
+        df["failure_probability"] * df["scenario_factor"]
+    )
+
+    def combine_probabilities(series):
+        c_pof = float(
+            one
+            - reduce(
+                operator.mul,
+                (one - Decimal(str(v)) for v in series),
+                one,
             )
         )
-        .groupby("uittredepunt_id", as_index=False)
-        .agg(
-            failure_probability=(
-                "failure_probability",
-                lambda x: float(
-                    one
-                    - reduce(
-                        operator.mul, (one - Decimal(str(v)) for v in x), one
-                    )
-                ),
-            )
-        )
+        return c_pof
+
+    df = df.groupby("uittredepunt_id", as_index=False).agg(
+        failure_probability=("failure_probability", combine_probabilities)
     )
 
     df["beta"] = df["failure_probability"].apply(
@@ -395,15 +396,12 @@ def _generate_point_list(
     dsn_list: List[UittredepuntElement] = []
     for _, point in merge_df.iterrows():
         if point["vak_id"] in vakken_torun or run_all:
-            a_point: float = (
-                    geoprob_pipe.df_expanded.loc[
-                        geoprob_pipe.df_expanded["parameter_name"] == "a_vak"
-                    ]
-                    .query("uittredepunt_id == @point.uittredepunt_id")[
-                        "parameter_input"
-                    ]
-                    .get("mean", 1.0)
-                )
+            df_point = geoprob_pipe.df_expanded.loc[
+                geoprob_pipe.df_expanded["parameter_name"] == "a_vak"
+            ]
+            a_point: float = df_point.query(
+                "uittredepunt_id == @point.uittredepunt_id"
+            )["parameter_input"].get("mean", 1.0)
             dsn_list.append(
                 UittredepuntElement(
                     pf=point["failure_probability"],
@@ -458,20 +456,25 @@ def _generate_element_list(
     for _, vak in vakken_gdf.iterrows():
         if vak.id in vakken_torun or run_all:
             df_vak = df.loc[df["vak_id"] == vak["id"]]
+
+            df = geoprob_pipe.df_expanded.loc[
+                geoprob_pipe.df_expanded["parameter_name"] == "a_vak"
+            ]
             a_vak: float = (
-                geoprob_pipe.df_expanded.loc[
-                    geoprob_pipe.df_expanded["parameter_name"] == "a_vak"
-                ]
-                .query("vak_id == @vak.id").iloc[0]["parameter_input"]
+                df.query("vak_id == @vak.id")
+                .iloc[0]["parameter_input"]
                 .get("mean", 1.0)
             )
-            dl_vak: float =(
-                geoprob_pipe.df_expanded.loc[
-                    geoprob_pipe.df_expanded["parameter_name"] == "delta_length"
-                ]
-                .query("vak_id == @vak.id").iloc[0]["parameter_input"]
+
+            df = geoprob_pipe.df_expanded.loc[
+                geoprob_pipe.df_expanded["parameter_name"] == "delta_length"
+            ]
+            dl_vak: float = (
+                df.query("vak_id == @vak.id")
+                .iloc[0]["parameter_input"]
                 .get("mean", 300.0)
             )
+
             dsn_list = []
 
             for _, point in df_vak.iterrows():
