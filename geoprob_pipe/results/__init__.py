@@ -71,7 +71,7 @@ class Results:
         self.df_beta_scaled_traject = construct_df_beta_scaled_traject(
             geoprob_pipe=geoprob_pipe, results=self
             )
-        
+        self.df_alphas_influence_factors_and_physical_values()
         self.export_to_gpkg()
 
     def df_alphas_influence_factors_and_physical_values(

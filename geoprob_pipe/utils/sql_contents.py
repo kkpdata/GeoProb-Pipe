@@ -5,6 +5,13 @@ import pandas as pd
 
 
 def _create_table_with_pk(conn, table_name, df):
+    """
+    Maak de tabel aan met de juiste kollomen en een primary key.
+
+    :param conn: Database connector
+    :param table_name: Naam van de toe te voegen tabel
+    :param df: DataFrame die wordt toegevoegd
+    """    
     cursor = conn.cursor()
 
     # Verwijder bestaande tabel
@@ -33,6 +40,12 @@ def _create_table_with_pk(conn, table_name, df):
     ''')
 
 def _register_gpkg_data_columns(conn, table_name):
+    """
+    Voeg de kolommen toe aan de gpkg_data_columns vanuit de ingevoerde tabel.
+
+    :param conn: Database connector
+    :param table_name: Naam van toegevoegde tabel.
+    """    
     cursor = conn.cursor()
 
     # Haal kolomnamen op via SQLite pragma
@@ -64,8 +77,17 @@ def _register_gpkg_data_columns(conn, table_name):
         )
 
 def write_dfs_to_gpkg(conn: sqlite3.Connection, tables: dict[str, pd.DataFrame]):
+    """
+    Schrijf de pandas DataFrames naar de databese met een fid primary key en
+    voeg deze toe aan de gpkg_data_columns zodat deze in gis-software kunnen
+    worden geopend.
+
+    :param conn: Databse connector
+    :param tables: dict met de atbelnamen en dataframes
+    """    
     cursor = conn.cursor()
     
+    # Maak gpkg_data_columns tabel als deze nog niet bestaat.
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS gpkg_data_columns (
             table_name TEXT NOT NULL,
@@ -85,6 +107,7 @@ def write_dfs_to_gpkg(conn: sqlite3.Connection, tables: dict[str, pd.DataFrame])
         
         _create_table_with_pk(conn, table_name, df)
         
+        # Voeg de df toe aan de tabel, met append anders overschijft het de primary key.
         df.to_sql(table_name, conn, if_exists="append", index=False)
 
         cursor.execute(
