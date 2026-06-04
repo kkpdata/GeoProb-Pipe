@@ -293,4 +293,22 @@ INITIAL_INPUT = [
         "mean": 0.3,
         "source": "excel",
     },
+    {
+      "name": "a_vak",
+      "description": "De mechanisme gevoelige fractie van het element.",
+      "remark": "",
+      "unit": "-",
+      "distribution_type": DistributionType.deterministic,
+      "mean": 1.0,
+      "source": "excel" 
+    },
+    {
+      "name": "delta_length",
+      "description": "De equivalente onafhankelijke lengte voor STPH.",
+      "remark": "",
+      "unit": "m",
+      "distribution_type": DistributionType.deterministic,
+      "mean": 300.0,
+      "source": "excel" 
+    },
 ]
