@@ -17,6 +17,7 @@ from .input_parameter_figures import InputParameterFigures
 from .input_parameter_tables import InputParameterTables
 from .update_ruimtelijke_invoer import SpatialUpdateMenu
 from geoprob_pipe.cmd_app.utils.batch_input import update_batch_metadata
+from geoprob_pipe.utils.sql_contents import write_dfs_to_gpkg
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
@@ -251,13 +252,20 @@ def inquire_to_store_input_tables_to_db(
     ).execute()
 
     if choice == "Ja":
+        
         conn = sqlite3.connect(app_settings.geopackage_filepath)
-        tables.df_scenario_invoer.to_sql("data__scenario_invoer", conn, if_exists="replace", index=False)
-        tables.df_parameter_invoer.to_sql("data__excel_parameter_invoer", conn, if_exists="replace", index=False)
-        tables.df_fragility_values_invoer.to_sql(
-            "data__fragility_values_invoer", conn, if_exists="replace", index=False)
-        tables.df_correlatie_invoer.to_sql("data__correlatie_invoer", conn, if_exists="replace", index=False)
+        
+        table_dict = {
+            "data__scenario_invoer": tables.df_scenario_invoer,
+            "data__excel_parameter_invoer": tables.df_parameter_invoer,
+            "data__fragility_values_invoer": tables.df_fragility_values_invoer,
+            "data__correlatie_invoer": tables.df_correlatie_invoer
+        }
+        
+        write_dfs_to_gpkg(conn, tables=table_dict)
+        
         conn.close()
+        
         print(f"{BColors.UNDERLINE}Tabellen zijn nu opgeslagen in het GeoProb-Pipe-file.{BColors.ENDC}")
 
     elif choice == "Nee":

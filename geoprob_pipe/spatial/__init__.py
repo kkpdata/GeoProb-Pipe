@@ -1,9 +1,17 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
-from geoprob_pipe.spatial.gdf_beta_limit_states import (
-    get_gdf_beta_limit_states, get_gdf_beta_scenarios_final, get_gdf_beta_scenarios_cp, get_gdf_beta_scenarios_rp,
-    get_gdf_beta_uittredepunten)
+
 from geopandas import GeoDataFrame
+
+from geoprob_pipe.spatial.gdf_beta_limit_states import (
+    get_gdf_beta_limit_states,
+    get_gdf_beta_scenarios_cp,
+    get_gdf_beta_scenarios_final,
+    get_gdf_beta_scenarios_rp,
+    get_gdf_beta_uittredepunten,
+)
+
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
@@ -30,7 +38,7 @@ class Spatial:
 
     @property
     def export_dir(self) -> str:
-        return self.geoprob_pipe.input_data.app_settings.workspace_dir
+        return str(self.geoprob_pipe.input_data.app_settings.workspace_dir)
 
     def export_geopackage(self):
         self.get_gdf_beta_limit_states(export=True)
