@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import sqlite3
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional, List
 import pandas as pd
@@ -22,6 +23,8 @@ from geoprob_pipe.spatial import Spatial
 from geoprob_pipe.visualizations import Visualizations
 from geoprob_pipe.calculations.systems.build_and_run import build_and_run_system_calculations
 from geoprob_pipe.utils.update_metadata import update_metadata
+from geoprob_pipe.utils.sql_contents import write_dfs_to_gpkg
+
 import logging
 if TYPE_CHECKING:
     from geoprob_pipe.calculations.systems.build_and_run import CalcResult
@@ -51,6 +54,14 @@ class GeoProbPipe:
         self.time_start = datetime.now()
 
         self.input_data = InputData(app_settings=app_settings)  # TODO: Alter with new option
+        
+        self.df_expanded = run_expand_input_tables(geopackage_filepath=self.input_data.app_settings.geopackage_filepath)
+        # TODO VJ: vind een betere plaats hiervoor
+        conn = sqlite3.connect(app_settings.geopackage_filepath)
+        df_add = self.df_expanded.copy()
+        df_add["parameter_input"] = df_add["parameter_input"].apply(str)
+        write_dfs_to_gpkg(conn, {"data__expanded_parameters": df_add})
+        conn.close()
 
         # Read calculation settings
         # self._read_calculation_settings()  # TODO: Not part of new version
@@ -98,10 +109,10 @@ class GeoProbPipe:
         self.spatial.export_geopackage()
 
         # Parameter invoer als expanded
-        df_expanded = run_expand_input_tables(geopackage_filepath=self.input_data.app_settings.geopackage_filepath)
+        
         input_dir = os.path.join(export_dir, "input")
         os.makedirs(input_dir, exist_ok=True)
-        df_expanded.to_excel(excel_writer=os.path.join(input_dir, "df_parameter_invoer_expanded.xlsx"), index=False)
+        self.df_expanded.to_excel(excel_writer=os.path.join(input_dir, "df_parameter_invoer_expanded.xlsx"), index=False)
 
         # Input parameter figures
         obj = InputParameterFigures.populate(

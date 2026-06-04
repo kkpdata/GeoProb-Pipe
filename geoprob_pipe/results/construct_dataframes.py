@@ -32,7 +32,9 @@ def collect_df_beta_limit_state(calculation: SystemCalculation) -> DataFrame:
     def create_row(dp: DesignPoint, model_name):
         return {
             "uittredepunt_id": calculation.metadata["uittredepunt_id"],
-            "ondergrondscenario_id": calculation.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
+            "ondergrondscenario_id": calculation.metadata[
+                "ondergrondscenario_naam"
+            ],  # TODO: id naar naam veranderen?
             "vak_id": calculation.metadata["vak_id"],
             "limit_state": model_name,
             "converged": dp.is_converged,
@@ -44,49 +46,74 @@ def collect_df_beta_limit_state(calculation: SystemCalculation) -> DataFrame:
         }
 
     rows = []
-    for design_point, model in zip(calculation.results.dps_limit_states, calculation.setup.system_limit_states):
+    for design_point, model in zip(
+        calculation.results.dps_limit_states,
+        calculation.setup.system_limit_states,
+    ):
         rows.append(create_row(dp=design_point, model_name=model.__name__))
-    df = DataFrame(rows).sort_values(by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+    df = (
+        DataFrame(rows)
+        .sort_values(by=["uittredepunt_id", "ondergrondscenario_id", "vak_id"])
+        .reset_index(drop=True)
+    )
     return df
 
 
-def combine_df_beta_per_limit_state(calc_results: List[CalcResult]) -> DataFrame:
+def combine_df_beta_per_limit_state(
+    calc_results: List[CalcResult],
+) -> DataFrame:
     assert calc_results.__len__() > 0
-    df = concat((result.df_limit_state for result in calc_results), ignore_index=True)
+    df = concat(
+        (result.df_limit_state for result in calc_results), ignore_index=True
+    )
     return df
 
 
 def collect_df_beta_scenario_rp(calc: SystemCalculation) -> DataFrame:
-    return DataFrame([{
-        "uittredepunt_id": calc.metadata["uittredepunt_id"],
-        "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
-        "vak_id": calc.metadata["vak_id"],
-        "system_calculation": calc,
-        "converged": calc.results.dp_reliability.is_converged,
-        "beta": round(calc.results.dp_reliability.reliability_index, 3),
-        "failure_probability": calc.results.dp_reliability.probability_failure,
-        "convergence": calc.results.dp_reliability.convergence,
-        "total_model_runs": calc.results.dp_reliability.total_model_runs,
-        "total_iterations": calc.results.dp_reliability.total_iterations,
-    }])
+    return DataFrame(
+        [
+            {
+                "uittredepunt_id": calc.metadata["uittredepunt_id"],
+                "ondergrondscenario_id": calc.metadata[
+                    "ondergrondscenario_naam"
+                ],  # TODO: id naar naam veranderen?
+                "vak_id": calc.metadata["vak_id"],
+                "system_calculation": calc,
+                "converged": calc.results.dp_reliability.is_converged,
+                "beta": round(
+                    calc.results.dp_reliability.reliability_index, 3
+                ),
+                "failure_probability": calc.results.dp_reliability.probability_failure,
+                "convergence": calc.results.dp_reliability.convergence,
+                "total_model_runs": calc.results.dp_reliability.total_model_runs,
+                "total_iterations": calc.results.dp_reliability.total_iterations,
+            }
+        ]
+    )
 
 
 def collect_df_beta_scenario_cp(calc: SystemCalculation) -> DataFrame:
-    return DataFrame([{
-        "uittredepunt_id": calc.metadata["uittredepunt_id"],
-        "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
-        "vak_id": calc.metadata["vak_id"],
-        "system_calculation": calc,
-        "converged": calc.results.dp_combine.is_converged,
-        "beta": round(calc.results.dp_combine.reliability_index, 3),
-        "failure_probability": calc.results.dp_combine.probability_failure,
-        "convergence": calc.results.dp_combine.convergence,
-        "total_model_runs": calc.results.dp_combine.total_model_runs,
-    }])
+    return DataFrame(
+        [
+            {
+                "uittredepunt_id": calc.metadata["uittredepunt_id"],
+                "ondergrondscenario_id": calc.metadata[
+                    "ondergrondscenario_naam"
+                ],  # TODO: id naar naam veranderen?
+                "vak_id": calc.metadata["vak_id"],
+                "system_calculation": calc,
+                "converged": calc.results.dp_combine.is_converged,
+                "beta": round(calc.results.dp_combine.reliability_index, 3),
+                "failure_probability": calc.results.dp_combine.probability_failure,
+                "convergence": calc.results.dp_combine.convergence,
+                "total_model_runs": calc.results.dp_combine.total_model_runs,
+            }
+        ]
+    )
 
 
 def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
-    """ Converts a SystemCalculation-object to a single-row DataFrame with the final result of the scenario
+    """Converts a SystemCalculation-object to a single-row DataFrame with the final result of the scenario
     calculations. Because there are several calculation methods, and the preferred result also depends on convergence,
     we use the below flow chart to determine the final result.
 
@@ -103,16 +130,25 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
     converged1: bool = calc.results.dp_combine.is_converged
     beta2: float = calc.results.dp_reliability.reliability_index
     converged2: bool = calc.results.dp_reliability.is_converged
-    beta3: float = max([dp.reliability_index for dp in calc.results.dps_limit_states])
-    converged3: bool = all([dp.is_converged for dp in calc.results.dps_limit_states])
+    beta3: float = max(
+        [dp.reliability_index for dp in calc.results.dps_limit_states]
+    )
+    converged3: bool = all(
+        [dp.is_converged for dp in calc.results.dps_limit_states]
+    )
     return_dict = {
         "uittredepunt_id": calc.metadata["uittredepunt_id"],
-        "ondergrondscenario_id": calc.metadata["ondergrondscenario_naam"],  # TODO: id naar naam veranderen?
+        "ondergrondscenario_id": calc.metadata[
+            "ondergrondscenario_naam"
+        ],  # TODO: id naar naam veranderen?
         "vak_id": calc.metadata["vak_id"],
         "system_calculation": calc,
-        "beta1": beta1, "converged1": converged1,
-        "beta2": beta2, "converged2": converged2,
-        "beta3": beta3, "converged3": converged3,
+        "beta1": beta1,
+        "converged1": converged1,
+        "beta2": beta2,
+        "converged2": converged2,
+        "beta3": beta3,
+        "converged3": converged3,
     }
 
     # Flow chart step 1: Combine Project converged?
@@ -138,20 +174,28 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
         return DataFrame([return_dict])
 
     # Flow chart step 3: Separate Limit States all converged?
-    pof3: float = min([dp.probability_failure for dp in calc.results.dps_limit_states])
+    pof3: float = min(
+        [dp.probability_failure for dp in calc.results.dps_limit_states]
+    )
     if converged3:
         return_dict["method_used"] = "3: Max Limit States"
         return_dict["flow_chart_number"] = 3
         return_dict["failure_probability"] = pof3
         return_dict["beta"] = beta3
         return_dict["converged"] = converged3
-        return_dict["advise"] = ("Result is probably a conservative approximation.You could consider to find "
-                                 "convergence for the Combine or Reliability method.")
+        return_dict["advise"] = (
+            "Result is probably a conservative approximation.You could consider to find "
+            "convergence for the Combine or Reliability method."
+        )
         return DataFrame([return_dict])
 
     # Flow chart step 4: B >= 8.0 (of all methods)?
     all_pofs: List[float] = [pof3, pof2, pof1]
-    all_methods: List[str] = ["3: Max Limit States", "2: Reliability Project", "1: Combine Project"]
+    all_methods: List[str] = [
+        "3: Max Limit States",
+        "2: Reliability Project",
+        "1: Combine Project",
+    ]
     all_betas: List[float] = [beta3, beta2, beta1]
     index_max_pof = np.argmax(all_pofs)
     if beta1 >= 8.0 and beta2 >= 8.0 and beta3 >= 8.0:
@@ -160,7 +204,9 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
         return_dict["failure_probability"] = all_pofs[index_max_pof]
         return_dict["beta"] = all_betas[index_max_pof]
         return_dict["converged"] = False
-        return_dict["advise"] = "Result is that positive, no reason to fine tune."
+        return_dict["advise"] = (
+            "Result is that positive, no reason to fine tune."
+        )
         return DataFrame([return_dict])
 
     # No positive result
@@ -169,30 +215,53 @@ def collect_df_beta_scenario_final(calc: SystemCalculation) -> DataFrame:
     return_dict["failure_probability"] = all_pofs[index_max_pof]
     return_dict["beta"] = all_betas[index_max_pof]
     return_dict["converged"] = False
-    return_dict["advise"] = "Consider fine tuning the calculation settings (of e.g. FORM, Importance Sampling, etc)."
+    return_dict["advise"] = (
+        "Consider fine tuning the calculation settings (of e.g. FORM, Importance Sampling, etc)."
+    )
     return DataFrame([return_dict])
 
 
-def combine_df_beta_per_scenario_rp(calc_results: List[CalcResult]) -> DataFrame:
-    df = concat((result.df_scenario_rp for result in calc_results), ignore_index=True)
-    df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+def combine_df_beta_per_scenario_rp(
+    calc_results: List[CalcResult],
+) -> DataFrame:
+    df = concat(
+        (result.df_scenario_rp for result in calc_results), ignore_index=True
+    )
+    df = df.sort_values(
+        ["uittredepunt_id", "ondergrondscenario_id", "vak_id"]
+    ).reset_index(drop=True)
     return df
 
 
-def combine_df_beta_per_scenario_cp(calc_results: List[CalcResult]) -> DataFrame:
-    df = concat((result.df_scenario_cp for result in calc_results), ignore_index=True)
-    df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+def combine_df_beta_per_scenario_cp(
+    calc_results: List[CalcResult],
+) -> DataFrame:
+    df = concat(
+        (result.df_scenario_cp for result in calc_results), ignore_index=True
+    )
+    df = df.sort_values(
+        ["uittredepunt_id", "ondergrondscenario_id", "vak_id"]
+    ).reset_index(drop=True)
     return df
 
 
-def combine_df_beta_per_scenario_final(calc_results: List[CalcResult]) -> DataFrame:
-    df = concat((result.df_scenario_final for result in calc_results), ignore_index=True)
-    df = df.sort_values(["uittredepunt_id", "ondergrondscenario_id", "vak_id"]).reset_index(drop=True)
+def combine_df_beta_per_scenario_final(
+    calc_results: List[CalcResult],
+) -> DataFrame:
+    df = concat(
+        (result.df_scenario_final for result in calc_results),
+        ignore_index=True,
+    )
+    df = df.sort_values(
+        ["uittredepunt_id", "ondergrondscenario_id", "vak_id"]
+    ).reset_index(drop=True)
     return df
 
 
-def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Results) -> DataFrame:
-    """ Generates the DataFrame of the final result for the exit points.
+def calculate_df_beta_per_uittredepunt(
+    geoprob_pipe: GeoProbPipe, results: Results
+) -> DataFrame:
+    """Generates the DataFrame of the final result for the exit points.
 
     Because there is an automated decision-making in the scenario calculations (see flow chart over there), for the exit
     points the flow chart is extended below.
@@ -241,30 +310,58 @@ def calculate_df_beta_per_uittredepunt(geoprob_pipe: GeoProbPipe, results: Resul
         )
     )
 
-    df["beta"] = df["failure_probability"].apply(lambda failure_prob: convert_failure_probability_to_beta(failure_prob))
+    df["beta"] = df["failure_probability"].apply(
+        lambda failure_prob: convert_failure_probability_to_beta(failure_prob)
+    )
 
     # Determine when uittredepunt is converged (when all scenarios are converged)
-    conv = df_beta_scenarios_final.groupby('uittredepunt_id', as_index=False)["converged"].all()
+    conv = df_beta_scenarios_final.groupby("uittredepunt_id", as_index=False)[
+        "converged"
+    ].all()
     df_scen: pd.DataFrame = df.merge(conv, on="uittredepunt_id", how="left")
 
     # Determine uittredepunt flow_chart_number
-    flow_chart_number = df_beta_scenarios_final.groupby('uittredepunt_id', as_index=False)["flow_chart_number"].max()
-    df_scen = df_scen.merge(flow_chart_number, on="uittredepunt_id", how="left")
-    df_scen['advise'] = df_scen['flow_chart_number'].map({5: "Consider fine tuning on scenario-level."}).fillna("-")
-    df_scen['flow_chart_number'] = df_scen['flow_chart_number'].map({5: 11}).fillna(12)
+    flow_chart_number = df_beta_scenarios_final.groupby(
+        "uittredepunt_id", as_index=False
+    )["flow_chart_number"].max()
+    df_scen = df_scen.merge(
+        flow_chart_number, on="uittredepunt_id", how="left"
+    )
+    df_scen["advise"] = (
+        df_scen["flow_chart_number"]
+        .map({5: "Consider fine tuning on scenario-level."})
+        .fillna("-")
+    )
+    df_scen["flow_chart_number"] = (
+        df_scen["flow_chart_number"].map({5: 11}).fillna(12)
+    )
 
     # Add vak id back to it
     gdf_uittredepunten = geoprob_pipe.input_data.uittredepunten.gdf
     df_uittredepunten = gdf_uittredepunten[["uittredepunt_id", "vak_id"]]
-    df_scen = df_scen.merge(df_uittredepunten, left_on="uittredepunt_id",
-                            right_on="uittredepunt_id")
+    df_scen = df_scen.merge(
+        df_uittredepunten,
+        left_on="uittredepunt_id",
+        right_on="uittredepunt_id",
+    )
 
-    return df_scen[["uittredepunt_id", "vak_id", "converged", "beta",
-                    "failure_probability", "advise", "flow_chart_number"]]
+    return df_scen[
+        [
+            "uittredepunt_id",
+            "vak_id",
+            "converged",
+            "beta",
+            "failure_probability",
+            "advise",
+            "flow_chart_number",
+        ]
+    ]
 
 
-def _generate_point_list(geoprob_pipe: GeoProbPipe, results: Results) -> List[UittredepuntElement]:
-    """ Generates a list of all the points as a list `UittredepuntElement` objects.
+def _generate_point_list(
+    geoprob_pipe: GeoProbPipe, results: Results
+) -> List[UittredepuntElement]:
+    """Generates a list of all the points as a list `UittredepuntElement` objects.
 
     :param geoprob_pipe: GeoprobPipe object.
     :param results:
@@ -274,11 +371,21 @@ def _generate_point_list(geoprob_pipe: GeoProbPipe, results: Results) -> List[Ui
     punt_gdf = geoprob_pipe.input_data.uittredepunten.gdf
 
     merge_df = pd.merge(
-        left=punt_df[["uittredepunt_id", "vak_id", "beta", "flow_chart_number",
-                      "failure_probability", "converged", "advise"]],
+        left=punt_df[
+            [
+                "uittredepunt_id",
+                "vak_id",
+                "beta",
+                "flow_chart_number",
+                "failure_probability",
+                "converged",
+                "advise",
+            ]
+        ],
         right=punt_gdf[["uittredepunt_id", "metrering"]],
-        on="uittredepunt_id", how="left"
-        )
+        on="uittredepunt_id",
+        how="left",
+    )
     vakken_torun: List[int] = []
     run_all: bool = False
     if geoprob_pipe.input_data.app_settings.to_run_vakken_ids:
@@ -288,19 +395,31 @@ def _generate_point_list(geoprob_pipe: GeoProbPipe, results: Results) -> List[Ui
     dsn_list: List[UittredepuntElement] = []
     for _, point in merge_df.iterrows():
         if point["vak_id"] in vakken_torun or run_all:
-            dsn_list.append(UittredepuntElement(
-                pf=point["failure_probability"],
-                m_value=point["metrering"],
-                a=0.9,  # TODO Haal deze vanuit Input Data via excel
-                converged=point["converged"],
-                flow_chart_number=point["flow_chart_number"],
-                advise=point["advise"]
-                ))
+            a_point: float = (
+                    geoprob_pipe.df_expanded.loc[
+                        geoprob_pipe.df_expanded["parameter_name"] == "a_vak"
+                    ]
+                    .query("uittredepunt_id == @point.uittredepunt_id")[
+                        "parameter_input"
+                    ]
+                    .get("mean", 1.0)
+                )
+            dsn_list.append(
+                UittredepuntElement(
+                    pf=point["failure_probability"],
+                    m_value=point["metrering"],
+                    a=a_point,
+                    converged=point["converged"],
+                    flow_chart_number=point["flow_chart_number"],
+                    advise=point["advise"],
+                )
+            )
     return dsn_list
 
 
-def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
-                           ) -> list[VakElement]:
+def _generate_element_list(
+    geoprob_pipe: GeoProbPipe, results: Results
+) -> list[VakElement]:
     """Generates a list of all elements in a traject as `VakElement` objects.
 
     :param geoprob_pipe: GeoprobPipe object.
@@ -312,12 +431,21 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
     punt_gdf = geoprob_pipe.input_data.uittredepunten.gdf
 
     df = pd.merge(
-        left=punt_df[["uittredepunt_id", "vak_id", "beta",
-                      "failure_probability", "converged",
-                      "flow_chart_number", "advise"]],
+        left=punt_df[
+            [
+                "uittredepunt_id",
+                "vak_id",
+                "beta",
+                "failure_probability",
+                "converged",
+                "flow_chart_number",
+                "advise",
+            ]
+        ],
         right=punt_gdf[["uittredepunt_id", "metrering"]],
-        on="uittredepunt_id", how="left"
-        )
+        on="uittredepunt_id",
+        how="left",
+    )
     vakken_torun: List[int] = []
     run_all: bool = False
     if geoprob_pipe.input_data.app_settings.to_run_vakken_ids:
@@ -330,39 +458,69 @@ def _generate_element_list(geoprob_pipe: GeoProbPipe, results: Results
     for _, vak in vakken_gdf.iterrows():
         if vak.id in vakken_torun or run_all:
             df_vak = df.loc[df["vak_id"] == vak["id"]]
+            a_vak: float = (
+                geoprob_pipe.df_expanded.loc[
+                    geoprob_pipe.df_expanded["parameter_name"] == "a_vak"
+                ]
+                .query("vak_id == @vak.id").iloc[0]["parameter_input"]
+                .get("mean", 1.0)
+            )
+            dl_vak: float =(
+                geoprob_pipe.df_expanded.loc[
+                    geoprob_pipe.df_expanded["parameter_name"] == "delta_length"
+                ]
+                .query("vak_id == @vak.id").iloc[0]["parameter_input"]
+                .get("mean", 300.0)
+            )
             dsn_list = []
 
             for _, point in df_vak.iterrows():
-                dsn_list.append(UittredepuntElement(
-                    pf=point["failure_probability"],
-                    beta=point["beta"],
-                    m_value=point["metrering"],
-                    a=1.0,  # TODO Haal deze vanuit Input Data via excel
-                    converged=point["converged"],
-                    flow_chart_number=point["flow_chart_number"],
-                    advise=point["advise"]))
+                a_point: float = (
+                    geoprob_pipe.df_expanded.loc[
+                        geoprob_pipe.df_expanded["parameter_name"] == "a_vak"
+                    ]
+                    .query("uittredepunt_id == @point.uittredepunt_id")[
+                        "parameter_input"
+                    ]
+                    .get("mean", 1.0)
+                )
+                dsn_list.append(
+                    UittredepuntElement(
+                        pf=point["failure_probability"],
+                        beta=point["beta"],
+                        m_value=point["metrering"],
+                        a=a_point,
+                        converged=point["converged"],
+                        flow_chart_number=point["flow_chart_number"],
+                        advise=point["advise"],
+                    )
+                )
 
-            element_list.append(VakElement(
-                id=vak["id"],
-                m_van=vak["m_start"],
-                m_tot=vak["m_end"],
-                a=1.0,  # TODO Haal deze vanuit Input Data via excel
-                delta_length=300,
-                dsn_list=dsn_list
-            ))
+            element_list.append(
+                VakElement(
+                    id=vak["id"],
+                    m_van=vak["m_start"],
+                    m_tot=vak["m_end"],
+                    a=a_vak,
+                    delta_length=dl_vak,
+                    dsn_list=dsn_list,
+                )
+            )
     return element_list
 
 
 def construct_df_beta_wbi_vak(
-        geoprob_pipe: GeoProbPipe, results: Results
-        ) -> pd.DataFrame:
-    """ Bepaalde de samengestelde faalkans per vak volgens de WBI-methode.
+    geoprob_pipe: GeoProbPipe, results: Results
+) -> pd.DataFrame:
+    """Bepaalde de samengestelde faalkans per vak volgens de WBI-methode.
 
     :param geoprob_pipe: GeoProbPipe object voor data collectie.
     :param results: Results object voor data collectie.
     :return DataFrame:
     """
-    element_list: list[VakElement] = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
+    element_list: list[VakElement] = _generate_element_list(
+        geoprob_pipe=geoprob_pipe, results=results
+    )
     vakken_list = []
     for element in element_list:
         vakken_dict = {
@@ -380,23 +538,26 @@ def construct_df_beta_wbi_vak(
             "beta_vak": element.pf_max_dsn[1].beta,
             "converged": element.conv_max_dsn,
             "flow_chart_number": element.flow_chart_number,
-            "advise": element.advise}
+            "advise": element.advise,
+        }
         vakken_list.append(vakken_dict)
 
     return pd.DataFrame(vakken_list)
 
 
 def construct_df_beta_window_vak(
-        geoprob_pipe: GeoProbPipe, results: Results, window_size: float
-        ) -> pd.DataFrame:
-    """ Bepaald de samengestelde faalkans per vak bij een window size.
+    geoprob_pipe: GeoProbPipe, results: Results, window_size: float
+) -> pd.DataFrame:
+    """Bepaald de samengestelde faalkans per vak bij een window size.
 
     :param geoprob_pipe: GeoProbPipe object voor data collectie.
     :param window_size:
     :param results: Results object voor data collectie.
     :return DataFrame:
     """
-    element_list: list[VakElement] = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
+    element_list: list[VakElement] = _generate_element_list(
+        geoprob_pipe=geoprob_pipe, results=results
+    )
     window_list = []
     for element in element_list:
         for window in element.pf_window(window_size)[2]:
@@ -415,24 +576,25 @@ def construct_df_beta_window_vak(
                 "pf_vak": element.pf_window(window_size)[0].pf,
                 "beta_vak": element.pf_window(window_size)[0].beta,
                 "flow_chart_number": element.flow_chart_number,
-                "advise": element.advise
-                }
+                "advise": element.advise,
+            }
             window_list.append(window_dict)
 
     return pd.DataFrame(window_list)
 
 
 def construct_df_beta_scaled_vak(
-        geoprob_pipe: GeoProbPipe, results: Results
-        ) -> pd.DataFrame:
-    """ Bepaalde de samengestelde faalkans per vak op basis van de afstand tussen de uittredepunten.
+    geoprob_pipe: GeoProbPipe, results: Results
+) -> pd.DataFrame:
+    """Bepaalde de samengestelde faalkans per vak op basis van de afstand tussen de uittredepunten.
 
     :param geoprob_pipe: GeoProbPipe object voor data collectie.
     :param results: Results object voor data collectie.
     :return DataFrame:
     """
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                          results=results)
+    element_list = _generate_element_list(
+        geoprob_pipe=geoprob_pipe, results=results
+    )
     window_list = []
     for element in element_list:
         for window in element.pf_scaled[2]:
@@ -451,16 +613,16 @@ def construct_df_beta_scaled_vak(
                 "pf_vak": element.pf_scaled[0].pf,
                 "beta_vak": element.pf_scaled[0].beta,
                 "flow_chart_number": element.flow_chart_number,
-                "advise": element.advise
-                }
+                "advise": element.advise,
+            }
             window_list.append(window_dict)
 
     return pd.DataFrame(window_list)
 
 
 def construct_df_beta_per_traject(
-        geoprob_pipe: GeoProbPipe, results: Results
-        ) -> pd.DataFrame:
+    geoprob_pipe: GeoProbPipe, results: Results
+) -> pd.DataFrame:
     """Bepaalde de samengestelde faalkans over het traject volgens de WBI-methode.
 
     :param geoprob_pipe: GeoProbPipe object voor data collectie.
@@ -469,59 +631,64 @@ def construct_df_beta_per_traject(
     :return Dataframe:
     """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
-    vakken_list = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
+    vakken_list = _generate_element_list(
+        geoprob_pipe=geoprob_pipe, results=results
+    )
 
-    traject = TrajectElement(list_vakken=vakken_list, list_dsn=dsn_list, delta_length=300.0)
+    traject = TrajectElement(
+        list_vakken=vakken_list, list_dsn=dsn_list, delta_length=300.0
+    )
     traject_list = [
         {
             "method": "WBI methode over traject",
             "upper_bound_pof": traject.pf_max_vak[0].pf,
             "lower_bound_beta": traject.pf_max_vak[0].beta,
             "lower_bound_pof": traject.pf_max_vak[1].pf,
-            "upper_bound_beta": traject.pf_max_vak[1].beta},
+            "upper_bound_beta": traject.pf_max_vak[1].beta,
+        },
         {
             "method": "Window 50m over traject",
             "upper_bound_pof": traject.pf_window(50.0)[0].pf,
             "lower_bound_beta": traject.pf_window(50.0)[0].beta,
             "lower_bound_pof": traject.pf_window(50.0)[1].pf,
-            "upper_bound_beta": traject.pf_window(50.0)[1].beta
+            "upper_bound_beta": traject.pf_window(50.0)[1].beta,
         },
         {
             "method": "Window 100m over traject",
             "upper_bound_pof": traject.pf_window(100.0)[0].pf,
             "lower_bound_beta": traject.pf_window(100.0)[0].beta,
             "lower_bound_pof": traject.pf_window(100.0)[1].pf,
-            "upper_bound_beta": traject.pf_window(100.0)[1].beta
+            "upper_bound_beta": traject.pf_window(100.0)[1].beta,
         },
         {
             "method": "Window 200m over traject",
             "upper_bound_pof": traject.pf_window(200.0)[0].pf,
             "lower_bound_beta": traject.pf_window(200.0)[0].beta,
             "lower_bound_pof": traject.pf_window(200.0)[1].pf,
-            "upper_bound_beta": traject.pf_window(200.0)[1].beta
+            "upper_bound_beta": traject.pf_window(200.0)[1].beta,
         },
         {
             "method": "Window 300m over traject",
             "upper_bound_pof": traject.pf_window(300.0)[0].pf,
             "lower_bound_beta": traject.pf_window(300.0)[0].beta,
             "lower_bound_pof": traject.pf_window(300.0)[1].pf,
-            "upper_bound_beta": traject.pf_window(300.0)[1].beta
+            "upper_bound_beta": traject.pf_window(300.0)[1].beta,
         },
         {
             "method": "Scaled over individual sections",
             "upper_bound_pof": traject.pf_scaled[0].pf,
             "lower_bound_beta": traject.pf_scaled[0].beta,
             "lower_bound_pof": traject.pf_scaled[1].pf,
-            "upper_bound_beta": traject.pf_scaled[1].beta
+            "upper_bound_beta": traject.pf_scaled[1].beta,
         },
     ]
     return pd.DataFrame(traject_list)
 
 
 def construct_df_beta_window_traject(
-        geoprob_pipe: GeoProbPipe, results: Results, window_size: float
-        ) -> pd.DataFrame:
-    """ Bepaald de samengestelde faalkans voor het gehele traject bij een window size (i.p.v. vakken).
+    geoprob_pipe: GeoProbPipe, results: Results, window_size: float
+) -> pd.DataFrame:
+    """Bepaald de samengestelde faalkans voor het gehele traject bij een window size (i.p.v. vakken).
 
     :param geoprob_pipe: GeoProbPipe object voor data collectie.
     :param results: Results object voor data collectie.
@@ -529,9 +696,13 @@ def construct_df_beta_window_traject(
     :return DataFrame:
     """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe, results=results)
+    element_list = _generate_element_list(
+        geoprob_pipe=geoprob_pipe, results=results
+    )
 
-    traject = TrajectElement(list_vakken=element_list, list_dsn=dsn_list, delta_length=window_size)
+    traject = TrajectElement(
+        list_vakken=element_list, list_dsn=dsn_list, delta_length=window_size
+    )
     window_list = []
     for window in traject.pf_window(window_size=window_size)[2]:
         window_dict = {
@@ -546,20 +717,22 @@ def construct_df_beta_window_traject(
             "a": 1.0,
             "delta_L": traject.delta_length,
             "N_vak": 1.0,
-            "pf_traject(sum)": traject.pf_window(window_size=window_size)[0].pf,
+            "pf_traject(sum)": traject.pf_window(window_size=window_size)[
+                0
+            ].pf,
             "beta_traject": traject.pf_window(window_size=window_size)[0].beta,
             "flow_chart_number": window.flow_chart_number,
-            "advise": window.advise
-            }
+            "advise": window.advise,
+        }
         window_list.append(window_dict)
 
     return pd.DataFrame(window_list)
 
 
 def construct_df_beta_scaled_traject(
-        geoprob_pipe: GeoProbPipe, results: Results
-        ) -> pd.DataFrame:
-    """ Bepaalde de samengestelde faalkans voor het gehele traject op basis van de afstand tussen de uittredepunten
+    geoprob_pipe: GeoProbPipe, results: Results
+) -> pd.DataFrame:
+    """Bepaalde de samengestelde faalkans voor het gehele traject op basis van de afstand tussen de uittredepunten
     i.p.v. de vakken.
 
     :param geoprob_pipe: GeoProbPipe object voor data collectie.
@@ -567,8 +740,9 @@ def construct_df_beta_scaled_traject(
     :return DataFrame:
     """
     dsn_list = _generate_point_list(geoprob_pipe=geoprob_pipe, results=results)
-    element_list = _generate_element_list(geoprob_pipe=geoprob_pipe,
-                                          results=results)
+    element_list = _generate_element_list(
+        geoprob_pipe=geoprob_pipe, results=results
+    )
 
     traject = TrajectElement(
         list_vakken=element_list, list_dsn=dsn_list, delta_length=300.0
@@ -589,8 +763,8 @@ def construct_df_beta_scaled_traject(
             "pf_traject": traject.pf_scaled[0].pf,
             "beta_traject": traject.pf_scaled[0].beta,
             "flow_chart_number": window.flow_chart_number,
-            "advise": window.advise
-            }
+            "advise": window.advise,
+        }
         window_list.append(window_dict)
 
     return pd.DataFrame(window_list)

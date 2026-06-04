@@ -7,6 +7,7 @@ import scipy.stats as sct
 from geopandas import GeoDataFrame, read_file
 from geoprob_pipe.calculations.systems.mappers.initial_input import INITIAL_INPUT_MAPPER
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
+from geoprob_pipe.utils.sql_contents import write_dfs_to_gpkg
 from probabilistic_library import FragilityValue
 
 
@@ -404,5 +405,5 @@ def run_expand_input_tables(
         df_parameter_invoer_combined=df_parameter_invoer_combined3,
         df_identifiers=df_identifiers,
         geopackage_filepath=geopackage_filepath)
-
+    
     return _concat_collection(collection=collection)
