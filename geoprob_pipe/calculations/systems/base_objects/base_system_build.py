@@ -23,7 +23,7 @@ def _gather_variable_correlations(geopackage_filepath: str
         conn = sqlite3.connect(geopackage_filepath)
         cursor = conn.cursor()
         cursor.execute("""
-SELECT parameter_a, parameter_b, correlation FROM correlatie_invoer
+SELECT parameter_a, parameter_b, correlation FROM data__correlatie_invoer
 WHERE correlation <> 0.0;
 """)
         rows = cursor.fetchall()  # This will be a list of tuples

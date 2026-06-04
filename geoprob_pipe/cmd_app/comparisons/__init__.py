@@ -54,41 +54,41 @@ class ComparisonCollector:
         """Method om de data te verzamelen uit de opgegeven pakketten.
 
         Raises:
-            ValueError: Als de `beta_limit_states` tabellen niet hetzelfde
+            ValueError: Als de `result__limit_states` tabellen niet hetzelfde
                 formaat hebben.
-            ValueError: Als de `beta_scenario` tabellen niet hetzelfde
+            ValueError: Als de `result__scenario` tabellen niet hetzelfde
                 formaat hebben.
-            ValueError: Als de `beta_uitredepunten` tabellen niet hetzelfde
+            ValueError: Als de `result__uitredepunten` tabellen niet hetzelfde
                 formaat hebben.
         """
         conn_1 = sqlite3.connect(self.geopackage_filepath_1)
         conn_2 = sqlite3.connect(self.geopackage_filepath_2)
 
         self.df1_beta_limit_states = pd.read_sql(
-            "SELECT * FROM beta_limit_states;", conn_1
+            "SELECT * FROM result__limit_states;", conn_1
             )
         self.df2_beta_limit_states = pd.read_sql(
-            "SELECT * FROM beta_limit_states;", conn_2
+            "SELECT * FROM result__limit_states;", conn_2
             )
         if len(self.df1_beta_limit_states) != len(self.df2_beta_limit_states):
             raise ValueError("De beta_limit_states tables hebben niet "
                              "hetzelfde formaat")
 
         self.df1_beta_scenarios = pd.read_sql(
-            "SELECT * FROM beta_scenarios_final;", conn_1
+            "SELECT * FROM result__scenarios_final;", conn_1
             )
         self.df2_beta_scenarios = pd.read_sql(
-            "SELECT * FROM beta_scenarios_final;", conn_2
+            "SELECT * FROM result__scenarios_final;", conn_2
             )
         if len(self.df1_beta_scenarios) != len(self.df2_beta_scenarios):
             raise ValueError("De beta_scenario tables hebben niet hetzelfde "
                              "formaat")
 
         self.df1_beta_uittredepunten = pd.read_sql(
-            "SELECT * FROM beta_uittredepunten;", conn_1
+            "SELECT * FROM result__uittredepunten;", conn_1
             )
         self.df2_beta_uittredepunten = pd.read_sql(
-            "SELECT * FROM beta_uittredepunten;", conn_2
+            "SELECT * FROM result__uittredepunten;", conn_2
             )
         if len(self.df1_beta_uittredepunten) != len(self.df2_beta_uittredepunten):
             raise ValueError("De beta_uittredepunten tables hebben niet "
@@ -108,11 +108,11 @@ class ComparisonCollector:
         """
         self.gdf1_uittredepunten = gpd.read_file(
             self.geopackage_filepath_1,
-            layer="beta_uittredepunten"
+            layer="result__uittredepunten"
             )
         self.gdf2_uittredepunten = gpd.read_file(
             self.geopackage_filepath_2,
-            layer="beta_uittredepunten"
+            layer="result__uittredepunten"
             )
         if len(self.gdf1_uittredepunten) != len(self.gdf2_uittredepunten):
             raise ValueError("De beta_uittredepunten tables hebben niet "

@@ -25,7 +25,7 @@ def coupled_hrd_to_uittredepunten(app_settings: ApplicationSettings) -> bool:
 
     layers = fiona.listlayers(app_settings.geopackage_filepath)
 
-    if "hrd_locaties" not in layers:
+    if "geom__hrd_locaties" not in layers:
         return True  # Geen Hydra-locatie geïmporteerd, dan ook niks koppelen.
 
     HRDCouple(app_settings).couple_exit_points()

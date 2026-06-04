@@ -21,7 +21,7 @@ class GraphHFreqSingleInteractive:
 
         # Check if there are fragility curves referenced:
         conn = sqlite3.connect(geoprob_pipe.input_data.app_settings.geopackage_filepath)
-        df_parameter_invoer = read_sql("SELECT * FROM parameter_invoer;", conn)
+        df_parameter_invoer = read_sql("SELECT * FROM data__excel_parameter_invoer;", conn)
         fragility_values_refs = df_parameter_invoer['fragility_values_ref'].unique()
         conn.close()
         if (fragility_values_refs.__len__() == 0 or

@@ -24,7 +24,7 @@ def _data_from_metadata_table(app_settings: ApplicationSettings) -> Tuple[str, b
 
 
 def _get_traject_length(app_settings: ApplicationSettings) -> float:
-    gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="dijktraject")
+    gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__dijktraject")
     gdf_dijktraject_geom = gdf_dijktraject.iloc[0].geometry
     if isinstance(gdf_dijktraject_geom, MultiLineString):
         assert gdf_dijktraject_geom.geoms.__len__() == 1

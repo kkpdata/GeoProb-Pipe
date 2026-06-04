@@ -32,8 +32,8 @@ def possibly_initiatie_input_tables_in_db(app_settings: ApplicationSettings):
     conn.close()
 
     # If already exist
-    if ("parameter_invoer" in tables_names and
-            "scenario_invoer" in tables_names and "fragility_values_invoer" in tables_names):
+    if ("data__excel_parameter_invoer" in tables_names and
+            "data__scenario_invoer" in tables_names and "data__fragility_values_invoer" in tables_names):
         # print(f"{BColors.UNDERLINE}Tables already exist in geopackage{BColors.ENDC}")
         return
 
@@ -252,11 +252,11 @@ def inquire_to_store_input_tables_to_db(
 
     if choice == "Ja":
         conn = sqlite3.connect(app_settings.geopackage_filepath)
-        tables.df_scenario_invoer.to_sql("scenario_invoer", conn, if_exists="replace", index=False)
-        tables.df_parameter_invoer.to_sql("parameter_invoer", conn, if_exists="replace", index=False)
+        tables.df_scenario_invoer.to_sql("data__scenario_invoer", conn, if_exists="replace", index=False)
+        tables.df_parameter_invoer.to_sql("data__excel_parameter_invoer", conn, if_exists="replace", index=False)
         tables.df_fragility_values_invoer.to_sql(
-            "fragility_values_invoer", conn, if_exists="replace", index=False)
-        tables.df_correlatie_invoer.to_sql("correlatie_invoer", conn, if_exists="replace", index=False)
+            "data__fragility_values_invoer", conn, if_exists="replace", index=False)
+        tables.df_correlatie_invoer.to_sql("data__correlatie_invoer", conn, if_exists="replace", index=False)
         conn.close()
         print(f"{BColors.UNDERLINE}Tabellen zijn nu opgeslagen in het GeoProb-Pipe-file.{BColors.ENDC}")
 

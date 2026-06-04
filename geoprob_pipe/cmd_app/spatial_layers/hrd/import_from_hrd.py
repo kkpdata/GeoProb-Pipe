@@ -87,7 +87,7 @@ def _add_hrd_locations_to_database(app_settings: ApplicationSettings, hrd_dir: s
         })
 
     gdf = GeoDataFrame(hrd_location_rows, columns=['location_name', 'geometry'], crs='EPSG:28992')
-    gdf.to_file(Path(app_settings.geopackage_filepath), layer="hrd_locaties", driver="GPKG")
+    gdf.to_file(Path(app_settings.geopackage_filepath), layer="geom__hrd_locaties", driver="GPKG")
     print(BColors.OKBLUE, f"✅  HRD-locatie punten toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
 
 
@@ -96,7 +96,7 @@ def _add_hrd_overschrijdingsfrequentielijnen(hrd_dir: str, app_settings: Applica
           f"GeoPackage.{BColors.ENDC}")
 
     hrd = pydra.HRDatabase(hrd_file_path(hrd_dir=hrd_dir))
-    gdf_locations: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="hrd_locaties")
+    gdf_locations: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__hrd_locaties")
     location_names = gdf_locations['location_name'].unique().tolist()
     fl = pydra.ExceedanceFrequencyLine("h")
     dfs: List[DataFrame] = []
@@ -132,7 +132,7 @@ def _add_hrd_overschrijdingsfrequentielijnen(hrd_dir: str, app_settings: Applica
     if dfs.__len__() > 0:
         df = concat(dfs, ignore_index=True)
     conn = sqlite3.connect(app_settings.geopackage_filepath)
-    df.to_sql("fragility_values_invoer_hrd", conn, if_exists="replace", index=False)
+    df.to_sql("data__fragility_values_invoer_hrd", conn, if_exists="replace", index=False)
     conn.close()
 
     print(BColors.OKBLUE, f"✅  HRD-overschrijdingsfrequentielijnen toegevoegd aan GeoProb-Pipe "

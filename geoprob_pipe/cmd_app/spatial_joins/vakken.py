@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 def coupled_uittredepunten_to_vakken(app_settings: ApplicationSettings) -> bool:
 
     # Read uittredepunten
-    gdf_exit_points: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")
+    gdf_exit_points: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__uittredepunten")
 
     # Check if already added
     if "vak_id" in gdf_exit_points.columns:
@@ -18,7 +18,7 @@ def coupled_uittredepunten_to_vakken(app_settings: ApplicationSettings) -> bool:
         return True  # Assuming already added
 
     # Spatial analyses
-    gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="vakindeling")
+    gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__vakindeling")
     gdf_exit_points_with_vakken = gdf_exit_points.sjoin_nearest(
         gdf_vakindeling[['geometry', 'id']], how='left', distance_col='distance')
 
@@ -29,6 +29,6 @@ def coupled_uittredepunten_to_vakken(app_settings: ApplicationSettings) -> bool:
     gdf_new_exit_points = gdf_new_exit_points.rename(columns={"id": "vak_id"})
 
     # Store back in geopackage
-    gdf_new_exit_points.to_file(Path(app_settings.geopackage_filepath), layer="uittredepunten", driver="GPKG")
+    gdf_new_exit_points.to_file(Path(app_settings.geopackage_filepath), layer="geom__uittredepunten", driver="GPKG")
     print(BColors.OKBLUE, f"✅  Vakken zijn nu gekoppeld aan de uittredepunten.", BColors.ENDC)
     return True

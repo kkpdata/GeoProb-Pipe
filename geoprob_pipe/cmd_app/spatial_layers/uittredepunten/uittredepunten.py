@@ -16,11 +16,11 @@ if TYPE_CHECKING:
 def added_uittredepunten(app_settings: ApplicationSettings) -> bool:
     layers = fiona.listlayers(app_settings.geopackage_filepath)
 
-    if "uittredepunten" not in layers:
+    if "geom__uittredepunten" not in layers:
         define_method_of_adding_uittredepunten(app_settings)
         return True
 
-    gdf: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")
+    gdf: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__uittredepunten")
     if gdf.__len__() == 0:
         define_method_of_adding_uittredepunten(app_settings)
         return True
@@ -239,7 +239,7 @@ def specify_column_with_maaiveld_niveau(app_settings: ApplicationSettings, gdf: 
         elif column_name == "n.a.":
             gdf_to_add = gdf[["geometry"]]
             gdf_to_add["mv_exit"] = -999.9
-            gdf_to_add.to_file(app_settings.geopackage_filepath, layer="uittredepunten", driver="GPKG")
+            gdf_to_add.to_file(app_settings.geopackage_filepath, layer="geom__uittredepunten", driver="GPKG")
             print(BColors.OKBLUE, f"✅  Uittredepunten toegevoegd.", BColors.ENDC)
             return
         elif column_name not in column_names:
@@ -252,5 +252,5 @@ def specify_column_with_maaiveld_niveau(app_settings: ApplicationSettings, gdf: 
     gdf_to_add = gdf[["geometry", column_name]]
     # No uittredepunt id yet. This will be set when the metering is determined.
     gdf_to_add = gdf_to_add.rename(columns={column_name: "mv_exit"})
-    gdf_to_add.to_file(app_settings.geopackage_filepath, layer="uittredepunten", driver="GPKG")
+    gdf_to_add.to_file(app_settings.geopackage_filepath, layer="geom__uittredepunten", driver="GPKG")
     print(BColors.OKBLUE, f"✅  Uittredepunten toegevoegd.", BColors.ENDC)

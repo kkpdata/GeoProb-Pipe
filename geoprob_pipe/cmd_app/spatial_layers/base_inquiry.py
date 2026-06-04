@@ -308,7 +308,7 @@ ander bestand op te gaven.
             gdf_to_add = gdf[["geometry"]]
             gdf_to_add.to_file(
                 self.app_settings.geopackage_filepath,
-                layer=f"{self.param}",
+                layer=f"geom__{self.param}",
                 driver="GPKG",
             )
             return True
@@ -440,7 +440,7 @@ ander bestand op te gaven.
 
             gdf_to_add.to_file(
                 self.app_settings.geopackage_filepath,
-                layer=f"{self.param}__{scenario}",
+                layer=f"geom__{self.param}__{scenario}",
                 driver="GPKG",
             )
 
@@ -469,7 +469,7 @@ ander bestand op te gaven.
 
         gdf_to_add.to_file(
             self.app_settings.geopackage_filepath,
-            layer=f"{self.param}",
+            layer=f"geom__{self.param}",
             driver="GPKG",
         )
 
@@ -525,7 +525,7 @@ ander bestand op te gaven.
 
             gdf_to_add.to_file(
                 self.app_settings.geopackage_filepath,
-                layer=f"{self.param}__{scenario}",
+                layer=f"geom__{self.param}__{scenario}",
                 driver="GPKG",
             )
 
@@ -567,14 +567,14 @@ ander bestand op te gaven.
             if scenario is None:
                 gdf_to_add.to_file(
                     self.app_settings.geopackage_filepath,
-                    layer=f"{self.param}",
+                    layer=f"geom__{self.param}",
                     driver="GPKG",
                 )
 
             else:
                 gdf_to_add.to_file(
                     self.app_settings.geopackage_filepath,
-                    layer=f"{self.param}__{scenario}",
+                    layer=f"geom__{self.param}__{scenario}",
                     driver="GPKG",
                 )
 

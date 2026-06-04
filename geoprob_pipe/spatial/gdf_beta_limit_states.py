@@ -22,7 +22,7 @@ def get_gdf_beta_limit_states(geoprob_pipe: GeoProbPipe, export: bool = False) -
     gdf = _get_uittredepunten_gdf_beta_results(geoprob_pipe, geoprob_pipe.results.df_beta_limit_states)
     if export:
         gdf.to_file(geoprob_pipe.input_data.app_settings.geopackage_filepath,
-                    layer="beta_limit_states", driver="GPKG", mode="w")
+                    layer="result__limit_states", driver="GPKG", mode="w")
     return gdf
 
 
@@ -31,7 +31,7 @@ def get_gdf_beta_scenarios_final(geoprob_pipe: GeoProbPipe, export: bool = False
     if export:
         gdf.to_file(
             geoprob_pipe.input_data.app_settings.geopackage_filepath,
-            layer="beta_scenarios_final", driver="GPKG", mode="w")
+            layer="result__scenarios_final", driver="GPKG", mode="w")
     return gdf
 
 
@@ -40,7 +40,7 @@ def get_gdf_beta_scenarios_cp(geoprob_pipe: GeoProbPipe, export: bool = False) -
     if export:
         gdf.to_file(
             geoprob_pipe.input_data.app_settings.geopackage_filepath,
-            layer="beta_scenarios_cp", driver="GPKG", mode="w")
+            layer="result__scenarios_cp", driver="GPKG", mode="w")
     return gdf
 
 
@@ -49,7 +49,7 @@ def get_gdf_beta_scenarios_rp(geoprob_pipe: GeoProbPipe, export: bool = False) -
     if export:
         gdf.to_file(
             geoprob_pipe.input_data.app_settings.geopackage_filepath,
-            layer="beta_scenarios_rp", driver="GPKG", mode="w")
+            layer="result__scenarios_rp", driver="GPKG", mode="w")
     return gdf
 
 
@@ -58,5 +58,5 @@ def get_gdf_beta_uittredepunten(geoprob_pipe: GeoProbPipe, export: bool = False)
     if export:
         gdf.to_file(
             geoprob_pipe.input_data.app_settings.geopackage_filepath,
-            layer="beta_uittredepunten", driver="GPKG", mode="w")
+            layer="result__uittredepunten", driver="GPKG", mode="w")
     return gdf

@@ -50,13 +50,13 @@ class ShapeCouple(BaseCouple):
         """
         # Read uittredepunten
         self.gdf_exit_points: gpd.GeoDataFrame = gpd.read_file(
-            self.app_settings.geopackage_filepath, layer="uittredepunten"
+            self.app_settings.geopackage_filepath, layer="geom__uittredepunten"
         )
 
         self.param_tables = [
             table
             for table in self.tables_names
-            if table.split("__")[0] == self.param
+            if table.strip("geom_").split("__")[0] == self.param
         ]
     
         if len(self.param_tables) == 0:
@@ -78,7 +78,7 @@ class ShapeCouple(BaseCouple):
         ruimtelijke scenarios zijn voor de parameter.
         """
         gdf_parameter: gpd.GeoDataFrame = gpd.read_file(
-            self.app_settings.geopackage_filepath, layer=f"{self.param}"
+            self.app_settings.geopackage_filepath, layer=f"geom__{self.param}"
         )
         self._check_shape(gdf_parameter)
 
@@ -90,13 +90,9 @@ class ShapeCouple(BaseCouple):
         for layer in self.param_tables:
             gdf_parameter: gpd.GeoDataFrame = gpd.read_file(
                 self.app_settings.geopackage_filepath,
-                layer=layer,
+                layer=f"geom__{layer}",
             )
-            if len(layer.split("__")) == 2:
-                scenario = layer.split("__")[1]
-            else:
-                scenario = ""
-            
+            scenario = layer.split("__")[1]
             self._check_shape(gdf_parameter, scenario)
 
     def _check_shape(self, gdf: gpd.GeoDataFrame, scenario: str = ""):

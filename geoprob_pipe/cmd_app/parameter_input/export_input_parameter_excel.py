@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 def join_vak_naam(df: DataFrame, app_settings: ApplicationSettings, ) -> DataFrame:
-    gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="vakindeling")
+    gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__vakindeling")
     gdf_vakindeling = gdf_vakindeling.rename(columns={"naam": "vak_naam", "id": "vak_id"})
     df = df.merge(gdf_vakindeling[["vak_naam", "vak_id"]], left_on="vak_id", right_on="vak_id")
     return df[["vak_id", "vak_naam", "naam", "kans"]]

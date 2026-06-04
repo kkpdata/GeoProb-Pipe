@@ -24,7 +24,7 @@ class Uittredepunten:
     def __init__(self, app_settings: ApplicationSettings):
         self.app_settings: ApplicationSettings = app_settings
         self.gdf: GeoDataFrame = read_file(app_settings.geopackage_filepath,
-                                           layer="uittredepunten")
+                                           layer="geom__uittredepunten")
 
     def uittredepunt(self, uittredepunt_id: int):
         row = self.gdf.loc[
@@ -57,7 +57,7 @@ class Scenarios:
 
     def _query_scenarios(self) -> DataFrame:
         conn = sqlite3.connect(self.app_settings.geopackage_filepath)
-        df_scenario_invoer = read_sql("SELECT * FROM scenario_invoer;", conn)
+        df_scenario_invoer = read_sql("SELECT * FROM data__scenario_invoer;", conn)
         df_scenario_invoer = df_scenario_invoer[["vak_id", "naam", "kans"]]
         conn.close()
         return df_scenario_invoer
@@ -75,14 +75,14 @@ class HydraNLData:
     def __init__(self, app_settings: ApplicationSettings):
         self.app_settings: ApplicationSettings = app_settings
         self.gdf_locations: GeoDataFrame = read_file(
-            app_settings.geopackage_filepath, layer="hrd_locaties")
+            app_settings.geopackage_filepath, layer="geom__hrd_locaties")
 
     def hrd_fragility_values(self, ref: str) -> List[FragilityValue]:
 
         # Read from geopackage
         conn = sqlite3.connect(self.app_settings.geopackage_filepath)
         df_frag_line = read_sql(
-            sql=f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}' AND kans < 1.0;",
+            sql=f"SELECT * FROM data__fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}' AND kans < 1.0;",
             con=conn)
         conn.close()
 
@@ -120,7 +120,7 @@ class Vakken:
     def __init__(self, app_settings: ApplicationSettings):
         self.app_settings: ApplicationSettings = app_settings
         self.gdf: GeoDataFrame = read_file(app_settings.geopackage_filepath,
-                                           layer="vakindeling")
+                                           layer="geom__vakindeling")
 
 
 class InputData:

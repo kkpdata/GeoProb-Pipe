@@ -80,7 +80,7 @@ class BaseCouple:
         cursor = conn.cursor()
         cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS gis_join_parameter_invoer (
+            CREATE TABLE IF NOT EXISTS data__gis_parameter_invoer (
                 parameter TEXT,
                 scope TEXT,
                 scope_referentie INTEGER,
@@ -103,7 +103,7 @@ class BaseCouple:
         # UPSERT naar tabel
         cursor.executemany(
             f"""
-            INSERT INTO gis_join_parameter_invoer (
+            INSERT INTO data__gis_parameter_invoer (
                 parameter,
                 scope,
                 scope_referentie,
@@ -137,9 +137,9 @@ class BaseCouple:
         # UPSERT naar gpkg_contents, vereist in gpkg om leesbaar te zijn
         # voor GIS software
         content = (
-            "gis_join_parameter_invoer",
+            "data__gis_parameter_invoer",
             "attributes",
-            "gis_join_parameter_invoer",
+            "data__gis_parameter_invoer",
             "",
             datetime.datetime.now(),
             0,

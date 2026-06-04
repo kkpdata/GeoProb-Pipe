@@ -30,7 +30,7 @@ def coupled_distances_to_uittredepunten(
 
     # Lees uittredepunten uit gpkg
     gdf_exit_points: gpd.GeoDataFrame = gpd.read_file(
-        app_settings.geopackage_filepath, layer="uittredepunten"
+        app_settings.geopackage_filepath, layer="geom__uittredepunten"
     )
 
     # Distance to intredelijn
@@ -39,9 +39,9 @@ def coupled_distances_to_uittredepunten(
     # uitgelezen. Er kan zowel een intredelijn zonder scenario als met een scenario
     # tegelijk zijn.
     for layer in layers:
-        if "intredelijn" in layers:  # Een intredelijn voor alle scenarios
+        if "geom__intredelijn" in layers:  # Een intredelijn voor alle scenarios
             gdf_intredelijnen: gpd.GeoDataFrame = gpd.read_file(
-                app_settings.geopackage_filepath, layer="intredelijn"
+                app_settings.geopackage_filepath, layer="geom__intredelijn"
             )
             gdf_exit_points["afstand_intredelijn"] = (
                 gdf_exit_points.geometry.apply(
@@ -59,7 +59,7 @@ def coupled_distances_to_uittredepunten(
             ).couple_exit_points()
 
         # Intrede lijn per scenario        
-        if len(layer.split("__")) == 2 and "intredelijn" in layer.split("__")[0]:
+        if len(layer.split("__")) == 3 and "intredelijn" in layer.split("__"):
             gdf_intredelijnen: gpd.GeoDataFrame = gpd.read_file(
                 app_settings.geopackage_filepath, layer=layer
             )
@@ -78,11 +78,11 @@ def coupled_distances_to_uittredepunten(
             )
             DistCouple(
                 app_settings, "L_intrede", df_l_intrede
-            ).couple_exit_points(scenario=layer.split("__")[1])
+            ).couple_exit_points(scenario=layer.split("__")[2])
 
     # Distance to buitenteenlijn
     gdf_buitenteenlijnen: gpd.GeoDataFrame = gpd.read_file(
-        app_settings.geopackage_filepath, layer="buitenteenlijn"
+        app_settings.geopackage_filepath, layer="geom__buitenteenlijn"
     )
     gdf_exit_points["afstand_buitenteenlijn"] = gdf_exit_points.geometry.apply(
         lambda pnt: round(gdf_buitenteenlijnen.distance(pnt).min(), 1)
@@ -96,7 +96,7 @@ def coupled_distances_to_uittredepunten(
 
     # Distance to binnenteenlijn
     gdf_binnenteenlijn: gpd.GeoDataFrame = gpd.read_file(
-        app_settings.geopackage_filepath, layer="binnenteenlijn"
+        app_settings.geopackage_filepath, layer="geom__binnenteenlijn"
     )
     gdf_exit_points["afstand_binnenteenlijn"] = gdf_exit_points.geometry.apply(
         lambda pnt: round(gdf_binnenteenlijn.distance(pnt).min(), 1)

@@ -45,7 +45,7 @@ def _hrd_data_imported(app_settings: ApplicationSettings) -> bool:
 
     # Check if locations shape already added
     layers = fiona.listlayers(app_settings.geopackage_filepath)
-    if "hrd_locaties" not in layers:
+    if "geom__hrd_locaties" not in layers:
         return False
 
     # Check overschrijdingsfrequentielijnen already added

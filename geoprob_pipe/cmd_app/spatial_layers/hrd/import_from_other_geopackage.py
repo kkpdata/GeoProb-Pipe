@@ -36,18 +36,18 @@ def _ask_for_other_geopackage_file_path() -> str:
 
 
 def _add_hrd_locations_to_database(other_gpkg_path: str, app_settings: ApplicationSettings):
-    gdf_locations: GeoDataFrame = read_file(other_gpkg_path, layer="hrd_locaties")
-    gdf_locations.to_file(Path(app_settings.geopackage_filepath), layer="hrd_locaties", driver="GPKG")
+    gdf_locations: GeoDataFrame = read_file(other_gpkg_path, layer="geom__hrd_locaties")
+    gdf_locations.to_file(Path(app_settings.geopackage_filepath), layer="geom__hrd_locaties", driver="GPKG")
     print(BColors.OKBLUE, f"✅  HRD-locatie punten toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
 
 
 def _add_hrd_overschrijdingsfrequentielijnen(other_gpkg_path: str, app_settings: ApplicationSettings):
     conn = sqlite3.connect(other_gpkg_path)
-    df: DataFrame = read_sql_query("SELECT * FROM fragility_values_invoer_hrd;", conn)
+    df: DataFrame = read_sql_query("SELECT * FROM data__fragility_values_invoer_hrd;", conn)
     conn.close()
 
     conn = sqlite3.connect(app_settings.geopackage_filepath)
-    df.to_sql("fragility_values_invoer_hrd", conn, if_exists="replace", index=False)
+    df.to_sql("data__fragility_values_invoer_hrd", conn, if_exists="replace", index=False)
     conn.close()
 
     print(BColors.OKBLUE, f"✅  HRD-overschrijdingsfrequentielijnen toegevoegd aan GeoProb-Pipe "

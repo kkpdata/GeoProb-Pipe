@@ -33,10 +33,10 @@ class HRDCouple(BaseCouple):
         """        
         # Read uittredepunten
         gdf_exit_points: gpd.GeoDataFrame = gpd.read_file(
-            self.app_settings.geopackage_filepath, layer="uittredepunten"
+            self.app_settings.geopackage_filepath, layer="geom__uittredepunten"
         )
         gdf_hrd: gpd.GeoDataFrame = gpd.read_file(
-            self.app_settings.geopackage_filepath, layer="hrd_locaties"
+            self.app_settings.geopackage_filepath, layer="geom__hrd_locaties"
         )
         join_df = gdf_exit_points.sjoin_nearest(gdf_hrd, how="left")
         df_to_add = self._create_df_hrd(join_df)

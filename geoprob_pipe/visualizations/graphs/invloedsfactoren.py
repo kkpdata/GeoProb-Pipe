@@ -125,7 +125,7 @@ def _get_data(geoprob_pipe: GeoProbPipe) -> DataFrame:
 def _plot_data(geoprob_pipe: GeoProbPipe, df_invloedsfactoren: DataFrame) -> Figure:
     fig = Figure()
     gdf_vakindeling: GeoDataFrame = read_file(
-        geoprob_pipe.input_data.app_settings.geopackage_filepath, layer="vakindeling")
+        geoprob_pipe.input_data.app_settings.geopackage_filepath, layer="geom__vakindeling")
     vakken = {row['id']: row["naam"] for index, row in gdf_vakindeling.iterrows()}
     picked_colors = {}
     added_to_legend = []

@@ -12,12 +12,12 @@ def coupled_mv_exit_to_gis_parameter_invoer_table(app_settings: ApplicationSetti
 
     # Check if already added, if so skip
     conn = sqlite3.connect(app_settings.geopackage_filepath)
-    df_existing = read_sql_query("SELECT * FROM gis_join_parameter_invoer;", conn)
+    df_existing = read_sql_query("SELECT * FROM data__gis_parameter_invoer;", conn)
     if "mv_exit" in df_existing['parameter'].unique():
         return True
 
     # Getting necessary GeoDataframes
-    gdf_exit_points: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")
+    gdf_exit_points: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__uittredepunten")
 
     # Append to new version of geo-spatial storage
     df_to_append: DataFrame = gdf_exit_points[["mv_exit", "uittredepunt_id"]]

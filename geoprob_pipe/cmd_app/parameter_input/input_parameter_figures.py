@@ -86,17 +86,17 @@ class InputParameterFigures:
 
         # Lengte traject
         gpkg_file_path = self.app_settings.geopackage_filepath
-        gdf: GeoDataFrame = read_file(gpkg_file_path, layer="dijktraject")
+        gdf: GeoDataFrame = read_file(gpkg_file_path, layer="geom__dijktraject")
         assert gdf.__len__() == 1
         self.traject_length = gdf.iloc[0].geometry.length
         self.x_max = self.traject_length
 
         # Vakindeling dictionary
-        gdf_vakindeling: GeoDataFrame = read_file(self.app_settings.geopackage_filepath, layer="vakindeling")
+        gdf_vakindeling: GeoDataFrame = read_file(self.app_settings.geopackage_filepath, layer="geom__vakindeling")
         self.dict_vakindeling = gdf_vakindeling.set_index('id').to_dict(orient='index')
 
         # Uittredepunten dictionary
-        gdf_uittredepunten: GeoDataFrame = read_file(self.app_settings.geopackage_filepath, layer="uittredepunten")
+        gdf_uittredepunten: GeoDataFrame = read_file(self.app_settings.geopackage_filepath, layer="geom__uittredepunten")
         self.dict_uittredepunten = gdf_uittredepunten.set_index('uittredepunt_id').to_dict(orient='index')
 
     @staticmethod

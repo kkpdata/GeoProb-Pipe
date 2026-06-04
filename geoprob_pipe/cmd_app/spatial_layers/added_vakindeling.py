@@ -29,7 +29,7 @@ def added_vakindeling(app_settings: ApplicationSettings) -> bool:
 
 
 def check_validity_vakindeling(app_settings: ApplicationSettings):
-    gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="dijktraject")
+    gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__dijktraject")
     gdf_dijktraject_geom = gdf_dijktraject.iloc[0].geometry
     if isinstance(gdf_dijktraject_geom, MultiLineString):
         assert gdf_dijktraject_geom.geoms.__len__() == 1
@@ -41,7 +41,7 @@ def check_validity_vakindeling(app_settings: ApplicationSettings):
                                   f"developer.'")
     dijktraject_length = round(ls_dijktraject.length, 2)
 
-    gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="vakindeling")
+    gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__vakindeling")
     vakindeling_geometries = gdf_vakindeling.geometry.tolist()
     vakindeling_total_length = round(sum([geom.length for geom in vakindeling_geometries]), 2)
 
@@ -328,5 +328,5 @@ def align_vak_shp_to_dijktraject(
     # Add to geopackage
     gdf_new_vakindeling.to_file(
         Path(app_settings.geopackage_filepath),
-        layer="vakindeling", driver="GPKG")
+        layer="geom__vakindeling", driver="GPKG")
     print(BColors.OKBLUE, "✅  Vakindeling toegevoegd.", BColors.ENDC)

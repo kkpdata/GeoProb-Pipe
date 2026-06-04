@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 def push_scenario_invoer_tabel(app_settings: ApplicationSettings):
 
     # Genereer tabel input (o.b.v. vakindeling)
-    gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="vakindeling")
+    gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__vakindeling")
     gdf_vakindeling = gdf_vakindeling.sort_values(by=["id"])
     df_scenarios = gdf_vakindeling[["id"]].copy()
     df_scenarios.loc[:, 'naam'] = "scenario1"
@@ -24,12 +24,12 @@ def push_scenario_invoer_tabel(app_settings: ApplicationSettings):
 
     # Push to geopackage
     conn = sqlite3.connect(app_settings.geopackage_filepath)
-    df_scenarios.to_sql("scenario_invoer", conn, if_exists="replace", index=False)
+    df_scenarios.to_sql("data__scenario_invoer", conn, if_exists="replace", index=False)
     conn.close()
 
 
 def _check_to_exclude_buitenwaterstand(app_settings: ApplicationSettings, df_parameter_invoer: DataFrame):
-    gdf_uittredepunten: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="uittredepunten")
+    gdf_uittredepunten: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__uittredepunten")
     if "hrd_name" in gdf_uittredepunten.columns:
         return df_parameter_invoer[df_parameter_invoer["name"] != "buitenwaterstand"]
     return df_parameter_invoer
@@ -75,7 +75,7 @@ def push_parameter_invoer_tabel(app_settings: ApplicationSettings):
 
     # Push to geopackage
     conn = sqlite3.connect(app_settings.geopackage_filepath)
-    df_parameter_invoer.to_sql("parameter_invoer", conn, if_exists="replace", index=False)
+    df_parameter_invoer.to_sql("data__excel_parameter_invoer", conn, if_exists="replace", index=False)
     conn.close()
 
 
@@ -92,7 +92,7 @@ def push_fragility_values_invoer_tabel(app_settings: ApplicationSettings):
 
     # Push to geopackage
     conn = sqlite3.connect(app_settings.geopackage_filepath)
-    df_fragility_values_invoer.to_sql("fragility_values_invoer", conn, if_exists="replace", index=False)
+    df_fragility_values_invoer.to_sql("data__fragility_values_invoer", conn, if_exists="replace", index=False)
     conn.close()
 
 
@@ -102,7 +102,7 @@ DF_EMPTY_CORRELATIE_INVOER = DataFrame({"parameter_a": [], "parameter_b": [], "c
 def push_correlatie_invoer_tabel(app_settings: ApplicationSettings):
     # Push to geopackage
     conn = sqlite3.connect(app_settings.geopackage_filepath)
-    DF_EMPTY_CORRELATIE_INVOER.to_sql("correlatie_invoer", conn, if_exists="replace", index=False)
+    DF_EMPTY_CORRELATIE_INVOER.to_sql("data__correlatie_invoer", conn, if_exists="replace", index=False)
     conn.close()
 
 

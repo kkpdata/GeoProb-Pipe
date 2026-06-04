@@ -178,7 +178,7 @@ def specify_single_trajectory(app_settings: ApplicationSettings, gdf: GeoDataFra
             column_name: "traject_naam",
             gdf.geometry.name: "geometry",
         })
-        gdf.to_file(app_settings.geopackage_filepath, layer="dijktraject", driver="GPKG")
+        gdf.to_file(app_settings.geopackage_filepath, layer="geom__dijktraject", driver="GPKG")
 
         print(BColors.OKBLUE, "✅  Trajectlijn toegevoegd.", BColors.ENDC)
         return
@@ -211,6 +211,6 @@ def specify_single_trajectory(app_settings: ApplicationSettings, gdf: GeoDataFra
         column_name: "traject_naam",
         gdf.geometry.name: "geometry",
     })
-    gdf.to_file(app_settings.geopackage_filepath, layer="dijktraject", driver="GPKG")
+    gdf.to_file(app_settings.geopackage_filepath, layer="geom__dijktraject", driver="GPKG")
     print(BColors.OKBLUE, "✅  Trajectlijn toegevoegd.", BColors.ENDC)
     return

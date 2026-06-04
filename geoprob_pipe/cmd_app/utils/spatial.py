@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 def load_dijktraject_linestring(app_settings: ApplicationSettings) -> LineString:
-    gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="dijktraject")
+    gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__dijktraject")
     gdf_dijktraject_geom = gdf_dijktraject.iloc[0].geometry
     if isinstance(gdf_dijktraject_geom, MultiLineString):
         assert gdf_dijktraject_geom.geoms.__len__() == 1
@@ -22,5 +22,5 @@ def load_dijktraject_linestring(app_settings: ApplicationSettings) -> LineString
 
 
 def load_hydra_nl_as_multipoint(app_settings: ApplicationSettings) -> MultiPoint:
-    gdf_hrd_locaties: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="hrd_locaties")
+    gdf_hrd_locaties: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__hrd_locaties")
     return MultiPoint(gdf_hrd_locaties.geometry.values)

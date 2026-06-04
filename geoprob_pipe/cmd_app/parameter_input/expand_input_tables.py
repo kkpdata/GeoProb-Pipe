@@ -33,7 +33,7 @@ def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
     # Read database
     conn = sqlite3.connect(geopackage_filepath)
     df_frag_line: DataFrame = read_sql(
-        sql=f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}' AND kans < 1.0;",
+        sql=f"SELECT * FROM data__fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}' AND kans < 1.0;",
         con=conn)
     conn.close()
 
@@ -61,7 +61,7 @@ def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
 
 def _gather_other_freq_line(ref: str, tables: InputParameterTables):
     """ Gather a freq line that is not from the HRD-database, and not from a .csv-file. It originates from the Excel,
-    either directly from the Excel, or imported into the 'fragility_values_invoer_hrd'-database table.
+    either directly from the Excel, or imported into the 'data__fragility_values_invoer_hrd'-database table.
 
     :param ref:
     :param tables:
@@ -222,7 +222,7 @@ def _construct_df_identifiers(geopackage_filepath: str, tables: InputParameterTa
     The identifiers table is a table with unique rows (unique uittredepunt, vak and scenario combo). It is used as a
     base to explode to input per scenario and uittredepunt. """
 
-    gdf_uittredepunten: GeoDataFrame = read_file(geopackage_filepath, layer="uittredepunten")
+    gdf_uittredepunten: GeoDataFrame = read_file(geopackage_filepath, layer="geom__uittredepunten")
     df_identifiers: DataFrame = gdf_uittredepunten[["uittredepunt_id", "vak_id"]]
     df_scenario_invoer: DataFrame = tables.df_scenario_invoer
     df_identifiers = df_identifiers.merge(df_scenario_invoer, left_on="vak_id", right_on="vak_id")

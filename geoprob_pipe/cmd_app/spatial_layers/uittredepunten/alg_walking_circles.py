@@ -196,5 +196,5 @@ def algorithm_walking_circles(app_settings: ApplicationSettings):
 
     gdf_to_add = gdf_proposed_uittredepunten[["geometry", "min_val"]]
     gdf_to_add = gdf_to_add.rename(columns={"min_val": "mv_exit"})
-    gdf_to_add.to_file(app_settings.geopackage_filepath, layer="uittredepunten", driver="GPKG")
+    gdf_to_add.to_file(app_settings.geopackage_filepath, layer="geom__uittredepunten", driver="GPKG")
     print(BColors.OKBLUE, f"✅  Uittredepunten toegevoegd.", BColors.ENDC)
