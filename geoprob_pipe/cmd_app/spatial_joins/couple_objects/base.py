@@ -81,6 +81,7 @@ class BaseCouple:
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS data__gis_parameter_invoer (
+                fid INTEGER PRIMARY KEY AUTOINCREMENT,
                 parameter TEXT,
                 scope TEXT,
                 scope_referentie INTEGER,
