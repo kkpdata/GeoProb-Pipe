@@ -1,27 +1,33 @@
 from __future__ import annotations
-from InquirerPy import inquirer
-from typing import TYPE_CHECKING
+
+import ast
+import logging
+import os
+import sqlite3
+import sys
+from datetime import datetime
+from importlib.metadata import distributions
+from pathlib import Path
+from typing import TYPE_CHECKING, Optional
+
+from geopandas import GeoDataFrame
+from InquirerPy.prompts.input import InputPrompt
+from InquirerPy.prompts.list import ListPrompt
+from packaging.version import Version
+from pandas import DataFrame
 from rich.console import Console
 from rich.panel import Panel
-from geoprob_pipe.utils import clear_terminal
-import os
-from pandas import DataFrame
-from datetime import datetime
-from pathlib import Path
-import sys
-from importlib.metadata import distributions
-from geopandas import GeoDataFrame
-from geoprob_pipe.cmd_app.utils.misc import get_geoprob_pipe_version_number
-from geoprob_pipe.cmd_app.comparisons.start_comparison import start_comparison
+
 from geoprob_pipe.calculations.systems.single_calc import (
-    EXAMPLE_SCRIPT_REPRODUCING_SINGLE_CALCULATION, EXPLANATION_REPRODUCING_SINGLE_CALCULATION)
-import logging
-from packaging.version import Version
-from geoprob_pipe.utils.validation_messages import BColors
-import sqlite3
-from typing import Optional
-import ast
+    EXAMPLE_SCRIPT_REPRODUCING_SINGLE_CALCULATION,
+    EXPLANATION_REPRODUCING_SINGLE_CALCULATION,
+)
+from geoprob_pipe.cmd_app.comparisons.start_comparison import start_comparison
+from geoprob_pipe.cmd_app.utils.misc import get_geoprob_pipe_version_number
+from geoprob_pipe.utils import clear_terminal
 from geoprob_pipe.utils.loggers import enable_geopackage_logging
+from geoprob_pipe.utils.validation_messages import BColors
+
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -38,7 +44,7 @@ def created_project(app_settings: ApplicationSettings) -> bool:
         "Twee projectbestanden vergelijken",
         "Inspecteer een enkele berekening",
         "Applicatie afsluiten"]
-    choice = inquirer.select(
+    choice = ListPrompt(
         message="Wil je verder gaan met een bestaand project, "
                 "een nieuw project starten, "
                 "of twee project bestanden vergelijken?",
@@ -142,7 +148,7 @@ def _possibly_warn_if_version_difference(file_path: str):
 
 def specify_path_to_existing_project(app_settings: ApplicationSettings):
     while True:
-        filepath: str = inquirer.text(
+        filepath: str = InputPrompt(
             message="Specificeer het volledige bestandspad naar het .geoprob_pipe.gpkg-bestand.",
         ).execute()
 
@@ -166,7 +172,7 @@ def specify_path_to_existing_project(app_settings: ApplicationSettings):
 
 def specify_dir_for_new_project(app_settings: ApplicationSettings):
     while True:
-        workspace_dir: str = inquirer.text(
+        workspace_dir: str = InputPrompt(
             message="Specificeer het volledige pad naar de map waar je het GeoProb-Pipe-bestand wilt opslaan.",
         ).execute()
         workspace_dir = workspace_dir.replace('"', '')
@@ -189,7 +195,7 @@ def specify_dir_for_new_project(app_settings: ApplicationSettings):
 
 def specify_project_filename(app_settings: ApplicationSettings):
     while True:
-        project_name: str = inquirer.text(
+        project_name: str = InputPrompt(
             message="Specificeer een bestandsnaam voor het project. "
                     "Het bestand wordt opgeslagen met een .geoprob_pipe.gpkg-extensie.",
         ).execute()

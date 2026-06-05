@@ -6,7 +6,8 @@ import sys
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from InquirerPy import inquirer
+from InquirerPy.prompts.list import ListPrompt
+from InquirerPy.prompts.input import InputPrompt
 
 from geoprob_pipe.utils.validation_messages import BColors
 
@@ -62,7 +63,7 @@ def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSetting
         "Nee",
         "Applicatie afsluiten"
     ]
-    choice = inquirer.select(
+    choice = ListPrompt(
         message="Wil je overzichtsfiguren exporteren van de invoer tabellen? \n"
                 "Hierin kun je gemakkelijk zien voor welke parameter welke invoer is ingesteld, en op welk niveau "
                 "(geografisch-, traject-, vak-, of uittredepunt-niveau).",
@@ -157,7 +158,7 @@ def inquire_to_import_export_tables_and_figures_or_continue(
             "Applicatie afsluiten"])
 
         # Provide user options
-        choice = inquirer.select(
+        choice = ListPrompt(
             message="Maak een keuze voor het gereedmaken van de invoertabellen.",
             choices=choices_list,
             default=choices_list[0],
@@ -220,7 +221,7 @@ def export_input_tables_of_db(app_settings: ApplicationSettings, tables: InputPa
 
 def import_input_tables(geopackage_filepath: str) -> InputParameterTables:
     while True:
-        filepath: str = inquirer.text(
+        filepath: str = InputPrompt(
             message="Specificeer het volledige bestandspad naar het input parameters Excel.",
         ).execute()
 
@@ -245,7 +246,7 @@ def inquire_to_store_input_tables_to_db(
         app_settings: ApplicationSettings, tables: InputParameterTables):
 
     choices_list = ["Ja", "Nee"]
-    choice = inquirer.select(
+    choice = ListPrompt(
         message="Wil je de nieuwe tabellen opslaan in het GeoProb-Pipe-bestand?",
         choices=choices_list,
         default=choices_list[0],

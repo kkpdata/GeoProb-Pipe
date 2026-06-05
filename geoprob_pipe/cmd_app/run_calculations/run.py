@@ -1,9 +1,13 @@
 from __future__ import annotations
-from InquirerPy import inquirer
-from geoprob_pipe import GeoProbPipe
+
 import sys
-from geoprob_pipe.utils.validation_messages import BColors
 from typing import TYPE_CHECKING, List, Tuple
+
+from InquirerPy.prompts.input import InputPrompt
+from InquirerPy.prompts.list import ListPrompt
+
+from geoprob_pipe import GeoProbPipe
+from geoprob_pipe.utils.validation_messages import BColors
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
@@ -41,7 +45,7 @@ def _convert_vak_ids_str_to_ints(input_str: str) -> Tuple[List[int], List[str]]:
 
 def request_vakken_to_run() -> str:
     while True:
-        vakken_input: str = inquirer.text(
+        vakken_input: str = InputPrompt(
             message="Specificeer welke vakken je wilt doorrekenen. Doe dit door comma-separated de vak nummers (id) "
                     "op te geven. Bijvoorbeeld '4,5,6,7,10-15'.",
         ).execute()
@@ -71,7 +75,7 @@ def run_calculations(app_settings: ApplicationSettings) -> bool:
         "Ja, specifieke vakken",
         "Nee (applicatie sluit af)"
     ]
-    choice = inquirer.select(
+    choice = ListPrompt(
         message="Wil je de berekeningen uitvoeren? \n"
                 "Let op: Indien je al rekenresultaten hebt, zullen deze verwijderd worden, alvorens de nieuwe "
                 "resultaten worden opgeslagen. ", choices=choices_list, default=choices_list[0],

@@ -1,14 +1,22 @@
 from __future__ import annotations
-from InquirerPy import inquirer
-from typing import TYPE_CHECKING
+
 import os
 import sys
-from geoprob_pipe.cmd_app.spatial_layers.uittredepunten.alg_walking_circles import algorithm_walking_circles
-from shapely import Point
-from geopandas import GeoDataFrame, read_file
-import fiona
-from geoprob_pipe.utils.validation_messages import BColors
 import warnings
+from typing import TYPE_CHECKING
+
+import fiona
+from geopandas import GeoDataFrame, read_file
+from InquirerPy.prompts.checkbox import CheckboxPrompt
+from InquirerPy.prompts.input import InputPrompt
+from InquirerPy.prompts.list import ListPrompt
+from shapely import Point
+
+from geoprob_pipe.cmd_app.spatial_layers.uittredepunten.alg_walking_circles import (
+    algorithm_walking_circles,
+)
+from geoprob_pipe.utils.validation_messages import BColors
+
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -40,7 +48,7 @@ def define_method_of_adding_uittredepunten(app_settings: ApplicationSettings):
         #  Deze werkt niet, en is momenteel ook afhankelijk van Hydra-NL.
         "Applicatie afsluiten"
     ]
-    choice = inquirer.select(
+    choice = ListPrompt(
         message="Er zijn nog geen uittredepunten toegevoegd. Hoe wil je deze toevoegen?",
         choices=choices_list,
         default=choices_list[0],
@@ -81,7 +89,7 @@ def import_from_geodatabase(app_settings: ApplicationSettings, filepath: str) ->
                     "uittredepunten", "database_layer"
                 )
         else:
-            layer_name: str = inquirer.text(
+            layer_name: str = InputPrompt(
                 message="Specificeer de layer waarin met de uittredepunten. Type 'listlayers' om "
                         "een overzicht te krijgen van de geodatabase-layers. ",
             ).execute()
@@ -114,7 +122,7 @@ def import_from_geopackage(app_settings: ApplicationSettings, filepath: str) -> 
                     "uittredepunten", "database_layer"
                 )
         else:
-            layer_name: str = inquirer.text(
+            layer_name: str = InputPrompt(
                 message="Specificeer de layer waarin met de uittredepunten. Type 'listlayers' om "
                         "een overzicht te krijgen van de geopackage-layers. ",
             ).execute()
@@ -143,21 +151,21 @@ LEGAL_MODEL_OPTIONS =["Walking Circles", "Walking Circles, tilted"]
 
 
 def generate_uittredepunten_suggestions(app_settings: ApplicationSettings):
-    choices = inquirer.checkbox(
+    choices = CheckboxPrompt(
         message="Welk algoritme wil je gebruiken? Meerdere opties mogelijk.\n"
                 "Press <space> to select, Enter when finished. ",
         choices=LEGAL_MODEL_OPTIONS,
     ).execute()
 
     if choices.__len__() == 0:
-        print(BColors.OKBLUE, f"Je hebt geen selectie gemaakt. Maak een keuze of sluit af (ctrl+c).", BColors.ENDC)
+        print(BColors.OKBLUE, "Je hebt geen selectie gemaakt. Maak een keuze of sluit af (ctrl+c).", BColors.ENDC)
         generate_uittredepunten_suggestions(app_settings=app_settings)
 
     if LEGAL_MODEL_OPTIONS[0] in choices:
         algorithm_walking_circles(app_settings=app_settings)
     if LEGAL_MODEL_OPTIONS[1] in choices:
         raise NotImplementedError(
-            f"Applicatie vroegtijdig afgesloten: 'LEGAL_MODEL_OPTIONS[1]' is nog niet geïmplementeerd.")
+            "Applicatie vroegtijdig afgesloten: 'LEGAL_MODEL_OPTIONS[1]' is nog niet geïmplementeerd.")
 
 
 def request_uittredepunten_filepath(app_settings: ApplicationSettings):
@@ -172,7 +180,7 @@ def request_uittredepunten_filepath(app_settings: ApplicationSettings):
                     "uittredepunten", "filepath"
                 )
         else:
-            filepath: str = inquirer.text(
+            filepath: str = InputPrompt(
                 message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
                         "uittredepunten zitten.",
             ).execute()
@@ -207,8 +215,8 @@ def request_uittredepunten_filepath(app_settings: ApplicationSettings):
     # Confirm all are points
     all_geometries_are_points = gdf.geometry.apply(lambda geom: isinstance(geom, Point)).all()
     if not all_geometries_are_points:
-        print(BColors.WARNING, f"Het geïmporteerde bestand bestaat niet (volledig) uit punten, maar ook uit "
-                               f"andere typen geometrie. Enkel punten zijn toegestaan.", BColors.ENDC)
+        print(BColors.WARNING, "Het geïmporteerde bestand bestaat niet (volledig) uit punten, maar ook uit "
+                               "andere typen geometrie. Enkel punten zijn toegestaan.", BColors.ENDC)
         request_uittredepunten_filepath(app_settings=app_settings)
 
     # Continue questionnaire
@@ -224,7 +232,7 @@ def specify_column_with_maaiveld_niveau(app_settings: ApplicationSettings, gdf: 
                     "uittredepunten", "mv_exit_kolom"
                 )
         else:
-            column_name: str = inquirer.text(
+            column_name: str = InputPrompt(
                 message="Specificeer de kolom waarin het maaiveld niveau staat. Type 'listcolumns' om "
                         "een overzicht te krijgen van de kolommen. Type 'n.a.' als het maaiveld niveau niet gekoppeld is "
                         "aan de punten, dan zal de applicatie in een volgende stap deze voor je downloaden.",
@@ -240,7 +248,7 @@ def specify_column_with_maaiveld_niveau(app_settings: ApplicationSettings, gdf: 
             gdf_to_add = gdf[["geometry"]]
             gdf_to_add["mv_exit"] = -999.9
             gdf_to_add.to_file(app_settings.geopackage_filepath, layer="geom__uittredepunten", driver="GPKG")
-            print(BColors.OKBLUE, f"✅  Uittredepunten toegevoegd.", BColors.ENDC)
+            print(BColors.OKBLUE, "✅  Uittredepunten toegevoegd.", BColors.ENDC)
             return
         elif column_name not in column_names:
             print(BColors.OKBLUE, f"De kolom naam '{column_name}' bestaat niet. De volgende kolommen zijn beschikbaar "
@@ -253,4 +261,4 @@ def specify_column_with_maaiveld_niveau(app_settings: ApplicationSettings, gdf: 
     # No uittredepunt id yet. This will be set when the metering is determined.
     gdf_to_add = gdf_to_add.rename(columns={column_name: "mv_exit"})
     gdf_to_add.to_file(app_settings.geopackage_filepath, layer="geom__uittredepunten", driver="GPKG")
-    print(BColors.OKBLUE, f"✅  Uittredepunten toegevoegd.", BColors.ENDC)
+    print(BColors.OKBLUE, "✅  Uittredepunten toegevoegd.", BColors.ENDC)

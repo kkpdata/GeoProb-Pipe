@@ -4,7 +4,8 @@ import sqlite3
 from typing import TYPE_CHECKING
 
 from geopandas import read_file
-from InquirerPy import inquirer
+from InquirerPy.prompts.list import ListPrompt
+from InquirerPy.prompts.input import InputPrompt
 from pandas import DataFrame
 
 from geoprob_pipe.utils.validation_messages import BColors
@@ -25,7 +26,7 @@ def _append_to_db(app_settings: ApplicationSettings, key: str, value):
 
 def _specify_traject_id(app_settings: ApplicationSettings):
     while True:
-        traject_id: str = inquirer.text(
+        traject_id: str = InputPrompt(
             message="Specificeer een tekstuele identificatie van het dijktraject die je graag gebruikt. ",
         ).execute()
         traject_id = traject_id.strip()
@@ -48,7 +49,7 @@ def is_integer(s: str) -> bool:
 
 def _specify_signaleringswaarde(app_settings: ApplicationSettings):
     while True:
-        signaleringswaarde: str = inquirer.text(
+        signaleringswaarde: str = InputPrompt(
             message="Specificeer de signaleringswaarde (geheel getal boven 10). ",
         ).execute()
         signaleringswaarde = signaleringswaarde.strip()
@@ -73,7 +74,7 @@ def _specify_signaleringswaarde(app_settings: ApplicationSettings):
 
 def _specify_ondergrens(app_settings: ApplicationSettings, signaleringswaarde: int):
     while True:
-        ondergrens: str = inquirer.text(
+        ondergrens: str = InputPrompt(
             message="Specificeer de ondergrens (geheel getal boven 10). ",
         ).execute()
         ondergrens = ondergrens.strip()
@@ -131,7 +132,7 @@ def is_float(s: str) -> bool:
 def _specify_w(app_settings: ApplicationSettings):
     
     while True:
-        w: str = inquirer.text(
+        w: str = InputPrompt(
             message="Specificeer de w (decimaal getal tussen 0.0 en 1.0). Gebruikelijke waarde is 0.24.",
         ).execute()
         w = w.strip()
@@ -162,7 +163,7 @@ def _specify_w(app_settings: ApplicationSettings):
 
 def _specify_is_bovenrivierengebied(app_settings: ApplicationSettings):
     choices_list = ["Ja", "Nee"]
-    choice = inquirer.select(
+    choice = ListPrompt(
         message="Is dit traject in het bovenrivierengebied?", choices=choices_list, default=choices_list[0]).execute()
     choice_bool = False
     if choice == "Ja":

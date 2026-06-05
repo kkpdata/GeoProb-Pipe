@@ -1,17 +1,19 @@
 from __future__ import annotations
-from geopandas import read_file
-from InquirerPy import inquirer
-import warnings
-from geoprob_pipe.cmd_app.utils.spatial import load_dijktraject_linestring
-from geoprob_pipe.utils.gdf import convert_mls_geom_column_to_ls
+
 import os
+import warnings
 from pathlib import Path
+from typing import TYPE_CHECKING, Optional
+
+import fiona
+from geopandas import GeoDataFrame, read_file
+from InquirerPy.prompts.input import InputPrompt
+from pandas import DataFrame
 from shapely import LineString, MultiLineString
 from shapely.ops import substring
-from typing import TYPE_CHECKING, Optional
-from pandas import DataFrame
-from geopandas import GeoDataFrame
-import fiona
+
+from geoprob_pipe.cmd_app.utils.spatial import load_dijktraject_linestring
+from geoprob_pipe.utils.gdf import convert_mls_geom_column_to_ls
 from geoprob_pipe.utils.validation_messages import BColors
 
 if TYPE_CHECKING:
@@ -59,7 +61,7 @@ def import_from_geopackage(app_settings: ApplicationSettings,
                     "vakindeling", "database_layer"
                 )
         else:
-            layer_name: str = inquirer.text(
+            layer_name: str = InputPrompt(
                 message="Specificeer de laag met de vakindeling. "
                         "Type 'listlayers' om een overzicht te krijgen van de geopackage-layers. ",
             ).execute()
@@ -95,7 +97,7 @@ def import_from_geodatabase(app_settings: ApplicationSettings,
                     "vakindeling", "database_layer"
                 )
         else:
-            layer_name: str = inquirer.text(
+            layer_name: str = InputPrompt(
                 message="Specificeer de laag met de vakindeling. "
                         "Type 'listlayers' om een overzicht te krijgen van de geodatabase-layers. ",
             ).execute()
@@ -128,7 +130,7 @@ def request_vakindeling_filepath(app_settings: ApplicationSettings):
         if app_settings.batch_input and not skip_batch:
             filepath = app_settings.input_config.get("vakindeling", "filepath")
         else:
-            filepath: str = inquirer.text(
+            filepath: str = InputPrompt(
                 message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
                         "vakindeling van de dijk zit.",
             ).execute()
@@ -185,7 +187,7 @@ def specify_column_with_vaknaam(
                 "vakindeling", "vak_naam_kolom"
             )
         else:
-            column_name: str = inquirer.text(
+            column_name: str = InputPrompt(
                 message="Specificeer de kolom waarin de vaknaam staat. Type "
                         "'listcolumns' om een overzicht te krijgen van de "
                         "kolommen. ",
@@ -232,7 +234,7 @@ def specify_column_with_vak_id(
                 "vakindeling", "vak_id_kolom"
             )
         else:
-            kolom_vak_id: str = inquirer.text(
+            kolom_vak_id: str = InputPrompt(
                 message="Specificeer de kolom waarin het vak id staat. Indien "
                         "onnodig, type 'nvt'. Type 'listcolumns' om een overzicht "
                         "te krijgen van de kolommen. ",

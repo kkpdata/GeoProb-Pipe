@@ -1,11 +1,17 @@
 from __future__ import annotations
-from geoprob_pipe.utils.validation_messages import BColors
-from InquirerPy import inquirer
-from typing import TYPE_CHECKING
-from geopandas import read_file
+
 import sqlite3
-from geoprob_pipe.calculations.systems.mappers.calculations import CALCULATION_MAPPER
+from typing import TYPE_CHECKING
+
+from geopandas import read_file
+from InquirerPy.prompts.list import ListPrompt
 from pandas import DataFrame
+
+from geoprob_pipe.calculations.systems.mappers.calculations import (
+    CALCULATION_MAPPER,
+)
+from geoprob_pipe.utils.validation_messages import BColors
+
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -26,14 +32,14 @@ def created_model(app_settings: ApplicationSettings) -> bool:
         return True
 
     # Specified model is legal
-    print(BColors.OKBLUE, f"✔  Geohydrologisch model al ingesteld.", BColors.ENDC)
+    print(BColors.OKBLUE, "✔  Geohydrologisch model al ingesteld.", BColors.ENDC)
     return True
 
 
 def specify_model_to_use(app_settings: ApplicationSettings, update_record: bool = False):
     model_labels = [value["label"] for key, value in CALCULATION_MAPPER.items()]
 
-    choice = inquirer.select(
+    choice = ListPrompt(
         message="Welk geohydrologisch model wil je gebruiken? De invoer parameters variëren per model.",
         choices=model_labels,
         default=model_labels[0],
@@ -56,4 +62,4 @@ def specify_model_to_use(app_settings: ApplicationSettings, update_record: bool 
     conn.commit()
     conn.close()
 
-    print(BColors.OKBLUE, f"✅  Geohydrologisch model ingesteld.", BColors.ENDC)
+    print(BColors.OKBLUE, "✅  Geohydrologisch model ingesteld.", BColors.ENDC)

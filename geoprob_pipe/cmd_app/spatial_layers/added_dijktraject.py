@@ -1,12 +1,17 @@
 from __future__ import annotations
-from InquirerPy import inquirer
-import warnings
-from typing import Optional, TYPE_CHECKING
+
 import importlib.resources
 import os
-from geopandas import GeoDataFrame, read_file
+import warnings
+from typing import TYPE_CHECKING
+
 import fiona
+from geopandas import GeoDataFrame, read_file
+from InquirerPy.prompts.input import InputPrompt
+from InquirerPy.prompts.list import ListPrompt
+
 from geoprob_pipe.utils.validation_messages import BColors
+
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -26,7 +31,7 @@ def added_dijktraject(app_settings: ApplicationSettings) -> bool:
 def question_trajectory_source(app_settings: ApplicationSettings):
     choices_list = ["Waterveiligheidsportaal (primaire keringen)", "Lokaal GIS bestand (geopackage/shapefile/geodatabase)"]
 
-    choice = inquirer.select(
+    choice = ListPrompt(
         message="Van waaruit wil je de referentielijn van de dijk inladen?",
         choices=choices_list,
         default=choices_list[0],
@@ -47,7 +52,7 @@ def question_trajectory_source(app_settings: ApplicationSettings):
 def request_trajectory_filepath(app_settings: ApplicationSettings):
     
     while True:
-        filepath: str = inquirer.text(
+        filepath: str = InputPrompt(
             message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
                     "referentielijn van de dijk zit.",
         ).execute()
@@ -81,7 +86,7 @@ def request_trajectory_filepath(app_settings: ApplicationSettings):
 
 def specify_geodatabase_layer(app_settings: ApplicationSettings, filepath: str):
     while True:
-        layer_name: str = inquirer.text(
+        layer_name: str = InputPrompt(
             message="""
             Specificeer de layer waarin met de referentielijn van het dijktraject. Type 'listlayers' om
             een overzicht te krijgen van de geodatabase-layers. Type 'cancel' om een ander bestand op te geven.
@@ -112,7 +117,7 @@ def specify_geodatabase_layer(app_settings: ApplicationSettings, filepath: str):
 
 def specify_geopackage_layer(app_settings: ApplicationSettings, filepath: str):
     while True:
-        layer_name: str = inquirer.text(
+        layer_name: str = InputPrompt(
             message="""
             Specificeer de layer waarin met de referentielijn van het dijktraject. Type 'listlayers' om
             een overzicht te krijgen van de geodatabase-layers. Type 'cancel' om een ander bestand op te geven.
@@ -143,7 +148,7 @@ def specify_geopackage_layer(app_settings: ApplicationSettings, filepath: str):
 def specify_column_with_trajectory_name(app_settings: ApplicationSettings, gdf: GeoDataFrame):
     
     while True:
-        column_name: str = inquirer.text(
+        column_name: str = InputPrompt(
             message="""
             Specificeer de kolom waarin de naam van het dijktraject staat. Type 'listcolumns' om 
             een overzicht te krijgen van de kolommen. Type 'cancel' om een ander bestand op te geven.
@@ -186,7 +191,7 @@ def specify_single_trajectory(app_settings: ApplicationSettings, gdf: GeoDataFra
     # Multiple items in gdf? Make user select single one
     
     while True:
-        trajectory_name: str = inquirer.text(
+        trajectory_name: str = InputPrompt(
             message=f"Er zijn {gdf.__len__()} opties. Type hier welke de juiste referentielijn is. Type "
                     f"'listoptions' om een overzicht te krijgen van de opties.",
         ).execute()

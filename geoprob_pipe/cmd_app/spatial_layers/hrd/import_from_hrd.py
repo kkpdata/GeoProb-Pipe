@@ -1,20 +1,24 @@
 from __future__ import annotations
-from InquirerPy import inquirer
+
+import importlib.resources
+import os
+import sqlite3
+import time
+import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Tuple
+
+import pydra_core as pydra
 import scipy.stats as sct
 from geopandas import GeoDataFrame, read_file
-from shapely import Point
-import os
-from geoprob_pipe.utils.validation_messages import BColors
-import warnings
-from geoprob_pipe.cmd_app.spatial_layers.hrd.utils import hrd_file_path
-import importlib.resources
-import time
-import pydra_core as pydra
+from InquirerPy.prompts.input import InputPrompt
+from InquirerPy.prompts.list import ListPrompt
 from pandas import DataFrame, concat
-from typing import Optional, List, Tuple
-import sqlite3
+from shapely import Point
+
+from geoprob_pipe.cmd_app.spatial_layers.hrd.utils import hrd_file_path
+from geoprob_pipe.utils.validation_messages import BColors
+
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -41,7 +45,7 @@ def _folder_contains_hrd_db(hrd_dir: str) -> bool:
 
 def _ask_path_to_hrd_dir() -> str:
     while True:
-        filepath: str = inquirer.text(
+        filepath: str = InputPrompt(
             message="Specificeer het volledige pad naar de bestandsmap met de Hydra-NL database. "
                     "Dat zijn de hlcd, config en het database .sqlite-bestand zelf.",
         ).execute()
@@ -88,7 +92,7 @@ def _add_hrd_locations_to_database(app_settings: ApplicationSettings, hrd_dir: s
 
     gdf = GeoDataFrame(hrd_location_rows, columns=['location_name', 'geometry'], crs='EPSG:28992')
     gdf.to_file(Path(app_settings.geopackage_filepath), layer="geom__hrd_locaties", driver="GPKG")
-    print(BColors.OKBLUE, f"✅  HRD-locatie punten toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
+    print(BColors.OKBLUE, "✅  HRD-locatie punten toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
 
 
 def _add_hrd_overschrijdingsfrequentielijnen(hrd_dir: str, app_settings: ApplicationSettings):
@@ -135,8 +139,8 @@ def _add_hrd_overschrijdingsfrequentielijnen(hrd_dir: str, app_settings: Applica
     df.to_sql("data__fragility_values_invoer_hrd", conn, if_exists="replace", index=False)
     conn.close()
 
-    print(BColors.OKBLUE, f"✅  HRD-overschrijdingsfrequentielijnen toegevoegd aan GeoProb-Pipe "
-                          f"GeoPackage.", BColors.ENDC)
+    print(BColors.OKBLUE, "✅  HRD-overschrijdingsfrequentielijnen toegevoegd aan GeoProb-Pipe "
+                          "GeoPackage.", BColors.ENDC)
 
 
 def _get_traject_id(hrd_dir: str) -> Tuple[int, str]:
@@ -180,8 +184,8 @@ def _query_dijktrajecten(traject_id: str) -> Tuple[int, int]:
 
 def _ask_is_bovenrivierengebied() -> bool:
     choices_list = ["Ja", "Nee"]
-    choice = inquirer.select(
-        message=f"Is dit traject in het bovenrivierengebied?", choices=choices_list, default=choices_list[0]).execute()
+    choice = ListPrompt(
+        message="Is dit traject in het bovenrivierengebied?", choices=choices_list, default=choices_list[0]).execute()
     if choice == "Ja":
         return True
     return False
@@ -212,7 +216,7 @@ def _add_traject_parameters(app_settings: ApplicationSettings, hrd_dir: str):
     conn.commit()
     cursor.close()
 
-    print(BColors.OKBLUE, f"✅  Traject-parameters toegevoegd aan GeoPackage.", BColors.ENDC)
+    print(BColors.OKBLUE, "✅  Traject-parameters toegevoegd aan GeoPackage.", BColors.ENDC)
 
 
 def import_from_hrd(app_settings: ApplicationSettings):

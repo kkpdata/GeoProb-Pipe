@@ -1,5 +1,5 @@
 from __future__ import annotations
-from InquirerPy import inquirer
+from InquirerPy.prompts.list import ListPrompt
 from typing import TYPE_CHECKING
 import sys
 from geoprob_pipe.utils.validation_messages import BColors
@@ -17,7 +17,7 @@ def _hrd_data_requested(app_settings: ApplicationSettings) -> bool:
     file_path = app_settings.geopackage_filepath
     conn = sqlite3.connect(file_path)
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM geoprob_pipe_metadata WHERE metadata_type = 'extract_hrd_data' LIMIT 1;")
+    cursor.execute("SELECT * FROM geoprob_pipe_metadata WHERE metadata_type = 'extract_hrd_data' LIMIT 1;")
     row = cursor.fetchone()
     asked: bool = row is not None
 
@@ -27,9 +27,9 @@ def _hrd_data_requested(app_settings: ApplicationSettings) -> bool:
 
     # Optionally ask and then store choice
     choices_list = ["Ja", "Nee"]
-    choice = inquirer.select(
-        message=f"Wil je HRD-data importeren? Dit is optioneel. "
-                f"Je kunt ook handmatig overschrijdingsfrequentielijnen toevoegen.",
+    choice = ListPrompt(
+        message="Wil je HRD-data importeren? Dit is optioneel. "
+                "Je kunt ook handmatig overschrijdingsfrequentielijnen toevoegen.",
         choices=choices_list, default=choices_list[0]).execute()
     keuze = True
     if choice == "Nee":
@@ -66,15 +66,15 @@ def _ask_for_import_method() -> str:
         "Ander GeoProb-Pipe bestand",
         "Applicatie afsluiten",
     ]
-    choice = inquirer.select(
-        message=f"Welke bron wil je gebruiken voor de Hydra-NL data?",
+    choice = ListPrompt(
+        message="Welke bron wil je gebruiken voor de Hydra-NL data?",
         choices=choices_list, default=choices_list[0]).execute()
     if choice == choices_list[0]:
         return "from_hrd"
     elif choice == choices_list[1]:
         return "from_other_geopackage"
     elif choice == choices_list[2]:
-        sys.exit(f"Applicatie is afgesloten.")
+        sys.exit("Applicatie is afgesloten.")
     raise NotImplementedError(f"Unknown choice '{choice}'. Contact the developer.")
 
 
@@ -83,13 +83,13 @@ def added_hrd_fragility_curves(app_settings: ApplicationSettings):
     # User wants HRD data in Geopackage?
     requested: bool = _hrd_data_requested(app_settings=app_settings)
     if not requested:
-        print(BColors.OKBLUE, f"✔  HRD-data als niet nodig aangemerkt.", BColors.ENDC)
+        print(BColors.OKBLUE, "✔  HRD-data als niet nodig aangemerkt.", BColors.ENDC)
         return True
 
     # Check HRD locations and fragility curves are added to database
     already_imported: bool = _hrd_data_imported(app_settings=app_settings)
     if already_imported:
-        print(BColors.OKBLUE, f"✔  HRD-data al geïmporteerd.", BColors.ENDC)
+        print(BColors.OKBLUE, "✔  HRD-data al geïmporteerd.", BColors.ENDC)
         return True
 
     # If not imported, start with import method

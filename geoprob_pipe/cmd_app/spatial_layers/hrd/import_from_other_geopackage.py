@@ -1,13 +1,16 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
-from typing import Optional
-from InquirerPy import inquirer
-from geopandas import GeoDataFrame, read_file
-from pandas import DataFrame, read_sql_query
-from geoprob_pipe.utils.validation_messages import BColors
+
 import os
 import sqlite3
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+from geopandas import GeoDataFrame, read_file
+from InquirerPy.prompts.input import InputPrompt
+from pandas import DataFrame, read_sql_query
+
+from geoprob_pipe.utils.validation_messages import BColors
+
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -15,7 +18,7 @@ if TYPE_CHECKING:
 def _ask_for_other_geopackage_file_path() -> str:
 
     while True:
-        filepath: str = inquirer.text(
+        filepath: str = InputPrompt(
             message="Specificeer het volledige bestandspad naar het .geoprob_pipe.gpkg-bestand.",
         ).execute()
 
@@ -27,7 +30,7 @@ def _ask_for_other_geopackage_file_path() -> str:
             continue
         
         if not os.path.exists(filepath):
-            print(BColors.WARNING, f"Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
+            print(BColors.WARNING, "Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
             continue
 
         break
@@ -38,7 +41,7 @@ def _ask_for_other_geopackage_file_path() -> str:
 def _add_hrd_locations_to_database(other_gpkg_path: str, app_settings: ApplicationSettings):
     gdf_locations: GeoDataFrame = read_file(other_gpkg_path, layer="geom__hrd_locaties")
     gdf_locations.to_file(Path(app_settings.geopackage_filepath), layer="geom__hrd_locaties", driver="GPKG")
-    print(BColors.OKBLUE, f"✅  HRD-locatie punten toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
+    print(BColors.OKBLUE, "✅  HRD-locatie punten toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
 
 
 def _add_hrd_overschrijdingsfrequentielijnen(other_gpkg_path: str, app_settings: ApplicationSettings):
@@ -50,8 +53,8 @@ def _add_hrd_overschrijdingsfrequentielijnen(other_gpkg_path: str, app_settings:
     df.to_sql("data__fragility_values_invoer_hrd", conn, if_exists="replace", index=False)
     conn.close()
 
-    print(BColors.OKBLUE, f"✅  HRD-overschrijdingsfrequentielijnen toegevoegd aan GeoProb-Pipe "
-                          f"GeoPackage.", BColors.ENDC)
+    print(BColors.OKBLUE, "✅  HRD-overschrijdingsfrequentielijnen toegevoegd aan GeoProb-Pipe "
+                          "GeoPackage.", BColors.ENDC)
 
 
 def _add_traject_parameters(other_gpkg_path: str, app_settings: ApplicationSettings):
@@ -80,7 +83,7 @@ def _add_traject_parameters(other_gpkg_path: str, app_settings: ApplicationSetti
     conn.commit()
     cursor.close()
 
-    print(BColors.OKBLUE, f"✅  Traject-parameters toegevoegd aan GeoPackage.", BColors.ENDC)
+    print(BColors.OKBLUE, "✅  Traject-parameters toegevoegd aan GeoPackage.", BColors.ENDC)
 
 
 def import_from_other_geopackage(app_settings: ApplicationSettings):
