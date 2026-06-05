@@ -22,5 +22,5 @@ def convert_mls_geom_column_to_ls(gdf: GeoDataFrame) -> GeoDataFrame:
             f"This function was built to handle LineStrings or MultiLineStrings. Given geometry "
             f"is of type '{type(geom)}'. Please contact the developer.")
 
-    gdf["geometry"] = gdf["geometry"].apply(unwrap_ls_in_mls)
+    gdf["geometry"] = gdf["geometry"].apply(unwrap_ls_in_mls)  # type:ignore
     return gdf

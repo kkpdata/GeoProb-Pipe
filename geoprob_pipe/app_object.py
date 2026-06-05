@@ -1,31 +1,29 @@
 from __future__ import annotations
+
+import logging
 import os
 import sqlite3
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, List, Optional
+
 import pandas as pd
 
-from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
-from geoprob_pipe.cmd_app.parameter_input.input_parameter_figures import InputParameterFigures
-from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
-
-try:
-    import probabilistic_library
-except ModuleNotFoundError:
-    raise ModuleNotFoundError(
-        "No module named 'probabilistic_library'. This package is not publicly available or part of the repository. \n"
-        "Please request the wheel-file through the developer and install it manually. Due to copyright reasons, do \n"
-        "not commit the wheel-file into the repository.")
-
+from geoprob_pipe.calculations.systems.build_and_run import (
+    build_and_run_system_calculations,
+)
+from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import (
+    run_expand_input_tables,
+)
+from geoprob_pipe.cmd_app.parameter_input.input_parameter_figures import (
+    InputParameterFigures,
+)
 from geoprob_pipe.input_data import InputData
 from geoprob_pipe.results import Results
 from geoprob_pipe.spatial import Spatial
-from geoprob_pipe.visualizations import Visualizations
-from geoprob_pipe.calculations.systems.build_and_run import build_and_run_system_calculations
-from geoprob_pipe.utils.update_metadata import update_metadata
 from geoprob_pipe.utils.sql_contents import write_dfs_to_gpkg
+from geoprob_pipe.utils.update_metadata import update_metadata
+from geoprob_pipe.visualizations import Visualizations
 
-import logging
 if TYPE_CHECKING:
     from geoprob_pipe.calculations.systems.build_and_run import CalcResult
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings

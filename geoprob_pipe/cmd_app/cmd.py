@@ -96,7 +96,7 @@ def _raise_if_multiple_installations():
             installed_distributions.append({
                 "NAME": dist.metadata["Name"],
                 "VERSION": dist.version,
-                "LOCATION": dist.locate_file(""),
+                "LOCATION": str(dist.locate_file("")),
             })
     if installed_distributions.__len__() > 1:
         raise RuntimeError(

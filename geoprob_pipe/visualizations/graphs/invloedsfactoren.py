@@ -1,9 +1,12 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional, Tuple
+
 import os
-from pandas import DataFrame, merge
+from typing import TYPE_CHECKING, Optional, Tuple
+
 from geopandas import GeoDataFrame, read_file
-from plotly.graph_objects import Figure, Bar
+from pandas import DataFrame, merge
+from plotly.graph_objects import Bar, Figure
+
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
@@ -201,7 +204,7 @@ def invloedsfactoren(geoprob_pipe: GeoProbPipe, export: bool = False) -> Figure:
     if export:
         export_dir = geoprob_pipe.visualizations.graphs.export_dir
         os.makedirs(export_dir, exist_ok=True)
-        fig.write_html(os.path.join(export_dir, f"invloedsfactoren.html"), include_plotlyjs='cdn')
+        fig.write_html(os.path.join(export_dir, "invloedsfactoren.html"), include_plotlyjs='cdn')
 
     # for stochast in
     return fig

@@ -17,7 +17,7 @@ def collect_stochast_values(calc: SystemCalculation, df_scenario_final: DataFram
     # Get method used
     df = df_scenario_final.copy(deep=True)
     assert df.__len__() == 1, \
-        f"Developer note: Assumption that this dataframe must have 1 row at all times. If triggered, then investigate."
+        "Developer note: Assumption that this dataframe must have 1 row at all times. If triggered, then investigate."
     method_used = df.iloc[0]['method_used']
 
     # Create
@@ -78,7 +78,7 @@ def calculate_derived_values(df_scenarios_final: DataFrame, geohydrologisch_mode
     # Get kwargs per calculation
     df = df_scenarios_final.copy(deep=True)
     assert df.__len__() == 1, \
-        f"Developer note: Assumption that this dataframe must have 1 row at all times. If triggered, then investigate."
+        "Developer note: Assumption that this dataframe must have 1 row at all times. If triggered, then investigate."
     method_used = df.iloc[0]['method_used']
 
     if method_used == "3: Max Limit States":

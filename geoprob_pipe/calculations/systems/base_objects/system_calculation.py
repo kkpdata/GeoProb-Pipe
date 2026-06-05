@@ -62,10 +62,10 @@ class SystemResults:
         self.reliability_project = ReliabilityProject()  # Initiated for later use
         # -> Used for all reliability project calculations, i.e. the system limit states and the project limit state.
         self.dps_limit_states: List[DesignPoint] = []  # Placeholder
-        self.dp_reliability: Optional[DesignPoint] = None  # Placeholder
+        self.dp_reliability: DesignPoint = DesignPoint()  # Placeholder
 
         self.combine_project = CombineProject()  # Initiated for later use
-        self.dp_combine: Optional[DesignPoint] = None  # Placeholder
+        self.dp_combine: DesignPoint = DesignPoint()  # Placeholder
 
 
 class SystemCalculation:

@@ -1,15 +1,23 @@
 from __future__ import annotations
+
 import os
+import sqlite3
+from datetime import datetime
+
 # import matplotlib.pyplot as plt
 from typing import TYPE_CHECKING, List
+
+import numpy as np
 import plotly.graph_objects as go
-from datetime import datetime
+from pandas import DataFrame, Series, concat, read_sql
+
 # from geopandas import GeoDataFrame, read_file
 # from probabilistic_library import FragilityValue
-import pydra_core as pydra
-from pandas import Series, concat, DataFrame, read_sql
-from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
-import sqlite3
+from pydra_core.core.datamodels.frequency_line import FrequencyLine
+
+from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import (
+    run_expand_input_tables,
+)
 
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
@@ -90,10 +98,10 @@ class GraphHFreqSingleInteractive:
 
             # Create frequency line
             fragility_values = row['fragility_values']
-            levels = [item.x for item in fragility_values]
-            exceedance_frequencies = [item.probability_of_failure for item in fragility_values]
+            levels = np.array([item.x for item in fragility_values])
+            exceedance_frequencies = np.array([item.probability_of_failure for item in fragility_values])
             # noinspection PyUnresolvedReferences
-            row['frequency_line'] = pydra.core.datamodels.frequency_line.FrequencyLine(
+            row['frequency_line'] = FrequencyLine(
                 level=levels, exceedance_frequency=exceedance_frequencies)
             rows.append(row)
         return DataFrame(rows)
@@ -105,7 +113,7 @@ class GraphHFreqSingleInteractive:
         # Transform parameter_input dictionary to columns (added columns will be: fragility_values and fragility_ref)
         df = concat([df.drop(columns=['parameter_input']), df['parameter_input'].apply(Series)], axis=1)
 
-        return df['fragility_values_ref'].unique()
+        return df['fragility_values_ref'].unique().tolist()
 
     def _add_ondergrens(self):
         ondergrens = 1 / self.geoprob_pipe.input_data.traject_normering.ondergrens
@@ -192,7 +200,7 @@ class GraphHFreqSingleInteractive:
             if df.__len__() == 0:
                 return
 
-            levels = df['physical_value'].values
+            levels = np.array(df['physical_value'].values)
             self.max_level = max(self.max_level, levels.max())
             self.min_level = min(self.min_level, levels.min())
             frequencies = [freq_line.interpolate_level(level) for level in levels]

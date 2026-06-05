@@ -48,7 +48,7 @@ def collect_df_beta_limit_state(calculation: SystemCalculation) -> DataFrame:
     rows = []
     for design_point, model in zip(
         calculation.results.dps_limit_states,
-        calculation.setup.system_limit_states,
+        calculation.setup.system_limit_states,  # type:ignore
     ):
         rows.append(create_row(dp=design_point, model_name=model.__name__))
     df = (

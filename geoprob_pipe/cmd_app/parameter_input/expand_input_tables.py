@@ -7,7 +7,6 @@ import scipy.stats as sct
 from geopandas import GeoDataFrame, read_file
 from geoprob_pipe.calculations.systems.mappers.initial_input import INITIAL_INPUT_MAPPER
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
-from geoprob_pipe.utils.sql_contents import write_dfs_to_gpkg
 from probabilistic_library import FragilityValue
 
 
@@ -176,15 +175,15 @@ def _add_fragility_values_to_combined_parameter_invoer(
     """ Haalt uit de fragility values Excel de arrays op en vervang in de df_parameter_invoer_combined de referentie
     met de daadwerkelijke fragility values. """
 
-    df = df_parameter_invoer_combined.copy(deep=True)
+    df: DataFrame = df_parameter_invoer_combined.copy(deep=True)
 
     # Replace empty values with NaN
     set_option('future.no_silent_downcasting', True)
-    new_series = df['fragility_values_ref'].replace('', np.nan).infer_objects(copy=False)
+    new_series = df['fragility_values_ref'].replace('', np.nan).infer_objects()
     df['fragility_values_ref'] = new_series
 
     # Gather referenced fragility value refs
-    fragility_refs = df['fragility_values_ref'].dropna().unique()
+    fragility_refs = df['fragility_values_ref'].dropna().unique().tolist()
 
     # Collect fragility lines
     df_frag_lines = _collect_fragility_values(

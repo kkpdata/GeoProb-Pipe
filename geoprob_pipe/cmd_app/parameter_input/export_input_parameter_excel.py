@@ -32,7 +32,7 @@ def export_input_parameter_tables(app_settings: ApplicationSettings, tables: Inp
         "parameter_input_process")
     os.makedirs(dst_dir, exist_ok=True)
     dst_path = os.path.join(dst_dir, "input_parameters_template.xlsx")
-    dst_path = dst_path.replace("_template.xlsx", f".xlsx")
+    dst_path = dst_path.replace("_template.xlsx", ".xlsx")
     if os.path.exists(dst_path):
         datetime_stamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         dst_path = dst_path.replace(".xlsx", f"_{datetime_stamp}.xlsx")

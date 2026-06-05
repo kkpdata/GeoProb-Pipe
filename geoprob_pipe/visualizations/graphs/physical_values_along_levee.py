@@ -43,10 +43,10 @@ def physical_values_buitenwaterstand_and_top_zand(geoprob_pipe: GeoProbPipe, exp
 
     fig.update_layout(
         xaxis=dict(
-            title=f"Metrering", type='linear', range=[df['metrering'].min()-10, df['metrering'].max()+10],
+            title="Metrering", type='linear', range=[df['metrering'].min()-10, df['metrering'].max()+10],
             showgrid=True, gridwidth=0.5, gridcolor="gray"),
         yaxis=dict(
-            title=f"Buitenwaterstand en top zand [m+NAP]", showgrid=True, gridwidth=0.5, gridcolor="gray",
+            title="Buitenwaterstand en top zand [m+NAP]", showgrid=True, gridwidth=0.5, gridcolor="gray",
             minor=dict(showgrid=True, dtick=1))
     )
 
@@ -54,7 +54,7 @@ def physical_values_buitenwaterstand_and_top_zand(geoprob_pipe: GeoProbPipe, exp
         export_dir = geoprob_pipe.visualizations.graphs.export_dir
         os.makedirs(export_dir, exist_ok=True)
         fig.write_html(
-            os.path.join(export_dir, f"physical_values_buitenwaterstand_and_top_zand.html"),
+            os.path.join(export_dir, "physical_values_buitenwaterstand_and_top_zand.html"),
             include_plotlyjs='cdn')
 
     return fig
