@@ -90,7 +90,7 @@ class DataFrameValidation:
         ws = wb.active
         red_fill = PatternFill(start_color="FFDA9694", end_color="FFDA9694", fill_type="solid")
         for index, (_, row) in enumerate(df.iterrows(), start=2):
-            scope_col_idx = df.columns.get_loc(row['column']) + 2
-            ws.cell(row=index, column=scope_col_idx).fill = red_fill
+            scope_col_idx: int = df.columns.get_loc(row['column']) + 2  # type:ignore
+            ws.cell(row=index, column=scope_col_idx).fill = red_fill  # type:ignore
         wb.save(export_path)
         return export_path

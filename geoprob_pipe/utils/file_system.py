@@ -19,7 +19,7 @@ class FileSystem:
         self.folderpath = self.validate_path(path_folder)
 
         self.files = pd.DataFrame()
-        self.files["filepath"] = self.find_files_in_dir(self.folderpath, extension)
+        self.files["filepath"] = [str(i) for i in self.find_files_in_dir(self.folderpath, extension)]
         self.files["filename"] = [file.name for file in self.files["filepath"]]
 
 
@@ -60,7 +60,7 @@ class FileSystem:
                      if file.is_file() and not file.name.startswith("~$")]
         else:
             files = [file
-                     for file in Path(path_to_dir).resolve().rglob(f"*")
+                     for file in Path(path_to_dir).resolve().rglob("*")
                      if file.is_file() and not file.name.startswith("~$")]
         return files
 

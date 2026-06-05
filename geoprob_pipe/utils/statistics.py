@@ -1,5 +1,5 @@
 import math
-from typing import Optional
+from typing import Optional, cast
 from scipy.stats import lognorm, norm
 
 
@@ -25,10 +25,10 @@ def calc_kar_waarde_lognormal(
     # Format input arguments
     if sd is None and vc is None:
         raise ValueError(
-            f"Provide either the standard deviation (input argument sd), or the variation coefficient (vc).")
-    if sd is None:
+            "Provide either the standard deviation (input argument sd), or the variation coefficient (vc).")
+    if sd is None and vc is not None:
         sd = vc * mean
-
+    sd = cast(float, sd)
     # Logic
     vc_shift = float(sd / (mean - shift))
     log_sd = math.sqrt(math.log(1.0 + math.pow(vc_shift, 2.0)))
