@@ -148,7 +148,7 @@ def _apply_distributions(system_calculation: SystemCalculation):
     def _apply_distributions_on_variables():
         for item in system_calculation.setup.distributions:
             name = item['name']
-
+            # TODO FIXME a_vak en delta_length geven een validation msg, deze worden niet in dit gebruikt.
             # Check if variable exists
             if system_calculation.results.reliability_project.variables[name] is None:
                 system_calculation.validation_messages.add_warning(
