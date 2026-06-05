@@ -10,8 +10,8 @@ class MORIACalculation(SystemCalculation):
     def __init__(
             self,
             distributions: List[Dict],
-            correlations: List[Tuple[str, str, float]] = None,
-            reliability_settings: Dict[str, Union[str, float, int]] = None
+            correlations: List[Tuple[str, str, float]] = list(),
+            reliability_settings: Dict[str, Union[str, float, int]] = dict()
     ):
         super().__init__(
             distributions=distributions, correlations=correlations, reliability_settings=reliability_settings)

@@ -43,7 +43,7 @@ class SystemSetup:
         self.distributions: List[Dict] = distributions
         self.correlations: List[Tuple[str, str, float]] = correlations
         self.reliability_settings: Dict[str, Union[str, float, int]] = reliability_settings
-        if self.reliability_settings is None or self.reliability_settings.__len__() == 0:
+        if self.reliability_settings is dict():
             self.reliability_settings = DEFAULT_RELIABILITY_SETTINGS
         if self.correlations is None:
             self.correlations = []
@@ -75,7 +75,7 @@ class SystemCalculation:
             self,
             distributions: List[Dict],
             correlations: List[Tuple[str, str, float]],
-            reliability_settings: Dict[str, Union[str, float, int]] = None,
+            reliability_settings: Dict[str, Union[str, float, int]] = DEFAULT_RELIABILITY_SETTINGS,
 
             # Following will be assigned in children
             variables_function: Optional[Callable] = None,
@@ -83,7 +83,7 @@ class SystemCalculation:
             project_limit_state: Optional[Callable] = None,
     ):
 
-        if reliability_settings is None:
+        if reliability_settings is dict():
             reliability_settings = DEFAULT_RELIABILITY_SETTINGS
 
 
@@ -127,7 +127,7 @@ def _apply_distributions(system_calculation: SystemCalculation):
     """ Both initiates the variables and applies the distributions. """
 
     def _initiatie_variables():
-        system_calculation.results.reliability_project.model = system_calculation.setup.variables_function
+        system_calculation.results.reliability_project.model = system_calculation.setup.variables_function  # type:ignore
 
     def _system_variable_keys() -> List[str]:
         return_array = []
@@ -199,7 +199,7 @@ def _generate_dps_limit_states(system_calculation: SystemCalculation):
     """ Generates the design points for the limit states separately, i.e. uplift, heave and Sellmeijer. It uses the
     Reliability Project for this. """
 
-    for model_callable in system_calculation.setup.system_limit_states:
+    for model_callable in system_calculation.setup.system_limit_states:  # type:ignore
         system_calculation.results.reliability_project.model = model_callable
         _apply_correlations(system_calculation=system_calculation)
         # noinspection PyBroadException
@@ -218,7 +218,7 @@ def _generate_dps_limit_states(system_calculation: SystemCalculation):
 def _generate_dp_reliability(system_calculation: SystemCalculation):
     """ Generates the design point for the piping limit state, i.e. an encapsulating limit state for uplift, heave
     and Sellmeijer. It uses the Reliability Project for this. """
-    model_callable: Callable = system_calculation.setup.project_limit_state
+    model_callable: Callable = system_calculation.setup.project_limit_state  # type:ignore
     system_calculation.results.reliability_project.model = model_callable
     _apply_correlations(system_calculation=system_calculation)
     # noinspection PyBroadException
