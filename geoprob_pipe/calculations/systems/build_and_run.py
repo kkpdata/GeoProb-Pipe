@@ -170,7 +170,7 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe) -> List[CalcRes
         for res, error_logs, row in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
             if isinstance(res, CalcResult):
                 results.append(res)
-            if isinstance(error_logs, str):
+            if isinstance(error_logs, str) and isinstance(row, dict):
                 error_rows.append({
                     "uittredepunt_id": row["uittredepunt_id"],
                     "ondergrondscenario_naam": row["ondergrondscenario_naam"],
