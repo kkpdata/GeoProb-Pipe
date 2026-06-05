@@ -37,6 +37,8 @@ LIST_PARAMS: dict[str, dict] = {
     "d70": {"shape": ["line"]},
     "c_voorland": {"shape": ["line"]},
     "c_achterland": {"shape": ["line"]},
+    "a_vak": {"shape":["line"]},
+    "delta_length": {"shape":["line"]},
 }
 
 def valid_parameter_list(app_settings: ApplicationSettings):
