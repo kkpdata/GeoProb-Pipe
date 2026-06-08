@@ -17,7 +17,7 @@ def coupled_uittredepunten_to_refline(app_settings: ApplicationSettings) -> bool
 
     # Check if already added
     if "metrering" in gdf_exit_points.columns and "afstand_reflijn" in gdf_exit_points.columns:
-        print(BColors.OKBLUE, f"✔  Afstand en metrering tot reflijn al gekoppeld aan uittredepunten.", BColors.ENDC)
+        print(BColors.OKBLUE, "✔  Afstand en metrering tot reflijn al gekoppeld aan uittredepunten.", BColors.ENDC)
         return True  # Assuming already added
 
     gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="geom__dijktraject")
@@ -43,5 +43,5 @@ def coupled_uittredepunten_to_refline(app_settings: ApplicationSettings) -> bool
     # Store back in geopackage
     gdf_exit_points.to_file(Path(app_settings.geopackage_filepath), layer="geom__uittredepunten", driver="GPKG")
     print(BColors.OKBLUE,
-          f"✅  Afstand en metrering tot reflijn zijn nu gekoppeld aan de uittredepunten.", BColors.ENDC)
+          "✅  Afstand en metrering tot reflijn zijn nu gekoppeld aan de uittredepunten.", BColors.ENDC)
     return True

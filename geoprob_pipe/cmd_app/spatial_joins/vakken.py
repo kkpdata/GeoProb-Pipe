@@ -14,7 +14,7 @@ def coupled_uittredepunten_to_vakken(app_settings: ApplicationSettings) -> bool:
 
     # Check if already added
     if "vak_id" in gdf_exit_points.columns:
-        print(BColors.OKBLUE, f"✔  Vakken al gekoppeld aan uittredepunten.", BColors.ENDC)
+        print(BColors.OKBLUE, "✔  Vakken al gekoppeld aan uittredepunten.", BColors.ENDC)
         return True  # Assuming already added
 
     # Spatial analyses
@@ -30,5 +30,5 @@ def coupled_uittredepunten_to_vakken(app_settings: ApplicationSettings) -> bool:
 
     # Store back in geopackage
     gdf_new_exit_points.to_file(Path(app_settings.geopackage_filepath), layer="geom__uittredepunten", driver="GPKG")
-    print(BColors.OKBLUE, f"✅  Vakken zijn nu gekoppeld aan de uittredepunten.", BColors.ENDC)
+    print(BColors.OKBLUE, "✅  Vakken zijn nu gekoppeld aan de uittredepunten.", BColors.ENDC)
     return True

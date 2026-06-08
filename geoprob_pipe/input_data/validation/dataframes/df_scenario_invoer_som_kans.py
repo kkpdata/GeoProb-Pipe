@@ -4,7 +4,7 @@ from pandas import DataFrame
 
 
 def _df_scenario_group_sum_kans(df: DataFrame) -> DataFrame:
-    df_grouped: DataFrame = df.groupby(["vak_id"], as_index=False)["kans"].sum()
+    df_grouped: DataFrame = DataFrame(df.groupby(["vak_id"], as_index=False)["kans"].sum())
     df_grouped = df_grouped.rename(columns={"kans": "som_kans"})
     df_grouped["som_kans"] = df_grouped["som_kans"].round(3)
     return df_grouped
