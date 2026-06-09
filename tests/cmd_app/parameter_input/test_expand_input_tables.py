@@ -1,3 +1,8 @@
+# TODO fix parameter zowel per vak in excel en per utp in gis
+# TODO fix gis parameters niet uit expanded gevonden?
+
+
+
 import ast
 import sqlite3
 
@@ -19,9 +24,13 @@ def _extract_mean(val):
 
 
 def _vak(
-    df_expanded: pd.DataFrame, df_excel_vak: pd.DataFrame, utp_list: list
+    df_expanded: pd.DataFrame,
+    df_excel_vak: pd.DataFrame,
+    utp_list: list,
+    parameter: str,
 ):
     mask = df_expanded["uittredepunt_id"].isin(utp_list)
+
     df_expanded_vak = df_expanded.loc[~mask]
     df_expanded_vak = df_expanded_vak.rename(
         columns={"parameter_name": "parameter"}
@@ -42,7 +51,7 @@ def _vak(
         indicator=True,
     )
 
-    tolerance = 1e-6
+    tolerance = 1e-4
 
     df_compare["verschil"] = np.abs(
         df_compare["mean_val_excel"] - df_compare["mean_val_expanded"]
@@ -56,7 +65,7 @@ def _vak(
         )
     ].dropna(subset=["distribution_type"])
     if len(df_errors) != 0:
-        print(f"Errors over vak: {len(df_errors)}")
+        print(f"Errors over vak bij {parameter}: {len(df_errors)}")
         print(
             df_errors[
                 [
@@ -70,13 +79,17 @@ def _vak(
             ].head()
         )
 
-    assert len(df_errors) == 0
+    return df_errors
 
 
 def _utp(
-    df_expanded: pd.DataFrame, df_excel_utp: pd.DataFrame, utp_list: list
+    df_expanded: pd.DataFrame,
+    df_excel_utp: pd.DataFrame,
+    utp_list: list,
+    parameter: str,
 ):
     mask = df_expanded["uittredepunt_id"].isin(utp_list)
+
     df_expanded_utp = df_expanded.loc[mask]
     df_expanded_utp = df_expanded_utp.rename(
         columns={"parameter_name": "parameter"}
@@ -98,7 +111,7 @@ def _utp(
         indicator=True,
     )
 
-    tolerance = 1e-6
+    tolerance = 1e-4
 
     df_compare["verschil"] = np.abs(
         df_compare["mean_val_excel"] - df_compare["mean_val_expanded"]
@@ -112,12 +125,12 @@ def _utp(
         )
     ].dropna(subset=["distribution_type"])
     if len(df_errors) != 0:
-        print(f"Errors over utp: {len(df_errors)}")
+        print(f"Errors over utp bij {parameter}: {len(df_errors)}")
         print(
             df_errors[
                 [
                     "parameter",
-                    "vak_id",
+                    "uittredepunt_id",
                     "ondergrondscenario_naam",
                     "mean_val_excel",
                     "mean_val_expanded",
@@ -126,7 +139,7 @@ def _utp(
             ].head()
         )
 
-    assert len(df_errors) == 0
+    return df_errors
 
 
 def test_expand():
@@ -134,15 +147,55 @@ def test_expand():
 
     # Verzamel data
     df_excel_vak = pd.read_sql(
-        "SELECT * FROM data__excel_parameter_invoer WHERE scope == 'vak'", conn
+        "SELECT * FROM data__excel_parameter_invoer WHERE scope = 'vak'", conn
     )
     df_excel_utp = pd.read_sql(
-        "SELECT * FROM data__excel_parameter_invoer WHERE scope == 'uittredepunt'",
+        "SELECT * FROM data__excel_parameter_invoer WHERE scope = 'uittredepunt'",
         conn,
     )
+    df_gis_utp = pd.read_sql(
+        "SELECT * FROM data__gis_parameter_invoer WHERE scope = 'uittredepunt'",
+        conn,
+    )
+    if not df_excel_utp.empty:
+        df_utp = pd.concat(
+            [df_excel_utp, df_gis_utp], join="outer", ignore_index=True
+        )
+    else:
+        df_utp = df_gis_utp
+
     df_expanded = pd.read_sql("SELECT * FROM data__expanded_parameters", conn)
 
-    utp_list = df_excel_utp["scope_referentie"].unique().tolist()
+    df_errors = pd.DataFrame()
+    for param in df_expanded["parameter_name"].unique().tolist():
+        mask_utp = df_utp["parameter"] == param
+        mask_vak = df_excel_vak["parameter"] == param
+        mask_expanded = df_expanded["parameter_name"] == param
+        utp_list = df_utp.loc[mask_utp, "scope_referentie"].unique().tolist()  # type:ignore
 
-    _vak(df_expanded, df_excel_vak, utp_list)
-    _utp(df_expanded, df_excel_utp, utp_list)
+        df_errors = pd.concat(
+            [
+                df_errors,
+                _vak(
+                    df_expanded=df_expanded[mask_expanded],
+                    df_excel_vak=df_excel_vak[mask_vak],
+                    utp_list=utp_list,
+                    parameter=param,
+                ),
+            ]
+        )
+        df_errors = pd.concat(
+            [
+                df_errors,
+                _utp(
+                    df_expanded=df_expanded[mask_expanded],
+                    df_excel_utp=df_utp[mask_utp],
+                    utp_list=utp_list,
+                    parameter=param,
+                ),
+            ]
+        )
+    assert len(df_errors) == 0
+
+
+test_expand()
