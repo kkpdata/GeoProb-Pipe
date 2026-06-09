@@ -1,5 +1,5 @@
 from typing import Dict, List, Optional
-from pandas import DataFrame, isna, notna, concat, read_sql, read_csv, set_option
+from pandas import DataFrame, Series, isna, notna, concat, read_sql, read_csv, set_option
 import sqlite3
 import numpy as np
 import os
@@ -9,6 +9,7 @@ from geoprob_pipe.calculations.systems.mappers.initial_input import INITIAL_INPU
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
 from geoprob_pipe.utils.sql_contents import write_dfs_to_gpkg
 from probabilistic_library import FragilityValue
+import copy
 
 
 def _combine_parameter_invoer_sources(tables: InputParameterTables) -> DataFrame:
@@ -269,99 +270,133 @@ def _gather_required_input_parameters(geopackage_filepath: str) -> List[str]:
     # return ["gamma_sat_deklaag"]  # TODO
 
 def _expand(
-        df_parameter_invoer_combined: DataFrame, df_identifiers: DataFrame, geopackage_filepath: str
+    df_parameter_invoer_combined: DataFrame,
+    df_identifiers: DataFrame,
+    geopackage_filepath: str,
 ) -> Dict[str, DataFrame]:
-    # Add parameter invoer: op uittredepunten niveau
-    required_input_parameters = _gather_required_input_parameters(geopackage_filepath=geopackage_filepath)
+
+    def merge_into_df(df: DataFrame, df_gather: DataFrame, on_cols: list[str]):
+        """Veilige merge + combine_first"""
+        if df_gather.empty:
+            return df
+
+        df = df.merge(
+            df_gather,
+            on=on_cols,
+            how="left",
+            suffixes=("", "_new"),
+        )
+
+        df["parameter_input"] = df["parameter_input"].combine_first(
+            df["parameter_input_new"]
+        )
+        df.drop(columns=["parameter_input_new"], inplace=True)
+
+        return df
+
+    required_input_parameters = _gather_required_input_parameters(
+        geopackage_filepath=geopackage_filepath
+    )
+
     collection_of_dfs: Dict[str, DataFrame] = {}
+
     for parameter_name in required_input_parameters:
 
-        # Gather and merge input on uittredepunten / scenario-niveau
-        df_gather = df_parameter_invoer_combined[
-            (df_parameter_invoer_combined['parameter'] == parameter_name) &
-            (df_parameter_invoer_combined['scope'] == 'uittredepunt') &
-            (df_parameter_invoer_combined['ondergrondscenario_naam'].notna())
+        df = df_identifiers.copy()
+        df["parameter_input"] = Series([None] * len(df), dtype="object")
+
+        # 1. excel uittrdepunt en scenario
+        df_gather = df_parameter_invoer_combined.loc[
+            (df_parameter_invoer_combined["parameter"] == parameter_name)
+            & (df_parameter_invoer_combined["scope"] == "uittredepunt")
+            & (df_parameter_invoer_combined["ondergrondscenario_naam"].notna()),
+            ["scope_referentie", "ondergrondscenario_naam", "parameter_input"],
+        ].rename(
+            columns={
+                "scope_referentie": "uittredepunt_id",
+                "ondergrondscenario_naam": "naam",
+            }
+        ).drop_duplicates(["uittredepunt_id", "naam"])
+
+        df = merge_into_df(df, df_gather, ["uittredepunt_id", "naam"])
+
+        # 2. GIS uittredepunt en scenario
+        df_gather = df_parameter_invoer_combined.loc[
+            (df_parameter_invoer_combined["parameter"] == parameter_name)
+            & (df_parameter_invoer_combined["scope"] == "gis_uittredepunt")
+            & (df_parameter_invoer_combined["ondergrondscenario_naam"].notna()),
+            ["scope_referentie", "ondergrondscenario_naam", "parameter_input"],
+        ].rename(
+            columns={
+                "scope_referentie": "uittredepunt_id",
+                "ondergrondscenario_naam": "naam",
+            }
+        ).drop_duplicates(["uittredepunt_id", "naam"])
+
+        df = merge_into_df(df, df_gather, ["uittredepunt_id", "naam"])
+
+        # 3. excel uittrdepunt
+        df_gather = df_parameter_invoer_combined.loc[
+            (df_parameter_invoer_combined["parameter"] == parameter_name)
+            & (df_parameter_invoer_combined["scope"] == "uittredepunt")
+            & (df_parameter_invoer_combined["ondergrondscenario_naam"].isna())
+            & (df_parameter_invoer_combined["parameter_input"] != {}),
+            ["scope_referentie", "parameter_input"],
+        ].rename(columns={"scope_referentie": "uittredepunt_id"}) \
+         .drop_duplicates(["uittredepunt_id"])
+
+        df = merge_into_df(df, df_gather, ["uittredepunt_id"])
+
+        # 4. GIS uittredepunt
+        df_gather = df_parameter_invoer_combined.loc[
+            (df_parameter_invoer_combined["parameter"] == parameter_name)
+            & (df_parameter_invoer_combined["scope"] == "gis_uittredepunt")
+            & (df_parameter_invoer_combined["parameter_input"] != {}),
+            ["scope_referentie", "parameter_input"],
+        ].rename(columns={"scope_referentie": "uittredepunt_id"}) \
+         .drop_duplicates(["uittredepunt_id"])
+
+        df = merge_into_df(df, df_gather, ["uittredepunt_id"])
+
+        # 5. excel vak en scenario
+        df_gather = df_parameter_invoer_combined.loc[
+            (df_parameter_invoer_combined["parameter"] == parameter_name)
+            & (df_parameter_invoer_combined["scope"] == "vak")
+            & (df_parameter_invoer_combined["ondergrondscenario_naam"].notna()),
+            ["scope_referentie", "ondergrondscenario_naam", "parameter_input"],
+        ].rename(
+            columns={
+                "scope_referentie": "vak_id",
+                "ondergrondscenario_naam": "naam",
+            }
+        ).drop_duplicates(["vak_id", "naam"])
+
+        df = merge_into_df(df, df_gather, ["vak_id", "naam"])
+
+        # 6. excel vak
+        df_gather = df_parameter_invoer_combined.loc[
+            (df_parameter_invoer_combined["parameter"] == parameter_name)
+            & (df_parameter_invoer_combined["scope"] == "vak")
+            & (df_parameter_invoer_combined["ondergrondscenario_naam"].isna()),
+            ["scope_referentie", "parameter_input"],
+        ].rename(columns={"scope_referentie": "vak_id"}) \
+         .drop_duplicates(["vak_id"])
+
+        df = merge_into_df(df, df_gather, ["vak_id"])
+
+        # 7. excel traject
+        df_gather = df_parameter_invoer_combined.loc[
+            (df_parameter_invoer_combined["parameter"] == parameter_name)
+            & (df_parameter_invoer_combined["scope"] == "traject")
+        ]
+        if not df_gather.empty:
+            value = df_gather.iloc[0]["parameter_input"]
+            mask_na = df["parameter_input"].isna()
+            
+            df.loc[mask_na, "parameter_input"] = [
+                copy.deepcopy(value) for _ in range(mask_na.sum())
             ]
-        df_gather = df_gather[["scope_referentie", "ondergrondscenario_naam", "parameter_input"]]
-        df_gather = df_gather.rename(columns={
-            "scope_referentie": "uittredepunt_id",
-            "ondergrondscenario_naam": "naam"})
-        df = df_identifiers.copy(deep=True)
-        df["parameter_input"] = np.nan
-        df['parameter_input'] = df['parameter_input'].combine_first(
-            df_identifiers.copy(deep=True).merge(df_gather, on=["uittredepunt_id", "naam"], how="left")[
-                'parameter_input'])
-        
-        # GIS spatial joins on uittredepunten / scenario-niveau
-        df_gather = df_parameter_invoer_combined[
-            (df_parameter_invoer_combined['parameter'] == parameter_name) &
-            (df_parameter_invoer_combined['scope'] == 'gis_uittredepunt') &
-            (df_parameter_invoer_combined['ondergrondscenario_naam'].notna())
-            ].copy(deep=True)
-        df_gather = df_gather[["scope_referentie", "parameter_input"]]
-        df_gather = df_gather.rename(columns={"scope_referentie": "uittredepunt_id"})
-        df['parameter_input'] = df['parameter_input'].combine_first(
-            df_identifiers.copy(deep=True).merge(df_gather, on=["uittredepunt_id"], how="left")['parameter_input'])
 
-        # Uittredepunt niveau
-        df_gather = df_parameter_invoer_combined[
-            (df_parameter_invoer_combined['parameter'] == parameter_name) &
-            (df_parameter_invoer_combined['scope'] == 'uittredepunt') &
-            (df_parameter_invoer_combined['ondergrondscenario_naam']).isna() &
-            (df_parameter_invoer_combined["parameter_input"] != {})
-            ]
-        df_gather = df_gather[["scope_referentie", "parameter_input"]]
-        df_gather = df_gather.rename(columns={"scope_referentie": "uittredepunt_id"})
-
-        df['parameter_input'] = df['parameter_input'].combine_first(
-            df_identifiers.copy(deep=True).merge(df_gather, on=["uittredepunt_id"], how="left")['parameter_input'])
-
-        # GIS spatial joins on uittredepunten
-        df_gather = df_parameter_invoer_combined[
-            (df_parameter_invoer_combined['parameter'] == parameter_name) &
-            (df_parameter_invoer_combined['scope'] == 'gis_uittredepunt') &
-            (df_parameter_invoer_combined["parameter_input"] != {})
-            ].copy(deep=True)
-        df_gather = df_gather[["scope_referentie", "parameter_input"]]
-        df_gather = df_gather.rename(columns={"scope_referentie": "uittredepunt_id"})
-        df['parameter_input'] = df['parameter_input'].combine_first(
-            df_identifiers.copy(deep=True).merge(df_gather, on=["uittredepunt_id"], how="left")['parameter_input'])
-        
-        # Vak / scenario niveau
-        df_gather = df_parameter_invoer_combined[
-            (df_parameter_invoer_combined['parameter'] == parameter_name) &
-            (df_parameter_invoer_combined['scope'] == 'vak') &
-            (df_parameter_invoer_combined['ondergrondscenario_naam'].notna())
-            ]
-        df_gather = df_gather[["scope_referentie", "ondergrondscenario_naam", "parameter_input"]]
-        df_gather = df_gather.rename(columns={
-            "scope_referentie": "vak_id",
-            "ondergrondscenario_naam": "naam"})
-        df['parameter_input'] = df['parameter_input'].combine_first(
-            df_identifiers.copy(deep=True).merge(df_gather, on=["vak_id", "naam"], how="left")['parameter_input'])
-
-        # Vak niveau
-        df_gather = df_parameter_invoer_combined[
-            (df_parameter_invoer_combined['parameter'] == parameter_name) &
-            (df_parameter_invoer_combined['scope'] == 'vak') &
-            (df_parameter_invoer_combined['ondergrondscenario_naam'].isna())
-            ]
-        df_gather = df_gather[["scope_referentie", "parameter_input"]]
-        df_gather = df_gather.rename(columns={"scope_referentie": "vak_id"})
-        df['parameter_input'] = df['parameter_input'].combine_first(
-            df_identifiers.copy(deep=True).merge(df_gather, on=["vak_id"], how="left")['parameter_input'])
-
-        # Traject niveau
-        df_gather = df_parameter_invoer_combined[
-            (df_parameter_invoer_combined['parameter'] == parameter_name) &
-            (df_parameter_invoer_combined['scope'] == 'traject')]
-        if df_gather.__len__() >= 1:
-            traject_value = df_gather['parameter_input'].values[0]
-            df['parameter_input'] = df['parameter_input'].apply(lambda x: traject_value if isna(x) else x)
-
-        
-
-        # Add to collection
         collection_of_dfs[parameter_name] = df
 
     return collection_of_dfs

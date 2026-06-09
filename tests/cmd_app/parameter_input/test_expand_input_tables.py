@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 # TODO Permanete test gpkg als deze naar de nieuwe standaard is gezet
-gpkg_filepath = r"C:\Users\vinji\Python\Libraries\GEOprob-Pipe\Workspace\data_test.geoprob_pipe.gpkg"
+gpkg_filepath = r"C:\Users\vinji\Python\Libraries\GEOprob-Pipe\Workspace\fix.geoprob_pipe.gpkg"
 
 
 def _extract_mean(val):
@@ -18,7 +18,7 @@ def _extract_mean(val):
         return np.nan
 
 
-def test_vak(
+def _vak(
     df_expanded: pd.DataFrame, df_excel_vak: pd.DataFrame, utp_list: list
 ):
     mask = df_expanded["uittredepunt_id"].isin(utp_list)
@@ -73,7 +73,7 @@ def test_vak(
     assert len(df_errors) == 0
 
 
-def test_utp(
+def _utp(
     df_expanded: pd.DataFrame, df_excel_utp: pd.DataFrame, utp_list: list
 ):
     mask = df_expanded["uittredepunt_id"].isin(utp_list)
@@ -144,8 +144,5 @@ def test_expand():
 
     utp_list = df_excel_utp["scope_referentie"].unique().tolist()
 
-    test_vak(df_expanded, df_excel_vak, utp_list)
-    test_utp(df_expanded, df_excel_utp, utp_list)
-
-
-test_expand()
+    _vak(df_expanded, df_excel_vak, utp_list)
+    _utp(df_expanded, df_excel_utp, utp_list)
