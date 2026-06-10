@@ -1,6 +1,11 @@
 # TODO fix parameter zowel per vak in excel en per utp in gis
 # TODO fix gis parameters niet uit expanded gevonden?
-
+"""
+Voor idere rij in de excel en gis moet worden gecheckt of deze op de juiste
+plaats in de expanded staat. En of er iets is overgeslagen door dubble input.
+traject->vak->utp
+scenario->wildcard
+"""
 
 
 import ast
