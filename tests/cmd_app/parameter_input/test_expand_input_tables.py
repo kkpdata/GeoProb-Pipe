@@ -218,7 +218,7 @@ def validate_expand_tables():
     arr = df_check[cols].to_numpy(dtype=object)
 
     df_errors["priority_error"] = [
-        any(v is False for v in row[next((i for i, x in enumerate(row) if x is True), len(row))+1:])
+        any(v is False for v in row[(max([i for i, x in enumerate(row) if x is True], default=-1) + 1):])
         for row in arr
     ]
 
