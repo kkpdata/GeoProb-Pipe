@@ -1,6 +1,5 @@
 from __future__ import annotations
 from dataclasses import dataclass
-import math
 from typing import Optional, List, Tuple, cast
 from geoprob_pipe.results.assemblage.functions import bepaal_N_vak
 import scipy.stats as stats  # importeer de scipy.stats module
