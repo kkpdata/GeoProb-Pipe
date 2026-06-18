@@ -54,9 +54,8 @@ def _hrd_data_imported(app_settings: ApplicationSettings) -> bool:
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     tables_names = [row[0] for row in cursor.fetchall()]
     conn.close()
-    if "fragility_values_invoer_hrd" not in tables_names:
+    if "data__fragility_values_invoer_hrd" not in tables_names:
         return False
-
     return True
 
 

@@ -428,7 +428,7 @@ def _generate_element_list(
     punt_df = results.df_beta_uittredepunten
     punt_gdf = geoprob_pipe.input_data.uittredepunten.gdf
 
-    df = pd.merge(
+    df_utp = pd.merge(
         left=punt_df[
             [
                 "uittredepunt_id",
@@ -455,22 +455,22 @@ def _generate_element_list(
 
     for _, vak in vakken_gdf.iterrows():
         if vak.id in vakken_torun or run_all:
-            df_vak = df.loc[df["vak_id"] == vak["id"]]
+            df_vak = df_utp.loc[df_utp["vak_id"] == vak["id"]]
 
-            df = geoprob_pipe.df_expanded.loc[
+            df_a = geoprob_pipe.df_expanded.loc[
                 geoprob_pipe.df_expanded["parameter_name"] == "a_vak"
             ]
             a_vak: float = (
-                df.query("vak_id == @vak.id")
+                df_a.query("vak_id == @vak.id")
                 .iloc[0]["parameter_input"]
                 .get("mean", 1.0)
             )
 
-            df = geoprob_pipe.df_expanded.loc[
+            df_dl = geoprob_pipe.df_expanded.loc[
                 geoprob_pipe.df_expanded["parameter_name"] == "delta_length"
             ]
             dl_vak: float = (
-                df.query("vak_id == @vak.id")
+                df_dl.query("vak_id == @vak.id")
                 .iloc[0]["parameter_input"]
                 .get("mean", 300.0)
             )
