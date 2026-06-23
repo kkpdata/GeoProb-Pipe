@@ -1,7 +1,7 @@
 Implementatie
 =============
 
-De implementatie van de rekenmethodiek is modulair opgebouwd en bestaat uit drie samenhangende onderdelen:
+De implementatie van de formules is modulair opgebouwd en bestaat uit drie samenhangende onderdelen:
 
 1.  **Fysische componenten**
     In deze stap worden de geohydrologische en geotechnische componenten berekend die de fysieke toestand van het
@@ -28,7 +28,8 @@ De implementatie van de rekenmethodiek is modulair opgebouwd en bestaat uit drie
     Het stijghoogtemodel bepaalt de stijghoogte in het uittredepunt (:math:`\phi_{exit}`) en vormt daarmee de
     koppeling tussen de hydraulische belasting (buitenwaterstand, polderpeil) en de ondergrondrespons.
     `GeoProb-Pipe` ondersteunt meerdere typen stijghoogtemodellen:
+
     - de WBI-formulering van de stijghoogte met een vaste responsfactor en kwelweglengte;
-    - het analytische grondwatermodel *4A* op doorsnedeiveau;
+    - het analytische grondwatermodel *4A* uit het Technisch Rapport Waterspanningen bij dijken :cite:`trw_2004`;
     - resultaten van numerieke rastermodellen zoals *MORIA*;
     - en toekomstige uitbreidingen (bijv. TTIM) die via dezelfde interface kunnen worden toegevoegd.

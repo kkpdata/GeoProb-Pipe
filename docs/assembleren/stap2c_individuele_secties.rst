@@ -4,9 +4,9 @@ Individuele secties-methode
 Vaak zijn uittredepunten niet evenredig verdeeld over het dijktraject omdat geometrische kenmerken zoals maaiveldniveau
 vooraf al een inschatting geven op welke punten piping een bijdrage kan hebben aan de trajectkans. 
 Om inzicht te krijgen in de bovengrens van de trajectkans is een methode toegevoegd die automatisch individuele secties van een 
-dijktraject identificeert en deze combineert tot een trajectkans. Deze methode is gebaseerd op de veronderstelling 
-dat uittredepunten binnen een korte afstand van elkaar volledig afhankelijk zijn, 
-terwijl uittredepunten die verder uit elkaar liggen als onafhankelijk worden beschouwd.
+dijktraject identificeert en deze als onafhankelijke elementen combineert tot een trajectkans. 
+Deze methode is gebaseerd op de veronderstelling dat uittredepunten binnen een korte afstand (5 m) van elkaar 
+volledig afhankelijk zijn, terwijl uittredepunten die verder uit elkaar liggen als onafhankelijk worden beschouwd.
 
 Het volgende algoritme is geïmplementeerd:
 

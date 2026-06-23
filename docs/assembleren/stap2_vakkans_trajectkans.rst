@@ -7,15 +7,15 @@ punten ruimtelijk dicht bij elkaar kunnen liggen is er sprake van onderlinge afh
 
 Bij het assembleren van de uittredepunten tot een trajectkans zijn een aantal aannames gedaan, namelijk:
 
-1. Doorsneden binnen een vak zijn statistisch homogeen. Een vak bestaat uit meerdere doorsneden waardoor de faalkans van een vak groter is dan de faalkans van een enkele doorsnede.
+1. Doorsneden binnen een vak zijn statistisch homogeen. Een vak bestaat uit meerdere doorsneden waardoor de faalkans 
+   van een vak groter is dan de faalkans van een enkele doorsnede.
 2. De toename van de faalkans van een vak ten opzichte van een doorsnede wordt bepaald door een verschaling op 
-basis van equivalente onafhankelijke lengte (Lvak/∆L). 
+   basis van equivalente onafhankelijke lengte :math:`(L_{vak}/\Delta L)`. 
 3. Vakkansen zijn onafhankelijk verondersteld voor geotechnische faalmechanismen.
 
 Voor een gegeven homogeen probleem is theoretisch het mogelijk om een zodanige equivalente onafhankelijke lengte te 
 kiezen dat de benadering door deze assemblage exact overeenkomt met de werkelijke volledig probabilistische trajectkans.
-
-Uit onderzoeken blijkt dat voor het mechanisme piping de equivalente onafhankelijke lengte :math:`ΔL` tussen de 
+Uit onderzoeken blijkt dat voor het mechanisme piping de equivalente onafhankelijke lengte :math:`\Delta L` tussen de 
 100 en 300 m ligt. 
 
 Binnen dit kader zijn in GeoProb-Pipe drie methoden geïmplementeerd om de trajectkans te benaderen, elk met een eigen

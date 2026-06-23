@@ -3,11 +3,9 @@ Stap 0: Bepalen faalkans op scenarioniveau
 
 Piping treedt op als opbarsten én heave én terugschrijdende erosie optreedt. Deze mechanismen zijn beschreven door
 grenstoestandfuncties (``Zu``, ``Zh`` en ``Zp``). Probabilistische rekentechnieken zoeken naar de combinatie van
-mogelijke realisaties van onzekere parameters waarbij de kans op falen het grootst is. Dit is voor elke
-grenstoestandfunctie een andere combinatie. Omdat we in de analyse van de resultaten graag de invloedsfactoren van de
-afzonderlijke grenstoestandfuncties willen beschouwen, niet elke rekentechniek convergeert naar een betrouwbare
-oplossing en een herleidbare oplossing vereist is, is het volgende rekenprotocol bedacht.
-
+onzekere parameters waarbij de kans op falen het grootst is. Dit is voor elke
+grenstoestandfunctie een andere combinatie. Omdat `GeoProb-Pipe` een herleidbare oplossing vereist, is het volgende 
+rekenprotocol bedacht.
 
 Rekenprotocol 'Bepalen betrouwbaarheidsindex β'
 -----------------------------------------------
@@ -99,5 +97,5 @@ Stap 4 – Alle methodes zijn niet geconvergeerd, maar voor elk is de β‑waard
 
 Stap 5 – Alle methodes zijn niet geconvergeerd, én β < 8?
     → Controleer de invoervariabelen en verfijn zo nodig de rekeninstellingen (bijvoorbeeld FORM‑instellingen of
-    Importance Sampling-parameters). Wisselen van probabilistische methode is in de gebruikersinterface momenteel
-    nog niet mogelijk.
+    Importance Sampling-parameters). Wisselen van probabilistische methodes of rekeninstellingen is in de 
+    gebruikersinterface nog niet mogelijk. De rekeninstellingen zijn te vinden in `system_calculation.py`

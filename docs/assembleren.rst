@@ -15,11 +15,11 @@ Deze sectie beschrijft de verschillende methoden die in GeoProb-Pipe zijn geïmp
 benaderen. Per onderdeel is aangegeven welke aannames er zijn gedaan om de methode toe te kunnen passen.
 
 De beschrijving start op scenarioniveau met de berekeningen die leiden tot een betrouwbaarheid van een enkele 
-scenarioberekening en eindigt bij de benadering van de trajectkans. DIt is opgedeeld in de volgende stappen:
+scenarioberekening en eindigt bij de benadering van de trajectkans. Dit is opgedeeld in de volgende stappen:
 
 1. **Stap 0: Bepalen faalkans op scenarioniveau**
 2. **Stap 1: Bepalen faalkans per uittredepunt**
-3. **Stap 2: Methoden die de trajectkans benaderen**
+3. **Stap 2: Bepalen trajectkans met meerdere benaderingsmethoden**
 
 
 
@@ -28,7 +28,6 @@ scenarioberekening en eindigt bij de benadering van de trajectkans. DIt is opged
    :caption: Inhoud
    :titlesonly:
     
-   .. assembleren/kader
    
    assembleren/stap0_sc
    assembleren/stap1_sc_up
