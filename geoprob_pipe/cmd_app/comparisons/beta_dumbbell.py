@@ -98,7 +98,7 @@ def _add_traces(comparison: ComparisonCollector,
 
 
 def _add_vak_id(comparison: ComparisonCollector, fig: go.Figure) -> go.Figure:
-    """Helper functie om de vakken in de dumbell plot te tekenen.
+    """Helper functie om de vakken in de dumbbell plot te tekenen.
 
     Args:
         comparison: ComparisonCollecter object.
