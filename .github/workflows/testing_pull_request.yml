@@ -6,7 +6,7 @@ on:
     branches: [ "alpha" ]
     paths:
       - 'geoprob_pipe/**'
-      - 'test_system.py'
+      - 'tests/**'
   workflow_dispatch:
 
 
