@@ -63,7 +63,7 @@ def test_vakindeling():
     assert vakindeling_cmd.validity_column_vak_id(column_name="naam", gdf=gdf_vakindeling) is False
 
     # Correct value
-    assert vakindeling_cmd.validity_column_vak_id(column_name="id", gdf=gdf_vakindeling) is False
+    assert vakindeling_cmd.validity_column_vak_id(column_name="id", gdf=gdf_vakindeling) is True
 
     ##
 

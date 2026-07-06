@@ -55,8 +55,7 @@ def request_vakindeling_filepath() -> str:
     while True:
         filepath: str = inquirer.text(
             message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
-                    "vakindeling van de dijk zit.",
-        ).execute()
+                    "vakindeling van de dijk zit.").execute()
         filepath = filepath.replace('"', '')
         if validity_vakindeling_filepath(filepath=filepath) is not None:
             return filepath
