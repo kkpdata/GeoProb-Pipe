@@ -47,6 +47,12 @@ def test_vakindeling():
     assert vakindeling_cmd.validity_vakindeling_filepath(f"{filepath_data}.shp") is False  # Does not exist
     assert vakindeling_cmd.validity_vakindeling_filepath(filepath_data) is True
 
+    ## Vak indeling layer name in Geopackage
+
+    assert vakindeling_cmd.validity_layer_name_geopackage(filepath_data, "listlayers") is False
+    assert vakindeling_cmd.validity_layer_name_geopackage(filepath_data, "non_existent") is False
+    assert vakindeling_cmd.validity_layer_name_geopackage(filepath_data, "vakindeling") is True
+
     ## Vak indeling ID
 
     # List columns (correct, but for process returns also False)

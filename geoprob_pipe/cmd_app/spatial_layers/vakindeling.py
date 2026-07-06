@@ -76,6 +76,24 @@ def import_geo_dataframe(filepath: str) -> GeoDataFrame:
     return gdf
 
 
+def validity_layer_name_geopackage(filepath_geopackage: str, layer_name: str) -> False:
+
+    layer_names = fiona.listlayers(filepath_geopackage)
+    layer_names.sort()
+    layers_str = ", ".join(layer_names)
+
+    if layer_name == "listlayers":
+        print(f"{BColors.OKBLUE}De volgende layers zijn beschikbaar in de geopackage: {layers_str}{BColors.ENDC}")
+        return False
+
+    if layer_name not in layer_names:
+        print(f"{BColors.OKBLUE}De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
+              f"de geopackage: {layers_str}{BColors.ENDC}")
+        return False
+
+    return True
+
+
 def import_from_geopackage(filepath: str) -> GeoDataFrame:
     layer_name: Optional[str] = None
     layer_name_is_valid = False
@@ -85,18 +103,6 @@ def import_from_geopackage(filepath: str) -> GeoDataFrame:
                     "Type 'listlayers' om een overzicht te krijgen van de geopackage-layers. ",
         ).execute()
 
-        layer_names = fiona.listlayers(filepath)
-        layer_names.sort()
-        layers_str = ", ".join(layer_names)
-        if layer_name == "listlayers":
-            print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geopackage: {layers_str}", BColors.ENDC)
-            continue
-        elif layer_name not in layer_names:
-            print(BColors.OKBLUE, f"De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
-                                  f"de geopackage: {layers_str}", BColors.ENDC)
-            continue
-
-        layer_name_is_valid = True
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
