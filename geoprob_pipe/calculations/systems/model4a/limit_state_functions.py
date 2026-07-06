@@ -1,5 +1,4 @@
-from geoprob_pipe.calculations.limit_states.piping_lm import (
-    limit_state_model4a)
+from geoprob_pipe.calculations.limit_states.piping_lm import limit_state_model4a
 
 
 # noinspection PyPep8Naming
