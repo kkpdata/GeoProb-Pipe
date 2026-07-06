@@ -195,9 +195,8 @@ def specify_column_with_vak_id(
     while column_name_is_valid is False:
 
         kolom_vak_id: str = inquirer.text(
-            message="Specificeer de kolom waarin het vak id staat. Indien "
-                    "onnodig, type 'nvt'. Type 'listcolumns' om een overzicht "
-                    "te krijgen van de kolommen. ",
+            message="Specificeer de kolom waarin het vak id staat. Indien onnodig, type 'nvt'. Type 'listcolumns' om "
+                    "een overzicht te krijgen van de kolommen. ",
         ).execute()
 
         column_names = gdf.columns

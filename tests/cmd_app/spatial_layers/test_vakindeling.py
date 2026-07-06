@@ -4,7 +4,7 @@ def test_vakindeling():
 
     ##
 
-    from geoprob_pipe.cmd_app.spatial_layers.vakindeling import align_vak_shp_to_dijktraject
+    import geoprob_pipe.cmd_app.spatial_layers.vakindeling as vakindeling_cmd
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
     from geopandas import GeoDataFrame, read_file
     from repo_utils.utils import repository_root_path
@@ -28,14 +28,25 @@ def test_vakindeling():
     filepath_data = os.path.join(root_dir, "step04_load_hrd.geoprob_pipe.gpkg")
     gdf_vakindeling: GeoDataFrame = read_file(filepath_data, layer="vakindeling")
 
-    # Perform test
+    # Perform test step03 (not loaded yet)
     app_settings = ApplicationSettings()
     app_settings.workspace_dir = os.path.dirname(filepath_test)
     app_settings.geopackage_filename = os.path.basename(filepath_test)
-    align_vak_shp_to_dijktraject(
+    vakindeling_cmd.validate_vakindeling(gdf=gdf_vakindeling)
+    vakindeling_cmd.align_vak_shp_to_dijktraject(
         app_settings=app_settings, gdf_vakindeling=gdf_vakindeling, kolom_vak_naam="naam", kolom_vak_id="id")
 
     # Remove test file
     os.remove(filepath_test)
+
+    ##
+
+    # Perform test step03 (already loaded)
+    app_settings = ApplicationSettings()
+    app_settings.workspace_dir = os.path.dirname(filepath_data)
+    app_settings.geopackage_filename = os.path.basename(filepath_data)
+
+    # Perform test
+    vakindeling_cmd.check_validity_vakindeling(app_settings=app_settings)
 
     ##
