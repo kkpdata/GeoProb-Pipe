@@ -14,4 +14,6 @@ def test_questionnaire():
     app_settings.workspace_dir = os.path.join(repo_root, "geoprob_pipe", "questionnaire", "test_files")
     app_settings.geopackage_filename = os.path.basename("Analyse224.geoprob_pipe.gpkg")
 
+    # TODO: Deze test is nog niet afgerond. De questionnaire is hier nog niet getest.
+
     ##
