@@ -46,6 +46,9 @@ def test_collect_df_and_worker():
 
     # Worker
     _ = _worker(row_unique)
+    row_unique = {'uittredepunt_id': 1, 'ondergrondscenario_naam': 'HL', 'vak_id': 0}
+    # Additional run where reliability project is chosen, instead of combine project
+    _ = _worker(row_unique)
 
     ##
 
