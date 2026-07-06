@@ -113,31 +113,41 @@ def import_from_geopackage(filepath: str, unit_test_layer_name: Optional[str] = 
     return gdf
 
 
-def import_from_geodatabase(filepath: str) -> GeoDataFrame:
-    layer_name: Optional[str] = None
-    layer_name_is_valid = False
-    while layer_name_is_valid is False:
+def validity_layer_name_geodatabase(filepath: str, layer_name: str):
+    layer_names = fiona.listlayers(filepath)
+    layer_names.sort()
+    layers_str = ", ".join(layer_names)
+
+    if layer_name == "listlayers":
+        print(f"{BColors.OKBLUE}De volgende layers zijn beschikbaar in de geodatabase: {layers_str}{BColors.ENDC}")
+        return False
+
+    elif layer_name not in layer_names:
+        print(f"{BColors.OKBLUE}De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in de "
+              f"geodatabase: {layers_str}{BColors.ENDC}")
+        return False
+
+    return True
+
+
+def request_layer_name_geodatabase(filepath: str) -> str:
+    while True:
         layer_name: str = inquirer.text(
             message="Specificeer de laag met de vakindeling. "
-                    "Type 'listlayers' om een overzicht te krijgen van de geodatabase-layers. ",
-        ).execute()
+                    "Type 'listlayers' om een overzicht te krijgen van de geodatabase-layers. ").execute()
+        if validity_layer_name_geodatabase(filepath=filepath, layer_name=layer_name):
+            return layer_name
 
-        layer_names = fiona.listlayers(filepath)
-        layer_names.sort()
-        layers_str = ", ".join(layer_names)
-        if layer_name == "listlayers":
-            print(BColors.OKBLUE, f"De volgende layers zijn beschikbaar in de geodatabase: {layers_str}", BColors.ENDC)
-            continue
-        elif layer_name not in layer_names:
-            print(BColors.OKBLUE, f"De laag name '{layer_name}' bestaat niet. De volgende layers zijn beschikbaar in "
-                                  f"de geodatabase: {layers_str}", BColors.ENDC)
-            continue
 
-        layer_name_is_valid = True
+def import_from_geodatabase(filepath: str, unit_test_layer_name: Optional[str] = None) -> GeoDataFrame:
+    layer_name = unit_test_layer_name
+    if layer_name is None:
+        request_layer_name_geodatabase(filepath=filepath)
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
         gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
+
     return gdf
 
 
