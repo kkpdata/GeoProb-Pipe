@@ -41,6 +41,24 @@ def test_vakindeling():
 
     ##
 
+    # List columns (correct, but for process returns also False)
+    assert vakindeling_cmd.validity_column_vak_id(column_name="listcolumns", gdf=gdf_vakindeling) is False
+
+    # Non-existent column
+    assert vakindeling_cmd.validity_column_vak_id(column_name="non_existent", gdf=gdf_vakindeling) is False
+
+    # Not unique
+    gdf_vakindeling['non_unique'] = "non_unique_value"
+    assert vakindeling_cmd.validity_column_vak_id(column_name="non_unique", gdf=gdf_vakindeling) is False
+
+    # Not integers
+    assert vakindeling_cmd.validity_column_vak_id(column_name="naam", gdf=gdf_vakindeling) is False
+
+
+    assert vakindeling_cmd.validity_column_vak_id(column_name="non_unique", gdf=gdf_vakindeling) is False
+
+    ##
+
     # Perform test step03 (already loaded)
     app_settings = ApplicationSettings()
     app_settings.workspace_dir = os.path.dirname(filepath_data)

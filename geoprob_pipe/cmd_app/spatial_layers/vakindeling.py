@@ -202,12 +202,13 @@ def validity_column_vak_id(column_name: str, gdf: GeoDataFrame) -> bool:
               f"de spatial layer: {columns_str}{BColors.ENDC}")
         return False
 
-    # Ensure column values are unique and integers
+    # Ensure column values are unique
     if gdf[column_name].__len__() != gdf[column_name].unique().__len__():
         print(f"{BColors.OKBLUE}De waarden in deze kolom zijn niet uniek. Corrigeer de dubbelingen, of kies een "
               f"andere kolom.{BColors.ENDC}")
         return False
 
+    # Ensure column values are integers
     if not gdf[column_name].apply(is_numeric_integer).all():
         print(f"{BColors.OKBLUE}De waarden in deze kolom zijn niet allen volledige getallen (integers). Corrigeer de "
               f"kolom, of kies een andere.{BColors.ENDC}")
