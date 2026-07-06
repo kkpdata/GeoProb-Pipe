@@ -33,7 +33,7 @@ def process_import_vakindeling(app_settings: ApplicationSettings):
     gdf = import_geo_dataframe(filepath=file_path)
     validate_vakindeling(gdf=gdf)
     column_name: str = specify_column_with_vaknaam(gdf=gdf)
-    kolom_vak_id: Optional[str] = specify_column_with_vak_id(app_settings, gdf=gdf, kolom_vak_naam=column_name)
+    kolom_vak_id: Optional[str] = specify_column_with_vak_id(gdf=gdf)
     align_vak_shp_to_dijktraject(
         app_settings, gdf_vakindeling=gdf, kolom_vak_naam=column_name, kolom_vak_id=kolom_vak_id)
 
@@ -188,8 +188,35 @@ def specify_column_with_vaknaam(gdf: GeoDataFrame) -> str:
     return column_name
 
 
-def specify_column_with_vak_id(
-        app_settings: ApplicationSettings, gdf: GeoDataFrame, kolom_vak_naam: str) -> Optional[str]:
+def validity_column_vak_id(column_name: str, gdf: GeoDataFrame) -> bool:
+    column_names = gdf.columns
+    columns_str = ", ".join(column_names)
+
+    if column_name == "listcolumns":
+        print(BColors.OKBLUE,
+              f"De volgende kolommen zijn beschikbaar in de spatial "f"layer: {columns_str}", BColors.ENDC)
+        return False
+
+    if column_name not in column_names:
+        print(f"{BColors.OKBLUE}De kolom naam '{column_name}' bestaat niet. De volgende kolommen zijn beschikbaar in "
+              f"de spatial layer: {columns_str}{BColors.ENDC}")
+        return False
+
+    # Ensure column values are unique and integers
+    if gdf[column_name].__len__() != gdf[column_name].unique().__len__():
+        print(f"{BColors.OKBLUE}De waarden in deze kolom zijn niet uniek. Corrigeer de dubbelingen, of kies een "
+              f"andere kolom.{BColors.ENDC}")
+        return False
+
+    if not gdf[column_name].apply(is_numeric_integer).all():
+        print(f"{BColors.OKBLUE}De waarden in deze kolom zijn niet allen volledige getallen (integers). Corrigeer de "
+              f"kolom, of kies een andere.{BColors.ENDC}")
+        return False
+
+    return True
+
+
+def specify_column_with_vak_id(gdf: GeoDataFrame) -> Optional[str]:
     kolom_vak_id: Optional[str] = None
     column_name_is_valid = False
     while column_name_is_valid is False:
@@ -199,38 +226,10 @@ def specify_column_with_vak_id(
                     "een overzicht te krijgen van de kolommen. ",
         ).execute()
 
-        column_names = gdf.columns
-        columns_str = ", ".join(column_names)
         if kolom_vak_id.lower() == "nvt":
-            align_vak_shp_to_dijktraject(
-                app_settings, gdf_vakindeling=gdf,
-                kolom_vak_naam=kolom_vak_naam, kolom_vak_id=None)
             return None
-        elif kolom_vak_id == "listcolumns":
-            print(BColors.OKBLUE,
-                  f"De volgende kolommen zijn beschikbaar in de spatial "
-                  f"layer: {columns_str}", BColors.ENDC)
-            continue
-        elif kolom_vak_id not in column_names:
-            print(f"{BColors.OKBLUE}De kolom naam '{kolom_vak_id}' bestaat "
-                  f"niet. De volgende kolommen zijn beschikbaar in de spatial "
-                  f"layer: {columns_str}{BColors.ENDC}")
-            continue
-
-        # Ensure column values are unique and integers
-        if gdf[kolom_vak_id].__len__() != gdf[kolom_vak_id].unique().__len__():
-            print(f"{BColors.OKBLUE}De waarden in deze kolom zijn niet uniek. "
-                  f"Corrigeer de dubbelingen, of kies een andere kolom."
-                  f"{BColors.ENDC}")
-            continue
-
-        elif not gdf[kolom_vak_id].apply(is_numeric_integer).all():
-            print(f"{BColors.OKBLUE}De waarden in deze kolom zijn niet allen "
-                  f"volledige getallen (integers). Corrigeer de kolom, of "
-                  f"kies een andere.{BColors.ENDC}")
-            continue
-
-        column_name_is_valid = True
+        if validity_column_vak_id(column_name=kolom_vak_id, gdf=gdf):
+            return kolom_vak_id
 
     return kolom_vak_id
 
