@@ -38,28 +38,28 @@ def process_import_vakindeling(app_settings: ApplicationSettings):
         app_settings, gdf_vakindeling=gdf, kolom_vak_naam=column_name, kolom_vak_id=kolom_vak_id)
 
 
+def validity_vakindeling_filepath(filepath: str) -> bool:
+    if not (filepath.endswith(".gpkg") or filepath.endswith(".shp") or filepath.endswith(".gdb")):
+        print(f"{BColors.WARNING}Het bestand moet of een geopackage, shapefile of geodatabase zijn. Jouw invoer "
+              f"eindigt op de extensie .{filepath.split(sep='.')[-1]}.{BColors.ENDC}")
+        return False
+
+    if not os.path.exists(filepath):
+        print(BColors.WARNING, f"Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
+        return False
+
+    return True
+
+
 def request_vakindeling_filepath() -> str:
-    filepath: Optional[str] = None
-    filepath_is_valid = False
-    while filepath_is_valid is False:
+    while True:
         filepath: str = inquirer.text(
             message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
                     "vakindeling van de dijk zit.",
         ).execute()
-
         filepath = filepath.replace('"', '')
-
-        if not (filepath.endswith(".gpkg") or filepath.endswith(".shp") or filepath.endswith(".gdb")):
-            print(BColors.WARNING, f"Het bestand moet of een geopackage, shapefile of geodatabase zijn. Jouw invoer "
-                                   f"eindigt op de extensie .{filepath.split(sep='.')[-1]}.", BColors.ENDC)
-            continue
-        if not os.path.exists(filepath):
-            print(BColors.WARNING, f"Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
-            continue
-
-        filepath_is_valid = True
-
-    return filepath
+        if validity_vakindeling_filepath(filepath=filepath) is not None:
+            return filepath
 
 
 def import_geo_dataframe(filepath: str) -> GeoDataFrame:

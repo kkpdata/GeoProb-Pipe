@@ -39,7 +39,15 @@ def test_vakindeling():
     # Remove test file
     os.remove(filepath_test)
 
-    ##
+    ## Vak indeling filepath
+
+    assert vakindeling_cmd.validity_vakindeling_filepath(f"{filepath_data}.shpp") is False  # Wrong extension
+    assert vakindeling_cmd.validity_vakindeling_filepath(f"{filepath_data}.gpkg") is False  # Double .gpkg.gpkg
+    assert vakindeling_cmd.validity_vakindeling_filepath(f"{filepath_data}.gdb") is False  # Does not exist
+    assert vakindeling_cmd.validity_vakindeling_filepath(f"{filepath_data}.shp") is False  # Does not exist
+    assert vakindeling_cmd.validity_vakindeling_filepath(filepath_data) is True
+
+    ## Vak indeling ID
 
     # List columns (correct, but for process returns also False)
     assert vakindeling_cmd.validity_column_vak_id(column_name="listcolumns", gdf=gdf_vakindeling) is False
@@ -54,8 +62,8 @@ def test_vakindeling():
     # Not integers
     assert vakindeling_cmd.validity_column_vak_id(column_name="naam", gdf=gdf_vakindeling) is False
 
-
-    assert vakindeling_cmd.validity_column_vak_id(column_name="non_unique", gdf=gdf_vakindeling) is False
+    # Correct value
+    assert vakindeling_cmd.validity_column_vak_id(column_name="id", gdf=gdf_vakindeling) is False
 
     ##
 
