@@ -57,6 +57,12 @@ def test_vakindeling():
 
     _ = vakindeling_cmd.import_from_geopackage(filepath=filepath_data, unit_test_layer_name="vakindeling")
 
+    ## Vak indeling vaknaam
+
+    assert vakindeling_cmd.validity_column_vaknaam(column_name="listcolumns", gdf=gdf_vakindeling) is False
+    assert vakindeling_cmd.validity_column_vaknaam(column_name="non_existent", gdf=gdf_vakindeling) is False
+    assert vakindeling_cmd.validity_column_vaknaam(column_name="naam", gdf=gdf_vakindeling) is True
+
     ## Vak indeling ID
 
     # List columns (correct, but for process returns also False)

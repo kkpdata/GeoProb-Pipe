@@ -176,34 +176,29 @@ def validate_vakindeling(gdf: GeoDataFrame):
                    f"samenvoegbaar is tot één lijn. Dit blijkt niet het geval. Zitten er gaten tussen de vakken?")
 
 
+def validity_column_vaknaam(column_name: str, gdf: GeoDataFrame):
+    column_names = gdf.columns
+    columns_str = ", ".join(column_names)
+
+    if column_name == "listcolumns":
+        print(f"{BColors.OKBLUE}De volgende kolommen zijn beschikbaar in de spatial layer: {columns_str}{BColors.ENDC}")
+        return False
+
+    if column_name not in column_names:
+        print(f"{BColors.OKBLUE}De kolom naam '{column_name}' bestaat niet. De volgende kolommen zijn beschikbaar in "
+              f"de spatial layer: {columns_str}{BColors.ENDC}")
+        return False
+
+    return True
+
+
 def specify_column_with_vaknaam(gdf: GeoDataFrame) -> str:
-    column_name: Optional[str] = None
-    column_name_is_valid = False
-    while column_name_is_valid is False:
+    while True:
         column_name: str = inquirer.text(
-            message="Specificeer de kolom waarin de vaknaam staat. Type "
-                    "'listcolumns' om een overzicht te krijgen van de "
-                    "kolommen. ",
-        ).execute()
-
-        column_names = gdf.columns
-        columns_str = ", ".join(column_names)
-        if column_name == "listcolumns":
-            print(BColors.OKBLUE,
-                  f"De volgende kolommen zijn beschikbaar in de spatial "
-                  f"layer: {columns_str}", BColors.ENDC)
-            continue
-        elif column_name not in column_names:
-            print(BColors.OKBLUE,
-                  f"De kolom naam '{column_name}' bestaat niet. De volgende "
-                  f"kolommen zijn beschikbaar in de spatial layer: "
-                  f"{columns_str}", BColors.ENDC)
-            continue
-
-        column_name_is_valid = True
-
-    column_name: str
-    return column_name
+            message="Specificeer de kolom waarin de vaknaam staat. Type 'listcolumns' om een overzicht te krijgen van "
+                    "de kolommen. ").execute()
+        if validity_column_vaknaam(column_name=column_name, gdf=gdf):
+            return column_name
 
 
 def validity_column_vak_id(column_name: str, gdf: GeoDataFrame) -> bool:
