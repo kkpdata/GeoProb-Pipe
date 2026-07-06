@@ -218,15 +218,13 @@ def test_limit_state_model4a(input_data, expected):
 
 
 # extract inputs and expected outputs for limit_state_moria
-inputs_lm_moria = test_data.loc[:, input_keys_lm_moria].to_dict(
-    orient="records")
-expected_outputs_lm_moria = test_data[output_keys_lm_moria].to_dict(
-    orient="records")
+inputs_lm_moria = test_data.loc[:, input_keys_lm_moria].to_dict(orient="records")
+expected_outputs_lm_moria = test_data[output_keys_lm_moria].to_dict(orient="records")
 
 
 @pytest.mark.parametrize("input_data, expected", list(zip(inputs_lm_moria, expected_outputs_lm_moria)))
 def test_limit_state_moria(input_data, expected):
-    """Test limit_state_moria function"""
+    """ Test limit_state_moria function. """
     results = piping_lm.limit_state_moria(**input_data)
     result_keys = CALCULATION_MAPPER["moria"]["system_return_parameter_keys"]
     for index, result_key in enumerate(result_keys):

@@ -168,22 +168,22 @@ expected_outputs_calc_dh_c = data_calc_dh_c[output_key_calc_dh_c].to_dict(
 )
 
 
-@pytest.mark.parametrize(
-    "inputs, expected", zip(inputs_calc_dh_c, expected_outputs_calc_dh_c)
-)
+@pytest.mark.parametrize("inputs, expected", list(zip(inputs_calc_dh_c, expected_outputs_calc_dh_c)))
 def test_calc_dh_c(inputs, expected):
-    """Test calc_dh_c function with multiple test cases from Excel file"""
-    result = piping.calc_dh_c(
-        d70=inputs["d70"],
-        D_wvp=inputs["D_wvp"],
-        kD_wvp=inputs["kD_wvp"],
-        L_kwelweg=inputs["L_kwelweg"],
-        gamma_water=inputs["gamma_water"],
-        g=G,
-        v=V,
-        theta=THETA,
-        eta=ETA,
-        d70_m=D70_M,
-        gamma_korrel=GAMMA_KORREL,
-    )
+    """ Test calc_dh_c function with multiple test cases from Excel file. """
+    # result = piping.calc_dh_c(**inputs)
+    # result = piping.calc_dh_c(
+    #     d70=inputs["d70"],
+    #     D_wvp=inputs["D_wvp"],
+    #     kD_wvp=inputs["kD_wvp"],
+    #     L_kwelweg=inputs["L_kwelweg"],
+    #     gamma_water=inputs["gamma_water"],
+    #     g=G,
+    #     v=V,
+    #     theta=THETA,
+    #     eta=ETA,
+    #     d70_m=D70_M,
+    #     gamma_korrel=GAMMA_KORREL,
+    # )
+    result = piping.calc_dh_c(g=G, v=V, theta=THETA, eta=ETA, d70_m=D70_M, gamma_korrel=GAMMA_KORREL, **inputs)
     assert result == pytest.approx(expected["dh_c"], 0.01)
