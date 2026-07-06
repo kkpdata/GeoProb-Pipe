@@ -24,29 +24,57 @@ def added_vakindeling(app_settings: ApplicationSettings) -> bool:
         check_validity_vakindeling(app_settings=app_settings)
         return True
     else:
-        request_vakindeling_filepath(app_settings)
+        process_import_vakindeling(app_settings)
         return True
 
 
-def check_validity_vakindeling(app_settings: ApplicationSettings):
-    gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="dijktraject")
-    gdf_dijktraject_geom = gdf_dijktraject.iloc[0].geometry
-    if isinstance(gdf_dijktraject_geom, MultiLineString):
-        assert gdf_dijktraject_geom.geoms.__len__() == 1
-        ls_dijktraject: LineString = gdf_dijktraject_geom.geoms[0]
-    elif isinstance(gdf_dijktraject_geom, LineString):
-        ls_dijktraject = gdf_dijktraject_geom
+def process_import_vakindeling(app_settings: ApplicationSettings):
+    file_path = request_vakindeling_filepath()
+    gdf = import_geo_dataframe(filepath=file_path)
+    validate_vakindeling(gdf=gdf)
+    column_name: str = specify_column_with_vaknaam(gdf=gdf)
+    kolom_vak_id: Optional[str] = specify_column_with_vak_id(app_settings, gdf=gdf, kolom_vak_naam=column_name)
+    align_vak_shp_to_dijktraject(
+        app_settings, gdf_vakindeling=gdf, kolom_vak_naam=column_name, kolom_vak_id=kolom_vak_id)
+
+
+def request_vakindeling_filepath() -> str:
+    filepath: Optional[str] = None
+    filepath_is_valid = False
+    while filepath_is_valid is False:
+        filepath: str = inquirer.text(
+            message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
+                    "vakindeling van de dijk zit.",
+        ).execute()
+
+        filepath = filepath.replace('"', '')
+
+        if not (filepath.endswith(".gpkg") or filepath.endswith(".shp") or filepath.endswith(".gdb")):
+            print(BColors.WARNING, f"Het bestand moet of een geopackage, shapefile of geodatabase zijn. Jouw invoer "
+                                   f"eindigt op de extensie .{filepath.split(sep='.')[-1]}.", BColors.ENDC)
+            continue
+        if not os.path.exists(filepath):
+            print(BColors.WARNING, f"Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
+            continue
+
+        filepath_is_valid = True
+
+    return filepath
+
+
+def import_geo_dataframe(filepath: str) -> GeoDataFrame:
+    if filepath.endswith(".shp"):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
+            gdf: GeoDataFrame = read_file(filepath)
+    elif filepath.endswith(".gpkg"):
+        gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
+    elif filepath.endswith(".gdb"):
+        gdf: GeoDataFrame = import_from_geodatabase(filepath=filepath)
     else:
-        raise NotImplementedError(f"Type of '{type(gdf_dijktraject_geom)} is not yet supported. Please contact the "
-                                  f"developer.'")
-    dijktraject_length = round(ls_dijktraject.length, 2)
-
-    gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="vakindeling")
-    vakindeling_geometries = gdf_vakindeling.geometry.tolist()
-    vakindeling_total_length = round(sum([geom.length for geom in vakindeling_geometries]), 2)
-
-    assert dijktraject_length == vakindeling_total_length
-    print(BColors.OKBLUE, f"✔  Vakindeling al toegevoegd.", BColors.ENDC)
+        raise NotImplementedError(f"File with extension {filepath.split(sep='.')[-1]} is not yet supported. "
+                                  f"Please make a request.")
+    return gdf
 
 
 def import_from_geopackage(filepath: str) -> GeoDataFrame:
@@ -105,46 +133,8 @@ def import_from_geodatabase(filepath: str) -> GeoDataFrame:
     return gdf
 
 
-def request_vakindeling_filepath(app_settings: ApplicationSettings):
-    filepath: Optional[str] = None
-    filepath_is_valid = False
-    while filepath_is_valid is False:
-        filepath: str = inquirer.text(
-            message="Specificeer het volledige bestandspad naar de geopackage/shapefile/geodatabase waarin de "
-                    "vakindeling van de dijk zit.",
-        ).execute()
-
-        filepath = filepath.replace('"', '')
-
-        if not (filepath.endswith(".gpkg") or filepath.endswith(".shp") or filepath.endswith(".gdb")):
-            print(BColors.WARNING, f"Het bestand moet of een geopackage, shapefile of geodatabase zijn. Jouw invoer "
-                                   f"eindigt op de extensie .{filepath.split(sep='.')[-1]}.", BColors.ENDC)
-            continue
-        if not os.path.exists(filepath):
-            print(BColors.WARNING, f"Het opgegeven bestandspad bestaat niet.", BColors.ENDC)
-            continue
-
-        filepath_is_valid = True
-
-    if filepath.endswith(".shp"):
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
-            gdf: GeoDataFrame = read_file(filepath)
-        validate_vakindeling(app_settings, gdf=gdf)
-    elif filepath.endswith(".gpkg"):
-        gdf: GeoDataFrame = import_from_geopackage(filepath=filepath)
-        validate_vakindeling(app_settings, gdf=gdf)
-    elif filepath.endswith(".gdb"):
-        gdf: GeoDataFrame = import_from_geodatabase(filepath=filepath)
-        validate_vakindeling(app_settings, gdf=gdf)
-    else:
-        raise NotImplementedError(f"File with extension {filepath.split(sep='.')[-1]} is not yet supported. "
-                                  f"Please make a request.")
-
-
-def validate_vakindeling(app_settings: ApplicationSettings, gdf: GeoDataFrame):
-    """ Validates the vakindeling shape, with some conversions if they can be
-    applied safely. """
+def validate_vakindeling(gdf: GeoDataFrame):
+    """ Validates the vakindeling shape, with some conversions if they can be applied safely. """
 
     # Validate geometry types
     allowed_types = {"LineString", "MultiLineString"}
@@ -167,12 +157,8 @@ def validate_vakindeling(app_settings: ApplicationSettings, gdf: GeoDataFrame):
     assert valid, (f"De vakindeling is niet valide. Ter controle is een poging gedaan of de vakindeling "
                    f"samenvoegbaar is tot één lijn. Dit blijkt niet het geval. Zitten er gaten tussen de vakken?")
 
-    # Continue questioner
-    specify_column_with_vaknaam(app_settings, gdf=gdf)
 
-
-def specify_column_with_vaknaam(
-        app_settings: ApplicationSettings, gdf: GeoDataFrame):
+def specify_column_with_vaknaam(gdf: GeoDataFrame) -> str:
     column_name: Optional[str] = None
     column_name_is_valid = False
     while column_name_is_valid is False:
@@ -199,23 +185,15 @@ def specify_column_with_vaknaam(
         column_name_is_valid = True
 
     column_name: str
-    specify_column_with_vak_id(
-        app_settings, gdf=gdf, kolom_vak_naam=column_name)
-
-
-def is_numeric_integer(val):
-    try:
-        return float(val) % 1 == 0
-    except (ValueError, TypeError):
-        return False
+    return column_name
 
 
 def specify_column_with_vak_id(
-        app_settings: ApplicationSettings, gdf: GeoDataFrame,
-        kolom_vak_naam: str):
+        app_settings: ApplicationSettings, gdf: GeoDataFrame, kolom_vak_naam: str) -> Optional[str]:
     kolom_vak_id: Optional[str] = None
     column_name_is_valid = False
     while column_name_is_valid is False:
+
         kolom_vak_id: str = inquirer.text(
             message="Specificeer de kolom waarin het vak id staat. Indien "
                     "onnodig, type 'nvt'. Type 'listcolumns' om een overzicht "
@@ -228,7 +206,7 @@ def specify_column_with_vak_id(
             align_vak_shp_to_dijktraject(
                 app_settings, gdf_vakindeling=gdf,
                 kolom_vak_naam=kolom_vak_naam, kolom_vak_id=None)
-            return
+            return None
         elif kolom_vak_id == "listcolumns":
             print(BColors.OKBLUE,
                   f"De volgende kolommen zijn beschikbaar in de spatial "
@@ -255,10 +233,7 @@ def specify_column_with_vak_id(
 
         column_name_is_valid = True
 
-    kolom_vak_id: str
-    align_vak_shp_to_dijktraject(
-        app_settings, gdf_vakindeling=gdf, kolom_vak_naam=kolom_vak_naam,
-        kolom_vak_id=kolom_vak_id)
+    return kolom_vak_id
 
 
 def align_vak_shp_to_dijktraject(
@@ -317,3 +292,31 @@ def align_vak_shp_to_dijktraject(
         Path(app_settings.geopackage_filepath),
         layer="vakindeling", driver="GPKG")
     print(BColors.OKBLUE, f"✅  Vakindeling toegevoegd.", BColors.ENDC)
+
+
+def check_validity_vakindeling(app_settings: ApplicationSettings):
+    gdf_dijktraject: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="dijktraject")
+    gdf_dijktraject_geom = gdf_dijktraject.iloc[0].geometry
+    if isinstance(gdf_dijktraject_geom, MultiLineString):
+        assert gdf_dijktraject_geom.geoms.__len__() == 1
+        ls_dijktraject: LineString = gdf_dijktraject_geom.geoms[0]
+    elif isinstance(gdf_dijktraject_geom, LineString):
+        ls_dijktraject = gdf_dijktraject_geom
+    else:
+        raise NotImplementedError(f"Type of '{type(gdf_dijktraject_geom)} is not yet supported. Please contact the "
+                                  f"developer.'")
+    dijktraject_length = round(ls_dijktraject.length, 2)
+
+    gdf_vakindeling: GeoDataFrame = read_file(app_settings.geopackage_filepath, layer="vakindeling")
+    vakindeling_geometries = gdf_vakindeling.geometry.tolist()
+    vakindeling_total_length = round(sum([geom.length for geom in vakindeling_geometries]), 2)
+
+    assert dijktraject_length == vakindeling_total_length
+    print(BColors.OKBLUE, f"✔  Vakindeling al toegevoegd.", BColors.ENDC)
+
+
+def is_numeric_integer(val):
+    try:
+        return float(val) % 1 == 0
+    except (ValueError, TypeError):
+        return False
