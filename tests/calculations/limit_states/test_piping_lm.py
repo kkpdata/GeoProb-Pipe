@@ -137,7 +137,7 @@ inputs_lm_wbi_dict = inputs_lm_wbi.to_dict(orient="records")
 expected_outputs_lm_wbi = test_data[output_keys_lm_wbi].to_dict(orient="records")
 
 
-@pytest.mark.parametrize("input_data, expected", zip(inputs_lm_wbi_dict, expected_outputs_lm_wbi))
+@pytest.mark.parametrize("input_data, expected", list(zip(inputs_lm_wbi_dict, expected_outputs_lm_wbi)))
 def test_limit_state_wbi(input_data, expected):
     """  Test limit_state_wbi function. """
     results = piping_lm.limit_state_wbi(**input_data)
