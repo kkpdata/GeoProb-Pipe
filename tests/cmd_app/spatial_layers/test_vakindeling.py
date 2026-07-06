@@ -53,6 +53,10 @@ def test_vakindeling():
     assert vakindeling_cmd.validity_layer_name_geopackage(filepath_data, "non_existent") is False
     assert vakindeling_cmd.validity_layer_name_geopackage(filepath_data, "vakindeling") is True
 
+    ## Import from geopackage
+
+    _ = vakindeling_cmd.import_from_geopackage(filepath=filepath_data, unit_test_layer_name="vakindeling")
+
     ## Vak indeling ID
 
     # List columns (correct, but for process returns also False)

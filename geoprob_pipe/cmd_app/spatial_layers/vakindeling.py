@@ -94,16 +94,19 @@ def validity_layer_name_geopackage(filepath_geopackage: str, layer_name: str) ->
     return True
 
 
-def import_from_geopackage(filepath: str) -> GeoDataFrame:
-    layer_name: Optional[str] = None
-    layer_name_is_valid = False
-    while layer_name_is_valid is False:
+def request_layer_name_geopackage(filepath: str) -> str:
+    while True:
         layer_name: str = inquirer.text(
             message="Specificeer de laag met de vakindeling. "
-                    "Type 'listlayers' om een overzicht te krijgen van de geopackage-layers. ",
-        ).execute()
+                    "Type 'listlayers' om een overzicht te krijgen van de geopackage-layers. ").execute()
+        if validity_layer_name_geopackage(filepath_geopackage=filepath, layer_name=layer_name):
+            return layer_name
 
 
+def import_from_geopackage(filepath: str, unit_test_layer_name: Optional[str] = None) -> GeoDataFrame:
+    layer_name = unit_test_layer_name
+    if layer_name is None:
+        request_layer_name_geopackage(filepath=filepath)
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="Measured \\(M\\) geometry types are not supported.*")
         gdf: GeoDataFrame = read_file(filepath, layer=layer_name)
