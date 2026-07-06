@@ -217,21 +217,15 @@ def validity_column_vak_id(column_name: str, gdf: GeoDataFrame) -> bool:
 
 
 def specify_column_with_vak_id(gdf: GeoDataFrame) -> Optional[str]:
-    kolom_vak_id: Optional[str] = None
-    column_name_is_valid = False
-    while column_name_is_valid is False:
-
+    while True:
         kolom_vak_id: str = inquirer.text(
             message="Specificeer de kolom waarin het vak id staat. Indien onnodig, type 'nvt'. Type 'listcolumns' om "
-                    "een overzicht te krijgen van de kolommen. ",
-        ).execute()
+                    "een overzicht te krijgen van de kolommen.").execute()
 
         if kolom_vak_id.lower() == "nvt":
             return None
         if validity_column_vak_id(column_name=kolom_vak_id, gdf=gdf):
             return kolom_vak_id
-
-    return kolom_vak_id
 
 
 def align_vak_shp_to_dijktraject(
