@@ -3,15 +3,13 @@ def test_system():
 
     ##
 
-    raise ValueError
-
     from repo_utils.utils import repository_root_path
     from geoprob_pipe import GeoProbPipe
     import os
     repo_root = repository_root_path()
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
-    file_names = ["Traject224_MORIA_WBN_prob.geoprob_pipe.gpkg"]
+    file_names = ["unit_testset_dt224.geoprob_pipe.gpkg"]
 
     for file_name in file_names:
         print(f"\nNow running {file_name}")
