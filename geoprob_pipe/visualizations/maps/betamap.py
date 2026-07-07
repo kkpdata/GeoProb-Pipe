@@ -2,19 +2,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Dict, List, Tuple
 import plotly.graph_objects as go
 import os
-import geopandas as gpd
+from pandas import DataFrame
+from geopandas import GeoDataFrame, read_file
 from shapely.geometry import LineString, MultiLineString, GeometryCollection
-
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
-def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure,
-              layer: str, color: str):
+def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure, layer: str, color: str):
     """ Helperfunctie om de lijnen uit de geopackage te vinden en toe te voegen aan de map. Layer is de naam van de
     laag in de geopackage waar de lijn is opgeslagen. Color is de kleur van deze lijn in de map. """
 
-    gdf_traject = gpd.read_file(
+    gdf_traject = read_file(
         geoprob_pipe.input_data.app_settings.geopackage_filepath,
         layer=layer)
     gdf_traject = gdf_traject.to_crs("EPSG:4326")
@@ -115,28 +114,40 @@ class BetaMap:
 
     def _import_results(self):
         # results import
-        self.inp_point = self.geoprob_pipe.input_data.uittredepunten.gdf
-        self.res_sc = self.geoprob_pipe.results.df_beta_scenarios_final
-        mask = self.inp_point["uittredepunt_id"].isin(self.res_sc["uittredepunt_id"])
-        self.inp_point = self.inp_point[mask]
+        self.gdf_uittredepunten: GeoDataFrame = self.geoprob_pipe.input_data.uittredepunten.gdf
+        self.df_beta_scenarios_final: DataFrame = self.geoprob_pipe.results.df_beta_scenarios_final
+        mask = self.gdf_uittredepunten["uittredepunt_id"].isin(self.df_beta_scenarios_final["uittredepunt_id"])
+        self.gdf_uittredepunten = self.gdf_uittredepunten[mask]
 
         # Setup of beta category limits
-        self.cg: Dict[str, List] = self.geoprob_pipe.input_data.traject_normering.riskeer_categorie_grenzen
-        self.labels: List[str] = list(self.cg.keys())
+        self.categorie_grenzen: Dict[str, List] = self.geoprob_pipe.input_data.traject_normering.riskeer_categorie_grenzen
+        self.labels_categorie_grenzen: List[str] = list(self.categorie_grenzen.keys())
 
     def _setup_gdf(self):
         self.hoverdata = ["uittredepunt_id", "converged", "beta"]
 
-        self.df = self.res_sc.merge(self.inp_point, on="uittredepunt_id", how="inner")
-        idx = self.df.groupby(["uittredepunt_id"])["beta"].idxmin()
-        self.df = self.df.loc[idx]
+        # Prep dataframe
+        df = self.df_beta_scenarios_final.merge(self.gdf_uittredepunten, on="uittredepunt_id", how="inner")
+        print(f"{type(self.gdf_uittredepunten)=}")
+        print(f"{self.gdf_uittredepunten.columns=}")
+        print(f"{self.gdf_uittredepunten.crs=}")
+        print(f"{type(df)=}")
+        print(f"{df.columns=}")
+        gdf = GeoDataFrame(df, geometry="geometry", crs=self.gdf_uittredepunten.crs)
 
-        self.gdf = gpd.GeoDataFrame(
-            self.df,
-            geometry=gpd.points_from_xy(self.inp_point.geometry.x, self.inp_point.geometry.y),
-            crs="EPSG:28992")
+        # Filter uit NAN values TODO: Present nan values in a way?
+        gdf = gdf[~gdf["beta"].isna()]
+
+        # Continue logic
+        idx = gdf.groupby(["uittredepunt_id"])["beta"].idxmin()  # TODO: Unclear what this line adds/does.
+        gdf = gdf.loc[idx]
+
+        # gdf = GeoDataFrame(
+        #     df,
+        #     geometry=points_from_xy(self.gdf_uittredepunten.geometry.x, self.gdf_uittredepunten.geometry.y),
+        #     crs="EPSG:28992")
         # Transformeer naar WGS84 (latitude / longitude)
-        self.gdf_latlon = self.gdf.to_crs("EPSG:4326")
+        self.gdf_latlon = gdf.to_crs("EPSG:4326")
 
     def _determine_zoom(self):
         self.center_lat = self.gdf_latlon.geometry.y.mean()
@@ -180,30 +191,30 @@ class BetaMap:
             marker=dict(
                 size=8,
                 color=self.gdf_latlon['beta'],
-                colorscale=_generate_colorscale(cg=self.cg, labels=self.labels),
-                cmin=self.cg[self.labels[6]][0],
-                cmax=self.cg[self.labels[0]][1],
+                colorscale=_generate_colorscale(cg=self.categorie_grenzen, labels=self.labels_categorie_grenzen),
+                cmin=self.categorie_grenzen[self.labels_categorie_grenzen[6]][0],
+                cmax=self.categorie_grenzen[self.labels_categorie_grenzen[0]][1],
                 colorbar=dict(
                     title="Bèta, WBI cat.",
                     tickvals=[
-                        self.cg[self.labels[6]][0],
-                        self.cg[self.labels[6]][1],
-                        self.cg[self.labels[5]][1],
-                        self.cg[self.labels[4]][1],
-                        self.cg[self.labels[3]][1],
-                        self.cg[self.labels[2]][1],
-                        self.cg[self.labels[1]][1],
-                        self.cg[self.labels[0]][1]
+                        self.categorie_grenzen[self.labels_categorie_grenzen[6]][0],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[6]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[5]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[4]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[3]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[2]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[1]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[0]][1]
                     ],
                     ticktext=[f"{v:.2f}" for v in [
-                        self.cg[self.labels[6]][0],
-                        self.cg[self.labels[6]][1],
-                        self.cg[self.labels[5]][1],
-                        self.cg[self.labels[4]][1],
-                        self.cg[self.labels[3]][1],
-                        self.cg[self.labels[2]][1],
-                        self.cg[self.labels[1]][1],
-                        self.cg[self.labels[0]][1]]],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[6]][0],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[6]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[5]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[4]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[3]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[2]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[1]][1],
+                        self.categorie_grenzen[self.labels_categorie_grenzen[0]][1]]],
                     )
                 ),
             hoverinfo='text',
