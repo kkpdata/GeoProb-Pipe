@@ -1,11 +1,10 @@
 from __future__ import annotations
 from dataclasses import dataclass
-import math
 from typing import Optional, List, Tuple, cast
 from geoprob_pipe.results.assemblage.functions import bepaal_N_vak
 import scipy.stats as stats  # importeer de scipy.stats module
-from geoprob_pipe.results.assemblage.functions import (
-    combine_series, window_collect, scaled_collect)
+from geoprob_pipe.results.assemblage.functions import combine_series, window_collect, scaled_collect
+import numpy as np
 
 
 @dataclass
@@ -23,27 +22,24 @@ class KansElement:
 
     def __post_init__(self):
 
-        if self.pf is not None:
+        pf_is_nan = self.pf is None or np.isnan(self.pf)
+        beta_is_nan = self.beta is None or np.isnan(self.beta)
+
+        if not pf_is_nan:
             if not (0.0 <= self.pf <= 1.0):
-                raise ValueError(f"pof moet tussen 0.0 en 1.0 liggen. Huidige waarde is {self.pf}")
+                raise ValueError(
+                    f"pof moet tussen 0.0 en 1.0 liggen. Huidige waarde is {self.pf}. Beta waarde is {self.beta}.")
 
-        # if self.beta is not None:
-        #     if not math.isfinite(self.beta):
-        #         raise ValueError("beta moet een eindige waarde zijn.")
-        #     if (-38.0 <= self.beta <= 38.0) is False:
-        #         raise ValueError("beta moet tussen -38.0 en 38.0 liggen.")
-
-        if self.pf is None and self.beta is not None:
+        if pf_is_nan and not beta_is_nan:
             self.pf = float(stats.norm.cdf(-1.0 * self.beta))
 
-        if self.beta is None and self.pf is not None:
+        if beta_is_nan and not pf_is_nan:
             self.beta = -1.0 * float(stats.norm.ppf(self.pf))
 
 
 @dataclass
 class UittredepuntElement:
-    """DataClass om alle relevante data van een uittredepunt te verzamelen.
-    """
+    """ DataClass om alle relevante data van een uittredepunt te verzamelen. """
     m_value: float
     a: float
     converged: bool
@@ -54,29 +50,26 @@ class UittredepuntElement:
 
     def __post_init__(self):
 
-        if self.pf is not None:
+        pf_is_nan = self.pf is None or np.isnan(self.pf)
+        beta_is_nan = self.beta is None or np.isnan(self.beta)
+
+        # Validate pof value
+        if not pf_is_nan:
             if not (0.0 <= self.pf <= 1.0):
-                raise ValueError(f"pof moet tussen 0.0 en 1.0 liggen. Huidige waarde is {self.pf}")
+                raise ValueError(
+                    f"De pof moet tussen 0.0 en 1.0 liggen. Huidige waarde is {self.pf}. Beta waarde is {self.beta}.")
 
-        # if self.beta is not None:
-        #     if not math.isfinite(self.beta):
-        #         raise ValueError("beta moet een eindige waarde zijn.")
-        #     if (-38.0 <= self.beta <= 38.0) is False:
-        #         raise ValueError("beta moet tussen -38.0 en 38.0 liggen.")
-
-        if self.pf is None and self.beta is not None:
+        if pf_is_nan and not beta_is_nan:
             self.pf = float(stats.norm.cdf(-1.0 * self.beta))
 
-        if self.beta is None and self.pf is not None:
+        if beta_is_nan and not pf_is_nan:
             self.beta = -1.0 * float(stats.norm.ppf(self.pf))
 
 
 @dataclass
 class VakElement:
-    """ DataClass om alle relevante data van een vak te verzamelen.
-    Vanuit deze class kunnen de verschillende methoden om tot een faalkans van
-    het vak worden bepaald.
-    """
+    """ DataClass om alle relevante data van een vak te verzamelen. Vanuit deze class kunnen de verschillende methoden
+    om tot een faalkans van het vak worden bepaald. """
     id: int
     m_van: float  # Locatie van het begin van het element [meters]
     m_tot: float  # Locatie van het einde van het element [meters]
@@ -139,21 +132,14 @@ class VakElement:
     # vak: moving window met variable lengtes
     def pf_window(self, window_size: float):
         pf_sum, pf_max, window_elements = window_collect(
-            window_size=window_size, point_list=self.dsn_list,
-            m_van=self.m_van, m_tot=self.m_tot, vak_id=self.id
-            )
-        """Helper om de `window_collect` functie op te zetten voor alle
-        attributen.
-        """
+            window_size=window_size, point_list=self.dsn_list, m_van=self.m_van, m_tot=self.m_tot, vak_id=self.id)
+        """ Helper om de `window_collect` functie op te zetten voor alle attributen. """
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
     @property
-    def pf_scaled(self) -> Tuple[KansElement, KansElement,
-                                 List[WindowElement]]:
+    def pf_scaled(self) -> Tuple[KansElement, KansElement, List[WindowElement]]:
         pf_sum, pf_max, window_elements = scaled_collect(
-            self.delta_length, self.dsn_list, self.m_van,
-            self.m_tot, vak_id=self.id
-        )
+            self.delta_length, self.dsn_list, self.m_van, self.m_tot, vak_id=self.id)
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
 
@@ -205,24 +191,19 @@ class WindowElement:
         if isinstance(self._m_uittredepunt, float):
             return self._m_uittredepunt
         else:
-            raise AttributeError(
-                "No attribute m_uittredepunt specified in object."
-                )
+            raise AttributeError("No attribute m_uittredepunt specified in object.")
 
     @property
     def n_vak(self) -> float:
         if isinstance(self._n_vak, float):
             return self._n_vak
         else:
-            raise AttributeError(
-                "No attribute N_vak specified in object."
-                )
+            raise AttributeError("No attribute N_vak specified in object.")
 
 
 @dataclass
 class TrajectElement:
-    """DataClass om de data van het traject te verzamelen.
-    """
+    """ DataClass om de data van het traject te verzamelen. """
     list_vakken: list[VakElement]
     list_dsn: list[UittredepuntElement]
     delta_length: float
@@ -256,18 +237,12 @@ class TrajectElement:
     # traject: moving window met variable lengtes
     def pf_window(self, window_size: float) -> Tuple[KansElement, KansElement, List[WindowElement]]:
         pf_sum, pf_max, window_elements = window_collect(
-            window_size=window_size, point_list=self.list_dsn,
-            m_van=self.m_van, m_tot=self.m_tot, vak_id=None
-            )
-        """Helper om de `window_collect` functie op te zetten voor alle
-        attributen.
-        """
+            window_size=window_size, point_list=self.list_dsn, m_van=self.m_van, m_tot=self.m_tot, vak_id=None)
+        """ Helper om de `window_collect` functie op te zetten voor alle attributen. """
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
 
     @property
-    def pf_scaled(self) -> Tuple[KansElement, KansElement,
-                                 List[WindowElement]]:
+    def pf_scaled(self) -> Tuple[KansElement, KansElement, List[WindowElement]]:
         pf_sum, pf_max, window_elements = scaled_collect(
-            dL=self.delta_length, point_list=self.list_dsn,
-            m_van=self.m_van, m_tot=self.m_tot, vak_id=None)
+            dL=self.delta_length, point_list=self.list_dsn, m_van=self.m_van, m_tot=self.m_tot, vak_id=None)
         return KansElement(pf=pf_sum), KansElement(pf=pf_max), window_elements
