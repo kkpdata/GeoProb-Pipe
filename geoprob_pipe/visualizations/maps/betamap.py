@@ -9,6 +9,22 @@ if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
 
+def _calculate_zoom(lat_range, lon_range):
+    max_range = max(lat_range, lon_range)
+    if max_range < 0.01:
+        return 15
+    elif max_range < 0.05:
+        return 13
+    elif max_range < 0.1:
+        return 12
+    elif max_range < 0.5:
+        return 10
+    elif max_range < 1.0:
+        return 9
+    else:
+        return 8
+
+
 def _add_line(geoprob_pipe: GeoProbPipe, fig: go.Figure, layer: str, color: str):
     """ Helperfunctie om de lijnen uit de geopackage te vinden en toe te voegen aan de map. Layer is de naam van de
     laag in de geopackage waar de lijn is opgeslagen. Color is de kleur van deze lijn in de map. """
@@ -128,11 +144,6 @@ class BetaMap:
 
         # Prep dataframe
         df = self.df_beta_scenarios_final.merge(self.gdf_uittredepunten, on="uittredepunt_id", how="inner")
-        print(f"{type(self.gdf_uittredepunten)=}")
-        print(f"{self.gdf_uittredepunten.columns=}")
-        print(f"{self.gdf_uittredepunten.crs=}")
-        print(f"{type(df)=}")
-        print(f"{df.columns=}")
         gdf = GeoDataFrame(df, geometry="geometry", crs=self.gdf_uittredepunten.crs)
 
         # Filter uit NAN values TODO: Present nan values in a way?
@@ -141,36 +152,16 @@ class BetaMap:
         # Continue logic
         idx = gdf.groupby(["uittredepunt_id"])["beta"].idxmin()  # TODO: Unclear what this line adds/does.
         gdf = gdf.loc[idx]
-
-        # gdf = GeoDataFrame(
-        #     df,
-        #     geometry=points_from_xy(self.gdf_uittredepunten.geometry.x, self.gdf_uittredepunten.geometry.y),
-        #     crs="EPSG:28992")
-        # Transformeer naar WGS84 (latitude / longitude)
         self.gdf_latlon = gdf.to_crs("EPSG:4326")
 
     def _determine_zoom(self):
         self.center_lat = self.gdf_latlon.geometry.y.mean()
         self.center_lon = self.gdf_latlon.geometry.x.mean()
+
         self.min_lat = self.gdf_latlon.geometry.y.min()
         self.max_lat = self.gdf_latlon.geometry.y.max()
         self.min_lon = self.gdf_latlon.geometry.x.min()
         self.max_lon = self.gdf_latlon.geometry.x.max()
-
-        def _calculate_zoom(lat_range, lon_range):
-            max_range = max(lat_range, lon_range)
-            if max_range < 0.01:
-                return 15
-            elif max_range < 0.05:
-                return 13
-            elif max_range < 0.1:
-                return 12
-            elif max_range < 0.5:
-                return 10
-            elif max_range < 1.0:
-                return 9
-            else:
-                return 8
 
         self.lat_range = self.max_lat - self.min_lat
         self.lon_range = self.max_lon - self.min_lon
