@@ -1,5 +1,7 @@
 
 CHANGELOG = {
+    "2.2.11":
+        "Bug fix. When there were NaN-calculation results (PoF), it resulted in a crash in the KansElement.",
     "2.2.10":
         "Bug fix en added validation. Traject probability of failure kon net boven 1.0 uitkomen door de toegepaste "
         "rekentechniek. Daarnaast om het gebruik van de applicatie te verbeteren extra validatie toegepast, zoals dat "
