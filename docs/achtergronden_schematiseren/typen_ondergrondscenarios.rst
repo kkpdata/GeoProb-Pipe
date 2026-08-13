@@ -8,7 +8,7 @@ ligging en de eigenschappen van watervoerende zandlaag van belang. In hoofdlijn 
 - Holoceen gefundeerd (HLF): Hierbij zit de deklaag boven een holocene zandlaag welke samen met de onderliggende 
   pleistocene zandlaag het watervoerend pakket vormen.
 - Pleistoceen (PL): Hierbij ligt de deklaag direct boven op een pleistocene zandlaag.
-- Tussenzandlaag: Hierbij is er nog een tussenzandlaag aanwezig omsloten door de deklaag en een andere kleilaag. 
+- Tussenzandlaag (TZ): Hierbij is er nog een tussenzandlaag aanwezig omsloten door de deklaag en een andere kleilaag. 
   Deze is niet in direct contact met het pleistocene watervoerend pakket.
 
 Een kenmerk van ondergrondscenario's is dat ze elkaar uitsluiten. Ter plaatse van een uittredepunt komt of het ene 

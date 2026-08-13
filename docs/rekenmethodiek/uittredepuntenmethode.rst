@@ -20,6 +20,3 @@ De rekenmethodiek volgt de schematiseringshandleiding :cite:t:`sh_piping_2021` e
 * Eigenschappen van de ondergrond worden, afhankelijk van de beschikbare data, op verschillende manieren gekoppeld aan de uittredepunten. Dit kan zijn door uitgangspunten op vakniveau te definiëren, of door gebruik van grids.
 * Het combineren van de verschillende uitgangspunten heeft tot doel om een passende schematisatie per uittredepunt te maken.
 
-
-
-Meer informatie over de rekenmethodiek is te vinden in de :ref:`Rekenmethodiek <rekenmethodiek>`.
