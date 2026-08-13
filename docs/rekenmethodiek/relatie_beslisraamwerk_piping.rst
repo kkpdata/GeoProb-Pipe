@@ -11,6 +11,8 @@ DDeze documentatie beschrijft hoe deze aspecten rekenkundig kunnen worden meegen
 in de overstromingskansberekening met ``GeoProb-Pipe``. Het kennisniveau van elk aspect
 bepaalt in welke mate het kan worden geïmplementeerd.
 
+#TODO: plaatjes van BRP toevoegen
+
 1. *Opbarsten: Sterkte deklaag*
 Het is erg aannemelijk dat de deklaag enige weerstand tegen scheuren biedt.
 Omdat de scheurbestendigheid nog niet kwantitatief kan worden bepaald en er geen gevalideerd model beschikbaar is,
