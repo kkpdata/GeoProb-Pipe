@@ -99,8 +99,7 @@ def _add_hrd_locations_to_database(app_settings: ApplicationSettings, hrd_dir: s
     if not success:
         print(f"{BColors.WARNING}"
               f"Er zijn één of meerdere dubbelingen in de HRD-locaties. "
-              f"Uit de validatie volgt het volgende bericht: "
-              f"{failure_msg} "
+              f"Uit de validatie volgt het volgende bericht: {failure_msg} "
               f"Corrigeer de HRD-database, of vul de overschrijdingsfrequentielijnen handmatig in. "
               f"{BColors.ENDC}")
 

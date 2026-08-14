@@ -7,6 +7,8 @@ from geoprob_pipe.cmd_app.spatial_layers.uittredepunten.alg_walking_circles impo
 from shapely import Point
 from geopandas import GeoDataFrame, read_file
 import fiona
+
+from geoprob_pipe.utils.gdf import validate_unique_point_locations
 from geoprob_pipe.utils.validation_messages import BColors
 import warnings
 if TYPE_CHECKING:
@@ -187,6 +189,16 @@ def request_uittredepunten_filepath(app_settings: ApplicationSettings):
     if not all_geometries_are_points:
         print(BColors.WARNING, f"Het geïmporteerde bestand bestaat niet (volledig) uit punten, maar ook uit "
                                f"andere typen geometrie. Enkel punten zijn toegestaan.", BColors.ENDC)
+        request_uittredepunten_filepath(app_settings=app_settings)
+
+    # Confirm all are unique locations
+    succes, failure_msg = validate_unique_point_locations(gdf=gdf, return_coords=True)
+    if not succes:
+        print(f"{BColors.WARNING}"
+              f"Er zijn één of meerdere dubbelingen in de uittredepunten-locaties. "
+              f"Uit de validatie volgt het volgende bericht: {failure_msg} "
+              f"Corrigeer het bestand en importeer opnieuw de uittredepunten. "
+              f"{BColors.ENDC}")
         request_uittredepunten_filepath(app_settings=app_settings)
 
     # Continue questionnaire
