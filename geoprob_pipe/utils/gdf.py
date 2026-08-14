@@ -55,3 +55,17 @@ def validate_vakindeling_merges_to_single_linestring(gdf: GeoDataFrame) -> Tuple
     """ Controleert of alle LineStrings aaneengesloten zijn. """
     merged = line_merge(unary_union(gdf.geometry))
     return isinstance(merged, LineString), type(merged)
+
+
+def validate_unique_point_locations(gdf: GeoDataFrame, id_column: str) -> Tuple[bool, str]:
+    """ Validates if the given GeoDataFrame has only unique point-locations. If not, it returns a failure message
+    with in there the non-unique ids. """
+
+    filter_duplicate_geometries = gdf.geometry.duplicated(keep=False)
+    gdf_duplicates = gdf[filter_duplicate_geometries]
+
+    if gdf_duplicates.__len__() == 0:
+        return True, ""
+
+    non_unique_ids = gdf_duplicates[id_column].values.tolist()
+    return False, f"Identifiers {non_unique_ids} have non-unique geometries."
