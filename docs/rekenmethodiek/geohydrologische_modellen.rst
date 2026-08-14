@@ -68,9 +68,12 @@ waarin:
 - :math:`c_{achterland}` de weerstand van de deklaag in het achterland [dag]
 
 
+.. _effectieve-voorlandlengte:
+
 Effectieve voorlandlengte
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-De kwelweglengte :math:`L_{kwelweg}` maakt conform de schematiseringshandleiding piping :cite:`sh_piping_2021` gebruik van het principe van de effectieve voorlandlengte.
+De kwelweglengte :math:`L_{kwelweg}` maakt conform de schematiseringshandleiding piping :cite:`sh_piping_2021` gebruik 
+van het principe van de effectieve voorlandlengte.
 
 .. math::
 
