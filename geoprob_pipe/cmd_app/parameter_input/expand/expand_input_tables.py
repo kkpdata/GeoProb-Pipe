@@ -1,30 +1,38 @@
-from typing import Dict, List, Optional
-from pandas import DataFrame, notna, concat, read_sql, read_csv, set_option
-import sqlite3
-import numpy as np
 import os
+import sqlite3
+from typing import Dict, List, Optional
+
+import numpy as np
 import scipy.stats as sct
 from geopandas import GeoDataFrame, read_file
-from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
+from pandas import DataFrame, concat, notna, read_csv, read_sql, set_option
 from probabilistic_library import FragilityValue
-from ._expand import _expand
+
+from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import (
+    InputParameterTables,
+)
+from geoprob_pipe.cmd_app.validation.validate_expanded_table import validate_expand_tables
+
+from .expand_dataframes import expand_input_dataframes
 
 
 def _combine_parameter_invoer_sources(tables: InputParameterTables) -> DataFrame:
-    """ Combineert de geo-gerefereerde parameter invoer met de handmatige invoer die oorspronkelijk uit de Excel kwam.
-    Zodoende kan vanuit één dataframe de invoer geëxplodeerd worden naar invoer per uittredepunt. """
+    """Combineert de geo-gerefereerde parameter invoer met de handmatige invoer die oorspronkelijk uit de Excel kwam.
+    Zodoende kan vanuit één dataframe de invoer geëxplodeerd worden naar invoer per uittredepunt."""
 
     # Gather raw data
     df_gis_join_parameter_invoer = tables.df_gis_join_parameter_invoer
-    df_gis_join_parameter_invoer['scope'] = 'gis_uittredepunt'
+    df_gis_join_parameter_invoer["scope"] = "gis_uittredepunt"
     df_parameter_invoer = tables.df_parameter_invoer
 
     # Concatenate
     import warnings
+
     with warnings.catch_warnings():
-        warnings.simplefilter(action='ignore', category=FutureWarning)
+        warnings.simplefilter(action="ignore", category=FutureWarning)
         df_parameter_invoer_combined = concat(
-            [df_gis_join_parameter_invoer, df_parameter_invoer], ignore_index=True)
+            [df_gis_join_parameter_invoer, df_parameter_invoer], ignore_index=True
+        )
 
     return df_parameter_invoer_combined
 
@@ -34,12 +42,13 @@ def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
     conn = sqlite3.connect(geopackage_filepath)
     df_frag_line: DataFrame = read_sql(
         sql=f"SELECT * FROM fragility_values_invoer_hrd WHERE fragility_values_ref = '{ref}' AND kans < 1.0;",
-        con=conn)
+        con=conn,
+    )
     conn.close()
 
     # Filter beta > 8 (probabilistic library cannot work with that in 26.1.1)
-    df_frag_line['beta'] = -sct.norm.ppf(df_frag_line['kans'])
-    df_frag_line = df_frag_line[df_frag_line['beta'] < 8.0].copy(deep=True)
+    df_frag_line["beta"] = -sct.norm.ppf(df_frag_line["kans"])
+    df_frag_line = df_frag_line[df_frag_line["beta"] < 8.0].copy(deep=True)
     df_frag_line = df_frag_line.drop(columns=["beta"])
 
     # Validate
@@ -60,7 +69,7 @@ def _gather_hrd_frag_line_from_geopackage(ref: str, geopackage_filepath: str):
 
 
 def _gather_other_freq_line(ref: str, tables: InputParameterTables):
-    """ Gather a freq line that is not from the HRD-database, and not from a .csv-file. It originates from the Excel,
+    """Gather a freq line that is not from the HRD-database, and not from a .csv-file. It originates from the Excel,
     either directly from the Excel, or imported into the 'fragility_values_invoer_hrd'-database table.
 
     :param ref:
@@ -72,8 +81,8 @@ def _gather_other_freq_line(ref: str, tables: InputParameterTables):
     df_frag_line = df_data[df_data["fragility_values_ref"] == ref].copy(deep=True)
 
     # Filter beta > 8 (probabilistic library cannot work with that in 26.1.1)
-    df_frag_line['beta'] = -sct.norm.ppf(df_frag_line['kans'])
-    df_frag_line = df_frag_line[df_frag_line['beta'] < 8.0].copy(deep=True)
+    df_frag_line["beta"] = -sct.norm.ppf(df_frag_line["kans"])
+    df_frag_line = df_frag_line[df_frag_line["beta"] < 8.0].copy(deep=True)
     df_frag_line = df_frag_line.drop(columns=["beta"])
 
     # Validate
@@ -102,7 +111,8 @@ def _gather_frag_line_from_csv(csv_file_name: str, geopackage_filepath: str):
     if not os.path.exists(path_to_csv):
         raise FileNotFoundError(
             f"CSV-file with fragility curve not found for reference '{csv_file_name}'. Please make sure to place your "
-            f"csv-files at the following location: \n{csv_dir}")
+            f"csv-files at the following location: \n{csv_dir}"
+        )
     df_frag_line = read_csv(path_to_csv, sep=",")
 
     # Validate
@@ -123,9 +133,11 @@ def _gather_frag_line_from_csv(csv_file_name: str, geopackage_filepath: str):
 
 
 def _collect_fragility_values(
-        tables: InputParameterTables, fragility_refs: List[str], geopackage_filepath: str,
+    tables: InputParameterTables,
+    fragility_refs: List[str],
+    geopackage_filepath: str,
 ) -> DataFrame:
-    """ Collects the fragility values from the different sources. The sources are (a) the HRD-file, (b) the Excel input
+    """Collects the fragility values from the different sources. The sources are (a) the HRD-file, (b) the Excel input
     file, and (c) the csv folder.
 
     :param tables:
@@ -136,31 +148,44 @@ def _collect_fragility_values(
 
     # Non-HRD and non-csv available freqs
     df_frag_invoer = tables.df_fragility_values_invoer
-    available_frag_invoer_refs = df_frag_invoer['fragility_values_ref'].unique()
+    available_frag_invoer_refs = df_frag_invoer["fragility_values_ref"].unique()
 
     # Collect freqs
     return_array = []
     for fragility_ref in fragility_refs:
-
         # From .csv-file (not stored in GeoPackage)
         if fragility_ref.endswith(".csv"):
-            return_array.append({
-                "fragility_values_ref": fragility_ref,
-                "fragility_values": _gather_frag_line_from_csv(
-                    csv_file_name=fragility_ref, geopackage_filepath=geopackage_filepath)})
+            return_array.append(
+                {
+                    "fragility_values_ref": fragility_ref,
+                    "fragility_values": _gather_frag_line_from_csv(
+                        csv_file_name=fragility_ref,
+                        geopackage_filepath=geopackage_filepath,
+                    ),
+                }
+            )
 
         # From HRD-database (previously stored in GeoPackage)
         elif fragility_ref not in available_frag_invoer_refs:
-            return_array.append({
-                "fragility_values_ref": fragility_ref,
-                "fragility_values": _gather_hrd_frag_line_from_geopackage(
-                    ref=fragility_ref, geopackage_filepath=geopackage_filepath)})
+            return_array.append(
+                {
+                    "fragility_values_ref": fragility_ref,
+                    "fragility_values": _gather_hrd_frag_line_from_geopackage(
+                        ref=fragility_ref, geopackage_filepath=geopackage_filepath
+                    ),
+                }
+            )
 
         # Otherwise, retrieve custom curve from Excel (previously stored in GeoPackage)
         else:
-            return_array.append({
-                "fragility_values_ref": fragility_ref,
-                "fragility_values": _gather_other_freq_line(ref=fragility_ref, tables=tables)})
+            return_array.append(
+                {
+                    "fragility_values_ref": fragility_ref,
+                    "fragility_values": _gather_other_freq_line(
+                        ref=fragility_ref, tables=tables
+                    ),
+                }
+            )
 
     # Build dataframe
     if return_array.__len__() == 0:
@@ -170,28 +195,40 @@ def _collect_fragility_values(
 
 
 def _add_fragility_values_to_combined_parameter_invoer(
-        df_parameter_invoer_combined: DataFrame, tables: InputParameterTables,
-        geopackage_filepath: str, drop_ref: bool = True) -> DataFrame:
-    """ Haalt uit de fragility values Excel de arrays op en vervang in de df_parameter_invoer_combined de referentie
-    met de daadwerkelijke fragility values. """
+    df_parameter_invoer_combined: DataFrame,
+    tables: InputParameterTables,
+    geopackage_filepath: str,
+    drop_ref: bool = True,
+) -> DataFrame:
+    """Haalt uit de fragility values Excel de arrays op en vervang in de df_parameter_invoer_combined de referentie
+    met de daadwerkelijke fragility values."""
 
     df = df_parameter_invoer_combined.copy(deep=True)
 
     # Replace empty values with NaN
-    set_option('future.no_silent_downcasting', True)
-    new_series = df['fragility_values_ref'].replace('', np.nan).infer_objects(copy=False)
-    df['fragility_values_ref'] = new_series
+    set_option("future.no_silent_downcasting", True)
+    new_series = (
+        df["fragility_values_ref"].replace("", np.nan).infer_objects(copy=False)
+    )
+    df["fragility_values_ref"] = new_series
 
     # Gather referenced fragility value refs
-    fragility_refs = df['fragility_values_ref'].dropna().unique()
+    fragility_refs = df["fragility_values_ref"].dropna().unique()
 
     # Collect fragility lines
     df_frag_lines = _collect_fragility_values(
-        tables=tables, fragility_refs=fragility_refs, geopackage_filepath=geopackage_filepath)
+        tables=tables,
+        fragility_refs=fragility_refs,
+        geopackage_filepath=geopackage_filepath,
+    )
 
     # Attach to parameter invoer df
     df = df.merge(
-        df_frag_lines, left_on="fragility_values_ref", right_on="fragility_values_ref", how="left")
+        df_frag_lines,
+        left_on="fragility_values_ref",
+        right_on="fragility_values_ref",
+        how="left",
+    )
 
     if drop_ref:
         df = df.drop(columns=["fragility_values_ref"])
@@ -199,49 +236,83 @@ def _add_fragility_values_to_combined_parameter_invoer(
     return df
 
 
-def _collect_right_columns_combined_parameter_invoer(df_parameter_invoer_combined: DataFrame) -> DataFrame:
-    """ Parameter tabel omzetten naar juiste kolommen. Enkel per uittredepunt, scenario en parameter de
-    parameterinvoer. """
+def _collect_right_columns_combined_parameter_invoer(
+    df_parameter_invoer_combined: DataFrame,
+) -> DataFrame:
+    """Parameter tabel omzetten naar juiste kolommen. Enkel per uittredepunt, scenario en parameter de
+    parameterinvoer."""
 
     # Add parameter invoer: op uittredepunten niveau
-    df_parameter_invoer_combined = df_parameter_invoer_combined.drop(columns=["bronnen", "opmerking"])
+    df_parameter_invoer_combined = df_parameter_invoer_combined.drop(
+        columns=["bronnen", "opmerking"]
+    )
     parameter_description_columns = [
-        "distribution_type", "mean", "variation", "deviation", "minimum", "maximum", "fragility_values"]
+        "distribution_type",
+        "mean",
+        "variation",
+        "deviation",
+        "minimum",
+        "maximum",
+        "fragility_values",
+    ]
     if "fragility_values_ref" in df_parameter_invoer_combined.columns:
         parameter_description_columns.append("fragility_values_ref")
-    df_parameter_invoer_combined['parameter_input'] = df_parameter_invoer_combined.apply(lambda row: {
-        k: row[k] for k in parameter_description_columns if isinstance(row[k], list) or notna(row[k])
-    }, axis=1)
-    df_parameter_invoer_combined = df_parameter_invoer_combined.drop(columns=parameter_description_columns)
+    df_parameter_invoer_combined["parameter_input"] = (
+        df_parameter_invoer_combined.apply(
+            lambda row: {
+                k: row[k]
+                for k in parameter_description_columns
+                if isinstance(row[k], list) or notna(row[k])
+            },
+            axis=1,
+        )
+    )
+    df_parameter_invoer_combined = df_parameter_invoer_combined.drop(
+        columns=parameter_description_columns
+    )
     return df_parameter_invoer_combined
 
 
 def _construct_df_identifiers(geopackage_filepath: str, tables: InputParameterTables):
-    """ Create identifiers table.
+    """Create identifiers table.
 
     The identifiers table is a table with unique rows (unique uittredepunt, vak and scenario combo). It is used as a
-    base to explode to input per scenario and uittredepunt. """
+    base to explode to input per scenario and uittredepunt."""
 
-    gdf_uittredepunten: GeoDataFrame = read_file(geopackage_filepath, layer="uittredepunten")
+    gdf_uittredepunten: GeoDataFrame = read_file(
+        geopackage_filepath, layer="uittredepunten"
+    )
     df_identifiers: DataFrame = gdf_uittredepunten[["uittredepunt_id", "vak_id"]]
     df_scenario_invoer: DataFrame = tables.df_scenario_invoer
-    df_identifiers = df_identifiers.merge(df_scenario_invoer, left_on="vak_id", right_on="vak_id")
+    df_identifiers = df_identifiers.merge(
+        df_scenario_invoer, left_on="vak_id", right_on="vak_id"
+    )
     df_identifiers = df_identifiers.drop(columns=["kans"])
     return df_identifiers
 
 
 def _concat_collection(collection: Dict[str, DataFrame]):
     for parameter_name, df in collection.items():
-        collection[parameter_name]['parameter_name'] = parameter_name
+        collection[parameter_name]["parameter_name"] = parameter_name
     return_df = concat([df for _, df in collection.items()], ignore_index=True)
     return_df = return_df.rename(columns={"naam": "ondergrondscenario_naam"})
-    return return_df[["parameter_name", "vak_id", "uittredepunt_id", "ondergrondscenario_naam", "parameter_input"]]
+    return return_df[
+        [
+            "parameter_name",
+            "vak_id",
+            "uittredepunt_id",
+            "ondergrondscenario_naam",
+            "parameter_input",
+        ]
+    ]
 
 
 def run_expand_input_tables(
-        geopackage_filepath: str, add_frag_ref: bool = False, tables: Optional[InputParameterTables] = None,
+    geopackage_filepath: str,
+    add_frag_ref: bool = False,
+    tables: Optional[InputParameterTables] = None,
 ) -> DataFrame:
-    """ Performs logic to expand all parameter input from different levels to input on uittredepunt-level.
+    """Performs logic to expand all parameter input from different levels to input on uittredepunt-level.
 
     :param geopackage_filepath:
     :param add_frag_ref: Indien True, dan wordt voor parameter input met een distribution_type 'cdf_curve' de referentie
@@ -257,16 +328,25 @@ def run_expand_input_tables(
     # Construct df_parameter_invoer_combined
     df_parameter_invoer_combined1 = _combine_parameter_invoer_sources(tables=tables)
     df_parameter_invoer_combined2 = _add_fragility_values_to_combined_parameter_invoer(
-        df_parameter_invoer_combined=df_parameter_invoer_combined1, tables=tables,
-        geopackage_filepath=geopackage_filepath, drop_ref=add_frag_ref==False)
+        df_parameter_invoer_combined=df_parameter_invoer_combined1,
+        tables=tables,
+        geopackage_filepath=geopackage_filepath,
+        drop_ref=add_frag_ref == False,
+    )
     df_parameter_invoer_combined3 = _collect_right_columns_combined_parameter_invoer(
-        df_parameter_invoer_combined=df_parameter_invoer_combined2)
+        df_parameter_invoer_combined=df_parameter_invoer_combined2
+    )
 
     # Expand
-    df_identifiers = _construct_df_identifiers(geopackage_filepath=geopackage_filepath, tables=tables)
-    collection: Dict[str, DataFrame] = _expand(
+    df_identifiers = _construct_df_identifiers(
+        geopackage_filepath=geopackage_filepath, tables=tables
+    )
+    collection: Dict[str, DataFrame] = expand_input_dataframes(
         df_parameter_invoer_combined=df_parameter_invoer_combined3,
         df_identifiers=df_identifiers,
-        geopackage_filepath=geopackage_filepath)
-
-    return _concat_collection(collection=collection)
+        geopackage_filepath=geopackage_filepath,
+    )
+    collected_input = _concat_collection(collection=collection)
+    # Temporary location of validation check.
+    validate_expand_tables(tables, collected_input)
+    return collected_input
