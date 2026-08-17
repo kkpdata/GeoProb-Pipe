@@ -174,6 +174,32 @@ def _merge_utp_excel_scen(
     return df_compare
 
 
+def has_priority_error(row) -> bool:
+    """This function will check for all rows where the first True-value
+    in the row is, starting from the right to the left.
+    Values can be True, False or None.
+    
+    In the case of None; no value was provided at this level.
+    True means the value  provided matches the value in the expanded table
+    And False means the value does not match the value in the expanded table.
+    If true is found it will check if any of the values to the right are False.
+    If one of these is found, there was a value found higher in the hierarchy that
+    was unused.
+
+    :param row: Row from the DataFrame
+    :return: True if error found, else false
+    """
+    # Find de column index van True met de hoogste plaats in de hierarchy.
+    last_true_idx: int = max(
+        (i for i, value in enumerate(row) if value is True),
+        default=-1,
+    )
+
+    values_after_last_true = row[last_true_idx + 1 :]
+
+    return any(value is False for value in values_after_last_true)
+
+
 def validate_expand_tables(
     tables: InputParameterTables, df_expanded: pd.DataFrame
 ) -> None:
@@ -187,7 +213,7 @@ def validate_expand_tables(
     df_excel: pd.DataFrame = tables.df_parameter_invoer.copy()
     df_gis: pd.DataFrame = tables.df_gis_join_parameter_invoer.copy()
 
-    # Remove empty columns
+    # Remove empty columns for pandas.concat.
     df_excel = df_excel.dropna(axis=1, how="all")
     df_gis = df_gis.dropna(axis=1, how="all")
 
@@ -270,21 +296,8 @@ def validate_expand_tables(
 
     arr = df_check[cols].to_numpy(dtype=object)
 
-    # This list comprehension will check for all rows where the first True value
-    # in the row is. Starting from the right to the left. values can be True, False or None.
-    # In the case of None; no value was provided at this level. true means the value
-    # provided matches the value in the expanded table and False means the value does not match.
-    # If true is found it will check if any of the values to the right are False.
-    # If one of these is found there is a value found higher in the hierarchy that
-    # was unused.
-    # TODO Rewrite this into something more readable.
     df_errors["priority_error"] = [
-        any(
-            v is False
-            for v in row[
-                (max([i for i, x in enumerate(row) if x is True], default=-1) + 1) :
-            ]
-        )
+        has_priority_error(row)
         for row in arr
     ]
     # FIXME Temporary fix for the 'buitenwaterstand' parameter
