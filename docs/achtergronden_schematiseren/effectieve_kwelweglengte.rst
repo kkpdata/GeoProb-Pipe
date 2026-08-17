@@ -22,15 +22,33 @@ waarin:
 - :math:`\lambda_{1}` de spreidingslengte van het voorland is [m]
 - :math:`c` is de deklaagdikte gedeeld door de doorlatendheid van de deklaag [dag]
 
-De effectieve kwelweglengte is altijd gemaximaliseerd op de lengte van het voorland :math:`L_{1}`. 
+De effectieve kwelweglengte van het voorland ligt altijd tussen de buitenteen en de intredelijn en is 
+altijd gemaximaliseerd op de lengte van het voorland :math:`L_{1}`. 
 Daarom is het advies om de geografische ligging van de intredelijn :math:`L_{intrede}` zo te schematiseren dat de kweleglengte
 fysisch gezien nooit groter kan zijn. Hierbij kan je ook rekening houden met eventuele radiale weerstand, 
 bijvoorbeeld in het geval van een schaardijk.
 
-De effectieve kwelweglengte van het voorland ligt altijd tussen de buitenteen en de intredelijn.
+De weerstand van het voorland (en de daaruit volgende spreidingslengte) is een onzekere variabele die de weerstand over 
+een groot oppervlak van het voorland beschrijft. Zonder metingen is de kennisonzekerheid groot en vindt de schematisatie
+plaats op basis van ervaring en gebiedskennis. 
+
+Bij het gebruik van model 4a is het vaak niet nodig om apart voor de weerstand in het voorland meerdere scenario's te definiëren.
+De spreidingslengte wordt namelijk afgeleid uit de weerstand van de deklaag en de eigenschappen van het watervoerend pakket.
+Het gaat erom om dat de combinatie van variabelen past bij fysieke kenmerken van het voorland. 
 
 
 Omgang met verschillende scenario's
 -----------------------------------
 
+.. figure:: /_static/EffectieveVoorlandlengte_enkel.png
+   :width: 100%
 
+   Effectieve voorlandlengte bij een enkel scenario
+
+
+
+.. figure:: /_static/EffectieveVoorlandlengte_dubbel.png
+   :width: 100%
+
+   Effectieve voorlandlengte bij een dubbel scenario. De effectieve voorlandlengte wordt bepaald door de mate van 
+   weerstand in het voorland die per scenario kan worden opgegeven.
