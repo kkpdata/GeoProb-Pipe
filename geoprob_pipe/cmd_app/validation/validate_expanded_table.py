@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import ast
+import os
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 
+from geoprob_pipe.utils.validation_messages import BColors
 
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import (
@@ -285,7 +288,7 @@ def _setup_df_compare(
     :param df_expanded: Expanded DataFrame
     :return: Expanded DataFrame with all possible values added in separate columns
         per step.
-    """    
+    """
     df_compare: pd.DataFrame = df_expanded.copy()
 
     df_compare = _merge_traject(df_input=df_input, df_compare=df_compare)
@@ -295,11 +298,11 @@ def _setup_df_compare(
     df_compare = _merge_utp_excel_wild(df_input=df_input, df_compare=df_compare)
     df_compare = _merge_utp_excel_scen(df_input=df_input, df_compare=df_compare)
     df_compare = _merge_utp_gis_scen(df_input=df_input, df_compare=df_compare)
-    
+
     return df_compare
 
 
-def _setup_df_check(
+def _setup_df_match(
     df_compare: pd.DataFrame, df_expanded: pd.DataFrame
 ) -> pd.DataFrame:
     """Setup a DataFrame with checks of the values are equal to the chosen value
@@ -309,7 +312,7 @@ def _setup_df_check(
     :param df_compare: Expanded DataFrame with all possible values added in separate columns
     :param df_expanded: Expanded DataFrame
     :return: Expanded DataFrame with the check results in separate columns per step.
-    """    
+    """
     df_check: pd.DataFrame = df_expanded.copy()
 
     df_check = _check_match(df_check, df_compare, "mean_traject")
@@ -323,15 +326,18 @@ def _setup_df_check(
     return df_check
 
 
-def _setup_df_errors(df_check: pd.DataFrame, df_expanded: pd.DataFrame) -> pd.DataFrame:
+def _setup_df_errors(
+    df_compare: pd.DataFrame, df_check: pd.DataFrame, df_expanded: pd.DataFrame
+) -> pd.DataFrame:
     """Collect the result of both checks in a single dataframe.
 
     :param df_check: Expanded DataFrame with the check results in separate columns
         per step.
     :param df_expanded: Expanded DataFrame
     :return: DataFrame with the result of the error check for all rows.
-    """    
+    """
     df_errors: pd.DataFrame = df_expanded.copy()
+    df_errors = df_errors.rename(columns={"mean": "used_value"})
 
     cols = [
         "match_traject",
@@ -342,25 +348,41 @@ def _setup_df_errors(df_check: pd.DataFrame, df_expanded: pd.DataFrame) -> pd.Da
         "match_gis_utp_scen",
         "match_excel_utp_scen",
     ]
-    df_errors["match"] = df_check[cols].any(axis=1)
+    df_errors["value_correct"] = df_check[cols].any(axis=1)
 
     # --- Check highest hierarchy ---
-    df_errors["highest_priority"] = (
-        df_check[cols].idxmax(axis=1).where(df_errors["match"], None)
+    df_errors["uses"] = (
+        df_check[cols].idxmax(axis=1).where(cond=df_errors["value_correct"], other=None)
     )
-
+    df_errors["should_use"] = (
+        df_check[cols]
+        .idxmax(axis=1)
+        .where(cond=~df_errors["value_correct"], other=df_errors["uses"])
+    )
+    clean_names = {
+        "match_traject": "traject",
+        "match_vak_wild": "vak wildcard",
+        "match_vak_scen": "vak scenario",
+        "match_gis_utp_wild": "gis uittredepunt wildcard",
+        "match_excel_utp_wild": "excel uittredepunt wildcard",
+        "match_gis_utp_scen": "gis uittredepunt scenario",
+        "match_excel_utp_scen": "excel uittredepunt scenario",
+    }
+    df_errors["uses"] = df_errors["uses"].astype(str).map(clean_names)
+    df_errors["should_use"] = df_errors["should_use"].astype(str).map(clean_names)
     arr = df_check[cols].to_numpy(dtype=object)
 
-    df_errors["priority_error"] = [has_priority_error(row) for row in arr]
-    
+    df_errors["wrong_step"] = [has_priority_error(row) for row in arr]
+
     # FIXME Temporary fix for the 'buitenwaterstand' parameter
     df_errors = df_errors.loc[df_expanded["parameter"] != "buitenwaterstand"]
-
+    # kolomnamem: used_value, is_correct, should_use, uses,
+    # zonder match als nette string
     return df_errors
 
 
 def validate_expand_tables(
-    tables: InputParameterTables, df_expanded: pd.DataFrame
+    tables: InputParameterTables, geopackage_filepath: str, df_expanded: pd.DataFrame
 ) -> None:
     """Validation function for the expanded parameters table. Checks of the values in
     the table correspond the values in de source tables. And checks of a value higher
@@ -392,18 +414,44 @@ def validate_expand_tables(
         df_input=df_input, df_expanded=df_expanded
     )
     # Check of values are equal
-    df_check: pd.DataFrame = _setup_df_check(
+    df_match: pd.DataFrame = _setup_df_match(
         df_compare=df_compare, df_expanded=df_expanded
     )
     # Collect the errors
     df_errors: pd.DataFrame = _setup_df_errors(
-        df_check=df_check, df_expanded=df_expanded
+        df_compare=df_compare, df_check=df_match, df_expanded=df_expanded
     )
 
     # Result: collect all rows without a match or wrong hierarchy
-    df_validation_output = df_errors.loc[
-        (~df_errors["match"]) | (df_errors["priority_error"])
+    df_validation_output: pd.DataFrame = df_errors.loc[
+        (df_errors["value_correct"]) | (df_errors["wrong_step"])
     ]
+
     if len(df_validation_output) > 0:
-        # TODO Print to excel with error message
-        print(df_validation_output)
+        export_dir = os.path.join(
+            os.path.dirname(geopackage_filepath),
+            "exports",
+            str(datetime.now().strftime("%Y-%m-%d_%H%M%S")),
+            "parameter_input_process",
+        )
+        os.makedirs(export_dir, exist_ok=True)
+        export_path = os.path.join(export_dir, "validation_expanded_table_input.xlsx")
+        if os.path.exists(export_path):
+            os.remove(export_path)
+        df_validation_output.to_excel(export_path, index=False)
+        print(
+            f"""{BColors.WARNING}
+            Er is een mismatch tussen de invoer parameters en de expanded parameter
+            tabel. De gedetailleerde lijst is geëxporteerd naar: \n
+            {export_path}
+            {BColors.ENDC}"""
+        )
+        if os.environ.get("GEOPROB_DEBUG", False):
+            export_path = os.path.join(export_dir, "validation_df_compare.xlsx")
+            if os.path.exists(export_path):
+                os.remove(export_path)
+            df_compare.to_excel(export_path, index=False)
+            export_path = os.path.join(export_dir, "validation_df_match.xlsx")
+            if os.path.exists(export_path):
+                os.remove(export_path)
+            df_match.to_excel(export_path, index=False)

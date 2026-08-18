@@ -11,7 +11,9 @@ from probabilistic_library import FragilityValue
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import (
     InputParameterTables,
 )
-from geoprob_pipe.cmd_app.validation.validate_expanded_table import validate_expand_tables
+from geoprob_pipe.cmd_app.validation.validate_expanded_table import (
+    validate_expand_tables,
+)
 
 from .expand_dataframes import expand_input_dataframes
 
@@ -348,5 +350,9 @@ def run_expand_input_tables(
     )
     collected_input = _concat_collection(collection=collection)
     # Temporary location of validation check.
-    validate_expand_tables(tables, collected_input)
+    validate_expand_tables(
+        tables=tables,
+        geopackage_filepath=geopackage_filepath,
+        df_expanded=collected_input,
+    )
     return collected_input
