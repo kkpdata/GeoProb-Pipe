@@ -6,6 +6,8 @@ import scipy.stats as sct
 from geopandas import GeoDataFrame, read_file
 from shapely import Point
 import os
+
+from geoprob_pipe.utils.gdf import validate_unique_point_locations
 from geoprob_pipe.utils.validation_messages import BColors
 import warnings
 from geoprob_pipe.cmd_app.spatial_layers.hrd.utils import hrd_file_path
@@ -15,6 +17,7 @@ import pydra_core as pydra
 from pandas import DataFrame, concat
 from typing import Optional, List, Tuple
 import sqlite3
+import sys
 if TYPE_CHECKING:
     from geoprob_pipe.cmd_app.cmd import ApplicationSettings
 
@@ -65,9 +68,9 @@ def _ask_path_to_hrd_dir() -> str:
     return filepath
 
 
-def _add_hrd_locations_to_database(app_settings: ApplicationSettings, hrd_dir: str):
+def _add_hrd_locations_to_database(app_settings: ApplicationSettings, hrd_dir: str) -> bool:
 
-    # Add HRD locations to GeoPackage
+    # Collect HRD-locations
     hrd_path = hrd_file_path(hrd_dir=hrd_dir)
     hrd = pydra.HRDatabase(hrd_path)
     location_names = hrd.locationnames
@@ -87,10 +90,33 @@ def _add_hrd_locations_to_database(app_settings: ApplicationSettings, hrd_dir: s
             "location_name": location_name,
             "geometry": Point(hrd_location.settings.x_coordinate, hrd_location.settings.y_coordinate)
         })
-
     gdf = GeoDataFrame(hrd_location_rows, columns=['location_name', 'geometry'], crs='EPSG:28992')
+    # TODO Runtime improvement: the below method of Pydra-Core, to only collect the Hydra-Locations, is relatively slow.
+    #  We could just read the sqlite HRD-database directly and store the HRD-locations.
+
+    # Validate all points are unique
+    success, failure_msg = validate_unique_point_locations(gdf=gdf, id_column="location_name")
+    if not success:
+        print(f"{BColors.WARNING}"
+              f"Er zijn één of meerdere dubbelingen in de HRD-locaties. "
+              f"Uit de validatie volgt het volgende bericht: {failure_msg} "
+              f"Corrigeer de HRD-database, of vul de overschrijdingsfrequentielijnen handmatig in. "
+              f"{BColors.ENDC}")
+
+        # Verwijder eerder gemaakte keuze 'Importeren van HRD-database' (zodat je opnieuw de keuze kunt maken)
+        file_path = app_settings.geopackage_filepath
+        conn = sqlite3.connect(file_path)
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM geoprob_pipe_metadata WHERE metadata_type = 'extract_hrd_data';")
+        conn.commit()
+        cursor.close()
+
+        return False
+
+    # Add HRD locations to GeoPackage
     gdf.to_file(Path(app_settings.geopackage_filepath), layer="hrd_locaties", driver="GPKG")
     print(BColors.OKBLUE, f"✅  HRD-locatie punten toegevoegd aan GeoProb-Pipe GeoPackage.", BColors.ENDC)
+    return True
 
 
 def _add_hrd_overschrijdingsfrequentielijnen(hrd_dir: str, app_settings: ApplicationSettings):
@@ -219,6 +245,11 @@ def _add_traject_parameters(app_settings: ApplicationSettings, hrd_dir: str):
 
 def import_from_hrd(app_settings: ApplicationSettings):
     hrd_dir = _ask_path_to_hrd_dir()
-    _add_hrd_locations_to_database(app_settings=app_settings, hrd_dir=hrd_dir)
+
+    # Import HRD-locations
+    if not _add_hrd_locations_to_database(app_settings=app_settings, hrd_dir=hrd_dir):
+        sys.exit("Applicatie afgesloten")
+
+    # Other actions
     _add_hrd_overschrijdingsfrequentielijnen(hrd_dir=hrd_dir, app_settings=app_settings)
     _add_traject_parameters(app_settings=app_settings, hrd_dir=hrd_dir)
