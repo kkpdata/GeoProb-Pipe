@@ -55,3 +55,35 @@ def validate_vakindeling_merges_to_single_linestring(gdf: GeoDataFrame) -> Tuple
     """ Controleert of alle LineStrings aaneengesloten zijn. """
     merged = line_merge(unary_union(gdf.geometry))
     return isinstance(merged, LineString), type(merged)
+
+
+def validate_unique_point_locations(
+        gdf: GeoDataFrame, id_column: str | None = None, return_coords: bool = False) -> Tuple[bool, str]:
+    """ Validates if the given GeoDataFrame has only unique point-locations. If not, it returns a failure message
+    with in there the non-unique ids.
+
+    :param gdf:
+    :param id_column: Specifies which column identifies each point. If None, index will be used as identifiers.
+    :param return_coords: If True, the failure message will also include the RD-coordinates of the points.
+    :return:
+    """
+
+    filter_duplicate_geometries = gdf.geometry.duplicated(keep=False)
+    gdf_duplicates = gdf[filter_duplicate_geometries]
+
+    if gdf_duplicates.__len__() == 0:
+        return True, ""
+
+    # Collect ids
+    ids_of_non_unique_pnts = gdf_duplicates.index.tolist()
+    if id_column is not None:
+        ids_of_non_unique_pnts = gdf_duplicates[id_column].values.tolist()
+    failure_msg = f"Identifiers {ids_of_non_unique_pnts} have non-unique geometries."
+
+    # Collect coordinates
+    if return_coords:
+        coords = [f"{pnt.x}, {pnt.y}" for pnt in gdf_duplicates.geometry.values.tolist()]
+        id_coord_list = [f"{identifier} ({pnt})" for identifier, pnt in zip(ids_of_non_unique_pnts, coords)]
+        failure_msg = f"Identifiers {id_coord_list} have non-unique geometries."
+
+    return False, failure_msg
