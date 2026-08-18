@@ -95,16 +95,27 @@ def _worker(row_unique: dict):
     # noinspection PyBroadException
     try:
         with redirect_stdout(log_buffer), redirect_stderr(log_buffer):
+            logger = logging.getLogger(__name__)
+            logger.debug("Start berekening voor %s", row_unique)
             # Build and run calculations
             calc = _BUILDER.build_instance(row_unique=row_unique)
             calc.run()
-
+            logger.debug("SystemCalculation voltooid:")
+            
             # Collect results
             df_limit_state = collect_df_beta_limit_state(calc)
+            logger.debug("df_limit_state:")
+            logger.debug(f"\n{df_limit_state}")
             df_scenario_rp = collect_df_beta_scenario_rp(calc)
+            logger.debug("df_scenario_rp:")
+            logger.debug(f"\n{df_scenario_rp}")
             df_scenario_cp = collect_df_beta_scenario_cp(calc)
+            logger.debug("df_scenario_cp:")
+            logger.debug(f"\n{df_scenario_cp}")
             df_scenario_final = collect_df_beta_scenario_final(calc)
             df_stochast = collect_stochast_values(calc, df_scenario_final=df_scenario_final)
+            logger.debug("df_stochast:")
+            logger.debug(f"\n{df_stochast}")
             df_derived = calculate_derived_values(df_scenarios_final=df_scenario_final, geohydrologisch_model=_MODEL)
             df_scenario_rp = df_scenario_rp.drop(columns=["system_calculation"])
             df_scenario_cp = df_scenario_cp.drop(columns=["system_calculation"])
@@ -115,7 +126,7 @@ def _worker(row_unique: dict):
                 df_limit_state=df_limit_state, df_scenario_rp=df_scenario_rp, df_scenario_cp=df_scenario_cp,
                 df_scenario_final=df_scenario_final, df_stochast=df_stochast, df_derived=df_derived,
                 validation_message=calc.validation_messages
-            ), None, None
+            ), log_buffer.getvalue(), row_unique
 
     except Exception:
         tb = traceback.format_exc()
