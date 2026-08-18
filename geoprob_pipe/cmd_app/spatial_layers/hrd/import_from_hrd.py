@@ -103,7 +103,7 @@ def _add_hrd_locations_to_database(app_settings: ApplicationSettings, hrd_dir: s
               f"Corrigeer de HRD-database, of vul de overschrijdingsfrequentielijnen handmatig in. "
               f"{BColors.ENDC}")
 
-        # Verwijder importeren van HRD als keuze
+        # Verwijder eerder gemaakte keuze 'Importeren van HRD-database' (zodat je opnieuw de keuze kunt maken)
         file_path = app_settings.geopackage_filepath
         conn = sqlite3.connect(file_path)
         cursor = conn.cursor()
