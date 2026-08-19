@@ -13,7 +13,9 @@ DEFAULT_RELIABILITY_SETTINGS: Dict[str, Union[str, float, int]] = {
     "reliability_method": ReliabilityMethod.form.__str__(),
     "variation_coefficient": 0.02,
     "maximum_iterations": 1000,
+    # "minimum_iterations": 10,
     "relaxation_factor": 0.4,
+    "reuse_calculations": False,
 }
 
 # DEFAULT_RELIABILITY_SETTINGS: Dict[str, Union[str, float, int]] = {

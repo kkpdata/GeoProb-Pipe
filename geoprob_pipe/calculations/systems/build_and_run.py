@@ -97,12 +97,25 @@ def _worker(row_unique: dict):
         with redirect_stdout(log_buffer), redirect_stderr(log_buffer):
             logger = logging.getLogger(__name__)
             logger.debug("Start berekening voor %s", row_unique)
+            
             # Build and run calculations
             calc = _BUILDER.build_instance(row_unique=row_unique)
             calc.run()
+            
             logger.debug("SystemCalculation voltooid.")
             logger.debug("Validation messages:")
             logger.debug(f"\n{calc.validation_messages.df}")
+            
+            logger.debug("Limit states print:")
+            for lm in calc.results.dps_limit_states:
+                lm.print()
+            
+            logger.debug("Combine project print:")
+            calc.results.combine_project.design_point.print()
+
+            logger.debug("Reliability project print:")
+            calc.results.reliability_project.design_point.print()
+
             # Collect results
             df_limit_state = collect_df_beta_limit_state(calc)
             logger.debug("df_limit_state:")
