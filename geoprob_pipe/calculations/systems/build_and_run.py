@@ -100,8 +100,9 @@ def _worker(row_unique: dict):
             # Build and run calculations
             calc = _BUILDER.build_instance(row_unique=row_unique)
             calc.run()
-            logger.debug("SystemCalculation voltooid:")
-            
+            logger.debug("SystemCalculation voltooid.")
+            logger.debug("Validation messeges:")
+            logger.debug(f"\n{calc.validation_messages.df}")
             # Collect results
             df_limit_state = collect_df_beta_limit_state(calc)
             logger.debug("df_limit_state:")
@@ -176,24 +177,27 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe) -> List[CalcRes
 
     last_report = time.time()
     done = 0
+    log_errors = 0
     results: List[CalcResult] = []
     pool_size = max(min(math.floor(n_calc_totaal / chunk_size), n_threads), 1)
 
     # Multiprocessing setup
-    error_rows = []
+    log_rows = []
     with Pool(processes=pool_size, initializer=_init_worker, initargs=(
             geohydrologisch_model, geopackage_filepath, to_run_vakken_ids)) as pool:
 
-        for res, error_logs, row in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
+        for res, logs, row in pool.imap_unordered(_worker, rows, chunksize=chunk_size):
             if isinstance(res, CalcResult):
                 results.append(res)
-            if isinstance(error_logs, str):
-                error_rows.append({
+            if isinstance(logs, str):
+                log_rows.append({
                     "uittredepunt_id": row["uittredepunt_id"],
                     "ondergrondscenario_naam": row["ondergrondscenario_naam"],
                     "vak_id": row["vak_id"],
-                    "error_logs": error_logs,
+                    "logs": logs,
                 })
+                if "ERROR" in logs:
+                    log_errors += 1
             done += 1
 
             # Alleen kijken of er gelogd moet worden bij de laatste
@@ -208,25 +212,21 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe) -> List[CalcRes
 
             # Log
             error_count_append = ""
-            if error_rows.__len__() > 0:
-                error_count_append = f" (of which {error_rows.__len__()} failed calculations)"
+            
+            if log_errors > 0:
+                error_count_append = f" (of which {log_errors} failed calculations)"
             logger.info(f"Progress: {done:>{char_len_total}} / {n_calc_totaal} calculations{error_count_append}.")
             last_report = now
 
     # Push errors to database (if any)
     conn = sqlite3.connect(geoprob_pipe.input_data.app_settings.geopackage_filepath)
-    table_name = "calculation_error_logs"
-    if error_rows.__len__() > 0:
-        df_errors = DataFrame(data=error_rows)
-        df_errors.to_sql(table_name, conn, if_exists="replace", index=False)
-        conn.close()
-        logger.error(f"There are {error_rows.__len__()} failed calculations. Error logs are stored inside the "
+    table_name = "calculation_logs"
+    df_logs = DataFrame(data=log_rows)
+    df_logs.to_sql(table_name, conn, if_exists="replace", index=False)
+    conn.commit()
+    conn.close()
+    if log_errors > 0:
+        logger.error(f"There are {log_errors} failed calculations. Error logs are stored inside the "
                      f"GeoPacakge in table '{table_name}'.")
-    else:
-        # Remove old table (if exists)
-        cur = conn.cursor()
-        cur.execute(f"DROP TABLE IF EXISTS {table_name};")
-        conn.commit()
-        conn.close()
-
+    
     return results
