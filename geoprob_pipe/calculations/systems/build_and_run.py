@@ -101,12 +101,14 @@ def _worker(row_unique: dict):
             calc = _BUILDER.build_instance(row_unique=row_unique)
             calc.run()
             logger.debug("SystemCalculation voltooid.")
-            logger.debug("Validation messeges:")
+            logger.debug("Validation messages:")
             logger.debug(f"\n{calc.validation_messages.df}")
             # Collect results
             df_limit_state = collect_df_beta_limit_state(calc)
             logger.debug("df_limit_state:")
             logger.debug(f"\n{df_limit_state}")
+            if any(r == 0 for r in df_limit_state.total_model_runs):
+                logger.warning("Limit state with 0 total model runs encountered.")
             df_scenario_rp = collect_df_beta_scenario_rp(calc)
             logger.debug("df_scenario_rp:")
             logger.debug(f"\n{df_scenario_rp}")
@@ -178,6 +180,7 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe) -> List[CalcRes
     last_report = time.time()
     done = 0
     log_errors = 0
+    error_rows = []
     results: List[CalcResult] = []
     pool_size = max(min(math.floor(n_calc_totaal / chunk_size), n_threads), 1)
 
@@ -196,8 +199,9 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe) -> List[CalcRes
                     "vak_id": row["vak_id"],
                     "logs": logs,
                 })
-                if "ERROR" in logs:
+                if any(level in logs for level in ("WARNING", "ERROR", "CRITICAL")):
                     log_errors += 1
+                    error_rows.append(row)
             done += 1
 
             # Alleen kijken of er gelogd moet worden bij de laatste
@@ -226,7 +230,8 @@ def build_and_run_system_calculations(geoprob_pipe: GeoProbPipe) -> List[CalcRes
     conn.commit()
     conn.close()
     if log_errors > 0:
-        logger.error(f"There are {log_errors} failed calculations. Error logs are stored inside the "
-                     f"GeoPacakge in table '{table_name}'.")
+        logger.error(f"There are {log_errors} failed calculations. The calculation logs are stored inside the "
+                     f"GeoPackage in table '{table_name}'. The following rows are marked:"
+                     f"\n{error_rows}")
     
     return results
