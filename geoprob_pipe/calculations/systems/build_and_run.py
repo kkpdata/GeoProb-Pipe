@@ -131,7 +131,11 @@ def _worker(row_unique: dict):
             df_scenario_final = collect_df_beta_scenario_final(calc)
             df_stochast = collect_stochast_values(calc, df_scenario_final=df_scenario_final)
             logger.debug("df_stochast:")
-            logger.debug(f"\n{df_stochast}")
+            logger.debug(f"\n{df_stochast.to_string()}")
+            if df_scenario_cp.converged is True and any(a >= 0.99 for a in df_stochast.alpha):
+                logger.warning("Unrealistically dominant (alpha >= 0.99) parameter found in combined project.")
+            if df_scenario_rp.converged is True and any(a >= 0.99 for a in df_stochast.alpha):
+                logger.warning("Unrealistically dominant (alpha >= 0.99) parameter found in reliability project.")
             df_derived = calculate_derived_values(df_scenarios_final=df_scenario_final, geohydrologisch_model=_MODEL)
             df_scenario_rp = df_scenario_rp.drop(columns=["system_calculation"])
             df_scenario_cp = df_scenario_cp.drop(columns=["system_calculation"])
