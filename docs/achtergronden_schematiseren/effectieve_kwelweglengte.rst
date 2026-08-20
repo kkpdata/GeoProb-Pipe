@@ -40,14 +40,14 @@ Het gaat erom om dat de combinatie van variabelen past bij fysieke kenmerken van
 Omgang met verschillende scenario's
 -----------------------------------
 
-.. figure:: /_static/EffectieveVoorlandlengte_enkel.png
+.. figure:: /_static/EffectieveVoorlandlengte_enkel_scenario.png
    :width: 100%
 
    Effectieve voorlandlengte bij een enkel scenario
 
 
 
-.. figure:: /_static/EffectieveVoorlandlengte_dubbel.png
+.. figure:: /_static/EffectieveVoorlandlengte_dubbel_scenario.png
    :width: 100%
 
    Effectieve voorlandlengte bij een dubbel scenario. De effectieve voorlandlengte wordt bepaald door de mate van 
