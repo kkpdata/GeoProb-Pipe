@@ -1,0 +1,457 @@
+from __future__ import annotations
+
+import ast
+import os
+from datetime import datetime
+from typing import TYPE_CHECKING
+
+import numpy as np
+import pandas as pd
+
+from geoprob_pipe.utils.validation_messages import BColors
+
+if TYPE_CHECKING:
+    from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import (
+        InputParameterTables,
+    )
+
+
+def get_mean(value) -> float | None:
+    """Find the mean value used from the excel or gis input.
+
+    :param value: Data from the source tables
+    :return: Mean value as float or None if not found.
+    """
+    if isinstance(value, dict):
+        return value.get("mean")
+    elif isinstance(value, str):
+        d = ast.literal_eval(value)  # string → dict
+        return d.get("mean", np.nan)
+    return None
+
+
+def _check_match(
+    df_check: pd.DataFrame, df_compare: pd.DataFrame, key: str
+) -> pd.DataFrame:
+    """Check of the mean in the expanded table is close to the value in the source table.
+
+    :param df_check: DataFrame with bools of checks.
+    :param df_compare: DataFrame with values of alle sources
+    :param key: Column name for the check.
+    :return: DataFrame with completed checks for a column.
+    """
+    rel_tol = 1e-4
+    col = key.replace("mean", "match")
+    mask_nan = df_compare[key].isna()
+
+    df_check[col] = np.isclose(df_compare["mean"], df_compare[key], rtol=rel_tol)
+
+    df_check[col] = df_check[col].mask(mask_nan, None)
+
+    return df_check
+
+
+def _merge_traject(df_input: pd.DataFrame, df_compare: pd.DataFrame) -> pd.DataFrame:
+    """Merge the input at the traject level into df_compare.
+
+    :param df_input: Dataframe with inputs for expansion
+    :param df_compare: Dataframe with comparison results
+    :return: Expanded df_compare
+    """
+    df_traject: pd.DataFrame = df_input.loc[df_input["scope"] == "traject"]
+    df_compare = df_compare.merge(
+        df_traject[["parameter", "mean"]],
+        on=["parameter"],
+        how="left",
+        suffixes=["", "_traject"],
+    )
+    return df_compare
+
+
+def _merge_vak_wild(df_input: pd.DataFrame, df_compare: pd.DataFrame) -> pd.DataFrame:
+    """Merge the input at the section wildcard level into df_compare.
+
+    :param df_input: Dataframe with inputs for expansion
+    :param df_compare: Dataframe with comparison results
+    :return: Expanded df_compare
+    """
+    df_vak_wild = df_input.loc[
+        (df_input["scope"] == "vak") & (df_input["ondergrondscenario_naam"].isna())
+    ]
+    df_vak_wild: pd.DataFrame = df_vak_wild.rename(
+        columns={"scope_referentie": "vak_id"}
+    )
+    df_compare = df_compare.merge(
+        df_vak_wild[["parameter", "vak_id", "mean"]],
+        on=["parameter", "vak_id"],
+        how="left",
+        suffixes=["", "_vak_wild"],
+    )
+    return df_compare
+
+
+def _merge_vak_scen(df_input: pd.DataFrame, df_compare: pd.DataFrame) -> pd.DataFrame:
+    """Merge the input at the section scenario level into df_compare.
+
+    :param df_input: Dataframe with inputs for expansion
+    :param df_compare: Dataframe with comparison results
+    :return: Expanded df_compare
+    """
+    df_vak_scen: pd.DataFrame = df_input.loc[
+        (df_input["scope"] == "vak") & (df_input["ondergrondscenario_naam"].notna())
+    ]
+    df_vak_scen = df_vak_scen.rename(columns={"scope_referentie": "vak_id"})
+    df_compare = df_compare.merge(
+        df_vak_scen[["parameter", "vak_id", "ondergrondscenario_naam", "mean"]],
+        on=["parameter", "vak_id", "ondergrondscenario_naam"],
+        how="left",
+        suffixes=["", "_vak_scen"],
+    )
+    return df_compare
+
+
+def _merge_utp_gis_wild(
+    df_input: pd.DataFrame, df_compare: pd.DataFrame
+) -> pd.DataFrame:
+    """Merge the input at the exit-point gis wildcard level into df_compare.
+
+    :param df_input: Dataframe with inputs for expansion
+    :param df_compare: Dataframe with comparison results
+    :return: Expanded df_compare
+    """
+    df_gis_utp_wild: pd.DataFrame = df_input.loc[
+        (df_input["scope"] == "gis_uittredepunt")
+        & (df_input["ondergrondscenario_naam"].isna())
+    ]
+    df_gis_utp_wild = df_gis_utp_wild.rename(
+        columns={"scope_referentie": "uittredepunt_id"}
+    )
+    df_compare = df_compare.merge(
+        df_gis_utp_wild[["parameter", "uittredepunt_id", "mean"]],
+        on=["parameter", "uittredepunt_id"],
+        how="left",
+        suffixes=["", "_gis_utp_wild"],
+    )
+    return df_compare
+
+
+def _merge_utp_excel_wild(
+    df_input: pd.DataFrame, df_compare: pd.DataFrame
+) -> pd.DataFrame:
+    """Merge the input at the exit-point excel wildcard level into df_compare.
+
+    :param df_input: Dataframe with inputs for expansion
+    :param df_compare: Dataframe with comparison results
+    :return: Expanded df_compare
+    """
+    df_excel_utp_wild: pd.DataFrame = df_input.loc[
+        (df_input["scope"] == "uittredepunt")
+        & (df_input["ondergrondscenario_naam"].isna())
+    ]
+    df_excel_utp_wild = df_excel_utp_wild.rename(
+        columns={"scope_referentie": "uittredepunt_id"}
+    )
+    df_compare = df_compare.merge(
+        df_excel_utp_wild[["parameter", "uittredepunt_id", "mean"]],
+        on=["parameter", "uittredepunt_id"],
+        how="left",
+        suffixes=["", "_excel_utp_wild"],
+    )
+    return df_compare
+
+
+def _merge_utp_gis_scen(
+    df_input: pd.DataFrame, df_compare: pd.DataFrame
+) -> pd.DataFrame:
+    """Merge the input at the exit-point gis scenario level into df_compare.
+
+    :param df_input: Dataframe with inputs for expansion
+    :param df_compare: Dataframe with comparison results
+    :return: Expanded df_compare
+    """
+    df_gis_utp_scen: pd.DataFrame = df_input.loc[
+        (df_input["scope"] == "gis_uittredepunt")
+        & (df_input["ondergrondscenario_naam"].notna())
+    ]
+    df_gis_utp_scen = df_gis_utp_scen.rename(
+        columns={"scope_referentie": "uittredepunt_id"}
+    )
+    df_compare = df_compare.merge(
+        df_gis_utp_scen[
+            ["parameter", "uittredepunt_id", "ondergrondscenario_naam", "mean"]
+        ],
+        on=["parameter", "uittredepunt_id", "ondergrondscenario_naam"],
+        how="left",
+        suffixes=["", "_gis_utp_scen"],
+    )
+    return df_compare
+
+
+def _merge_utp_excel_scen(
+    df_input: pd.DataFrame, df_compare: pd.DataFrame
+) -> pd.DataFrame:
+    """Merge the input at the exit-point excel scenario level into df_compare.
+
+    :param df_input: Dataframe with inputs for expansion
+    :param df_compare: Dataframe with comparison results
+    :return: Expanded df_compare
+    """
+    df_excel_utp_scen: pd.DataFrame = df_input.loc[
+        (df_input["scope"] == "uittredepunt")
+        & (df_input["ondergrondscenario_naam"].notna())
+    ]
+    df_excel_utp_scen = df_excel_utp_scen.rename(
+        columns={"scope_referentie": "uittredepunt_id"}
+    )
+    df_compare = df_compare.merge(
+        df_excel_utp_scen[["parameter", "uittredepunt_id", "mean"]],
+        on=["parameter", "uittredepunt_id"],
+        how="left",
+        suffixes=["", "_excel_utp_scen"],
+    )
+    return df_compare
+
+
+def has_priority_error(row) -> bool:
+    """This function will check for all rows where the first True-value
+    in the row is, starting from the right to the left.
+    Values can be True, False or None.
+
+    In the case of None; no value was provided at this level.
+    True means the value  provided matches the value in the expanded table
+    And False means the value does not match the value in the expanded table.
+    If true is found it will check if any of the values to the right are False.
+    If one of these is found, there was a value found higher in the hierarchy that
+    was unused.
+
+    :param row: Row from the DataFrame
+    :return: True if error found, else false
+    """
+    # Find de column index van True met de hoogste plaats in de hierarchy.
+    last_true_idx: int = max(
+        (i for i, value in enumerate(row) if value is True),
+        default=-1,
+    )
+
+    values_after_last_true = row[last_true_idx + 1 :]
+
+    return any(value is False for value in values_after_last_true)
+
+
+def _clean_and_filter_dataframes(
+    df_input: pd.DataFrame, df_expanded: pd.DataFrame
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Cleaup and filter the dataframes for futher use.
+
+    :param df_input: DataFrame with input for expansion.
+    :param df_expanded: Exopanded DataFrame
+    :return: Prepared DataFrames
+    """
+    df_expanded = df_expanded.rename(columns={"parameter_name": "parameter"})
+    df_input["ondergrondscenario_naam"] = df_input["ondergrondscenario_naam"].replace(
+        "", pd.NA
+    )
+    df_expanded["ondergrondscenario_naam"] = df_expanded[
+        "ondergrondscenario_naam"
+    ].replace("", pd.NA)
+    df_expanded["uittredepunt_id"] = df_expanded["uittredepunt_id"].astype("Int64")
+
+    # Filter Dataframes
+    df_expanded["mean"] = df_expanded["parameter_input"].apply(get_mean)
+    df_expanded = df_expanded[
+        [
+            "parameter",
+            "vak_id",
+            "uittredepunt_id",
+            "ondergrondscenario_naam",
+            "mean",
+        ]
+    ]
+    df_input = df_input[
+        [
+            "parameter",
+            "scope",
+            "scope_referentie",
+            "ondergrondscenario_naam",
+            "mean",
+        ]
+    ]
+    return df_input, df_expanded
+
+
+def _setup_df_compare(
+    df_input: pd.DataFrame, df_expanded: pd.DataFrame
+) -> pd.DataFrame:
+    """Setup a DataFrame with all possible value found in the input tables.
+
+    :param df_input: DataFrame with input
+    :param df_expanded: Expanded DataFrame
+    :return: Expanded DataFrame with all possible values added in separate columns
+        per step.
+    """
+    df_compare: pd.DataFrame = df_expanded.copy()
+
+    df_compare = _merge_traject(df_input=df_input, df_compare=df_compare)
+    df_compare = _merge_vak_wild(df_input=df_input, df_compare=df_compare)
+    df_compare = _merge_vak_scen(df_input=df_input, df_compare=df_compare)
+    df_compare = _merge_utp_gis_wild(df_input=df_input, df_compare=df_compare)
+    df_compare = _merge_utp_excel_wild(df_input=df_input, df_compare=df_compare)
+    df_compare = _merge_utp_excel_scen(df_input=df_input, df_compare=df_compare)
+    df_compare = _merge_utp_gis_scen(df_input=df_input, df_compare=df_compare)
+
+    return df_compare
+
+
+def _setup_df_match(
+    df_compare: pd.DataFrame, df_expanded: pd.DataFrame
+) -> pd.DataFrame:
+    """Setup a DataFrame with checks of the values are equal to the chosen value
+    in the expanded DataFrame. True means the same, False different and None means
+    no value found.
+
+    :param df_compare: Expanded DataFrame with all possible values added in separate columns
+    :param df_expanded: Expanded DataFrame
+    :return: Expanded DataFrame with the check results in separate columns per step.
+    """
+    df_check: pd.DataFrame = df_expanded.copy()
+
+    df_check = _check_match(df_check, df_compare, "mean_traject")
+    df_check = _check_match(df_check, df_compare, "mean_vak_wild")
+    df_check = _check_match(df_check, df_compare, "mean_vak_scen")
+    df_check = _check_match(df_check, df_compare, "mean_gis_utp_wild")
+    df_check = _check_match(df_check, df_compare, "mean_excel_utp_wild")
+    df_check = _check_match(df_check, df_compare, "mean_gis_utp_scen")
+    df_check = _check_match(df_check, df_compare, "mean_excel_utp_scen")
+
+    return df_check
+
+
+def _setup_df_errors(
+    df_compare: pd.DataFrame, df_check: pd.DataFrame, df_expanded: pd.DataFrame
+) -> pd.DataFrame:
+    """Collect the result of both checks in a single dataframe.
+
+    :param df_check: Expanded DataFrame with the check results in separate columns
+        per step.
+    :param df_expanded: Expanded DataFrame
+    :return: DataFrame with the result of the error check for all rows.
+    """
+    df_errors: pd.DataFrame = df_expanded.copy()
+    df_errors = df_errors.rename(columns={"mean": "used_value"})
+
+    cols = [
+        "match_traject",
+        "match_vak_wild",
+        "match_vak_scen",
+        "match_gis_utp_wild",
+        "match_excel_utp_wild",
+        "match_gis_utp_scen",
+        "match_excel_utp_scen",
+    ]
+    df_errors["value_correct"] = df_check[cols].any(axis=1)
+
+    # --- Check highest hierarchy ---
+    df_errors["uses"] = (
+        df_check[cols].idxmax(axis=1).where(cond=df_errors["value_correct"], other=None)
+    )
+    df_errors["should_use"] = (
+        df_check[cols]
+        .idxmax(axis=1)
+        .where(cond=~df_errors["value_correct"], other=df_errors["uses"])
+    )
+    clean_names = {
+        "match_traject": "traject",
+        "match_vak_wild": "vak wildcard",
+        "match_vak_scen": "vak scenario",
+        "match_gis_utp_wild": "gis uittredepunt wildcard",
+        "match_excel_utp_wild": "excel uittredepunt wildcard",
+        "match_gis_utp_scen": "gis uittredepunt scenario",
+        "match_excel_utp_scen": "excel uittredepunt scenario",
+    }
+    df_errors["uses"] = df_errors["uses"].astype(str).map(clean_names)
+    df_errors["should_use"] = df_errors["should_use"].astype(str).map(clean_names)
+    arr = df_check[cols].to_numpy(dtype=object)
+
+    df_errors["wrong_step"] = [has_priority_error(row) for row in arr]
+
+    # FIXME Temporary fix for the 'buitenwaterstand' parameter
+    df_errors = df_errors.loc[df_expanded["parameter"] != "buitenwaterstand"]
+    # kolomnamem: used_value, is_correct, should_use, uses,
+    # zonder match als nette string
+    return df_errors
+
+
+def validate_expand_tables(
+    tables: InputParameterTables, geopackage_filepath: str, df_expanded: pd.DataFrame
+) -> None:
+    """Validation function for the expanded parameters table. Checks of the values in
+    the table correspond the values in de source tables. And checks of a value higher
+    in the hierarchy exist than was used.
+
+    :param tables: Source tables.
+    :param df_expanded: expanded parameter table.
+    """
+    df_excel: pd.DataFrame = tables.df_parameter_invoer.copy()
+    df_gis: pd.DataFrame = tables.df_gis_join_parameter_invoer.copy()
+
+    # Remove empty columns for pandas.concat.
+    df_excel = df_excel.dropna(axis=1, how="all")
+    df_gis = df_gis.dropna(axis=1, how="all")
+
+    # Prepare dataframes
+    df_excel["scope_referentie"] = df_excel["scope_referentie"].astype("Int64")
+    df_gis["scope_referentie"] = df_gis["scope_referentie"].astype("Int64")
+    df_gis["mean"] = df_gis["mean"].astype(float)
+    df_gis["scope"] = "gis_uittredepunt"
+    df_input: pd.DataFrame = pd.concat([df_excel, df_gis], ignore_index=True)
+
+    df_input, df_expanded = _clean_and_filter_dataframes(
+        df_input=df_input, df_expanded=df_expanded
+    )
+
+    # Merge per step in hierarchy
+    df_compare: pd.DataFrame = _setup_df_compare(
+        df_input=df_input, df_expanded=df_expanded
+    )
+    # Check of values are equal
+    df_match: pd.DataFrame = _setup_df_match(
+        df_compare=df_compare, df_expanded=df_expanded
+    )
+    # Collect the errors
+    df_errors: pd.DataFrame = _setup_df_errors(
+        df_compare=df_compare, df_check=df_match, df_expanded=df_expanded
+    )
+
+    # Result: collect all rows without a match or wrong hierarchy
+    df_validation_output: pd.DataFrame = df_errors.loc[
+        (df_errors["value_correct"]) | (df_errors["wrong_step"])
+    ]
+
+    if len(df_validation_output) > 0:
+        export_dir = os.path.join(
+            os.path.dirname(geopackage_filepath),
+            "exports",
+            str(datetime.now().strftime("%Y-%m-%d_%H%M%S")),
+            "parameter_input_process",
+        )
+        os.makedirs(export_dir, exist_ok=True)
+        export_path = os.path.join(export_dir, "validation_expanded_table_input.xlsx")
+        if os.path.exists(export_path):
+            os.remove(export_path)
+        df_validation_output.to_excel(export_path, index=False)
+        print(
+            f"""{BColors.WARNING}
+            Er is een mismatch tussen de invoer parameters en de expanded parameter
+            tabel. De gedetailleerde lijst is geëxporteerd naar: \n
+            {export_path}
+            {BColors.ENDC}"""
+        )
+        if os.environ.get("GEOPROB_DEBUG", False):
+            export_path = os.path.join(export_dir, "validation_df_compare.xlsx")
+            if os.path.exists(export_path):
+                os.remove(export_path)
+            df_compare.to_excel(export_path, index=False)
+            export_path = os.path.join(export_dir, "validation_df_match.xlsx")
+            if os.path.exists(export_path):
+                os.remove(export_path)
+            df_match.to_excel(export_path, index=False)

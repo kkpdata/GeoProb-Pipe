@@ -17,7 +17,7 @@ def test_worker():
         geohydrologisch_model=model,
         geopackage_filepath=filepath,
         to_run_vakken_ids=None)
-    result = _worker(row_unique={'uittredepunt_id': 1, 'ondergrondscenario_naam': 'scenario1', 'vak_id': 4})
+    _ = _worker(row_unique={'uittredepunt_id': 1, 'ondergrondscenario_naam': 'scenario1', 'vak_id': 4})
 
     ##
 
