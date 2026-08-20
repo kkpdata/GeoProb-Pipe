@@ -1,7 +1,21 @@
-Hierarchie van de invoer
-========================
-GeoProb-Pipe combineert informatie uit verschillende databronnen om een scenarioberekening uit te voeren. 
-Voor iedere berekening wordt een unieke combinatie van geometrie, uittredepuntgegevens en ondergrondparameters samengesteld.
+Hiërarchie van invoerbronnen en detailniveaus
+=============================================
+
+GeoProb-Pipe combineert gegevens uit verschillende invoerbronnen om
+scenarioberekeningen uit te voeren. Daarbij kunnen dezelfde parameters op
+meerdere detailniveaus en vanuit verschillende bronnen beschikbaar zijn.
+
+Deze pagina beschrijft:
+
+* welke invoercategorieën door GeoProb-Pipe worden gebruikt;
+* hoe invoerwaarden worden georganiseerd binnen trajecten, vakken en
+uittredepunten;
+* hoe GeoProb-Pipe bepaalt welke waarde wordt gebruikt wanneer dezelfde
+parameter op meerdere niveaus of in meerdere bronnen aanwezig is.
+
+Door deze hiërarchie toe te passen kan zowel met een globale als een
+gedetailleerde schematisering worden gewerkt, waarbij de meest specifieke
+beschikbare invoer altijd voorrang krijgt.
 
 Invoercategorieën
 -----------------
@@ -40,21 +54,84 @@ Deze drie categorieën vormen gezamenlijk de invoer voor een scenarioberekening.
 Prioriteit van invoerwaarden
 ----------------------------
 
-Voor veel invoerparameters kunnen waarden op verschillende niveaus worden opgegeven. Hierdoor kan zowel met een grove als een gedetailleerde schematisering worden gewerkt.
+De invoercategorieën beschrijven welke gegevens beschikbaar zijn voor een
+scenarioberekening. Binnen iedere invoercategorie kunnen parameters op
+verschillende detailniveaus worden vastgelegd. Daarnaast kunnen parameterwaarden
+afkomstig zijn uit verschillende invoerbronnen.
 
-Wanneer een parameter op meerdere niveaus beschikbaar is, wordt de meest specifieke waarde gebruikt. De prioriteitsvolgorde is:
-uittredepuntniveau > vakniveau > trajectniveau.
+Voor het bepalen van de uiteindelijke invoerwaarde wordt daarom een vaste
+hiërarchie toegepast op zowel detailniveau als invoerbron.
 
-Dit betekent dat GeoProb-Pipe eerst controleert of een parameter voor het betreffende uittredepunt is opgegeven. Wanneer geen waarde beschikbaar is, wordt gekeken naar een waarde op vakniveau. 
-Indien ook daar geen waarde aanwezig is, wordt de waarde op trajectniveau gebruikt. Voor zowel geometrische eigenschappen als ondergrondscenario's geldt dezelfde systematiek.
+Detailniveaus
+~~~~~~~~~~~~~
+
+Parameterwaarden kunnen worden vastgelegd op de volgende detailniveaus:
+
+* Traject
+* Vak
+* Uittredepunt
+
+Hierbij geldt dat een meer specifiek detailniveau altijd voorrang heeft op een
+meer algemeen detailniveau.
+
+De prioriteitsvolgorde is daarom:
+
+::
+
+Uittredepunt > Vak > Traject
+
+Wanneer voor een parameter een waarde beschikbaar is op meerdere
+detailniveaus, wordt altijd de meest specifieke waarde gebruikt.
 
 Voorbeeld
-~~~~~~~~~ 
-Top van de watervoerende zandlaag zijn de volgende waarden beschikbaar:
--   Trajectniveau: -3 m + NAP
--   Vakniveau: -2 m + NAP
--   Uittredepuntniveau: niet ingevuld
-In dit geval wordt de waarde op vakniveau gebruikt, omdat er geen waarde beschikbaar is op uittredepuntniveau. Wanneer ook op vakniveau geen waarde beschikbaar zou zijn, wordt de waarde op trajectniveau gebruikt.
+^^^^^^^^^
 
+Voor de parameter *top van de watervoerende zandlaag* zijn de volgende waarden
+beschikbaar:
 
+* Trajectniveau: -3 m + NAP
+* Vakniveau: -2 m + NAP
+* Uittredepuntniveau: niet ingevuld
 
+In dit geval wordt de waarde op vakniveau gebruikt, omdat er geen waarde
+beschikbaar is op uittredepuntniveau.
+
+Wanneer ook op vakniveau geen waarde beschikbaar zou zijn, wordt de waarde op
+trajectniveau gebruikt.
+
+Invoerbronnen
+~~~~~~~~~~~~~
+
+Afhankelijk van de invoercategorie kunnen parameterwaarden afkomstig zijn uit
+Excel of GIS.
+
+Excel vormt hierbij de primaire bron voor parameterwaarden.
+GIS levert aanvullende informatie, met name voor geometrische eigenschappen en
+uittredepuntinformatie.
+
+Binnen beide bronnen kan onderscheid worden gemaakt tussen:
+
+* Algemene waarden
+* Scenario-afhankelijke waarden
+
+De beschikbare combinaties zijn:
+
+::
+
+    Uittredepunten
+    ├─ Excel + Scenario's
+    ├─ GIS + Scenario's
+    ├─ Excel + Algemeen
+    └─ GIS + Algemeen
+
+    Vakken
+    ├─ Excel + Scenario's
+    └─ Excel + Algemeen
+
+    Traject
+    ├─ Excel + Algemeen
+    └─ Scenario's (nader te bepalen)
+
+Hierdoor wordt eerst bepaald op welk detailniveau een waarde beschikbaar is.
+Vervolgens wordt binnen dat detailniveau de juiste bron en invoercategorie
+gebruikt.
