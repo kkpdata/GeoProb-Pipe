@@ -18,7 +18,7 @@ import geoprob_pipe.cmd_app.general.project as module
         ),
     ]
 )
-def test_created_project_happy_flows(
+def test_created_project_happy_paths(
     monkeypatch,
     choice,
     function_name,
