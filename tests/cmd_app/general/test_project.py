@@ -22,7 +22,7 @@ def test_created_project_happy_paths(
     monkeypatch,
     choice,
     function_name,
-):
+) -> None:
     app_settings = Mock()
 
     prompt_mock = Mock()
@@ -50,8 +50,10 @@ def test_created_project_happy_paths(
 
     result = module.created_project(app_settings)
 
+    # Path reaches return
     assert result is True
 
+    # Functions were called
     action_mock.assert_called_once_with(app_settings)
 
     logging_mock.assert_called_once_with(
@@ -59,7 +61,7 @@ def test_created_project_happy_paths(
     )
     
 
-def test_created_project_compare(monkeypatch):
+def test_created_project_compare(monkeypatch) -> None:
     prompt_mock = Mock()
     prompt_mock.execute.return_value = (
         "Twee projectbestanden vergelijken"

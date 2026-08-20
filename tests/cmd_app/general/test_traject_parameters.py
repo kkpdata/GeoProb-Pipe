@@ -2,11 +2,11 @@ from unittest.mock import Mock
 
 import pytest
 
-from geoprob_pipe.cmd_app.general.traject_parameters import _specify_w
+import geoprob_pipe.cmd_app.general.traject_parameters as module
 
 
 @pytest.mark.parametrize(
-    "input_value, verwachte_tekst",
+    "input_value, expected_answer",
     [
         ("", "geen w gespecificeerd"),
         ("abc", "geen decimaal getal"),
@@ -19,14 +19,14 @@ def test_specify_w_validations(
     monkeypatch,
     capsys,
     input_value,
-    verwachte_tekst,
-):
+    expected_answer,
+) -> None:
     app_settings = Mock()
 
-    antwoorden = iter([input_value, "0.24"])
+    answers = iter([input_value, "0.24"])
 
     prompt_mock = Mock()
-    prompt_mock.execute.side_effect = lambda: next(antwoorden)
+    prompt_mock.execute.side_effect = lambda: next(answers)
 
     text_mock = Mock(return_value=prompt_mock)
 
@@ -37,21 +37,22 @@ def test_specify_w_validations(
 
     append_mock = Mock()
     monkeypatch.setattr(
-        "geoprob_pipe.cmd_app.general.traject_parameters._append_to_db",
+        module,
+        "_append_to_db",
         append_mock,
     )
 
-    _specify_w(app_settings)
+    module._specify_w(app_settings)
 
     captured = capsys.readouterr()
 
-    # juiste foutmelding getoond
-    assert verwachte_tekst in captured.out
+    # correct respons
+    assert expected_answer in captured.out
 
-    # eerst fout, daarna geldige invoer
+    # correct value after invalid value
     assert prompt_mock.execute.call_count == 2
 
-    # waarde opgeslagen
+    # value stored correctly
     append_mock.assert_called_once_with(
         app_settings=app_settings,
         key="w",

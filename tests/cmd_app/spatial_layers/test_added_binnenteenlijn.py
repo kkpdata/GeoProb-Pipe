@@ -6,7 +6,7 @@ import geoprob_pipe.cmd_app.spatial_layers.binnenteenlijn as module
 def test_added_binnenteenlijn_already_included(
     monkeypatch,
     capsys,
-):
+) -> None:
     app_settings = Mock()
     app_settings.geopackage_filepath = "dummy.gpkg"
 
@@ -58,7 +58,7 @@ def test_added_binnenteenlijn_not_yet_included(
         request_mock,
     )
 
-    result = module.added_binnenteenlijn(app_settings)
+    result: bool = module.added_binnenteenlijn(app_settings)
 
     assert result is True
 
