@@ -19,15 +19,6 @@ DEFAULT_RELIABILITY_SETTINGS: Dict[str, Union[str, float, int]] = {
     "reuse_calculations": False,
 }
 
-# DEFAULT_RELIABILITY_SETTINGS: Dict[str, Union[str, float, int]] = {
-#     "reliability_method": ReliabilityMethod.form.__str__(),
-#     "variation_coefficient": 0.02,
-#     "maximum_iterations": 10_000,
-#     "relaxation_factor": 0.4,
-#     "epsilon_beta": 0.05,
-#     "relaxation_loops": 10,
-# }
-
 
 class SystemSetup:
 
