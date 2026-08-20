@@ -15,7 +15,7 @@ from geoprob_pipe.cmd_app.general.traject_parameters import _specify_w
         ("-1", "kleiner of gelijk aan 0.0"),
     ],
 )
-def test_specify_w_validaties(
+def test_specify_w_validations(
     monkeypatch,
     capsys,
     input_value,
