@@ -17,7 +17,7 @@ from geoprob_pipe.results.alphas_and_physical_values import (
     collect_stochast_values, calculate_derived_values)
 import logging
 from pandas import DataFrame
-
+import os
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
     from geoprob_pipe.calculations.systems.base_objects\
@@ -103,35 +103,40 @@ def _worker(row_unique: dict):
             calc.run()
             
             logger.debug("SystemCalculation voltooid.")
+            
             logger.debug("Validation messages:")
             logger.debug(f"\n{calc.validation_messages.df}")
-            
-            logger.debug("Limit states print:")
-            for lm in calc.results.dps_limit_states:
-                lm.print()
-            
-            logger.debug("Combine project print:")
-            calc.results.combine_project.design_point.print()
+            if os.environ.get("GEOPROB_DEBUG", False):
+                logger.debug("Limit states print:")
+                for lm in calc.results.dps_limit_states:
+                    lm.print()
+                
+                logger.debug("Combine project print:")
+                calc.results.combine_project.design_point.print()
 
-            logger.debug("Reliability project print:")
-            calc.results.reliability_project.design_point.print()
+                logger.debug("Reliability project print:")
+                calc.results.reliability_project.design_point.print()
 
             # Collect results
             df_limit_state = collect_df_beta_limit_state(calc)
-            logger.debug("df_limit_state:")
-            logger.debug(f"\n{df_limit_state}")
+            if os.environ.get("GEOPROB_DEBUG", False):
+                logger.debug("df_limit_state:")
+                logger.debug(f"\n{df_limit_state}")
             if any(r == 0 for r in df_limit_state.total_model_runs):
                 logger.warning("Limit state with 0 total model runs encountered.")
             df_scenario_rp = collect_df_beta_scenario_rp(calc)
-            logger.debug("df_scenario_rp:")
-            logger.debug(f"\n{df_scenario_rp}")
+            if os.environ.get("GEOPROB_DEBUG", False):
+                logger.debug("df_scenario_rp:")
+                logger.debug(f"\n{df_scenario_rp}")
             df_scenario_cp = collect_df_beta_scenario_cp(calc)
-            logger.debug("df_scenario_cp:")
-            logger.debug(f"\n{df_scenario_cp}")
+            if os.environ.get("GEOPROB_DEBUG", False):
+                logger.debug("df_scenario_cp:")
+                logger.debug(f"\n{df_scenario_cp}")
             df_scenario_final = collect_df_beta_scenario_final(calc)
             df_stochast = collect_stochast_values(calc, df_scenario_final=df_scenario_final)
-            logger.debug("df_stochast:")
-            logger.debug(f"\n{df_stochast.to_string()}")
+            if os.environ.get("GEOPROB_DEBUG", False):
+                logger.debug("df_stochast:")
+                logger.debug(f"\n{df_stochast.to_string()}")
             if df_scenario_cp.converged is True and any(a >= 0.99 for a in df_stochast.alpha):
                 logger.warning("Unrealistically dominant (alpha >= 0.99) parameter found in combined project.")
             if df_scenario_rp.converged is True and any(a >= 0.99 for a in df_stochast.alpha):
