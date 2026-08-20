@@ -3,6 +3,7 @@ from geoprob_pipe.calculations.systems.model4a.system_builder import Model4aSyst
 from geoprob_pipe.calculations.systems.wbi.system_builder import WBISystemBuilder
 from geoprob_pipe.calculations.limit_states.piping_lm import limit_state_moria
 from geoprob_pipe.calculations.systems.model4a.limit_state_functions import limit_state_model4a
+from geoprob_pipe.calculations.limit_states.piping_lm import limit_state_wbi
 # TODO: Dynamisch maken? Forceren dat naamgeving overeenkomt en
 # we dynamisch importeren?
 
@@ -20,6 +21,9 @@ CALCULATION_MAPPER = {
     "wbi": {
         "label": "WBI",
         "system_builder": WBISystemBuilder,
+        "system_return_parameter_keys": [
+            "z_u", "z_h", "z_p", "z_combin", "h_exit", "phi_exit", "dphi_c_u", "i_exit", "dh_c", "dh_red"],
+        "limit_state_function": limit_state_wbi,
     },
     "moria": {
         "label": "MORIA",
