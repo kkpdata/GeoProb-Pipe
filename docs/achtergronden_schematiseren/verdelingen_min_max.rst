@@ -34,5 +34,6 @@ daadwerkelijke fysische gedrag van het systeem.
 De standaardwaarden vormen daarom geen vaste voorschriften, maar een hulpmiddel
 om onrealistische modeluitkomsten te voorkomen.
 
+#TODO tabel met min en max waarden toevoegen
 
 
