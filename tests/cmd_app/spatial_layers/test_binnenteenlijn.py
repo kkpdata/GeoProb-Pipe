@@ -7,9 +7,12 @@ def test_added_binnenteenlijn_already_included(
     monkeypatch,
     capsys,
 ) -> None:
+    """Test case `binnenteenlijn` already added to gpkg."""
+    # Mock input arguments
     app_settings = Mock()
     app_settings.geopackage_filepath = "dummy.gpkg"
 
+    # Monkey patch assigned function calls
     monkeypatch.setattr(
         module.fiona,
         "listlayers",
@@ -20,6 +23,7 @@ def test_added_binnenteenlijn_already_included(
         ]),
     )
 
+    # Mock called module fuctions
     request_mock = Mock()
     monkeypatch.setattr(
         module,
@@ -27,21 +31,30 @@ def test_added_binnenteenlijn_already_included(
         request_mock,
     )
 
+    # Run tested function:
     result = module.added_binnenteenlijn(app_settings)
 
+    # Check expected return
     assert result is True
 
-    request_mock.assert_not_called()
-
+    # Check correct message printed
     captured = capsys.readouterr()
     assert "Binnenteenlijn al toegevoegd" in captured.out
+    
+    # Check function in other branch not called
+    request_mock.assert_not_called()
+
+    
     
 def test_added_binnenteenlijn_not_yet_included(
     monkeypatch,
 ):
+    """Test case `binnenteenlijn` not yet added to gpkg."""
+    # Mock input argument(s)
     app_settings = Mock()
     app_settings.geopackage_filepath = "dummy.gpkg"
 
+    # Monkey patch assigned function call(s)
     monkeypatch.setattr(
         module.fiona,
         "listlayers",
@@ -51,6 +64,7 @@ def test_added_binnenteenlijn_not_yet_included(
         ]),
     )
 
+    # Mock called module fuction(s)
     request_mock = Mock()
     monkeypatch.setattr(
         module,
@@ -58,10 +72,13 @@ def test_added_binnenteenlijn_not_yet_included(
         request_mock,
     )
 
+    # Run tested function:
     result: bool = module.added_binnenteenlijn(app_settings)
 
+    # Check expected return
     assert result is True
 
+    # Check function call with correct argument
     request_mock.assert_called_once_with(
         app_settings=app_settings
     )

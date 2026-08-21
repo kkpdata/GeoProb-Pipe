@@ -21,12 +21,16 @@ def test_specify_w_validations(
     input_value,
     expected_answer,
 ) -> None:
+    """Test for all branches of validation and correct storage of user input."""
+    # Mock input arguments
     app_settings = Mock()
 
-    answers = iter([input_value, "0.24"])
+    # Setup user inputs
+    user_inputs = iter([input_value, "0.24"])
 
+    # Mock assigned function calls
     prompt_mock = Mock()
-    prompt_mock.execute.side_effect = lambda: next(answers)
+    prompt_mock.execute.side_effect = lambda: next(user_inputs)
 
     text_mock = Mock(return_value=prompt_mock)
 
@@ -35,6 +39,7 @@ def test_specify_w_validations(
         text_mock,
     )
 
+    # Mock called functions
     append_mock = Mock()
     monkeypatch.setattr(
         module,
@@ -42,19 +47,19 @@ def test_specify_w_validations(
         append_mock,
     )
 
+    # Run tested function:
     module._specify_w(app_settings)
 
+    # Check correct message printed
     captured = capsys.readouterr()
-
-    # correct respons
     assert expected_answer in captured.out
 
-    # correct value after invalid value
+    # Check continue loop
     assert prompt_mock.execute.call_count == 2
 
-    # value stored correctly
+    # Check accepted value stored correctly
     append_mock.assert_called_once_with(
         app_settings=app_settings,
         key="w",
-        value=0.24,
+        value=0.24,  # as a float
     )
