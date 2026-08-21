@@ -29,6 +29,7 @@ def test_specify_w_validations(
     expected_answer: str,
 ) -> None:
     """Test for all branches of validation and correct storage of user input."""
+    # Arrange
     # Mock input arguments
     app_settings = Mock()
 
@@ -54,9 +55,11 @@ def test_specify_w_validations(
         append_mock,
     )
 
+    # Act
     # Run tested function:
     module._specify_w(app_settings)
 
+    # Assert
     # Check correct message printed
     captured = capsys.readouterr()
     assert expected_answer in captured.out

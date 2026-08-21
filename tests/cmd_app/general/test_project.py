@@ -31,6 +31,7 @@ def test_created_project_happy_paths(
     function_name: str,
 ) -> None:
     """Test of the paths are correctly completed."""
+    # Arrange
     # Mock input arguments
     app_settings = Mock()
 
@@ -54,8 +55,10 @@ def test_created_project_happy_paths(
         logging_mock,
     )
 
+    # Act
     result: bool = module.created_project(app_settings)
 
+    # Assert
     # Check path reaches return
     assert result is True
 
@@ -66,7 +69,8 @@ def test_created_project_happy_paths(
 
 
 def test_created_project_compare(monkeypatch) -> None:
-    """ "Test start compare function."""
+    """Test start compare function."""
+    # Arrange
     # Mock assigned function calls
     prompt_mock = Mock()
     choice: str = "Twee projectbestanden vergelijken"
@@ -77,15 +81,18 @@ def test_created_project_compare(monkeypatch) -> None:
     compare_mock = Mock()
     monkeypatch.setattr(module, "start_comparison", compare_mock)
 
+    # Act
     # While capturing the sysexit() run the function
     with pytest.raises(SystemExit, match="Applicatie afgesloten"):
         module.created_project(Mock())
 
+    # Assert
     # Check function call
     compare_mock.assert_called_once()
 
 
 def test_created_project_single_calc(monkeypatch) -> None:
+    # Arrange
     # Mock assigned function calls
     prompt_mock = Mock()
     choice: str = "Inspecteer een enkele berekening"
@@ -107,10 +114,12 @@ def test_created_project_single_calc(monkeypatch) -> None:
         "Console",
         console_mock,
     )
+    # Act
     # While capturing the sysexit() run the function
     with pytest.raises(SystemExit, match="Applicatie afgesloten"):
         module.created_project(Mock())
 
+    # Assert
     # Check Panel construction
     panel_mock.assert_called_once_with(
         module.EXPLANATION_REPRODUCING_SINGLE_CALCULATION,

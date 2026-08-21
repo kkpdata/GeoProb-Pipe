@@ -15,6 +15,7 @@ def test_added_binnenteenlijn_already_included(
     capsys,
 ) -> None:
     """Test case `binnenteenlijn` already added to gpkg."""
+    # Arrange
     # Mock input arguments
     app_settings = Mock()
     app_settings.geopackage_filepath = "dummy.gpkg"
@@ -38,9 +39,11 @@ def test_added_binnenteenlijn_already_included(
         request_mock,
     )
 
+    # Act
     # Run tested function:
     result: bool = module.added_binnenteenlijn(app_settings)
 
+    # Assert
     # Check expected return
     assert result is True
 
@@ -57,6 +60,7 @@ def test_added_binnenteenlijn_not_yet_included(
     monkeypatch,
 ) -> None:
     """Test case `binnenteenlijn` not yet added to gpkg."""
+    # Arrange
     # Mock input argument(s)
     app_settings = Mock()
     app_settings.geopackage_filepath = "dummy.gpkg"
@@ -79,9 +83,11 @@ def test_added_binnenteenlijn_not_yet_included(
         request_mock,
     )
 
+    # Act
     # Run tested function:
     result: bool = module.added_binnenteenlijn(app_settings)
 
+    # Assert
     # Check expected return
     assert result is True
 
