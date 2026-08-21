@@ -27,8 +27,8 @@ import geoprob_pipe.cmd_app.general.project as module
 )
 def test_created_project_happy_paths(
     monkeypatch,
-    choice,
-    function_name,
+    choice: str,
+    function_name: str,
 ) -> None:
     """Test of the paths are correctly completed."""
     # Mock input arguments
@@ -54,7 +54,7 @@ def test_created_project_happy_paths(
         logging_mock,
     )
 
-    result = module.created_project(app_settings)
+    result: bool = module.created_project(app_settings)
 
     # Check path reaches return
     assert result is True
@@ -69,7 +69,8 @@ def test_created_project_compare(monkeypatch) -> None:
     """ "Test start compare function."""
     # Mock assigned function calls
     prompt_mock = Mock()
-    prompt_mock.execute.return_value = "Twee projectbestanden vergelijken"
+    choice: str = "Twee projectbestanden vergelijken"
+    prompt_mock.execute.return_value = choice
     monkeypatch.setattr("InquirerPy.inquirer.select", Mock(return_value=prompt_mock))
 
     # Mock called functions
@@ -87,7 +88,8 @@ def test_created_project_compare(monkeypatch) -> None:
 def test_created_project_single_calc(monkeypatch) -> None:
     # Mock assigned function calls
     prompt_mock = Mock()
-    prompt_mock.execute.return_value = "Inspecteer een enkele berekening"
+    choice: str = "Inspecteer een enkele berekening"
+    prompt_mock.execute.return_value = choice
     monkeypatch.setattr("InquirerPy.inquirer.select", Mock(return_value=prompt_mock))
 
     # Mock called functions

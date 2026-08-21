@@ -39,7 +39,7 @@ def test_added_binnenteenlijn_already_included(
     )
 
     # Run tested function:
-    result = module.added_binnenteenlijn(app_settings)
+    result: bool = module.added_binnenteenlijn(app_settings)
 
     # Check expected return
     assert result is True

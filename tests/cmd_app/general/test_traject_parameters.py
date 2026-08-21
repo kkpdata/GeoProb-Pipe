@@ -25,8 +25,8 @@ import geoprob_pipe.cmd_app.general.traject_parameters as module
 def test_specify_w_validations(
     monkeypatch,
     capsys,
-    input_value,
-    expected_answer,
+    input_value: str,
+    expected_answer: str,
 ) -> None:
     """Test for all branches of validation and correct storage of user input."""
     # Mock input arguments
