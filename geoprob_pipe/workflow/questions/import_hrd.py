@@ -11,7 +11,7 @@ CHOICES = [
 
 
 class QuestionImportHRD(Question):
-    question_label = "import_hrd"
+    label = "import_hrd"
 
     def ask(self) -> str:
         return inquirer.select(
@@ -28,8 +28,12 @@ class QuestionImportHRD(Question):
         return ValidationResult(True)
 
     @property
+    def should_run(self) -> bool:
+        return True  # Always ask if HRD-data should be imported.
+
+    @property
     def completed(self) -> bool:
-        import_hrd: Optional[str] = self.state.retrieve_question_answer(self.question_label)
-        if import_hrd is None or import_hrd == CHOICES[2]:
+        answer: Optional[str] = self.state.retrieve_question_answer(self.label)
+        if answer is None or answer == CHOICES[2]:
             return False
         return True

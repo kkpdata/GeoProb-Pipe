@@ -13,8 +13,8 @@ def main(ctx: typer.Context):
     if ctx.invoked_subcommand is None:
         for obj in steps:
             step = obj(state=state)
-            print(f"{step.completed=}")
-            if not step.completed:
+            print(f"{step.label}: {step.should_run=} {step.completed=}")
+            if step.should_run and not step.completed:
                 step.execute()
 
 

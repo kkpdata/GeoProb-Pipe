@@ -1,13 +1,13 @@
 from geoprob_pipe.workflow.base_objects import Step
 from typing import List, Type
-from geoprob_pipe.workflow.questions.import_hrd import QuestionImportHRD
+from geoprob_pipe.workflow.questions import QuestionImportHRD, QuestionDirHydraNLDatabase
 
 
 steps: List[Type[Step]] = [
 
     # HRD
     QuestionImportHRD,
-    # QuestionDirectoryPathHydraNLDatabase,
+    QuestionDirHydraNLDatabase,
     # ActionImportHRDFromHydraNLDatabase,
     # ActionImportTrajectParametersFromHydraNLDatabase,
     # QuestionFilePathGeoProbPipeFileWithHRD,
