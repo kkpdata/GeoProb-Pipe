@@ -47,8 +47,9 @@ class Question(Step):
         answer = self.ask_until_valid()
         self.state.store_question_answer(question_label=self.label, answer=answer)
 
+    @staticmethod
     @abstractmethod
-    def validate(self, answer) -> ValidationResult:
+    def validate(answer) -> ValidationResult:
         raise NotImplementedError()
 
     def ask_until_valid(self):

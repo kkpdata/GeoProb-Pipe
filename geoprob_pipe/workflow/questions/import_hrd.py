@@ -22,7 +22,8 @@ class QuestionImportHRD(Question):
             default=CHOICES[0],
         ).execute()
 
-    def validate(self, answer):
+    @staticmethod
+    def validate(answer):
         if answer not in CHOICES:
             return ValidationResult(False, f"Kies één van de volgende opties: {CHOICES}.")
         return ValidationResult(True)
