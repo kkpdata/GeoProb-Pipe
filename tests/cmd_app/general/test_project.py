@@ -1,3 +1,9 @@
+"""
+Unit tests for `geoprob_pipe.cmd_app.general.project.py`.
+Tests performed for:
+    - created_project(app_settings: ApplicationSettings) -> bool
+"""
+
 from unittest.mock import Mock
 
 import pytest
@@ -5,6 +11,7 @@ import pytest
 import geoprob_pipe.cmd_app.general.project as module
 
 
+# --- created_project(app_settings: ApplicationSettings) -> bool ---
 @pytest.mark.parametrize(
     "choice,function_name",
     [

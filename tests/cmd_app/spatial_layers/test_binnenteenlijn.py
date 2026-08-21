@@ -1,8 +1,15 @@
+"""
+Unit tests for `geoprob_pipe.cmd_app.spatial_layers.binnenteenlijn.py`.
+Tests performed for:
+    - added_binnenteenlijn(app_settings: ApplicationSettings) -> bool
+"""
+
 from unittest.mock import Mock
 
 import geoprob_pipe.cmd_app.spatial_layers.binnenteenlijn as module
 
 
+# --- added_binnenteenlijn(app_settings: ApplicationSettings) -> bool ---
 def test_added_binnenteenlijn_already_included(
     monkeypatch,
     capsys,
@@ -48,7 +55,7 @@ def test_added_binnenteenlijn_already_included(
     
 def test_added_binnenteenlijn_not_yet_included(
     monkeypatch,
-):
+) -> None:
     """Test case `binnenteenlijn` not yet added to gpkg."""
     # Mock input argument(s)
     app_settings = Mock()

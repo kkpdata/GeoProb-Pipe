@@ -1,3 +1,9 @@
+"""
+Unit tests for `geoprob_pipe.cmd_app.general.traject_parameters.py`.
+Tests performed for:
+    - _specify_w(app_settings: ApplicationSettings)
+"""
+
 from unittest.mock import Mock
 
 import pytest
@@ -5,6 +11,7 @@ import pytest
 import geoprob_pipe.cmd_app.general.traject_parameters as module
 
 
+# --- _specify_w(app_settings: ApplicationSettings) ---
 @pytest.mark.parametrize(
     "input_value, expected_answer",
     [
