@@ -1,3 +1,5 @@
+.. _achtergronden-schematiseren-hierarchie:
+
 Hiërarchie van invoerbronnen en detailniveaus
 =============================================
 
@@ -8,10 +10,8 @@ meerdere detailniveaus en vanuit verschillende bronnen beschikbaar zijn.
 Deze pagina beschrijft:
 
 * welke invoercategorieën door GeoProb-Pipe worden gebruikt;
-* hoe invoerwaarden worden georganiseerd binnen trajecten, vakken en
-uittredepunten;
-* hoe GeoProb-Pipe bepaalt welke waarde wordt gebruikt wanneer dezelfde
-parameter op meerdere niveaus of in meerdere bronnen aanwezig is.
+* hoe invoerwaarden worden georganiseerd binnen trajecten, vakken en uittredepunten;
+* hoe GeoProb-Pipe bepaalt welke waarde wordt gebruikt wanneer dezelfde parameter op meerdere niveaus of in meerdere bronnen aanwezig is.
 
 Door deze hiërarchie toe te passen kan zowel met een globale als een
 gedetailleerde schematisering worden gewerkt, waarbij de meest specifieke
@@ -37,6 +37,7 @@ Deze gegevens worden via GIS-bestanden aangeleverd en beschrijven de ligging van
 Uittredepunten
 ~~~~~~~~~~~~~~
 Uittredepunten worden aangeleverd als puntenbestand. Een uittredepunt beschrijft de locatie waarop een pipingberekening wordt uitgevoerd. Naast de locatie bevat een uittredepunt bijvoorbeeld informatie over:
+
 -   maaiveldhoogte ter plaatse van het uittredepunt.
 -   wordt gecombineerd met de geometrische gegevens om afstand tot de buitenteenlijn en binnenteenlijn te bepalen.
 
@@ -80,8 +81,7 @@ De prioriteitsvolgorde is daarom:
 
 Uittredepunt > Vak > Traject
 
-Wanneer voor een parameter een waarde beschikbaar is op meerdere
-detailniveaus, wordt altijd de meest specifieke waarde gebruikt.
+Wanneer voor een parameter een waarde beschikbaar is op meerdere detailniveaus, wordt altijd de meest specifieke waarde gebruikt.
 
 Voorbeeld
 ^^^^^^^^^

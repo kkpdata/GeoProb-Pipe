@@ -80,10 +80,10 @@ Onder de motorkap doorzoekt GeoProb‑Pipe deze niveaus hiërarchisch. Als op ee
 kijkt het programma automatisch naar het eerstvolgende hogere niveau. Wanneer er bijvoorbeeld geen invoer is op
 vakniveau, wordt automatisch gecontroleerd of er invoer op trajectniveau aanwezig is. Hierdoor hoef je alleen invoer
 op te geven voor de vakken, scenario’s of uittredepunten waarvoor je daadwerkelijk een nadere detaillering wilt
-doorvoeren.
+doorvoeren. Dit is in meer detail beschreven in :ref:`hier<achtergronden-schematiseren-hierarchie>`.
 
 .. TODO: figuur toevoegen van hiërarchische systeem van parameterinvoer. Hierin ook aangeven dat de invoer op een 
-   hoger niveau de invoer op een lager niveau overschrijft.
+   hoger niveau de invoer op een lager niveau overschrijft. Gedaan in scheamatiseren. kunnen we hier naar verwijzen?
 
 .. TODO: Waar beschrijven we hoe parameter invoer elkaar kan overlappen?
 
