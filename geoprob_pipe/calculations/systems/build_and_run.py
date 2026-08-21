@@ -90,15 +90,18 @@ def _logging_code():
 
 
 def _run_calculation(row_unique: dict) -> SystemCalculation:
-    logger.debug("Start berekening voor %s", row_unique)
+    debug: bool = os.environ.get("GEOPROB_DEBUG", False)
+    if debug: logger.debug("Start berekening voor %s", row_unique)
+
+    # Run calculation
     calc: SystemCalculation = _BUILDER.build_instance(row_unique=row_unique)
     calc.run()
-    logger.debug("SystemCalculation voltooid.")  # TODO: Skip if no issue?
+    if debug: logger.debug("SystemCalculation voltooid.")
 
-    logger.debug("Validation messages:")
-    logger.debug(f"\n{calc.validation_messages.df}")  # TODO: Only if there are any?
+    # Remainder is logging in case of validation messages or debug modus
+    if calc.validation_messages.df: logger.debug(f"Validation messages:\n{calc.validation_messages.df}")
 
-    if os.environ.get("GEOPROB_DEBUG", False):
+    if debug:
         logger.debug("Limit states print:")
         for lm in calc.results.dps_limit_states:
             lm.print()
@@ -113,30 +116,22 @@ def _run_calculation(row_unique: dict) -> SystemCalculation:
 
 
 def _collect_results(calc: SystemCalculation) -> CalcResult:
+    debug: bool = os.environ.get("GEOPROB_DEBUG", False)
     df_limit_state = collect_df_beta_limit_state(calc)
-    if os.environ.get("GEOPROB_DEBUG", False):
-        logger.debug("df_limit_state:")
-        logger.debug(f"\n{df_limit_state}")
+    if debug: logger.debug(f"df_limit_state:\n{df_limit_state}")
     if any(r == 0 for r in df_limit_state.total_model_runs):
-        logger.warning("Limit state with 0 total model runs encountered. "
-                       "Notify developer and re-run calculations. ")
+        logger.warning("Limit state with 0 total model runs encountered. Notify developer and re-run calculations. ")
 
     df_scenario_rp = collect_df_beta_scenario_rp(calc)
-    if os.environ.get("GEOPROB_DEBUG", False):
-        logger.debug("df_scenario_rp:")
-        logger.debug(f"\n{df_scenario_rp}")
+    if debug: logger.debug(f"df_scenario_rp:\n{df_scenario_rp}")
 
     df_scenario_cp = collect_df_beta_scenario_cp(calc)
-    if os.environ.get("GEOPROB_DEBUG", False):
-        logger.debug("df_scenario_cp:")
-        logger.debug(f"\n{df_scenario_cp}")
+    if debug: logger.debug(f"df_scenario_cp:\n{df_scenario_cp}")
 
     df_scenario_final = collect_df_beta_scenario_final(calc)
 
     df_stochast = collect_stochast_values(calc, df_scenario_final=df_scenario_final)
-    if os.environ.get("GEOPROB_DEBUG", False):
-        logger.debug("df_stochast:")
-        logger.debug(f"\n{df_stochast.to_string()}")
+    if debug: logger.debug(f"df_stochast:\n{df_stochast.to_string()}")
 
     if df_scenario_cp.converged is True and any(a >= 0.99 for a in df_stochast.alpha):
         logger.warning("Unrealistically dominant (alpha >= 0.99) parameter found in combined project.")
@@ -196,12 +191,12 @@ class BuildAndRunCalculations:
         self.geopackage_filepath: str = geoprob_pipe.input_data.app_settings.geopackage_filepath
         self.to_run_vakken_ids: str = geoprob_pipe.input_data.app_settings.to_run_vakken_ids
 
-        self._construct_run_settings()
-        self._setup_progress_variables()
+        self._construct_system_builder_and_settings()
+        self._setup_calculation_progress_variables()
 
         # Run logic with method .run()
 
-    def _construct_run_settings(self):
+    def _construct_system_builder_and_settings(self):
         """ Opzetten van de system builder en andere settings voor de berekeningen. """
 
         logger.info("Now preparing for calculations...")
@@ -217,7 +212,7 @@ class BuildAndRunCalculations:
         # Minimaal 5 berekeningen per chunk en grootte van chunk beperken zodat er gelogd kan worden.
         self.chunk_size: int = max(math.ceil(self.n_calc_totaal / (self.n_threads * 10)), 5)
 
-    def _setup_progress_variables(self):
+    def _setup_calculation_progress_variables(self):
         """ Simpel initiëren van een aantal variabelen die nodig zijn tijdens de berekeningen. """
 
         self.last_report: float = time.time()
@@ -226,12 +221,20 @@ class BuildAndRunCalculations:
         self.error_rows = []
         self.char_len_total: int = str(self.n_calc_totaal).__len__()
         self.log_rows = []
+        self.results: List[CalcResult] = []
 
     def _report_calculation_progress_to_user(self):
         """ Gedurende het uitvoeren van de berekening koppelt deze method terug wat de progressie is. """
 
-        # Alleen kijken of er gelogd moet worden bij de laatste
-        # berekening die uit de chunk komt.
+        # If finished
+        error_count_append = ""
+        if self.log_errors > 0:
+            error_count_append = f" (of which {self.log_errors} failed calculations)"
+        if self.n_calc_totaal == self.done:
+            logger.info(f"Progress: {self.done:>{self.char_len_total}} / {self.n_calc_totaal} calculations"
+                        f"{error_count_append}.")
+
+        # Alleen kijken of er gelogd moet worden bij de laatste berekening die uit de chunk komt.
         if self.done % self.chunk_size != 0:
             return
 
@@ -240,15 +243,11 @@ class BuildAndRunCalculations:
         if now - self.last_report < 30.0:
             return
 
-        # Log
-        error_count_append = ""
-        if self.log_errors > 0:
-            error_count_append = f" (of which {self.log_errors} failed calculations)"
         logger.info(
             f"Progress: {self.done:>{self.char_len_total}} / {self.n_calc_totaal} calculations{error_count_append}.")
         self.last_report = now
 
-    def _push_errors_to_database(self):
+    def _push_resulting_error_messages_to_database(self):
         """ Aan eind van run pushed deze method de errors (if any) naar de database. """
 
         conn = sqlite3.connect(self.geopackage_filepath)
@@ -272,7 +271,6 @@ class BuildAndRunCalculations:
 
         rows = [dict(zip(self.df_unique_combos.columns, r))
                 for r in self.df_unique_combos.itertuples(index=False, name=None)]
-        results: List[CalcResult] = []
         pool_size = max(min(math.floor(self.n_calc_totaal / self.chunk_size), self.n_threads), 1)
 
         # Multiprocessing setup
@@ -281,7 +279,7 @@ class BuildAndRunCalculations:
 
             for res, logs, row in pool.imap_unordered(_worker, rows, chunksize=self.chunk_size):
                 if isinstance(res, CalcResult):
-                    results.append(res)
+                    self.results.append(res)
                 if isinstance(logs, str):
                     self.log_rows.append({
                         "uittredepunt_id": row["uittredepunt_id"],
@@ -296,5 +294,5 @@ class BuildAndRunCalculations:
 
                 self._report_calculation_progress_to_user()
 
-        self._push_errors_to_database()
-        return results
+        self._push_resulting_error_messages_to_database()
+        return self.results
