@@ -221,7 +221,6 @@ class BuildAndRunCalculations:
         self.error_rows = []
         self.char_len_total: int = str(self.n_calc_totaal).__len__()
         self.log_rows = []
-        self.results: List[CalcResult] = []
 
     def _report_calculation_progress_to_user(self):
         """ Gedurende het uitvoeren van de berekening koppelt deze method terug wat de progressie is. """
@@ -274,12 +273,13 @@ class BuildAndRunCalculations:
         pool_size = max(min(math.floor(self.n_calc_totaal / self.chunk_size), self.n_threads), 1)
 
         # Multiprocessing setup
+        results: List[CalcResult] = []
         with Pool(processes=pool_size, initializer=_init_worker, initargs=(
                 self.geohydrologisch_model, self.geopackage_filepath, self.to_run_vakken_ids)) as pool:
 
             for res, logs, row in pool.imap_unordered(_worker, rows, chunksize=self.chunk_size):
                 if isinstance(res, CalcResult):
-                    self.results.append(res)
+                    results.append(res)
                 if isinstance(logs, str):
                     self.log_rows.append({
                         "uittredepunt_id": row["uittredepunt_id"],
@@ -295,4 +295,4 @@ class BuildAndRunCalculations:
                 self._report_calculation_progress_to_user()
 
         self._push_resulting_error_messages_to_database()
-        return self.results
+        return results
