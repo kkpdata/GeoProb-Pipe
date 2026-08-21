@@ -1,23 +1,19 @@
-Stap 0: Scenarioberekening
-===========================
-Piping treedt op als opbarsten én heave én terugschrijdende erosie optreedt.
-Deze mechanismen zijn beschreven door grenstoestandsfuncties (``Zu``, ``Zh`` en ``Zp``).
-Probabilistische rekentechnieken zoeken naar de combinatie van mogelijke realisaties 
-van onzekere parameters waarbij de kans op falen het grootst is. Dit is voor elke 
-grenstoestandfunctie een andere combinatie. Omdat we in de analyse van de resultaten 
-graag de invloedsfactoren van de afzonderlijke grenstoestandsfuncties willen beschouwen,
-niet elke rekentechniek convergeert naar een betrouwbare oplossing en een herleidbare 
-oplossing vereist is, is het volgende rekenprotocol bedacht.
+Stap 0: Bepalen faalkans op scenarioniveau
+==========================================
+
+Piping treedt op als opbarsten én heave én terugschrijdende erosie optreedt. Deze mechanismen zijn beschreven door
+grenstoestandfuncties (``Zu``, ``Zh`` en ``Zp``). Probabilistische rekentechnieken zoeken naar de combinatie van
+onzekere parameters waarbij de kans op falen het grootst is. Dit is voor elke
+grenstoestandfunctie een andere combinatie. Omdat `GeoProb-Pipe` een herleidbare oplossing vereist, is het volgende 
+rekenprotocol bedacht.
 
 Rekenprotocol 'Bepalen betrouwbaarheidsindex β'
 -----------------------------------------------
 
-Per scenarioberekening en gegeven een set van (onzekere) invoervariabelen, worden 
-altijd de volgende drie rekenblokken uitgevoerd. Deze blokken verschillen in 
-probabilistische methode en in benodigde invoer.
+Per scenarioberekening en gegeven een set van (onzekere) invoervariabelen, worden altijd de volgende drie rekenblokken
+uitgevoerd. Deze blokken verschillen in probabilistische methode en in benodigde invoer.
 
-Het resultaat van de (gecombineerde) kans op piping wordt bepaald door convergentie 
-van deze rekenblokken.
+Het resultaat van de (gecombineerde) kans op piping wordt bepaald door convergentie van deze rekenblokken.
 
 .. _fig-rekenprotocol:
 .. figure:: ../_static/rekenprotocol.png
@@ -26,14 +22,13 @@ van deze rekenblokken.
 
    De drie verschillende rekenblokken voor de scenario berekeningen.
 
-\
 
 Reliability Project (RP) – afzonderlijke limit states (geelblok links)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Het Reliability Project wordt altijd eerst uitgevoerd, omdat dit benodigde invoer levert voor de overige methoden. In
-dit blok worden de drie afzonderlijke limit state functies (``Zu``, ``Zh``, ``Zp``) onafhankelijk van elkaar opgelost
-met FORM (default). Hierbij worden dezelfde stochasten en kansverdelingen gebruikt, maar voor iedere limit state worden
+Het Reliability Project wordt altijd uitgevoerd, omdat dit de input levert voor de overige methoden. In dit blok worden
+de drie afzonderlijke limit state functies (``Zu``, ``Zh``, ``Zp``) onafhankelijk van elkaar opgelost met FORM
+(default). Hierbij worden dezelfde stochasten en kansverdelingen gebruikt, maar voor iedere limit state worden
 zelfstandige trekkingen uitgevoerd.
 
 Dit resulteert in:
@@ -51,17 +46,15 @@ Reliability Project (RP) – samengestelde limit state (geelblok midden)
 Het tweede rekenblok maakt opnieuw gebruik van het Reliability Project, maar nu met 
 één samengestelde limit state: ``Z = max(Zu, Zh, Zp)``.
 
-Dezelfde stochasten, verdelingen en probabilistische methode als voorgaand wordt toegepast. 
-Alle deelmechanismen gecombineerd tot één samengestelde limit state die wordt opgelost 
-en leidt tot
+Dezelfde stochasten, verdelingen en probabilistische methode als voorgaand wordt toegepast. Alle deelmechanismen
+gecombineerd tot één samengestelde limit state die wordt opgelost en leidt tot
 
 - 1 × β‑waarde  
 - 1 × α‑vector
 - 1 × design point
 
-voor de betreffende scenarioberekening. De invloedsfactoren van de afzonderlijke 
-grenstoestandsfuncties zijn in dit geval niet beschikbaar.
-
+voor de betreffende scenarioberekening. De invloedsfactoren van de afzonderlijke grenstoestandfuncties zijn in dit
+geval niet beschikbaar.
 
 Combine Project (CP) – importance sampling (geelblok rechts)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -104,5 +97,5 @@ Stap 4 – Alle methodes zijn niet geconvergeerd, maar voor elk is de β‑waard
 
 Stap 5 – Alle methodes zijn niet geconvergeerd, én β < 8?
     → Controleer de invoervariabelen en verfijn zo nodig de rekeninstellingen (bijvoorbeeld FORM‑instellingen of
-    Importance Sampling-parameters). Wisselen van probabilistische methode is in de gebruikersinterface momenteel
-    nog niet mogelijk.
+    Importance Sampling-parameters). Wisselen van probabilistische methodes of rekeninstellingen is in de 
+    gebruikersinterface nog niet mogelijk. De rekeninstellingen zijn te vinden in `system_calculation.py`

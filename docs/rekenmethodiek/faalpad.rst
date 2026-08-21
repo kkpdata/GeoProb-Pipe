@@ -54,6 +54,7 @@ De dikte van de deklaag :math:`d_{deklaag}` ter plaatse van het uittredepunt is 
    d_{deklaag} = mv_{exit} - top_{zandlaag}
 
 waarin:
+
 - :math:`mv_{exit}` maaiveldniveau ter plaatse van het uittredepunt [m+NAP]
 - :math:`top_{zandlaag}` niveau bovenkant van de pipinggevoelige zandlaag [m+NAP]
 
@@ -77,9 +78,6 @@ De dempingsfactor :math:`r_{exit}` ter plaatse van het uittredepunt is afhankeli
 
    h_{exit} = max(\phi_{polder}, mv_{exit})
 
-waarin:
-
-- :math:`\phi_{polder}` het waterniveau in de polder [m+NAP]
 
 
 Heave
