@@ -9,7 +9,6 @@ def _folder_contains_hrd_db(hrd_dir: str) -> bool:
     cnt_config_files = 0
     cnt_hlcd_files = 0
 
-
     for file in os.listdir(hrd_dir):
         filename = os.fsdecode(file)
         if filename.endswith(".sqlite"):
@@ -45,14 +44,14 @@ class QuestionDirHydraNLDatabase(Question):
 
     @property
     def should_run(self) -> bool:
-        answer: Optional[str] = self.state.retrieve_question_answer("import_hrd")
+        answer: Optional[str] = self.state.question_answer.retrieve("import_hrd")
         if answer != "Hydra-NL database":
             return False
         return True
 
     @property
     def completed(self) -> bool:
-        answer: Optional[str] = self.state.retrieve_question_answer(self.label)
+        answer: Optional[str] = self.state.question_answer.retrieve(self.label)
         if answer is None:
             return False
         return True

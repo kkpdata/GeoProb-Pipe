@@ -34,7 +34,7 @@ class QuestionImportHRD(Question):
 
     @property
     def completed(self) -> bool:
-        answer: Optional[str] = self.state.retrieve_question_answer(self.label)
+        answer: Optional[str] = self.state.question_answer.retrieve(self.label)
         if answer is None or answer == CHOICES[2]:
             return False
         return True

@@ -2,7 +2,7 @@ from geoprob_pipe.workflow import steps, State
 import typer
 
 
-state = State(geoprob_pipe_file_path=r"C:\Users\CP\Downloads\false_fix\tmp.gpkg")
+state = State(file_path=r"C:\Users\CP\Downloads\false_fix\tmp.gpkg")
 
 app = typer.Typer(help="GeoProb-Pipe - CLI applicatie voor probabilistische piping berekeningen.", add_completion=False)
 

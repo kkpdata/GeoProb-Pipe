@@ -45,7 +45,7 @@ class Question(Step):
 
     def execute(self):
         answer = self.ask_until_valid()
-        self.state.store_question_answer(question_label=self.label, answer=answer)
+        self.state.question_answer.store(question_label=self.label, answer=answer)
 
     @staticmethod
     @abstractmethod
@@ -58,13 +58,15 @@ class Question(Step):
 
             # Validate
             result: ValidationResult = self.validate(answer)
-            if not result.is_valid:
-                print(f"{BColors.WARNING}{result.message}{BColors.ENDC}")
 
             # Is valid
-            if result.manipulated_answer:
-                return result.manipulated_answer
-            return answer
+            if result.is_valid:
+                if result.manipulated_answer:
+                    return result.manipulated_answer
+                return answer
+
+            # Is not valid
+            print(f"{BColors.WARNING}{result.message}{BColors.ENDC}")
 
 
 class Action(Step):
