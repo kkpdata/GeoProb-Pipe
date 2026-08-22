@@ -11,7 +11,6 @@ CHOICES = [
 
 
 class QuestionImportHRD(Question):
-    label = "import_hrd"
 
     def ask(self) -> str:
         return inquirer.select(

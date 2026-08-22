@@ -1,4 +1,5 @@
 from geoprob_pipe.workflow.base_objects import Question, ValidationResult
+from geoprob_pipe.workflow.questions import QuestionImportHRD
 from typing import Optional
 from InquirerPy import inquirer
 import os
@@ -23,7 +24,6 @@ def _folder_contains_hrd_db(hrd_dir: str) -> bool:
     return False
 
 class QuestionDirHydraNLDatabase(Question):
-    label = "dir_hydranl_db"
 
     def ask(self) -> str:
         return inquirer.text(
@@ -44,7 +44,7 @@ class QuestionDirHydraNLDatabase(Question):
 
     @property
     def should_run(self) -> bool:
-        answer: Optional[str] = self.state.question_answer.retrieve("import_hrd")
+        answer: Optional[str] = self.state.question_answer.retrieve(QuestionImportHRD.label)
         if answer != "Hydra-NL database":
             return False
         return True

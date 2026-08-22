@@ -7,8 +7,13 @@ if TYPE_CHECKING:
     from geoprob_pipe.workflow.state import State
 
 
+class ClassName:
+    def __get__(self, obj, cls):
+        return cls.__name__
+
+
 class Step(ABC):
-    label: str = None
+    label: str = ClassName()
 
     def __init__(self, state: State):
         self.state = state
