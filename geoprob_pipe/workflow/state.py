@@ -111,7 +111,7 @@ class State:
     """ Through the terminal user interface the user selects choices/preferences (questions and answers) and imports
     data. The state of the application is the state of these answers and imported data. """
 
-    def __init__(self, file_path: Optional[str] = None, file_dir: Optional[str] = None):
+    def __init__(self, file_path: Optional[str] = None, file_dir: Optional[str | Path] = None):
         """
 
         :param file_path: Path to the GeoProb-Pipe file.
