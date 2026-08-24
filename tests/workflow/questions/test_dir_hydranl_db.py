@@ -12,7 +12,6 @@ def test_question_dir_hydra_nl_database():
         os.path.join(repo_root, "tests", "systeem_testen", "224"),
         os.path.join(repo_root, "tests", "systeem_testen", "224", "hrd_files"),
     ]
-    print(f"{test_answers[2]=}")
     test_results = [
         False,
         False,
