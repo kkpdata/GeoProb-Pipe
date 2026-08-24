@@ -1,11 +1,14 @@
 from geoprob_pipe.workflow.questions import QuestionDirHydraNLDatabase
+from repo_utils.utils import repository_root_path
+import os
 
 
 def test_question_dir_hydra_nl_database():
+    repo_root = repository_root_path()
     test_answers = [
-        r"C:\Users\CP\Downloads\false_fix\Analyse16-2_V3.2.geoprob_pipe.gpkg",
-        r"C:\Users\CP\Downloads\false_fix\exports",
-        r"C:\Users\CP\Downloads\issue_invoer_wshd\alpha_versie_vincent\WBI2017_Benedenrijn_21-2_v04",
+        os.path.join(repo_root, "tests", "systeem_testen", "224", "hrd_files", "WBI2017_Bovenrijn_224_v04.sqlite"),
+        os.path.join(repo_root, "tests", "systeem_testen", "224"),
+        os.path.join(repo_root, "tests", "systeem_testen", "224", "hrd_files"),
     ]
     test_results = [
         False,

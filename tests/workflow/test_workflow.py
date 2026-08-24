@@ -1,8 +1,10 @@
+import os.path
+
 from geoprob_pipe.workflow import State, steps
 from geoprob_pipe.workflow.questions import QuestionDirHydraNLDatabase, QuestionImportHRD
 from geoprob_pipe.workflow.questions.import_hrd import CHOICES
 from geoprob_pipe.workflow.base_objects import Question
-import os
+from repo_utils.utils import repository_root_path
 import random
 
 
@@ -10,9 +12,10 @@ import random
 
 
 def test_workflow(tmp_path):
+    repo_root = repository_root_path()
     valid_answers = {
         QuestionImportHRD.label: CHOICES,
-        QuestionDirHydraNLDatabase.label: [r"C:\Users\CP\git_clones\GeoProb-Pipe\GeoProb-PipeV4\GeoProb-Pipe\tests\systeem_testen\224\hrd_files"],
+        QuestionDirHydraNLDatabase.label: [os.path.join(repo_root, "tests", "systeem_testen", "224", "hrd_files")],
     }
     # TODO: Hoe specificeer ik een relatief pad wat werkt in Ubuntu GitHub en lokaal bij ons.
     # TODO: Sowieso test bestanden opzetten en kijken of ik nog ergens lokale paden gebruik.
