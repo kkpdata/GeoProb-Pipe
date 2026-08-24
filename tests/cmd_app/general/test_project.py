@@ -26,15 +26,13 @@ import geoprob_pipe.cmd_app.general.project as module
     ],
 )
 def test_created_project_happy_paths(
+    app_settings,
     monkeypatch,
     choice: str,
     function_name: str,
 ) -> None:
     """Test of the paths are correctly completed."""
     # Arrange
-    # Mock input arguments
-    app_settings = Mock()
-
     # Mock assigned function calls
     select_mock = Mock()
     select_mock.return_value.execute.return_value = choice

@@ -23,6 +23,7 @@ import geoprob_pipe.cmd_app.general.traject_parameters as module
     ],
 )
 def test_specify_w_validations(
+    app_settings,
     monkeypatch,
     capsys,
     input_value: str,
@@ -30,9 +31,6 @@ def test_specify_w_validations(
 ) -> None:
     """Test for all branches of validation and correct storage of user input."""
     # Arrange
-    # Mock input arguments
-    app_settings = Mock()
-
     # Setup user inputs
     user_inputs = iter([input_value, "0.24"])
 
