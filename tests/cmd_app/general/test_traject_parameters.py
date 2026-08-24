@@ -40,11 +40,9 @@ def test_specify_w_validations(
     prompt_mock = Mock()
     prompt_mock.execute.side_effect = lambda: next(user_inputs)
 
-    text_mock = Mock(return_value=prompt_mock)
-
     monkeypatch.setattr(
         "InquirerPy.inquirer.text",
-        text_mock,
+        Mock(return_value=prompt_mock),
     )
 
     # Mock called functions

@@ -36,10 +36,10 @@ def test_created_project_happy_paths(
     app_settings = Mock()
 
     # Mock assigned function calls
-    prompt_mock = Mock()
-    prompt_mock.execute.return_value = choice
+    select_mock = Mock()
+    select_mock.return_value.execute.return_value = choice
 
-    monkeypatch.setattr("InquirerPy.inquirer.select", Mock(return_value=prompt_mock))
+    monkeypatch.setattr("InquirerPy.inquirer.select", select_mock)
 
     # Mock called functions
     action_mock = Mock()
