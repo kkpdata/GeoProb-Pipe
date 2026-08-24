@@ -1,18 +1,15 @@
-import os.path
-
-from geoprob_pipe.workflow import State, steps
-from geoprob_pipe.workflow.questions import QuestionDirHydraNLDatabase, QuestionImportHRD
-from geoprob_pipe.workflow.questions.import_hrd import CHOICES
-from geoprob_pipe.workflow.base_objects import Question
-from repo_utils.utils import repository_root_path
-import random
-
-
-# GeoProb-Pipe/tests/systeem_testen/224/hrd_files
 
 
 def test_workflow(tmp_path):
-    repo_root = repository_root_path()
+    import os.path
+    from geoprob_pipe.workflow import State, steps
+    from geoprob_pipe.workflow.questions import QuestionDirHydraNLDatabase, QuestionImportHRD
+    from geoprob_pipe.workflow.questions.import_hrd import CHOICES
+    from geoprob_pipe.workflow.base_objects import Question
+    from repo_utils.utils import find_repo_root
+    import random
+
+    repo_root = find_repo_root()
     valid_answers = {
         QuestionImportHRD.label: CHOICES,
         QuestionDirHydraNLDatabase.label: [os.path.join(repo_root, "tests", "systeem_testen", "224", "hrd_files")],
