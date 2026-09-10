@@ -69,3 +69,54 @@ def test_specify_w_validations(
         key="w",
         value=0.24,  # as a float
     )
+
+
+@pytest.mark.parametrize("input_value", ["0.01", "1.0"])
+def test_specify_w_valid_boundaries(app_settings, monkeypatch, input_value: str) -> None:
+    """Test that the valid boundaries are accepted."""
+    # Arrange
+    prompt_mock = Mock()
+    prompt_mock.execute.return_value = input_value
+    monkeypatch.setattr(
+        "InquirerPy.inquirer.text",
+        Mock(return_value=prompt_mock),
+    )
+
+    append_mock = Mock()
+    monkeypatch.setattr(module, "_append_to_db", append_mock)
+
+    # Act
+    module._specify_w(app_settings)
+
+    # Assert
+    prompt_mock.execute.assert_called_once()
+    append_mock.assert_called_once_with(
+        app_settings=app_settings,
+        key="w",
+        value=float(input_value),
+    )
+
+
+def test_specify_w_strips_surrounding_spaces(app_settings, monkeypatch) -> None:
+    """Test that surrounding spaces are removed before validation."""
+    # Arrange
+    prompt_mock = Mock()
+    prompt_mock.execute.return_value = " 0.24 "
+    monkeypatch.setattr(
+        "InquirerPy.inquirer.text",
+        Mock(return_value=prompt_mock),
+    )
+
+    append_mock = Mock()
+    monkeypatch.setattr(module, "_append_to_db", append_mock)
+
+    # Act
+    module._specify_w(app_settings)
+
+    # Assert
+    prompt_mock.execute.assert_called_once()
+    append_mock.assert_called_once_with(
+        app_settings=app_settings,
+        key="w",
+        value=0.24,
+    )
