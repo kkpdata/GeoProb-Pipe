@@ -1,3 +1,7 @@
+"""
+Unit tests for `assemblage.functions` and `assemblage.objects` in `geoprob_pipe.results.assemblage.functions`.
+"""
+
 import pytest
 
 import geoprob_pipe.results.assemblage.functions as functions
