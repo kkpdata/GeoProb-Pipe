@@ -1,6 +1,8 @@
 Truncated verdelingen
 =====================
 
+--- in ontwikkeling --- 
+
 In probabilistische berekeningen kunnen stochasten waarden aannemen die vanuit
 statistisch oogpunt mogelijk zijn, maar fysisch niet realistisch of zelfs
 onmogelijk. Dit komt met name voor bij normaal verdeelde variabelen, waarvan
