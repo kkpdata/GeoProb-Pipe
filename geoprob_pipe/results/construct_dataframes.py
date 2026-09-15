@@ -468,10 +468,10 @@ def construct_df_beta_per_traject(
     traject_list = [
         {
             "method": "WBI methode over traject",
-            "upper_bound_pof": traject.pf_max_vak[0].pf,
-            "lower_bound_beta": traject.pf_max_vak[0].beta,
-            "lower_bound_pof": traject.pf_max_vak[1].pf,
-            "upper_bound_beta": traject.pf_max_vak[1].beta},
+            "upper_bound_pof": traject.pf_traject[0].pf,
+            "lower_bound_beta": traject.pf_traject[0].beta,
+            "lower_bound_pof": traject.pf_traject[1].pf,
+            "upper_bound_beta": traject.pf_traject[1].beta},
         {
             "method": "Window 50m over traject",
             "upper_bound_pof": traject.pf_window(50.0)[0].pf,
