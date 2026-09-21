@@ -115,7 +115,7 @@ class VakElement:
 
         # Bereken vak kans
         # pf_vak = self.N_vak * pf_dsn
-        pf_vak = min(1.0, self.N_vak * pf_dsn)  # Limit naar 1 bij zeer hoge pof.
+        pf_vak = min(1.0, self.N_vak * pf_dsn)  # pf_vak kan maximaal 1 zijn
 
         return KansElement(pf=pf_dsn), KansElement(pf=pf_vak)
 
@@ -226,10 +226,10 @@ class TrajectElement:
 
     # traject: som van vakken
     @property
-    def pf_max_vak(self) -> Tuple[KansElement, KansElement]:
+    def pf_traject(self) -> Tuple[KansElement, KansElement]:
         pfs: list[float] = []
         for vak in self.list_vakken:
-            pf = cast(float, vak.pf_max_dsn[0].pf)
+            pf = cast(float, vak.pf_max_dsn[1].pf) # second element of the pf_max_dsn tuple is pf_vak
             pfs.append(pf)
         pf_sum, pf_max = combine_series(pfs)
         return KansElement(pf=pf_sum), KansElement(pf=pf_max)
