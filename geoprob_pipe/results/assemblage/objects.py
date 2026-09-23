@@ -229,7 +229,7 @@ class TrajectElement:
     def pf_traject(self) -> Tuple[KansElement, KansElement]:
         pfs: list[float] = []
         for vak in self.list_vakken:
-            pf = cast(float, vak.pf_max_dsn[1].pf) # second element of the pf_max_dsn tuple is pf_vak
+            pf = cast(float, vak.pf_max_dsn[1].pf)  # second element of the pf_max_dsn tuple is pf_vak
             pfs.append(pf)
         pf_sum, pf_max = combine_series(pfs)
         return KansElement(pf=pf_sum), KansElement(pf=pf_max)
