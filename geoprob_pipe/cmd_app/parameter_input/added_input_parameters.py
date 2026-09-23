@@ -2,7 +2,7 @@ from __future__ import annotations
 from InquirerPy import inquirer
 import sqlite3
 from datetime import datetime
-from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
+from geoprob_pipe.cmd_app.parameter_input.expand.expand_input_tables import run_expand_input_tables
 from geoprob_pipe.cmd_app.parameter_input.initiate_input_excel_tables import initiate_input_excel_tables
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_figures import InputParameterFigures
 from geoprob_pipe.cmd_app.parameter_input.export_input_parameter_excel import export_input_parameter_tables

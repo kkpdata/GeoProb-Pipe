@@ -3,7 +3,7 @@ from geoprob_pipe.calculations.systems.base_objects.system_calculation import Sy
 from typing import List, Tuple
 from pandas import DataFrame, Series
 import sqlite3
-from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
+from geoprob_pipe.cmd_app.parameter_input.expand.expand_input_tables import run_expand_input_tables
 
 
 def _gather_variable_correlations(geopackage_filepath: str
