@@ -76,7 +76,7 @@ er geen uitwisseling plaatsvindt tussen het zandpakket en de deklaag.
 Over deze lengte :math:`L_2` wordt lineair geïnterpoleerd.
 Een bijzonder geval is wanneer :math:`L_2 = 0`. We spreken dan van een
 kantelpunt. De definitie van de respons in het kantelpunt (zie
-bladzijde b3-7 van :cite:`trw_2004)` is:
+bladzijde b3-7 van :cite:`trw_2004`) is:
 
 .. math::
 

@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 
 class SQLiteHandler(Handler):
+    """Schrijf logrecords naar een SQLite-database."""
 
     def __init__(self, db_path: str):
         super().__init__()
@@ -34,6 +35,7 @@ class SQLiteHandler(Handler):
         self.conn.commit()
 
     def emit(self, record: LogRecord):
+        """Sla een logrecord op in de gekoppelde SQLite-database."""
         created_dt = datetime.fromtimestamp(record.created).isoformat()
         username = os.getenv("USERNAME")
         self.conn.execute(
@@ -47,6 +49,7 @@ class SQLiteHandler(Handler):
 
 
 class ColorFormatter(logging.Formatter):
+    """Voorzie logberichten van een kleur op basis van het logniveau."""
 
     COLORS = {
         logging.DEBUG: "\033[34m",     # blauw

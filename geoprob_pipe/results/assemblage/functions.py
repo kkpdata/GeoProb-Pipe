@@ -10,14 +10,14 @@ if TYPE_CHECKING:
 
 
 def combine_series(list_pf: list[float]) -> Tuple[float, float]:
-    """
-    Combineert de faalkansen uit een lijst naar
+    """Combineert de faalkansen uit een lijst naar:
+
      - een elementaire ondergrens op basis van volledige afhankelijkheid. De ondergrens wordt bepaald door max(pf[i]) van alle doorsneden.
      - een elementaire bovengrens op basis van volledige onafhankelijkheid. De bovengrens wordt bepaald door 1 - prod(1-pf[i]) van alle
        doorsneden.
 
     :param list_pf: Lijst met faalkansen van de elementen.
-    :return bovengrens en ondergrens
+    :returns: een tuple ``(bovengrens, ondergrens)``
     """
 
     # If empty
@@ -46,16 +46,18 @@ def combine_series(list_pf: list[float]) -> Tuple[float, float]:
 
 # noinspection PyPep8Naming
 def bepaal_N_vak(L: float, a: float, dL: float) -> float:
-    """Bepaalt de lengte-effect-factor N met een minimum van 1,0. Conform de Rode draad #10 assembleren (October 2024).
+    """Bepaal de lengte-effect-factor N voor een vak 
+    
+    De factor is minimaal 1,0 en wordt berekend volgens de Rode draad #10 assembleren (October 2024).
 
     :param L: Lengte van het element.
     :param a: Mechanismegevoelige fractie
     :param dL: De equivalente onafhankelijke lengte voor STPH
 
-    :raises ValueError: Parameter a moet groter zijn dan 0.
-    :raises ValueError: De lengte L en dL moeten groter zijn dan 0.
+    :raises ValueError: Parameter ``a`` moet groter zijn dan 0.
+    :raises ValueError: De lengte ``L`` en ``dL`` moeten groter zijn dan 0.
 
-    :return N_vak: Lengte-effect voor het vak
+    :returns: Lengte-effect voor het vak ``N_vak``.
     """
     if a < 0:
         raise ValueError("a moet groter zijn dan 0.")
@@ -70,9 +72,11 @@ def bepaal_N_vak(L: float, a: float, dL: float) -> float:
 def window_collect(window_size: float, point_list: list[UittredepuntElement],
                    m_van: float, m_tot: float, vak_id: Optional[int] = None
                    ) -> tuple[float, float, List[WindowElement]]:
-    """ Hier worden de faalkansen verzamelt op basis van een window. Van alle doorsneden die in de window vallen wordt
-    de faalkans voor de window bepaalt op basis van de max. De kans voor het element waar de windows over genomen zijn
-    wordt bepaald met `combine_series()`. Kan voor zowel een vak of het gehele traject worden uitgevoerd.
+    """Verzamel combinaties van faalkansen op basis van een window.
+    
+    De faalkans per window wordt bepaald als de maximale faalkans van de 
+    doorsneden binnen die window. De faalkans van het element wordt daarna 
+    berekend met :func:`combine_series`. 
 
     :param window_size: Grootte van de window.
     :param point_list: Lijst met alle uittredepunten in het element.
@@ -160,8 +164,7 @@ def scaled_collect(
     :return sum_pf: Samengestelde faalkans op basis van de som van de
         faalkansen.
     :return max_pf: Samengestelde faalkans op basis van max().
-    :return window_elements: Lijst met `WindowElement` object met gegevens van de
-        windows.
+    :return window_elements: Lijst met `WindowElement` object met gegevens van de windows.
     """
     from geoprob_pipe.results.assemblage.objects import WindowElement
     if point_list.__len__() == 0:  # Leeg element
