@@ -24,7 +24,8 @@ De schematisering bestaat uit drie categorieën invoer:
 Geometrische eigenschappen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Deze gegevens worden via GIS-bestanden aangeleverd en beschrijven de ligging van het traject en de ruimtelijke kenmerken van de kering. Deze kunnen later via de excel of de geopackage (in de toekomst) worden aangepast. Hieronder vallen onder andere:
+Deze gegevens worden via GIS-bestanden aangeleverd en beschrijven de ligging van het traject en de ruimtelijke kenmerken 
+van de kering. Hieronder vallen:
 
 -   trajectlijn;
 -   vakindeling;
@@ -36,7 +37,8 @@ Deze gegevens worden via GIS-bestanden aangeleverd en beschrijven de ligging van
 
 Uittredepunten
 ~~~~~~~~~~~~~~
-Uittredepunten worden aangeleverd als puntenbestand. Een uittredepunt beschrijft de locatie waarop een pipingberekening wordt uitgevoerd. Naast de locatie bevat een uittredepunt bijvoorbeeld informatie over:
+Uittredepunten worden aangeleverd als puntenbestand. Een uittredepunt beschrijft de locatie waarop een pipingberekening 
+wordt uitgevoerd. Je kan deze locatie zien als een doorsnede. Naast de locatie bevat een uittredepunt bijvoorbeeld informatie over:
 
 -   maaiveldhoogte ter plaatse van het uittredepunt.
 -   wordt gecombineerd met de geometrische gegevens om afstand tot de buitenteenlijn en binnenteenlijn te bepalen.
@@ -47,10 +49,13 @@ Ondergrondscenario's worden aangeleverd via een Excelbestand. Hierin worden onde
 
 -   top van de watervoerende zandlaag;
 -   dikte van de zandlaag;
--   doorlatendheid (k-waarde);
--   weerstand van het voorland (c-waarde).
+-   doorlatendheid van het zandpakket (k-waarde);
+-   weerstand van het voorland en achterland (c-waarde).
 
-Deze drie categorieën vormen gezamenlijk de invoer voor een scenarioberekening. Elke scenarioberekening wordt uitgevoerd voor een specifieke combinatie van geometrie, uittredepunt en ondergrondscenario.
+Geometrische eigenschappen, uittredepunten en ondergrondscenario's vormen gezamenlijk de invoer voor een scenarioberekening. 
+Een scenarioberekening is dus een unieke combinatie van geometrie, uittredepunt en ondergrondscenario. 
+Berekeningen worden uitvoerd per scenarioberekening en bij meerdere ondergrondscenario's daarna gecombineerd tot een
+faalkans per uittredepunt.
 
 Prioriteit van invoerwaarden
 ----------------------------
@@ -77,9 +82,7 @@ meer algemeen detailniveau.
 
 De prioriteitsvolgorde is daarom:
 
-::
-
-Uittredepunt > Vak > Traject
+    Uittredepunt > Vak > Traject
 
 Wanneer voor een parameter een waarde beschikbaar is op meerdere detailniveaus, wordt altijd de meest specifieke waarde gebruikt.
 

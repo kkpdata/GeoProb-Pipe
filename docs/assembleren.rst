@@ -1,5 +1,5 @@
-Assembleren
-===========
+Van scenarioberekening naar trajectkans
+=======================================
 
 De faalkans voor het faalmechanisme STPH (piping) van een dijktraject bestaat uit een seriesysteem van uittredepunten, 
 waarbij falen optreedt zodra één van de uittredepunten faalt. De trajectkans wordt mede bepaald door een onderlinge 

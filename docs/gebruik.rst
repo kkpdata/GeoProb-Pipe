@@ -18,7 +18,4 @@ applicaties aan bod.
     gebruik/projectbestanden_vergelijken
     gebruik/enkele_berekening_inspecteren
     gebruik/inladen_in_qgis
-    gebruik/inladen_in_db_browser
-
-
 

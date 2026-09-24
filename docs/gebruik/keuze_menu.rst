@@ -4,6 +4,12 @@ Keuzemenu GeoProb‑Pipe
 In het hoofdmenu van GeoProb‑Pipe zijn de volgende functies beschikbaar. Hieronder volgt een korte toelichting per
 optie.
 
+.. note::
+    Het programma vraagt om volledige padnamen van de projectbestanden. Hiervoor selecteer je in de windows-verkenner 
+    het gewenste bestand en kopieer je het volledige pad via het contextmenu "als pad kopiëren" of gebruik de 
+    toetsencombinatie ``Ctrl + shift + C``.
+
+
 Bestaand project openen
 ^^^^^^^^^^^^^^^^^^^^^^^
 

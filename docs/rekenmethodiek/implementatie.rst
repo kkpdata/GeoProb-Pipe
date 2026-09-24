@@ -1,5 +1,5 @@
-Implementatie
-=============
+Implementatie in `GeoProb-Pipe`
+===============================
 
 De implementatie van de formules is modulair opgebouwd en bestaat uit drie samenhangende onderdelen:
 

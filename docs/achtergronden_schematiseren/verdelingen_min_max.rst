@@ -1,7 +1,11 @@
 Truncated verdelingen
 =====================
 
---- in ontwikkeling --- 
+.. note::
+
+    Deze sectie beschrijft het gebruik van truncated verdelingen om fysisch onmogelijke waarden te voorkomen.
+    De implemementatie in `GeoProb-Pipe` is deels nog in ontwikkeling. Hiervoor zijn in de excel invoer wel
+    velden gedefinieerd, maar de applicatie leest deze nog niet uit.
 
 In probabilistische berekeningen kunnen stochasten waarden aannemen die vanuit
 statistisch oogpunt mogelijk zijn, maar fysisch niet realistisch of zelfs
@@ -9,7 +13,8 @@ onmogelijk. Dit komt met name voor bij normaal verdeelde variabelen, waarvan
 het theoretische domein onbegrensd is.
 
 Om te voorkomen dat dergelijke fysisch onmogelijke waarden worden gebruikt in
-de betrouwbaarheidsanalyse, kunnen stochasten worden begrensd door toepassing
+de betrouwbaarheidsanalyse, hebben veel stochasten een lognormale verdeling. 
+Dergelijke stochasten kunnen worden begrensd door toepassing
 van een *truncated distribution*. Hierbij wordt een ondergrens (*minimum*) en
 een bovengrens (*maximum*) opgegeven. De kansmassa buiten deze grenzen wordt
 verwijderd en de overblijvende verdeling wordt opnieuw genormaliseerd. Hierdoor
@@ -23,7 +28,7 @@ Het toepassen van truncatie heeft twee voordelen:
 Gebruik van truncatie
 ---------------------
 
-GeoPob-Pipe hanteert standaard grenzen voor een aantal veelgebruikte stochasten.
+GeoPob-Pipe hanteert standaard onder- en bovengrenzen voor stochasten.
 Deze grenzen zijn gebaseerd op praktische fysische aannames en dienen als
 eerste controle tegen onrealistische waarden.
 

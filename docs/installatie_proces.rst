@@ -7,8 +7,7 @@ De installatie en het gebruik van `GeoProb-Pipe` is eenvoudig en wordt hieronder
 Start een schone Python environment. `GeoProb-Pipe` is ontwikkelt op Python 3.12. Deze versie wordt aangeraden voor
 gebruik. Voer daarna het volgende commando's uit om `GeoProb-Pipe` te installeren vanuit de
 `Python Package Index <https://pypi.org/project/geoprob_pipe/>`_. De onderliggende
-`probabilistische bibliotheek <https://pypi.org/project/probabilistic-library/>`_ (PTK-tool wrapper) wordt automatisch
-mee geïnstalleerd.
+`probabilistische bibliotheek <https://pypi.org/project/probabilistic-library/>`_ wordt automatisch als afhankelijkheid mee geïnstalleerd.
 
 
 .. code-block:: bash
@@ -30,25 +29,18 @@ dan kun je dat doen middels de toetsencombinatie ``ctrl + c``.
 Backwards compatibility
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-GeoProb-Pipe slaat in het GeoPackage-bestand (met .geoprob_pipe.gpkg-extensie) de gebruikte Python package-versies op,
-inclusief de gebruikte versie van GeoProb-Pipe. Dit maakt het mogelijk om van elk GeoProb-Pipe-bestand de Python
-installatie te reconstrueren. Op deze manier wordt backwards compatibility gegarandeerd. Je reconstrueert de Python
-installatie op de volgende wijze.
+GeoProb-Pipe slaat in het GeoPackage-bestand (met de extensie ``.geoprob_pipe.gpkg``) de versie van GeoProb-Pipe op als
+metadata. Deze informatie wordt bij het initiële gebruik van het bestand opgeslagen. De informatie kan worden
+gebruikt om achteraf te zien met welke Python-packageversies het bestand is aangemaakt.
+
+De huidige implementatie biedt nog geen geautomatiseerde manier om op basis hiervan de Python-installatie te
+reconstrueren. Backwards compatibility van ieder GeoProb-Pipe-bestand kan daarom niet worden gegarandeerd.
 
 
 .. note::
-   Deze sectie van de documentatie is nog niet volledig en wordt binnenkort uitgebreid.
-
-   Er wordt momenteel namelijk overwogen of de `pip freeze`, die als `dict` is opgeslagen in de GeoPackage, op een
-   minder omslachtige manier kan worden opgeslagen t.b.v. installatie.
-
-.. TODO: Note van hierboven oppakken. Overweeg de volgende ideeën:
- - Wellicht is het mogelijk om de pip freeze als multiline op te slaan in de database? Dan kan de gebruiker die direct
-   opslaan in een requirements.txt-bestand en installeren via pip install -r requirements.txt.
- - In documentatie ook tip geven om eerst eens de applicatie versie te installeren via pip install
-   geoprob-pipe==version, waarbij de version ook gewoon in de geopackage te lezen is.
- - Sla de pip freeze op voor initieel gebruik (bij invoer), en voor laatste rekenslag. Nu is die alleen voor initieel.
-   Dus het kan zijn dat het helemaal niet backwards compatible is.
+   De opgeslagen packageversies zijn uitsluitend metadata. Gebruik voor het reconstrueren van een omgeving een
+   handmatig samengesteld ``requirements.txt``-bestand; deze functionaliteit wordt niet automatisch door GeoProb-Pipe
+   uitgevoerd.
 
 
 Upgraden, beschikbare versies en changelog
