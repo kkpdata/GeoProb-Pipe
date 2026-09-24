@@ -1,6 +1,7 @@
 import os
 from git import Repo, InvalidGitRepositoryError
 from typing import Optional
+from pathlib import Path
 
 
 def repository_root_path() -> Optional[str]:
@@ -21,5 +22,10 @@ def repository_root_path() -> Optional[str]:
                 return repo.working_tree_dir
             except InvalidGitRepositoryError:
                 continue
-        return None
+
+    # Try getcwd
+    root_dir: Path = Path(os.getcwd()).parent
+    if root_dir.name == "GeoProb-Pipe" and (root_dir / "tests").is_dir():
+        return str(root_dir)
+
     return None
