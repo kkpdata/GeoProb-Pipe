@@ -21,6 +21,7 @@ De broncode vind je op `GitHub <https://github.com/kkpdata/GeoProb-Pipe>`__.
    quick_start
    installatie_proces
    gebruik
+   achtergronden_schematiseren
    rekenmethodiek
    assembleren
    references

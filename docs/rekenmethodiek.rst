@@ -1,3 +1,5 @@
+.. _rekenmethodiek:
+
 Rekenmethodiek
 ==============
 
@@ -10,7 +12,9 @@ totale faalkans op piping per uittredepunt.
     :titlesonly:
 
     rekenmethodiek/faalpad
+    rekenmethodiek/uittredepuntenmethode
     rekenmethodiek/implementatie
     rekenmethodiek/geohydrologische_modellen
+    rekenmethodiek/probabilistische_rekenmethodieken
     rekenmethodiek/relatie_beslisraamwerk_piping
-    rekenmethodiek/uittredepuntenmethode
+

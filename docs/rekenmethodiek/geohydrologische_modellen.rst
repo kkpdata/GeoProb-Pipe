@@ -13,9 +13,12 @@ waarbij elke functie een specifiek type geohydrologisch / stijghoogte model aanr
 De code structuur is zodanig opgezet dat in de toekomst ook andere geohydrologische modellen kunnen worden toegevoegd.
 
 
-Analytische stijghoogtemodel WBI
---------------------------------
-.. TODO: Tekst nog toevoegen.
+Stijghoogtemodel WBI
+--------------------
+
+Deze set aan grenstoestandfuncties is beschreven in de schematiseringshandleiding piping :cite:`sh_piping_2021`. 
+Het model beschouwt de de respons :math:`r_{exit}` en de kwelweglengte :math:`L_{kwelweg}` als onafhankelijke
+variabelen.
 
 
 .. _model4a:
@@ -38,9 +41,11 @@ dwarspofiel :math:`x_{exit}` [m] en de geohydrologische parameters van model 4A.
 Een uitgebreide toelichting op de onderliggende theorie van dit model is te vinden in :ref:`stationair-model`.
 
 De respons in het uittredepunt wordt bepaald met:
+
 .. math::
 
    r_{exit}(x) = f(x_{exit}, L_1, L_2, L_3, c_{voorland}, c_{achterland}, k, D_{wvp})
+
 
 Geometrische parameters
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,9 +68,12 @@ waarin:
 - :math:`c_{achterland}` de weerstand van de deklaag in het achterland [dag]
 
 
+.. _effectieve-voorlandlengte:
+
 Effectieve voorlandlengte
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-De kwelweglengte :math:`L_{kwelweg}` maakt conform de schematiseringshandleiding piping :cite:`sh_piping_2021` gebruik van het principe van de effectieve voorlandlengte.
+De kwelweglengte :math:`L_{kwelweg}` maakt conform de schematiseringshandleiding piping :cite:`sh_piping_2021` gebruik 
+van het principe van de effectieve voorlandlengte.
 
 .. math::
 
@@ -79,7 +87,7 @@ waarin:
 
 - :math:`L_{eff,voorland}` de effectieve voorlandlengte is [m]
 - :math:`\lambda_{1}` de spreidingslengte van het voorland is [m]
-- :math:`\c` is de deklaagdikte gedeeld door de doorlatendheid van de deklaag [dag]
+- :math:`c` is de deklaagdikte gedeeld door de doorlatendheid van de deklaag [dag]
 
 Overzicht parameters model 4A
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -231,24 +239,37 @@ Grenstoestandfunctie terugschrijdende erosie:
 
    L_{eff,voorland} = \lambda_{1} \cdot tanh(\frac{L_1}{\lambda_{1}})
 
+De relatie tussen de spreidingslengte van het voorland :math:`\lambda_{1}` en de weertand van de deklaag :math:`c_{voorland}` is
+beschreven door: 
+
+.. math::
+
    \lambda_{1} = \sqrt{c_{voorland} \cdot k \cdot D_{wvp}}
 
 
-Correlatie tussen variabelen
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-De beschrijving van het geohydrologische systeem met de variabelen betekent ook dat de onderlinge correlatie van de variabelen apart moet worden gedefinieerd. Dit betreft met name de correlatie tussen de spreidingslengte van het voorland :math:`\lambda_{1}` en de transmissiviteit van het watervoerende zandpakket :math:`kD` en in mindere mate de correlatie tussen de respons in het uittredepunt :math:`r_{exit}` en de transmissiviteit van het watervoerende zandpakket :math:`kD`. In het model 4A zijn deze correlaties modelmatig beschreven.
+Correlatie tussen variabelen bij numerieke stijghoogtemodellen
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In het geval van een numeriek stijghoogtemodel is de correlatie tussen de spreidingslengte van het voorland en de transmissiviteit van het watervoerende zandpakket plaatsafhankelijk en wordt beschreven door het geohydrologische model.
+De beschrijving van het geohydrologische systeem met aparte variabelen voor de spreidingslengte :math:`\lambda_{1}`, 
+transmissiviteit :math:`kD` en de respons in het uittredepunt :math:`r_{exit}` betekent ook dat de onderlinge 
+correlatie tussen deze variabelen moet worden gedefinieerd.
 
-Om een inschatting te doen van de correlatie tussen deze variabelen wordt een beperkte set van modelberekeningen uitgevoerd waarbij de transmissiviteit van het watervoerende pakket en de weerstand van het voorland wordt gevarieerd.
-Voor elke berekening uit deze set wordt de spreidingslengte van het voorland afgeleid.
+In het model 4A zijn deze correlaties modelmatig beschreven. In het geval van een numeriek stijghoogtemodel is de 
+correlatie tussen de spreidingslengte van het voorland en de transmissiviteit van het watervoerende zandpakket 
+plaatsafhankelijk en wordt beschreven door de eigenschappen van het geohydrologische model.
+
+Om een inschatting te doen van deze plaatsafhankelijke correlatie tussen deze variabelen wordt een beperkte set van modelberekeningen 
+uitgevoerd waarbij de transmissiviteit van het watervoerende pakket en de weerstand van het voorland wordt gevarieerd.
+Voor elke berekening uit deze set wordt de spreidingslengte van het voorland afgeleid, evenals de respons in het uittredepunt.
+
 Gebruikelijk is het om daarbij per variabele 3 scenario's te hanteren (gemiddeld, -1.64 * sigma, +1.64 * sigma).
-Voor 2 variabelen resulteert dit in 9 modelberekeningen.
 
-Uit deze modelberekeningen wordt de gewogen correlatie tussen de transmissiviteit van het watervoerende pakket en de spreidingslengte van het voorland bepaald. Deze correlatie wordt vervolgens gebruikt in de probabilistische analyse.
+Uit deze modelberekeningen is het mogelijk om een inschatting te verkrijgen van de correlatie tussen de transmissiviteit
+en de spreidingslengte van het voorland.  Deze correlatie dient vervolgens als invoer voor de probabilistische analyse.
 
-Op basis van het model 4A is de correlatie tussen de transmissiviteit van het watervoerende pakket en de spreidingslengte van het voorland ongeveer 0.7, afhankelijk van de gekozen spreiding.
-.. TODO: Ik vind deze nog lastig te plaatsen. @skapinga kun jij kijken hoe we deze binnen de structuur een betere plek kunnen geven?
+In `model 4A` is de correlatie tussen de transmissiviteit van het watervoerende pakket :math:`kD` en de 
+spreidingslengte van het voorland :math:`\lambda_{1}` ongeveer 0.7, afhankelijk van de gekozen spreiding.
+
 
 Overzicht van implementaties in de code
 ---------------------------------------
@@ -275,8 +296,8 @@ vervolgens de grenstoestandsfuncties, en tenslotte de gecombineerde limiettoesta
      - :math:`Z_u`, :math:`Z_h`, :math:`Z_p`, :math:`Z_{combin}`, :math:`\phi_{exit}`, :math:`h_{exit}`
 
    * - ``limit_state_model4a``
-     - Implementatie van het analytische grondwatermodel 4A (:cite:`trw_2004`).
-       Berekening van respons :math:`r_{exit}` op basis van doorsnedemodel.
+     - Basismodel gekoppeld aan het analytische grondwatermodel 4A (:cite:`trw_2004`).
+       Vaste relatie tussen respons :math:`r_{exit}` en spreidingslengte :math:`\lambda_{1}`.
      - :math:`L_{intrede}`, :math:`L_{but}`, :math:`L_{bit}`, :math:`c_{voorland}`, :math:`c_{achterland}`, :math:`kD_{wvp}`, :math:`D_{wvp}`
      - :math:`Z_u`, :math:`Z_h`, :math:`Z_p`, :math:`Z_{combin}`, :math:`\phi_{exit}`, :math:`r_{exit}`, :math:`L_{kwelweg}`
 
@@ -286,11 +307,6 @@ vervolgens de grenstoestandsfuncties, en tenslotte de gecombineerde limiettoesta
      - :math:`\phi_{gemiddeld}(x,y)`, :math:`h_{gemiddeld}`, :math:`r_{exit}(x,y)`, :math:`\lambda_{1}`, :math:`L_{but}`
      - :math:`Z_u`, :math:`Z_h`, :math:`Z_p`, :math:`Z_{combin}`, :math:`\phi_{exit}`, :math:`r_{exit}`, :math:`L_{kwelweg}`
 
-   * - ``limit_state_ttim`` *(conceptueel voorbeeld)*
-     - Interface voor toekomstige uitbreiding met een tijdsafhankelijk grondwatermodel (TTIM).
-       Input- en outputstructuur is identiek aan de bestaande modellen.
-     - :math:`\phi_{exit}`, :math:`r_{exit}`, :math:`L_{kwelweg}`, :math:`\lambda_{1}`
-     - :math:`Z_u`, :math:`Z_h`, :math:`Z_p`, :math:`Z_{combin}`
 
 Alle functies bevinden zich in het pakket ``geoprob_pipe.calculations`` en maken gebruik van de onderliggende
 fysische berekeningen uit ``geoprob_pipe.calculations.physical_components.piping``.

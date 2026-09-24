@@ -111,8 +111,8 @@ def startup_geoprob_pipe():
         """
 Welkom bij GeoProb-Pipe! Deze applicatie voert probabilistische pipingberekeningen uit met de uittredepuntenmethode en
 een geohydrologisch model naar keuze (zoals model4a). GeoProb-Pipe maakt gebruik van de probabilistische bibliotheek
-van Deltares, die onder de motorkap de PTK-tool aanstuurt. Met de onderstaande interactieve vragenmodule neemt
-GeoProb-Pipe je stap voor stap mee door het opzetten van de invoer en het uitvoeren van de berekeningen.
+van Deltares. Met de onderstaande interactieve vragenmodule neemt GeoProb-Pipe je stap voor stap mee door het 
+opzetten van de invoer en het uitvoeren van de berekeningen.
 """,
         title=f"GeoProb-Pipe ({get_geoprob_pipe_version_number()}{debug_label})".upper(),
         title_align="left",
