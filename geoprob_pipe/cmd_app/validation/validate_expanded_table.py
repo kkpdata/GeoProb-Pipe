@@ -296,8 +296,9 @@ def _setup_df_compare(
     df_compare = _merge_vak_scen(df_input=df_input, df_compare=df_compare)
     df_compare = _merge_utp_gis_wild(df_input=df_input, df_compare=df_compare)
     df_compare = _merge_utp_excel_wild(df_input=df_input, df_compare=df_compare)
-    df_compare = _merge_utp_excel_scen(df_input=df_input, df_compare=df_compare)
     df_compare = _merge_utp_gis_scen(df_input=df_input, df_compare=df_compare)
+    df_compare = _merge_utp_excel_scen(df_input=df_input, df_compare=df_compare)
+
 
     return df_compare
 
