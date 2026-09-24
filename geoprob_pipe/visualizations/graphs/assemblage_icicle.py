@@ -22,8 +22,8 @@ class IciclePlot:
 
     def _setup_df(self):
         # Per element parent_name, label, pf, beta
-        df_traject = self.geoprob_pipe.results.df_beta_traject
-        df_vakken = self.geoprob_pipe.results.df_beta_WBI_vakken
+        df_traject = self.geoprob_pipe.results.df_beta_traject.copy()
+        df_vakken = self.geoprob_pipe.results.df_beta_WBI_vakken.copy()
         df_vakken = df_vakken.rename(columns={"beta_dsn": "beta",
                                               "pf_dsn(max)": "pf"})
 
@@ -31,12 +31,12 @@ class IciclePlot:
         mask_vakken = df_vakken["pf"] != 0
         df_vakken = df_vakken[mask_vakken].copy()
 
-        df_utp = self.geoprob_pipe.results.df_beta_uittredepunten
-        df_scen = self.geoprob_pipe.results.df_beta_scenarios_final
-        df_lim = self.geoprob_pipe.results.df_beta_limit_states
+        df_utp = self.geoprob_pipe.results.df_beta_uittredepunten.copy()
+        df_scen = self.geoprob_pipe.results.df_beta_scenarios_final.copy()
+        df_lim = self.geoprob_pipe.results.df_beta_limit_states.copy()
 
         # traject
-        mask_traject = df_traject["method"] == "Sum of vakken"
+        mask_traject = df_traject["method"] == "WBI methode over traject"
         df_icicle: pd.DataFrame = df_traject.loc[
             mask_traject, ["upper_bound_pof", "lower_bound_beta"]
             ]
@@ -161,9 +161,9 @@ class IciclePlot:
         ]
         # Limit beta to range for colors
         if beta < 2:
-            return "rgba(30,141,41,0.6)"
-        elif beta > 20:
             return "rgba(177,33,38,0.6)"
+        elif beta > 20:
+            return "rgba(30,141,41,0.6)"
         else:
             for i, grens in enumerate(cg):
                 beta_min, beta_max = cg[grens]
@@ -191,6 +191,7 @@ class IciclePlot:
         df_rest = df.loc[~mask_combined]
         df_traject = df_rest.loc[df_rest["id"].eq("1")]
         df_rest = df_rest.loc[~df_rest["id"].eq("1")]
+        print(df_traject)
 
         df = pd.concat([df_traject, df_vakken, df_utp, df_scen, df_rest],
                        ignore_index=True)
