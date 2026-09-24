@@ -30,8 +30,11 @@ def coupled_hrd_to_uittredepunten(app_settings: ApplicationSettings) -> bool:
         return True  # Assuming already added
 
     # Perform spatial join to find the nearest HRD-location for each Exit Point
-    gdf_exit_with_hrd = gdf_exit_points.sjoin_nearest(
+    gdf_exit_with_hrd: GeoDataFrame = gdf_exit_points.sjoin_nearest(
         gdf_hrd_locations[['geometry', 'location_name']], how='left', distance_col='distance')
+    assert gdf_exit_points.__len__() == gdf_exit_with_hrd.__len__(), \
+        (f"While coupling the HRD-location to the uittredepunten something went wrong. Please contact a developer with "
+         f"the traceback.")
 
     # Define which columns to keep (after spatial join)
     columns_to_keep = list(gdf_exit_points.columns)

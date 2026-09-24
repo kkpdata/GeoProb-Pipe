@@ -3,10 +3,10 @@ name: Automated testing and coverage (during pull request)
 
 on:
   pull_request:
-    branches: [ "alpha" ]
+    branches: [ "beta", "alpha" ]
     paths:
       - 'geoprob_pipe/**'
-      - 'test_system.py'
+      - 'tests/**'
   workflow_dispatch:
 
 

@@ -21,7 +21,7 @@ from geoprob_pipe.input_data import InputData
 from geoprob_pipe.results import Results
 from geoprob_pipe.spatial import Spatial
 from geoprob_pipe.visualizations import Visualizations
-from geoprob_pipe.calculations.systems.build_and_run import build_and_run_system_calculations
+from geoprob_pipe.calculations.systems.build_and_run import BuildAndRunCalculations
 from geoprob_pipe.utils.update_metadata import update_metadata
 import logging
 if TYPE_CHECKING:
@@ -57,7 +57,7 @@ class GeoProbPipe:
         # self._read_calculation_settings()  # TODO: Not part of new version
         # TODO: Unsure if the single statement belongs here. Wouldn't it be part of input data?
 
-        self.calc_results: List[CalcResult] = build_and_run_system_calculations(self)
+        self.calc_results: List[CalcResult] = BuildAndRunCalculations(self).run()
         self.results = Results(self)
 
         # Log finish

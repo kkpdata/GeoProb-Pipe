@@ -150,7 +150,7 @@ class BetaMap:
         gdf = gdf[~gdf["beta"].isna()]
 
         # Continue logic
-        idx = gdf.groupby(["uittredepunt_id"])["beta"].idxmin()  # TODO: Unclear what this line adds/does.
+        idx = gdf.groupby(["uittredepunt_id"])["beta"].idxmin()  # Only show minimum B per uittredepunt on map
         gdf = gdf.loc[idx]
         self.gdf_latlon = gdf.to_crs("EPSG:4326")
 

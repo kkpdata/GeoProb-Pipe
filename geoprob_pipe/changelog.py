@@ -1,5 +1,8 @@
 
 CHANGELOG = {
+    "2.2.12":
+        "Validatie op dubbele punten bij het inlezen van de HRD-punten. Oorzaak is database 21-2 waar een dubbeling in "
+        "zit. Direct controle op dubbeling in uittredepunten toegevoegd. ",
     "2.2.11":
         "Bug fix. When there were NaN-calculation results (PoF), it resulted in a crash in the KansElement.",
     "2.2.10":
