@@ -395,7 +395,7 @@ def validate_expand_tables(
     df_gis: pd.DataFrame = tables.df_gis_join_parameter_invoer.copy()
 
     # Remove empty columns for pandas.concat.
-    df_excel = df_excel.dropna(axis=1, how="all")
+    df_excel = df_excel.drop(columns=["minimum", "maximum", "fragility_values_ref", "bronnen", "opmerking"])
     df_gis = df_gis.dropna(axis=1, how="all")
 
     # Prepare dataframes
@@ -424,7 +424,7 @@ def validate_expand_tables(
 
     # Result: collect all rows without a match or wrong hierarchy
     df_validation_output: pd.DataFrame = df_errors.loc[
-        (df_errors["value_correct"]) | (df_errors["wrong_step"])
+        (~df_errors["value_correct"]) | (df_errors["wrong_step"])
     ]
 
     if len(df_validation_output) > 0:
