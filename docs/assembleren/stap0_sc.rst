@@ -62,6 +62,8 @@ Combine Project (CP) – importance sampling (geelblok rechts)
 In het Combine Project worden de drie design points uit het eerste Reliability Project (de afzonderlijke limit states)
 als invoer gebruikt. Op basis hiervan wordt met importance sampling (default) een gecombineerde β‑waarde bepaald.
 
+.. _rekenprotocol:
+
 Rekenprotocol bij niet-convergerende berekeningen
 --------------------------------------------------
 

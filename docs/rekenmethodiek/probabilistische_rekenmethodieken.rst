@@ -12,9 +12,11 @@ met `FORM` en vervolgens gecombineerd met `Importance Sampling`.
 
 Voor `FORM` zijn de rekeninstellingen:
 
-* "variation_coefficient": 0.02,
-* "maximum_iterations": 1000,
-* "relaxation_factor": 0.4,
+* "variation_coefficient": 0.02
+* "maximum_iterations": 1000
+* "relaxation_factor": 0.4
+* "reuse_calculations": False
 
 Voor `Importance Sampling` zijn er geen afwijkende rekeninstellingen gedefinieerd.
 
+Deze rekenmethodieken worden toegepast in een rekenprocedure, zie :ref:`rekenprotocol`.
