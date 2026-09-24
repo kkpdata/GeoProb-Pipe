@@ -61,6 +61,11 @@ def _tables() -> SimpleNamespace:
                 "scope_referentie": [1],
                 "ondergrondscenario_naam": ["scenario"],
                 "mean": [10.0],
+                "minimum": [None],
+                "maximum": [None],
+                "fragility_values_ref": [None],
+                "bronnen": [None],
+                "opmerking": [None],
             }
         ),
         df_gis_join_parameter_invoer=pd.DataFrame(
