@@ -1,16 +1,12 @@
 from __future__ import annotations
 import os
-# import matplotlib.pyplot as plt
 from typing import TYPE_CHECKING, List
 import plotly.graph_objects as go
 from datetime import datetime
-# from geopandas import GeoDataFrame, read_file
-# from probabilistic_library import FragilityValue
 import pydra_core as pydra
 from pandas import Series, concat, DataFrame, read_sql
-from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
+from geoprob_pipe.cmd_app.parameter_input.expand.expand_input_tables import run_expand_input_tables
 import sqlite3
-
 if TYPE_CHECKING:
     from geoprob_pipe import GeoProbPipe
 
@@ -237,6 +233,3 @@ class GraphHFreqSingleInteractive:
             timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
             timestamp_str = f"{timestamp}_"
         self.fig.write_html(os.path.join(export_dir, f"{timestamp_str}hfreq.html"), include_plotlyjs='cdn')
-        # if self.geoprob_pipe.software_requirements.chrome_is_installed:
-        #     self.fig.write_image(os.path.join(export_dir, f"{timestamp_str}hfreq.png"), format="png")
-        # Note CP: Export van PNG uitgezet. Meerwaarde beperkt denk ik aangezien je de HTML al hebt.
