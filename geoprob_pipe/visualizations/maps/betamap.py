@@ -219,12 +219,25 @@ class BetaMap:
 
         # Layout
         self.fig.update_layout(
-            map_style="open-street-map",
-            # carto-positron, open-street-map, satellite-streets
-            map_zoom=self.zoom,
-            map_center=dict(
-                lat=self.gdf_latlon.geometry.y.mean(),
-                lon=self.gdf_latlon.geometry.x.mean()
+            map_style="white-bg",
+            map=dict(
+                center=dict(
+                    lat=self.center_lat,
+                    lon=self.center_lon
+                ),
+                zoom=self.zoom,
+                layers=[
+                    {
+                        "below": "traces",
+                        "sourcetype": "raster",
+                        "source": [
+                            "https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0?SERVICE=WMTS&REQUEST=GetTile"
+                            "&VERSION=1.0.0&LAYER=water&STYLE=default&FORMAT=image/png&TileMatrixSet=EPSG:3857"
+                            "&TileMatrix={z}&TileRow={y}&TileCol={x}"
+                        ],
+                        "sourceattribution": "Kadaster"
+                    }
+                ]
             ),
             legend=dict(
                 orientation="h",
@@ -234,7 +247,11 @@ class BetaMap:
                 x=1
             ),
             dragmode='zoom',
-            title='Faalkansberekening STPH'
+            title=dict(
+                text='Faalkansberekening STPH',
+                x=0.02,
+                xanchor='left'
+            )
         )
 
     def _add_lines(self):
