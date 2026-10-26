@@ -5,8 +5,7 @@ import os
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional, List
 import pandas as pd
-
-from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
+from geoprob_pipe.cmd_app.parameter_input.expand.expand_input_tables import run_expand_input_tables
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_figures import InputParameterFigures
 
 try:

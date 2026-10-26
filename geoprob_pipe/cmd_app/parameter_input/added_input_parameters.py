@@ -2,11 +2,12 @@ from __future__ import annotations
 from InquirerPy import inquirer
 import sqlite3
 from datetime import datetime
-from geoprob_pipe.cmd_app.parameter_input.expand_input_tables import run_expand_input_tables
+from geoprob_pipe.cmd_app.parameter_input.expand.expand_input_tables import run_expand_input_tables
 from geoprob_pipe.cmd_app.parameter_input.initiate_input_excel_tables import initiate_input_excel_tables
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_figures import InputParameterFigures
 from geoprob_pipe.cmd_app.parameter_input.export_input_parameter_excel import export_input_parameter_tables
 from geoprob_pipe.cmd_app.parameter_input.input_parameter_tables import InputParameterTables
+from geoprob_pipe.cmd_app.validation.validate_expanded_table import validate_expand_tables
 from typing import TYPE_CHECKING, Optional
 import os
 import sys
@@ -75,7 +76,14 @@ def inquire_if_input_figures_should_be_exported(app_settings: ApplicationSetting
 
 def validate_expanded_input_tables(
         app_settings: ApplicationSettings, tables: Optional[InputParameterTables] = None) -> bool:
+    if tables is None:
+        tables = InputParameterTables(geopackage_filepath=app_settings.geopackage_filepath)
     df_expanded = run_expand_input_tables(geopackage_filepath=app_settings.geopackage_filepath, tables=tables)
+    validate_expand_tables(
+        tables=tables,
+        geopackage_filepath=app_settings.geopackage_filepath,
+        df_expanded=df_expanded,
+    )
     df_nans = df_expanded[df_expanded['parameter_input'].isna()]
 
     # No issues?
